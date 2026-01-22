@@ -24,6 +24,7 @@ dist-ssr
 *.sw?
 .planning
 archive
+TIMER_MD
 
 
 # Testing
