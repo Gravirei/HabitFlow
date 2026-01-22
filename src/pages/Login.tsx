@@ -1,0 +1,368 @@
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { TurnstileWidget } from '@/components/shared/TurnstileWidget'
+import { applySupabaseSessionFromGateway, callAuthGateway } from '@/lib/security/authGatewayClient'
+import toast from 'react-hot-toast'
+import { listFactors } from '@/lib/auth/mfa'
+import { TwoFactorChallengeModal } from '@/components/auth/TwoFactorChallengeModal'
+
+export function Login() {
+  const navigate = useNavigate()
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [emailError, setEmailError] = useState('')
+  const [passwordError, setPasswordError] = useState('')
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [mfaFactorId, setMfaFactorId] = useState<string | null>(null)
+  const [showMfaModal, setShowMfaModal] = useState(false)
+  const [rememberDevice, setRememberDevice] = useState(() => {
+    // Check if user previously opted to remember device
+    return localStorage.getItem('rememberDevice') === 'true'
+  })
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    // Reset errors
+    setEmailError('')
+    setPasswordError('')
+
+    // Validate fields
+    let hasError = false
+
+    if (!email.trim()) {
+      setEmailError('Email is required')
+      hasError = true
+    }
+
+    if (!password.trim()) {
+      setPasswordError('Password is required')
+      hasError = true
+    }
+
+    if (hasError) {
+      return
+    }
+
+    // Turnstile token is mandatory when configured
+    const turnstileSiteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY
+    if (turnstileSiteKey && !turnstileToken) {
+      setEmailError('Please complete the security check')
+      return
+    }
+
+    try {
+      setIsLoading(true)
+      const res = await callAuthGateway('login', {
+        email,
+        password,
+        turnstileToken,
+      })
+
+      if (!res.ok) {
+        if (res.error === 'account_locked') {
+          toast.error('Account temporarily locked. Please try again later.')
+          return
+        }
+        if (res.error === 'rate_limited') {
+          toast.error('Too many attempts. Please try again later.')
+          return
+        }
+        toast.error('Invalid email or password')
+        return
+      }
+
+      // Apply session locally so the app is logged in
+      await applySupabaseSessionFromGateway(res.data)
+
+      // Save remember device preference
+      if (rememberDevice) {
+        localStorage.setItem('rememberDevice', 'true')
+      } else {
+        localStorage.removeItem('rememberDevice')
+      }
+
+      // If user has TOTP enabled, require a 2FA challenge
+      // Note: For full enforcement, your auth-gateway should block until 2FA is completed.
+      // This client-side flow adds an additional layer.
+      const factors = await listFactors()
+      if (factors.length > 0) {
+        setMfaFactorId(factors[0].id)
+        setShowMfaModal(true)
+        toast('Enter your 2FA code to finish signing in')
+        return
+      }
+
+      toast.success('Signed in successfully')
+      navigate('/')
+    } catch (error: any) {
+      console.error('Login error:', error)
+      toast.error(error.message || 'Login failed')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleGoogleLogin = () => {
+    // TODO: Implement Google OAuth
+    console.log('Google login clicked')
+  }
+
+  const handleAppleLogin = () => {
+    // TODO: Implement Apple Sign In
+    console.log('Apple login clicked')
+  }
+
+  return (
+    <div className="relative flex min-h-screen w-full bg-background-dark">
+    <TwoFactorChallengeModal
+      isOpen={showMfaModal}
+      factorId={mfaFactorId}
+      onClose={() => {
+        setShowMfaModal(false)
+        setMfaFactorId(null)
+      }}
+      onSuccess={() => {
+        setShowMfaModal(false)
+        setMfaFactorId(null)
+        toast.success('Signed in successfully')
+        navigate('/')
+      }}
+    />
+      {/* Back Button */}
+      <button
+        onClick={() => navigate('/welcome')}
+        className="absolute top-6 left-6 z-10 flex items-center gap-2 text-white/80 hover:text-white transition-colors"
+      >
+        <span className="material-symbols-outlined">arrow_back</span>
+        <span className="text-sm font-medium">Back</span>
+      </button>
+
+      {/* Main Container */}
+      <div className="relative flex flex-col w-full max-w-md mx-auto px-6 py-12 justify-center">
+        {/* Header */}
+        <div className="mb-8 text-center">
+          {/* Logo */}
+          <div className="inline-block mb-4">
+            <div className="relative w-20 h-20">
+              <div className="absolute inset-1 flex items-center justify-center">
+                <svg className="overflow-visible w-full h-full" fill="none" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="50" cy="50" r="46" stroke="#13ec5b" strokeOpacity="0.2" strokeWidth="4"></circle>
+                  <path d="M 50 4 A 46 46 0 1 1 10.7 25.8" stroke="#13ec5b" strokeLinecap="round" strokeWidth="4" fill="none"></path>
+                </svg>
+              </div>
+              <div className="absolute inset-0 flex items-center justify-center text-primary">
+                <span 
+                  className="material-symbols-outlined text-[#13ec5b]" 
+                  style={{ fontSize: '40px', fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 48" }}
+                >
+                  trending_up
+                </span>
+              </div>
+            </div>
+          </div>
+          
+          <h1 className="text-3xl font-bold text-white mb-2">
+            Welcome back
+          </h1>
+          <p className="text-white/80">
+            Sign in to continue your journey
+          </p>
+        </div>
+
+        {/* Form Card */}
+        <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-xl p-8 mb-6">
+          <form onSubmit={handleLogin} className="space-y-5">
+            {/* Email Input */}
+            <div>
+              <label htmlFor="email" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                Email address
+              </label>
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400">
+                  mail
+                </span>
+                <input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value)
+                    if (emailError) setEmailError('')
+                  }}
+                  placeholder="you@example.com"
+                  className={`w-full rounded-xl border-2 ${
+                    emailError 
+                      ? 'border-red-500 bg-red-50 dark:bg-red-950/20' 
+                      : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:border-slate-400 dark:focus:border-slate-500 focus:bg-white dark:focus:bg-slate-800'
+                  } pl-12 pr-4 py-3.5 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 transition-all focus:outline-none focus:ring-0`}
+                />
+              </div>
+              {emailError && (
+                <p className="mt-2 text-xs text-red-500 flex items-center gap-1">
+                  <span className="material-symbols-outlined text-sm">error</span>
+                  {emailError}
+                </p>
+              )}
+            </div>
+
+            {/* Password Input */}
+            <div>
+              <label htmlFor="password" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                Password
+              </label>
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400">
+                  lock
+                </span>
+                <input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value)
+                    if (passwordError) setPasswordError('')
+                  }}
+                  placeholder="Enter your password"
+                  className={`w-full rounded-xl border-2 ${
+                    passwordError 
+                      ? 'border-red-500 bg-red-50 dark:bg-red-950/20' 
+                      : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:border-slate-400 dark:focus:border-slate-500 focus:bg-white dark:focus:bg-slate-800'
+                  } pl-12 pr-12 py-3.5 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 transition-all focus:outline-none focus:ring-0`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+                >
+                  <span className="material-symbols-outlined text-xl">
+                    {showPassword ? 'visibility_off' : 'visibility'}
+                  </span>
+                </button>
+              </div>
+              {passwordError && (
+                <p className="mt-2 text-xs text-red-500 flex items-center gap-1">
+                  <span className="material-symbols-outlined text-sm">error</span>
+                  {passwordError}
+                </p>
+              )}
+            </div>
+
+            {/* Remember Device & Forgot Password */}
+            <div className="flex items-center justify-between">
+              {/* Remember this device checkbox */}
+              <label className="flex items-center gap-2 cursor-pointer group">
+                <div className="relative">
+                  <input
+                    type="checkbox"
+                    checked={rememberDevice}
+                    onChange={(e) => setRememberDevice(e.target.checked)}
+                    className="sr-only peer"
+                  />
+                  <div className="w-5 h-5 rounded-md border-2 border-slate-300 dark:border-slate-600 peer-checked:border-primary peer-checked:bg-primary/10 transition-all flex items-center justify-center">
+                    {rememberDevice && (
+                      <span className="material-symbols-outlined text-primary text-sm">
+                        check
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <span className="text-sm text-slate-600 dark:text-slate-400 group-hover:text-slate-800 dark:group-hover:text-slate-300 transition-colors">
+                  Remember this device
+                </span>
+              </label>
+
+              {/* Forgot Password */}
+              <button
+                type="button"
+                onClick={() => navigate('/forgot-password')}
+                className="text-sm font-semibold text-primary hover:underline"
+              >
+                Forgot password?
+              </button>
+            </div>
+
+            {/* Turnstile Widget */}
+            <TurnstileWidget
+              onSuccess={(token) => {
+                setTurnstileToken(token)
+                if (emailError) setEmailError('')
+              }}
+              onError={() => setTurnstileToken(null)}
+              onExpire={() => setTurnstileToken(null)}
+            />
+
+            {/* Login Button */}
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full rounded-full bg-primary px-6 py-3 font-semibold text-white transition-all hover:bg-primary-focus active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isLoading ? 'Signing in…' : 'Sign in'}
+            </button>
+          </form>
+        </div>
+
+        {/* Divider */}
+        <div className="flex items-center mb-6">
+          <hr className="flex-grow border-t border-white/30" />
+          <span className="px-4 text-sm font-medium text-white/80">Or continue with</span>
+          <hr className="flex-grow border-t border-white/30" />
+        </div>
+
+        {/* Social Login Buttons */}
+        <div className="flex gap-4 mb-8">
+          {/* Google Button */}
+          <button
+            onClick={handleGoogleLogin}
+            className="flex-1 flex items-center justify-center gap-3 rounded-xl bg-white dark:bg-slate-800 border-2 border-white/50 px-4 py-3.5 font-semibold text-slate-700 dark:text-slate-200 transition-all hover:border-white hover:shadow-md active:scale-[0.98]"
+          >
+            <svg className="h-5 w-5" viewBox="0 0 24 24">
+              <path
+                fill="#4285F4"
+                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+              />
+              <path
+                fill="#34A853"
+                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+              />
+              <path
+                fill="#FBBC05"
+                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+              />
+              <path
+                fill="#EA4335"
+                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+              />
+            </svg>
+            <span className="hidden sm:inline">Google</span>
+          </button>
+
+          {/* Apple Button */}
+          <button
+            onClick={handleAppleLogin}
+            className="flex-1 flex items-center justify-center gap-3 rounded-xl bg-white dark:bg-slate-800 border-2 border-white/50 px-4 py-3.5 font-semibold text-slate-700 dark:text-slate-200 transition-all hover:border-white hover:shadow-md active:scale-[0.98]"
+          >
+            <svg className="h-5 w-5 text-slate-900 dark:text-white" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
+            </svg>
+            <span className="hidden sm:inline">Apple</span>
+          </button>
+        </div>
+
+        {/* Sign up link */}
+        <p className="text-center text-sm text-white/80">
+          New to HabitFlow?{' '}
+          <button
+            onClick={() => navigate('/welcome')}
+            className="font-semibold text-white hover:underline"
+          >
+            Create an account
+          </button>
+        </p>
+      </div>
+    </div>
+  )
+}

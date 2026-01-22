@@ -1,0 +1,130 @@
+/**
+ * Timer Animation Performance Optimizations
+ * Using will-change to hint browser for GPU acceleration
+ * Respects prefers-reduced-motion for accessibility
+ */
+
+/* Timer ring progress animation */
+.timer-ring-progress {
+  will-change: stroke-dashoffset;
+  transform: translateZ(0); /* Force GPU layer */
+}
+
+/* Timer display animations */
+.timer-display-value {
+  will-change: contents;
+}
+
+/* Button animations */
+.timer-button {
+  will-change: transform, opacity;
+  transform: translateZ(0);
+}
+
+/* Modal animations */
+.timer-modal-backdrop {
+  will-change: opacity;
+}
+
+.timer-modal-content {
+  will-change: transform, opacity;
+  transform: translateZ(0);
+}
+
+/* Wheel picker animations */
+.wheel-picker-item {
+  will-change: transform, opacity;
+  transform: translateZ(0);
+}
+
+/* Progress bar animations */
+.timer-progress-bar {
+  will-change: width, transform;
+  transform: translateZ(0);
+}
+
+/* Fade animations */
+.timer-fade-enter {
+  will-change: opacity;
+}
+
+.timer-fade-exit {
+  will-change: opacity;
+}
+
+/* Scale animations for buttons */
+.timer-scale-animation {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* Remove will-change after animation completes to free resources */
+.timer-animation-complete {
+  will-change: auto;
+}
+
+/* Optimize tab switching animations */
+.timer-tab-indicator {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* Optimize session completion animations */
+.timer-completion-pulse {
+  will-change: transform, opacity;
+  transform: translateZ(0);
+}
+
+/* ============================================================================
+   ACCESSIBILITY: Reduced Motion Support
+   ============================================================================
+   Respects user's motion preferences for accessibility.
+   Disables or minimizes animations when prefers-reduced-motion is enabled.
+   
+   How to test:
+   - macOS: System Settings → Accessibility → Display → Reduce Motion
+   - Windows: Settings → Accessibility → Visual Effects → Animation effects
+   - DevTools: Rendering → Emulate CSS prefers-reduced-motion
+   ========================================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  /* Disable all animations and transitions globally */
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Completely disable timer-specific animations */
+  .timer-pulse,
+  .timer-glow,
+  .timer-bounce,
+  .completion-bounce,
+  .button-pulse {
+    animation: none !important;
+  }
+
+  /* Keep will-change for performance but remove animation */
+  [class*='animate-'] {
+    animation: none !important;
+  }
+
+  /* Remove transform-based animations */
+  .scale-animation,
+  .rotate-animation {
+    transform: none !important;
+  }
+}
+
+/* ============================================================================
+   NORMAL MOTION: Full Animations
+   ============================================================================
+   Default behavior when user hasn't requested reduced motion.
+   ========================================================================= */
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Animations run normally - existing animations remain unchanged */
+}

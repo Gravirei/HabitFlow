@@ -1,0 +1,43 @@
+#!/bin/sh
+# Pre-commit hook to prevent committing sensitive files
+
+echo "🔍 Checking for sensitive files..."
+
+# Check if .env files are being committed
+if git diff --cached --name-only | grep -E '^\.env$|^\.env\.local$'; then
+  echo ""
+  echo "❌ ERROR: Attempting to commit .env file!"
+  echo ""
+  echo "The following files contain sensitive credentials:"
+  git diff --cached --name-only | grep -E '^\.env'
+  echo ""
+  echo "These files should NEVER be committed to version control."
+  echo ""
+  echo "To fix:"
+  echo "  1. Unstage the file: git reset HEAD .env"
+  echo "  2. Ensure .env is in .gitignore"
+  echo "  3. Use .env.example for templates"
+  echo ""
+  exit 1
+fi
+
+# Check for hardcoded secrets in staged files
+if git diff --cached | grep -iE '(password|secret|api[_-]?key|token|private[_-]?key).*=.*["\'][^"\']{20,}'; then
+  echo ""
+  echo "⚠️  WARNING: Possible hardcoded credentials detected!"
+  echo ""
+  echo "Found patterns that look like hardcoded secrets."
+  echo "Please review your changes carefully."
+  echo ""
+  echo "If these are real credentials, DO NOT commit them."
+  echo "Use environment variables instead."
+  echo ""
+  read -p "Continue anyway? (y/N) " -n 1 -r
+  echo
+  if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    exit 1
+  fi
+fi
+
+echo "✅ Pre-commit checks passed!"
+exit 0

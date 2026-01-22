@@ -1,0 +1,481 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================
+   THEME SYSTEM - CSS Variables
+   ============================================ */
+
+:root {
+  /* Colors - Default Light Theme */
+  --color-primary: #8b5cf6;
+  --color-primary-hover: #7c3aed;
+  --color-secondary: #a78bfa;
+  --color-background: #ffffff;
+  --color-background-secondary: #f8fafc;
+  --color-card: #f1f5f9;
+  --color-card-hover: #e2e8f0;
+  --color-text: #0f172a;
+  --color-text-secondary: #64748b;
+  --color-border: #e2e8f0;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-info: #3b82f6;
+  
+  /* Layout */
+  --border-radius: 16px;
+  --border-radius-sm: 8px;
+  --border-radius-lg: 24px;
+  
+  /* Typography */
+  --font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --timer-size: 100%;
+  
+  /* Effects */
+  --glow-enabled: 1;
+  --blur-enabled: 1;
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+}
+
+/* Dark Theme */
+.dark {
+  --color-primary: #8b5cf6;
+  --color-primary-hover: #a78bfa;
+  --color-secondary: #7c3aed;
+  --color-background: #0f172a;
+  --color-background-secondary: #020617;
+  --color-card: #1e293b;
+  --color-card-hover: #334155;
+  --color-text: #f1f5f9;
+  --color-text-secondary: #94a3b8;
+  --color-border: #334155;
+  --color-success: #34d399;
+  --color-warning: #fbbf24;
+  --color-error: #f87171;
+  --color-info: #60a5fa;
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5);
+}
+
+/* Theme preset colors - These are overridden dynamically by ThemeProvider when presets are selected */
+
+.theme-ultra-dark {
+  --color-background: #020617;
+  --color-background-secondary: #000000;
+  --color-card: #0f172a;
+  --color-card-hover: #1e293b;
+  --color-border: #1e293b;
+}
+
+/* High Contrast Mode */
+.high-contrast {
+  --color-background: #000000;
+  --color-background-secondary: #0a0a0a;
+  --color-card: #1a1a1a;
+  --color-card-hover: #2a2a2a;
+  --color-text: #ffffff;
+  --color-text-secondary: #e5e5e5;
+  --color-border: #404040;
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.reduced-motion *,
+.reduced-motion *::before,
+.reduced-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+
+/* Range slider styling */
+input[type='range'].slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+input[type='range'].slider-thumb::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  transition: all 0.2s ease;
+}
+
+input[type='range'].slider-thumb::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
+}
+
+input[type='range'].slider-thumb::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  transition: all 0.2s ease;
+}
+
+input[type='range'].slider-thumb::-moz-range-thumb:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
+}
+
+/* ============================================================================
+   ACCESSIBILITY: Enhanced Focus Indicators
+   ============================================================================
+   High-visibility focus indicators for keyboard navigation
+   Uses :focus-visible to only show on keyboard focus, not mouse clicks
+   ========================================================================= */
+
+/* Global focus-visible styles for keyboard navigation */
+*:focus-visible {
+  outline: 3px solid hsl(var(--primary));
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Remove default focus outline (replaced with focus-visible) */
+*:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Enhanced focus for interactive elements */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 3px solid hsl(var(--primary));
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px hsla(var(--primary), 0.2);
+}
+
+/* Skip link for keyboard users */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  padding: 8px 16px;
+  text-decoration: none;
+  border-radius: 0 0 4px 0;
+  z-index: 100;
+  font-weight: 600;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+/* Screen Reader Only - for accessible hidden text */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+@layer base {
+  :root {
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply font-display;
+    background-color: var(--color-background);
+    min-height: 100vh;
+    min-height: 100dvh; /* Dynamic viewport height for mobile */
+  }
+
+  #root {
+    @apply min-h-screen;
+    min-height: 100dvh;
+  }
+}
+
+@layer utilities {
+  /* Mobile-specific utilities */
+  .touch-manipulation {
+    touch-action: manipulation;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* Safe area support for mobile devices */
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .pt-safe {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  /* Material Icons variations */
+  .material-symbols-outlined {
+    font-variation-settings:
+      'FILL' 0,
+      'wght' 400,
+      'GRAD' 0,
+      'opsz' 24;
+  }
+  .icon-filled {
+    font-variation-settings:
+      'FILL' 1,
+      'wght' 400,
+      'GRAD' 0,
+      'opsz' 24;
+  }
+  .icon-bold {
+    font-variation-settings: 'wght' 600;
+  }
+
+  /* Timer glow effects */
+  .text-glow {
+    text-shadow: 0 0 20px rgba(19, 236, 91, 0.4);
+  }
+
+  .mask-gradient-x {
+    mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+  }
+
+  /* Mask vertical edges (fade top and bottom) */
+  .mask-gradient-y {
+    mask-image: linear-gradient(to bottom, transparent, black 15%, black 85%, transparent);
+    -webkit-mask-image: linear-gradient(to bottom, transparent, black 15%, black 85%, transparent);
+  }
+
+  .mask-gradient-b {
+    mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
+  }
+
+  /* Hide scrollbar while keeping scroll functionality */
+  .hide-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+  }
+
+  /* Custom scrollbar for settings modal */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  /* Custom range slider thumb */
+  .slider-thumb::-webkit-slider-thumb {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #13ec5b;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(19, 236, 91, 0.4);
+    transition: all 0.2s;
+  }
+
+  .slider-thumb::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+    box-shadow: 0 2px 12px rgba(19, 236, 91, 0.6);
+  }
+
+  .slider-thumb::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #13ec5b;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 8px rgba(19, 236, 91, 0.4);
+    transition: all 0.2s;
+  }
+
+  .slider-thumb::-moz-range-thumb:hover {
+    transform: scale(1.1);
+    box-shadow: 0 2px 12px rgba(19, 236, 91, 0.6);
+  }
+
+  /* Performance optimizations with will-change for GPU acceleration */
+
+  /* Timer ring progress - animates every 10ms during countdown */
+  .timer-ring-progress {
+    will-change: stroke-dashoffset;
+  }
+
+  /* Pulse animation - used in last 10 seconds and completion modals */
+  .animate-pulse {
+    will-change: opacity, transform;
+  }
+
+  /* Timer mode switching - smooth tab transitions */
+  .timer-mode-transition {
+    will-change: transform;
+  }
+
+  /* Button hover states - smooth interactions */
+  button:hover,
+  .button-hover {
+    will-change: transform, background-color;
+  }
+
+  /* Modal animations - smooth appearance */
+  .modal-animate {
+    will-change: opacity, transform;
+  }
+
+  /* Glassmorphism utilities */
+  .glass {
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+  }
+
+  .glass-dark {
+    background: rgba(20, 28, 22, 0.6);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  /* Modern gradient backgrounds */
+  .gradient-primary {
+    background: linear-gradient(135deg, #13ec5b 0%, #0ebf49 100%);
+  }
+
+  .gradient-secondary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  }
+
+  .gradient-accent {
+    background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+  }
+
+  .gradient-surface {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%);
+  }
+
+  .gradient-surface-dark {
+    background: linear-gradient(135deg, rgba(20, 28, 22, 0.9) 0%, rgba(20, 28, 22, 0.7) 100%);
+  }
+
+  /* Modern card styles */
+  .card-modern {
+    @apply bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border border-white/20 dark:border-gray-700/50 rounded-2xl shadow-soft hover:shadow-medium transition-all duration-300;
+  }
+
+  .card-interactive {
+    @apply card-modern hover:scale-[1.02] hover:shadow-large active:scale-[0.98];
+  }
+
+  /* Modern button styles */
+  .btn-primary {
+    @apply px-6 py-3 bg-gradient-to-br from-primary to-primary-focus text-white rounded-2xl font-medium shadow-soft hover:shadow-medium active:scale-95 transition-all duration-200;
+  }
+
+  .btn-glass {
+    @apply px-6 py-3 glass-dark text-white rounded-2xl font-medium hover:bg-white/20 active:scale-95 transition-all duration-200;
+  }
+
+  /* Modern input styles */
+  .input-modern {
+    @apply w-full px-4 py-3 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-2xl text-gray-900 dark:text-white placeholder:text-gray-500 focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all;
+  }
+
+  /* Subtle animations */
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.3s ease-out;
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.2s ease-out;
+  }
+}
+
+/* Keyframe animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

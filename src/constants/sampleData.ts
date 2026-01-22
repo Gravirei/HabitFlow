@@ -1,0 +1,76 @@
+/**
+ * Sample Data for New Users
+ * Pre-populated habit examples to help users explore the app
+ */
+
+import { Habit } from '@/types/habit'
+import { format } from 'date-fns'
+
+export const SAMPLE_HABITS: Habit[] = [
+  {
+    id: 'sample-1',
+    name: 'Morning Meditation',
+    icon: 'self_improvement',
+    frequency: 'daily',
+    goal: 1,
+    goalPeriod: 'day',
+    reminderEnabled: true,
+    reminderTime: '7:00 AM',
+    currentStreak: 22,
+    bestStreak: 30,
+    completionRate: 95,
+    startDate: '2023-11-01',
+    totalCompletions: 28,
+    completedDates: [format(new Date(), 'yyyy-MM-dd')],
+    category: 'health',
+  },
+  {
+    id: 'sample-2',
+    name: 'Hydration',
+    icon: 'water_drop',
+    frequency: 'daily',
+    goal: 8,
+    goalPeriod: 'day',
+    reminderEnabled: false,
+    currentStreak: 5,
+    bestStreak: 12,
+    completionRate: 70,
+    startDate: '2023-12-01',
+    totalCompletions: 14,
+    completedDates: [],
+    category: 'health',
+  },
+  {
+    id: 'sample-3',
+    name: 'Read for 15 mins',
+    icon: 'book_2',
+    frequency: 'daily',
+    goal: 1,
+    goalPeriod: 'day',
+    reminderEnabled: true,
+    reminderTime: '9:00 PM',
+    currentStreak: 12,
+    bestStreak: 32,
+    completionRate: 85,
+    startDate: '2023-10-01',
+    totalCompletions: 78,
+    completedDates: [format(new Date(), 'yyyy-MM-dd')],
+    category: 'personal',
+  },
+  {
+    id: 'sample-4',
+    name: 'Go for a walk',
+    icon: 'directions_walk',
+    frequency: 'daily',
+    goal: 1,
+    goalPeriod: 'day',
+    reminderEnabled: false,
+    currentStreak: 3,
+    bestStreak: 7,
+    completionRate: 60,
+    startDate: '2023-12-10',
+    totalCompletions: 6,
+    completedDates: [],
+    category: 'health',
+  },
+]
