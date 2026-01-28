@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
+import DOMPurify from 'dompurify'
 import { challengeFactor, enrollTotp, listFactors, unenrollFactor, verifyFactor } from '@/lib/auth/mfa'
 
 export function TwoFactorSettings() {
@@ -118,10 +119,10 @@ export function TwoFactorSettings() {
             <div className="mt-4 rounded-xl bg-slate-50 dark:bg-slate-900 p-4">
               <p className="text-sm text-slate-700 dark:text-slate-300 font-semibold mb-2">Step 1: Scan QR code</p>
               <div className="flex items-center justify-center rounded-lg bg-white p-3">
-                {/* Supabase returns SVG string in qr_code */}
+                {/* Supabase returns SVG string in qr_code - sanitized to prevent XSS */}
                 <div
                   className="w-40 h-40"
-                  dangerouslySetInnerHTML={{ __html: enrollData.qr_code }}
+                  dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(enrollData.qr_code, { USE_PROFILES: { svg: true, svgFilters: true } }) }}
                 />
               </div>
 

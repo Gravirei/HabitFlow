@@ -124,8 +124,9 @@ export function Today() {
               <button 
                 onClick={() => setIsSideNavOpen(true)}
                 className="flex size-10 items-center justify-center rounded-full text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-surface-dark transition-colors"
+                aria-label="Open navigation menu"
               >
-                <span className="material-symbols-outlined">menu</span>
+                <span className="material-symbols-outlined" aria-hidden="true">menu</span>
               </button>
             </div>
             
@@ -181,16 +182,18 @@ export function Today() {
                     ? 'bg-primary/10 text-primary' 
                     : 'text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-surface-dark'
                 }`}
+                aria-label={isSearchOpen ? 'Close search' : 'Open search'}
               >
-                <span className="material-symbols-outlined">
+                <span className="material-symbols-outlined" aria-hidden="true">
                   {isSearchOpen ? 'close' : 'search'}
                 </span>
               </button>
               <button 
                 onClick={() => navigate('/calendar')}
                 className="flex size-10 items-center justify-center rounded-full text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-surface-dark transition-colors"
+                aria-label="Open calendar"
               >
-                <span className="material-symbols-outlined">calendar_month</span>
+                <span className="material-symbols-outlined" aria-hidden="true">calendar_month</span>
               </button>
             </div>
           </div>
@@ -213,15 +216,18 @@ export function Today() {
                       ? 'bg-primary text-white shadow-lg shadow-primary/30' 
                       : 'bg-white dark:bg-surface-dark text-slate-500 dark:text-slate-400 border border-slate-100 dark:border-white/10'
                   }`}
+                  aria-label={format(date, 'EEEE, MMMM d, yyyy')}
+                  aria-current={isTodayDate ? 'date' : undefined}
+                  aria-pressed={isSelected}
                 >
-                  <span className={`text-[10px] font-bold uppercase ${isSelected ? 'text-white/80' : ''}`}>
+                  <span className={`text-[10px] font-bold uppercase ${isSelected ? 'text-white/80' : ''}`} aria-hidden="true">
                     {format(date, 'EEE')}
                   </span>
-                  <span className={`text-lg font-bold ${isSelected ? 'text-white' : 'text-slate-900 dark:text-white'}`}>
+                  <span className={`text-lg font-bold ${isSelected ? 'text-white' : 'text-slate-900 dark:text-white'}`} aria-hidden="true">
                     {date.getDate()}
                   </span>
                   {isTodayDate && !isSelected && (
-                    <div className="h-1 w-1 rounded-full bg-primary mt-0.5"></div>
+                    <div className="h-1 w-1 rounded-full bg-primary mt-0.5" aria-hidden="true"></div>
                   )}
                 </button>
               )
@@ -355,8 +361,9 @@ export function Today() {
                                   ? "bg-cyan-500 text-white shadow-cyan-500/30 cursor-default" 
                                   : "bg-cyan-500 text-white hover:bg-cyan-600 shadow-cyan-500/30"
                               )}
+                              aria-label={isFullyCompleted ? `${habit.name} completed` : `Add cup to ${habit.name}`}
                             >
-                              <span className="material-symbols-outlined">{isFullyCompleted ? 'check' : 'add'}</span>
+                              <span className="material-symbols-outlined" aria-hidden="true">{isFullyCompleted ? 'check' : 'add'}</span>
                             </button>
                           </div>
                           <div className="flex gap-1.5 h-10 px-1">
@@ -401,10 +408,13 @@ export function Today() {
                             e.stopPropagation()
                             toggleHabitCompletion(habit.id, formattedDate)
                           }}
+                          role="checkbox"
+                          aria-checked={isCompleted}
+                          aria-label={`Mark ${habit.name} as ${isCompleted ? 'incomplete' : 'complete'}`}
                         >
                           <div className={clsx("absolute inset-0 rounded-full transition-colors duration-300", isCompleted ? colors.checkBg : "bg-slate-100 dark:bg-slate-800")}></div>
                           <div className={clsx("absolute inset-1 rounded-full transition-colors duration-300 flex items-center justify-center", isCompleted ? "bg-transparent" : "bg-white dark:bg-surface-dark")}>
-                            <span className={clsx("material-symbols-outlined text-xl font-bold transition-colors duration-300", isCompleted ? "text-white dark:text-slate-900" : "text-slate-300")}>check</span>
+                            <span className={clsx("material-symbols-outlined text-xl font-bold transition-colors duration-300", isCompleted ? "text-white dark:text-slate-900" : "text-slate-300")} aria-hidden="true">check</span>
                           </div>
                         </button>
                       </div>
@@ -467,8 +477,9 @@ export function Today() {
         <button 
           onClick={() => navigate('/new-habit')}
           className="group flex items-center justify-center rounded-full h-14 w-14 bg-slate-900 dark:bg-primary text-white dark:text-slate-900 shadow-2xl hover:scale-110 active:scale-95 transition-all duration-300"
+          aria-label="Add new habit"
         >
-          <span className="material-symbols-outlined text-3xl group-hover:rotate-90 transition-transform duration-300">add</span>
+          <span className="material-symbols-outlined text-3xl group-hover:rotate-90 transition-transform duration-300" aria-hidden="true">add</span>
         </button>
       </div>
 
