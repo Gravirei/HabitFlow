@@ -10,7 +10,7 @@ import { TimerSettingsModal } from '../settings/TimerSettingsModal'
 import { HistoryModal } from './HistoryModal'
 import { TimerMenuSidebar } from './TimerMenuSidebar'
 import { CloudSyncModal } from '../premium-history/cloud-sync'
-import { ThemesModal } from '../themes'
+// ARCHIVED: ThemesModal import removed (theme module archived)
 import { tieredStorage } from '../../../lib/storage/tieredStorage'
 import type { TimerHistoryRecord } from '../types/timer.types'
 
@@ -20,7 +20,7 @@ export const TimerTopNav: React.FC = () => {
   const [isHistoryOpen, setIsHistoryOpen] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isCloudSyncOpen, setIsCloudSyncOpen] = useState(false)
-  const [isThemesOpen, setIsThemesOpen] = useState(false)
+  // ARCHIVED: isThemesOpen state removed (theme module archived)
   const {
     notificationsEnabled,
     soundEnabled,
@@ -86,9 +86,7 @@ export const TimerTopNav: React.FC = () => {
     setIsCloudSyncOpen(true)
   }
 
-  const handleThemesClick = () => {
-    setIsThemesOpen(true)
-  }
+  // ARCHIVED: handleThemesClick removed (theme module archived)
 
   return (
     <>
@@ -203,17 +201,14 @@ export const TimerTopNav: React.FC = () => {
         onClose={() => setIsCloudSyncOpen(false)}
         sessions={[...stopwatchHistory, ...countdownHistory, ...intervalsHistory]}
       />
-      <ThemesModal 
-        isOpen={isThemesOpen} 
-        onClose={() => setIsThemesOpen(false)}
-      />
+      {/* ARCHIVED: ThemesModal removed (theme module archived) */}
       <TimerMenuSidebar 
         isOpen={isMenuOpen} 
         onClose={() => setIsMenuOpen(false)}
         onSettingsClick={handleSettingsClick}
         onHistoryClick={handleHistoryClick}
         onCloudSyncClick={handleCloudSyncClick}
-        onThemesClick={handleThemesClick}
+        // ARCHIVED: onThemesClick removed (theme module archived)
       />
     </>
   )

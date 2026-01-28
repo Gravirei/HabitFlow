@@ -61,26 +61,30 @@
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5);
 }
 
-/* Theme preset colors - These are overridden dynamically by ThemeProvider when presets are selected */
-
-.theme-ultra-dark {
-  --color-background: #020617;
-  --color-background-secondary: #000000;
-  --color-card: #0f172a;
-  --color-card-hover: #1e293b;
-  --color-border: #1e293b;
-}
-
-/* High Contrast Mode */
-.high-contrast {
-  --color-background: #000000;
-  --color-background-secondary: #0a0a0a;
-  --color-card: #1a1a1a;
-  --color-card-hover: #2a2a2a;
-  --color-text: #ffffff;
-  --color-text-secondary: #e5e5e5;
-  --color-border: #404040;
-}
+/* ARCHIVED: Theme customization classes commented out (theme module archived)
+ * The .dark class above is PRESERVED for basic dark mode functionality
+ * 
+ * Theme preset colors - These were overridden dynamically by ThemeProvider when presets were selected
+ *
+ * .theme-ultra-dark {
+ *   --color-background: #020617;
+ *   --color-background-secondary: #000000;
+ *   --color-card: #0f172a;
+ *   --color-card-hover: #1e293b;
+ *   --color-border: #1e293b;
+ * }
+ * 
+ * High Contrast Mode
+ * .high-contrast {
+ *   --color-background: #000000;
+ *   --color-background-secondary: #0a0a0a;
+ *   --color-card: #1a1a1a;
+ *   --color-card-hover: #2a2a2a;
+ *   --color-text: #ffffff;
+ *   --color-text-secondary: #e5e5e5;
+ *   --color-border: #404040;
+ * }
+ */
 
 /* Reduced Motion */
 @media (prefers-reduced-motion: reduce) {

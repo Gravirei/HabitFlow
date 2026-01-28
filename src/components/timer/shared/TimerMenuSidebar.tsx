@@ -104,7 +104,7 @@ export function TimerMenuSidebar({ isOpen, onClose, onSettingsClick, onHistoryCl
       icon: 'palette', 
       label: 'Themes', 
       description: 'Customize appearance',
-      disabled: false, 
+      disabled: true,  // ARCHIVED: Theme module archived, feature disabled
       action: () => handleAction('themes')
     },
     { 

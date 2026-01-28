@@ -36,13 +36,12 @@ import Export from '@/pages/timer/Export'
 import { AchievementNotifications } from '@/components/timer/sidebar/achievements'
 import { EmailVerificationBanner } from '@/components/auth/EmailVerificationBanner'
 import { SyncOnAuthChange } from '@/components/timer/premium-history/cloud-sync'
-import { ThemeProvider } from '@/components/timer/themes'
+// ARCHIVED: ThemeProvider import removed (theme module archived)
 
 function App() {
   return (
     <ErrorBoundary>
-      <ThemeProvider>
-        <BrowserRouter>
+      <BrowserRouter>
         {/* Onboarding Modal - Shows on first visit */}
         <OnboardingModal />
 
@@ -137,7 +136,6 @@ function App() {
           <Route path="/all-habits" element={<RequireAuth><RequireVerifiedEmail><Habits /></RequireVerifiedEmail></RequireAuth>} />
         </Routes>
         </BrowserRouter>
-      </ThemeProvider>
     </ErrorBoundary>
   )
 }
