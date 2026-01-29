@@ -3,7 +3,14 @@ import { cn } from '@/utils/cn'
 
 export function AccessibilityButton() {
   const [isOpen, setIsOpen] = useState(false)
-  const [position, setPosition] = useState({ x: window.innerWidth - 96, y: window.innerHeight - 96 })
+  const [position, setPosition] = useState(() => {
+    // Load position from localStorage or use default
+    const savedPosition = localStorage.getItem('accessibilityButtonPosition')
+    if (savedPosition) {
+      return JSON.parse(savedPosition)
+    }
+    return { x: window.innerWidth - 96, y: window.innerHeight - 96 }
+  })
   const [isDragging, setIsDragging] = useState(false)
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
   const [hasMoved, setHasMoved] = useState(false)
@@ -90,6 +97,11 @@ export function AccessibilityButton() {
       document.removeEventListener('mouseup', handleMouseUp)
     }
   }, [isDragging, dragOffset, position])
+
+  // Save position to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('accessibilityButtonPosition', JSON.stringify(position))
+  }, [position])
 
   const accessibilityFeatures = [
     {
