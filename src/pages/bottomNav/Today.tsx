@@ -114,7 +114,7 @@ export function Today() {
   }
 
   return (
-    <div className="relative mx-auto flex min-h-screen w-full max-w-md flex-col bg-background-light dark:bg-background-dark font-display text-slate-800 dark:text-slate-200">
+    <div className="relative mx-auto flex min-h-screen w-full max-w-md flex-col font-display text-slate-800 dark:text-slate-200">
       {/* Main Content */}
       <main className="flex-grow pb-28 overflow-hidden">
         {/* Top App Bar - KEPT AS IS */}
@@ -340,7 +340,7 @@ export function Today() {
                       return (
                         <div 
                           key={habit.id}
-                          className="group relative bg-white dark:bg-surface-dark rounded-[1.75rem] p-4 shadow-soft-card border border-transparent hover:border-cyan-400/20 transition-all duration-300"
+                          className="group relative bg-white dark:bg-surface-dark rounded-[1.75rem] p-4 shadow-sm border border-slate-100 dark:border-white/5 hover:border-cyan-400/20 transition-all duration-300"
                         >
                           <div className="flex items-center justify-between mb-4">
                             <div className="flex items-center gap-3">
@@ -385,7 +385,7 @@ export function Today() {
                     return (
                       <div 
                         key={habit.id}
-                        className="group relative bg-white dark:bg-surface-dark rounded-[1.75rem] p-2 pr-4 pl-3 flex items-center justify-between shadow-soft-card border border-transparent hover:border-primary/20 transition-all duration-300"
+                        className="group relative bg-white dark:bg-surface-dark rounded-[1.75rem] p-2 pr-4 pl-3 flex items-center justify-between shadow-sm border border-slate-100 dark:border-white/5 hover:border-primary/20 transition-all duration-300"
                       >
                         <div className={clsx("absolute left-0 top-5 bottom-5 w-1 rounded-r-full", colors.accent)}></div>
                         <div className="flex items-center gap-3 flex-1">
@@ -436,7 +436,7 @@ export function Today() {
                 {filteredTasks.map((task) => (
                   <div 
                     key={task.id}
-                    className="relative group overflow-hidden bg-white dark:bg-surface-dark rounded-[1.5rem] p-4 shadow-soft-card flex gap-3 transition-all hover:shadow-lg"
+                    className="relative group overflow-hidden bg-white dark:bg-surface-dark rounded-[1.5rem] p-4 shadow-sm border border-slate-100 dark:border-white/5 flex gap-3 transition-all hover:shadow-lg"
                   >
                     <div className={clsx("absolute top-0 left-0 w-1.5 h-full", task.priorityColor === 'orange' ? 'bg-orange-400' : 'bg-primary')}></div>
                     <label className="relative flex items-start pt-0.5 cursor-pointer">

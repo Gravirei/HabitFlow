@@ -1,7 +1,14 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { BottomNav } from '@/components/BottomNav'
 import { TaskModal } from '@/components/TaskModal'
 import { KanbanBoard } from '@/components/KanbanBoard'
+import { HybridKanban } from '@/components/kanban/HybridKanban'
+import { TrelloKanban } from '@/components/kanban/TrelloKanban'
+import { MinimalKanban } from '@/components/kanban/MinimalKanban'
+import { NotionKanban } from '@/components/kanban/NotionKanban'
+import { AsanaKanban } from '@/components/kanban/AsanaKanban'
+import { TaskCardWithMenu } from '@/components/TaskCardWithMenu'
 import { QuickActionsMenu } from '@/components/QuickActionsMenu'
 import { TemplateManagerModal } from '@/components/TemplateManagerModal'
 import { useLocalStorage } from '@/hooks/useLocalStorage'
@@ -95,6 +102,7 @@ const SAMPLE_TASKS: Task[] = [
 ]
 
 export function Tasks() {
+  const navigate = useNavigate()
   const [tasks, setTasks] = useLocalStorage<Task[]>('tasks', SAMPLE_TASKS)
   const [customTemplates, setCustomTemplates] = useLocalStorage<TaskTemplate[]>('taskTemplates', [])
   const [view, setView] = useState<TaskView>('list')
@@ -108,6 +116,72 @@ export function Tasks() {
   const [editingTask, setEditingTask] = useState<Task | null>(null)
   const [isQuickActionsOpen, setIsQuickActionsOpen] = useState(false)
   const [isTemplateManagerOpen, setIsTemplateManagerOpen] = useState(false)
+  const [openMenuTaskId, setOpenMenuTaskId] = useState<string | null>(null)
+  const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const [kanbanStyle, setKanbanStyle] = useLocalStorage<'trello' | 'minimal' | 'notion' | 'asana' | 'hybrid'>('kanbanStyle', 'hybrid')
+  
+  // Refs for sliding highlight
+  const allRef = useRef<HTMLButtonElement>(null)
+  const activeRef = useRef<HTMLButtonElement>(null)
+  const completedRef = useRef<HTMLButtonElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [highlightStyle, setHighlightStyle] = useState({ left: 0, width: 0 })
+  
+  // Ref for search container
+  const searchRef = useRef<HTMLDivElement>(null)
+  
+  // Update highlight position when tab changes
+  useEffect(() => {
+    const activeTabRef = filterStatus === 'all' ? allRef : filterStatus === 'active' ? activeRef : completedRef
+    const container = containerRef.current
+    const activeTab = activeTabRef.current
+    
+    if (activeTab && container) {
+      const containerRect = container.getBoundingClientRect()
+      const tabRect = activeTab.getBoundingClientRect()
+      setHighlightStyle({
+        left: tabRect.left - containerRect.left,
+        width: tabRect.width
+      })
+    }
+  }, [filterStatus, tasks])
+  
+  // Close search on outside click
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (isSearchOpen && searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setIsSearchOpen(false)
+        setSearchQuery('')
+      }
+    }
+    
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isSearchOpen])
+
+  // Disable scrolling when menu is open
+  useEffect(() => {
+    if (openMenuTaskId) {
+      document.body.style.overflow = 'hidden'
+      document.documentElement.style.overflow = 'hidden'
+      // Prevent scrolling on touch devices
+      document.body.style.position = 'fixed'
+      document.body.style.width = '100%'
+    } else {
+      document.body.style.overflow = ''
+      document.documentElement.style.overflow = ''
+      document.body.style.position = ''
+      document.body.style.width = ''
+    }
+    return () => {
+      document.body.style.overflow = ''
+      document.documentElement.style.overflow = ''
+      document.body.style.position = ''
+      document.body.style.width = ''
+    }
+  }, [openMenuTaskId])
 
   // Get unique categories and tags
   const categories = useMemo(() => Array.from(new Set(tasks.map(t => t.category))), [tasks])
@@ -300,237 +374,409 @@ export function Tasks() {
   }
 
   return (
-    <div className="relative mx-auto flex h-auto min-h-screen w-full max-w-md flex-col overflow-hidden bg-gray-50 dark:bg-gray-950">
-      {/* Modern Header with Glassmorphism */}
-      <header className="sticky top-0 z-30 backdrop-blur-xl bg-white/80 dark:bg-gray-900/80 border-b border-gray-200/50 dark:border-gray-800/50">
-        {/* Top Bar */}
-        <div className="flex items-center justify-between px-6 py-4">
-          <div>
-            <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">
-              Tasks
-            </h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-              {filteredTasks.length} {filteredTasks.length === 1 ? 'task' : 'tasks'}
-            </p>
-          </div>
+    <div className="relative mx-auto flex h-auto min-h-screen w-full max-w-md sm:max-w-2xl md:max-w-4xl lg:max-w-6xl xl:max-w-7xl flex-col overflow-hidden bg-gray-50 dark:bg-gray-950">
+      {/* Header - Similar to Timer Page */}
+      <header className="sticky top-0 z-30 backdrop-blur-sm bg-background-light/95 dark:bg-background-dark/95 shrink-0">
+        <div className="flex items-center justify-between px-4 py-3">
+          {/* Left: Back Button + Hamburger Menu */}
           <div className="flex items-center gap-2">
-            {/* View Toggle */}
-            <div className="flex items-center bg-gray-100 dark:bg-gray-800/50 rounded-xl p-1 gap-1">
-              <button
-                onClick={() => setView('list')}
-                className={cn(
-                  "p-2 rounded-lg transition-all duration-200",
-                  view === 'list'
-                    ? 'bg-white dark:bg-gray-700 text-primary shadow-sm'
-                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-                )}
-                title="List View"
-              >
-                <span className="material-symbols-outlined text-[20px]">view_list</span>
-              </button>
-              <button
-                onClick={() => setView('kanban')}
-                className={cn(
-                  "p-2 rounded-lg transition-all duration-200",
-                  view === 'kanban'
-                    ? 'bg-white dark:bg-gray-700 text-primary shadow-sm'
-                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-                )}
-                title="Kanban View"
-              >
-                <span className="material-symbols-outlined text-[20px]">view_kanban</span>
-              </button>
-            </div>
-
+            <button
+              onClick={() => navigate(-1)}
+              className="flex size-10 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-white/5 active:scale-95 transition-all duration-150"
+              aria-label="Go back"
+            >
+              <span className="material-symbols-outlined text-xl text-gray-900 dark:text-white">
+                arrow_back
+              </span>
+            </button>
             <button
               onClick={() => setIsFilterOpen(!isFilterOpen)}
-              className={cn(
-                "p-2.5 rounded-xl transition-all duration-200",
-                isFilterOpen || selectedPriorities.length > 0 || selectedCategories.length > 0
-                  ? 'bg-primary text-white shadow-lg shadow-primary/30'
-                  : 'bg-gray-100 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800'
+              className="flex size-10 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-white/5 active:scale-95 transition-all duration-150"
+              aria-label="Open menu"
+            >
+              <span className="material-symbols-outlined text-xl text-gray-900 dark:text-white">
+                menu
+              </span>
+            </button>
+          </div>
+
+          {/* Center: Title */}
+          <h1 className="absolute left-1/2 -translate-x-1/2 text-lg font-bold text-gray-900 dark:text-white">
+            Tasks
+          </h1>
+
+          {/* Right: Action Icons */}
+          <div className="flex items-center gap-1">
+            {/* Search with expandable pill input */}
+            <div ref={searchRef} className="relative flex items-center">
+              {!isSearchOpen && (
+                <button
+                  onClick={() => setIsSearchOpen(true)}
+                  className="flex size-10 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-white/5 active:scale-95 transition-all duration-150 text-gray-400 dark:text-gray-500 relative z-10"
+                  aria-label="Search"
+                >
+                  <span className="material-symbols-outlined text-xl font-bold">search</span>
+                </button>
               )}
-            >
-              <span className="material-symbols-outlined text-[20px]">tune</span>
-            </button>
-
+              <input
+                type="text"
+                placeholder="Search..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className={`h-10 pl-4 pr-10 rounded-full bg-gray-100 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary focus:rounded-full transition-all duration-300 ease-out absolute right-0 ${
+                  isSearchOpen ? 'w-48 opacity-100' : 'w-10 opacity-0 pointer-events-none'
+                }`}
+                autoFocus={isSearchOpen}
+              />
+              {isSearchOpen && (
+                <button
+                  onClick={() => {
+                    setSearchQuery('')
+                    setIsSearchOpen(false)
+                  }}
+                  className="flex size-8 items-center justify-center rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-150 text-gray-400 dark:text-gray-500 absolute right-1 z-10"
+                  aria-label="Close search"
+                >
+                  <span className="material-symbols-outlined text-lg font-bold">close</span>
+                </button>
+              )}
+            </div>
             <button
-              onClick={() => setIsQuickActionsOpen(true)}
-              className="p-2.5 rounded-xl bg-gradient-to-br from-primary to-purple-600 text-white shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 active:scale-95 transition-all duration-200"
+              onClick={() => setView('list')}
+              className={`flex size-10 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-white/5 active:scale-95 transition-all duration-150 ${
+                view === 'list' ? 'text-white font-bold' : 'text-gray-400 dark:text-gray-500'
+              }`}
+              aria-label="List view"
             >
-              <span className="material-symbols-outlined text-[20px]">add</span>
+              <span className="material-symbols-outlined text-xl font-bold">view_list</span>
+            </button>
+            <button
+              onClick={() => setView('kanban')}
+              className={`flex size-10 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-white/5 active:scale-95 transition-all duration-150 ${
+                view === 'kanban' ? 'text-white font-bold' : 'text-gray-400 dark:text-gray-500'
+              }`}
+              aria-label="Kanban view"
+            >
+              <span className="material-symbols-outlined text-xl font-bold">view_kanban</span>
             </button>
           </div>
         </div>
+      </header>
 
-        {/* Modern Search Bar */}
-        <div className="px-6 pb-4">
-          <div className="relative">
-            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-[22px]">
-              search
-            </span>
-            <input
-              type="text"
-              placeholder="Search tasks..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full h-12 pl-12 pr-4 rounded-xl bg-gray-100 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
-            />
-          </div>
-        </div>
-
-        {/* Modern Filter Tabs */}
-        <div className="px-6 pb-4">
-          <div className="flex gap-2">
-            {(['all', 'active', 'completed'] as const).map((status) => (
-              <button
-                key={status}
-                onClick={() => setFilterStatus(status)}
-                className={cn(
-                  "flex-1 py-3 px-4 text-sm font-semibold rounded-xl transition-all duration-200",
-                  filterStatus === status
-                    ? 'bg-gradient-to-r from-primary to-purple-600 text-white shadow-lg shadow-primary/20'
-                    : 'bg-gray-100 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800'
-                )}
-              >
-                <div className="flex flex-col items-center gap-1">
-                  <span>{status.charAt(0).toUpperCase() + status.slice(1)}</span>
-                  <span className="text-xs opacity-70">
-                    {status === 'all' && `${tasks.length}`}
-                    {status === 'active' && `${tasks.filter(t => !t.completed).length}`}
-                    {status === 'completed' && `${tasks.filter(t => t.completed).length}`}
-                  </span>
+      {/* Modern Filters Sidebar - Slide in from left */}
+      {isFilterOpen && (
+        <>
+          {/* Backdrop */}
+          <div 
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 animate-in fade-in duration-200"
+            onClick={() => setIsFilterOpen(false)}
+          />
+          
+          {/* Sidebar */}
+          <div className="fixed top-0 left-0 h-full w-80 bg-white dark:bg-gray-900 shadow-2xl z-50 overflow-y-auto animate-in slide-in-from-left duration-300">
+            {/* Header */}
+            <div className="sticky top-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 backdrop-blur-sm px-6 py-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="flex size-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-green-500 shadow-lg shadow-primary/30">
+                  <span className="material-symbols-outlined text-white text-xl font-bold">tune</span>
                 </div>
+                <div>
+                  <h2 className="text-lg font-bold text-gray-900 dark:text-white">Filters</h2>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Customize your view</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsFilterOpen(false)}
+                className="flex size-9 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 active:scale-95 transition-all"
+                aria-label="Close filters"
+              >
+                <span className="material-symbols-outlined text-gray-600 dark:text-gray-400 text-xl">close</span>
               </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Modern Advanced Filters Panel */}
-        {isFilterOpen && (
-          <div className="px-6 pb-4 space-y-4 border-t border-gray-200 dark:border-gray-800 pt-4">
-            {/* Sort Options */}
-            <div>
-              <label className="text-xs font-bold text-gray-900 dark:text-white mb-3 block uppercase tracking-wider">Sort By</label>
-              <div className="grid grid-cols-2 gap-2">
-                {[
-                  { field: 'dueDate', label: 'Due Date', icon: 'schedule' },
-                  { field: 'priority', label: 'Priority', icon: 'flag' },
-                  { field: 'createdAt', label: 'Created', icon: 'add_circle' },
-                  { field: 'title', label: 'Title', icon: 'sort_by_alpha' },
-                ].map(({ field, label, icon }) => (
-                  <button
-                    key={field}
-                    onClick={() => setSort(prev => ({
-                      field: field as TaskSort['field'],
-                      direction: prev.field === field && prev.direction === 'asc' ? 'desc' : 'asc'
-                    }))}
-                    className={cn(
-                      "px-3 py-2.5 rounded-lg text-xs font-semibold transition-all duration-200 flex items-center justify-center gap-1.5",
-                      sort.field === field
-                        ? 'bg-primary text-white shadow-md'
-                        : 'bg-gray-100 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800'
-                    )}
-                  >
-                    <span className="material-symbols-outlined text-base">{icon}</span>
-                    {label}
-                    {sort.field === field && (
-                      <span className="material-symbols-outlined text-base">
-                        {sort.direction === 'asc' ? 'arrow_upward' : 'arrow_downward'}
-                      </span>
-                    )}
-                  </button>
-                ))}
-              </div>
             </div>
 
-            {/* Priority Filter */}
-            <div>
-              <label className="text-xs font-bold text-gray-900 dark:text-white mb-3 block uppercase tracking-wider">Priority</label>
-              <div className="flex gap-2">
-                {(['high', 'medium', 'low'] as TaskPriority[]).map((priority) => (
-                  <button
-                    key={priority}
-                    onClick={() => {
-                      setSelectedPriorities(prev =>
-                        prev.includes(priority)
-                          ? prev.filter(p => p !== priority)
-                          : [...prev, priority]
-                      )
-                    }}
-                    className={cn(
-                      "flex-1 px-3 py-2.5 rounded-lg text-xs font-semibold transition-all duration-200",
-                      selectedPriorities.includes(priority)
-                        ? priority === 'high'
-                          ? 'bg-red-500 text-white shadow-md'
-                          : priority === 'medium'
-                          ? 'bg-amber-500 text-white shadow-md'
-                          : 'bg-blue-500 text-white shadow-md'
-                        : 'bg-gray-100 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800'
-                    )}
-                  >
-                    {priority.charAt(0).toUpperCase() + priority.slice(1)}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Category Filter */}
-            {categories.length > 0 && (
+            <div className="p-6 space-y-6">
+              {/* Sort Section */}
               <div>
-                <label className="text-xs font-bold text-gray-900 dark:text-white mb-3 block uppercase tracking-wider">Category</label>
-                <div className="flex gap-2 flex-wrap">
-                  {categories.map((category) => (
+                <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                  <span className="material-symbols-outlined text-primary">sort</span>
+                  Sort By
+                </h3>
+                <div className="space-y-2">
+                  {[
+                    { field: 'dueDate', label: 'Due Date', icon: 'schedule' },
+                    { field: 'priority', label: 'Priority', icon: 'flag' },
+                    { field: 'createdAt', label: 'Created', icon: 'add_circle' },
+                    { field: 'title', label: 'Title', icon: 'sort_by_alpha' },
+                  ].map(({ field, label, icon }) => (
                     <button
-                      key={category}
-                      onClick={() => {
-                        setSelectedCategories(prev =>
-                          prev.includes(category)
-                            ? prev.filter(c => c !== category)
-                            : [...prev, category]
-                        )
-                      }}
+                      key={field}
+                      onClick={() => setSort(prev => ({
+                        field: field as TaskSort['field'],
+                        direction: prev.field === field && prev.direction === 'asc' ? 'desc' : 'asc'
+                      }))}
                       className={cn(
-                        "px-4 py-2 rounded-lg text-xs font-semibold transition-all duration-200",
-                        selectedCategories.includes(category)
-                          ? 'bg-purple-500 text-white shadow-md'
-                          : 'bg-gray-100 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800'
+                        "w-full px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 flex items-center justify-between group",
+                        sort.field === field
+                          ? 'bg-gradient-to-r from-primary to-green-500 text-white shadow-lg shadow-primary/30'
+                          : 'bg-gray-50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
                       )}
                     >
-                      {category}
+                      <div className="flex items-center gap-2">
+                        <span className={cn(
+                          "material-symbols-outlined text-lg",
+                          sort.field === field ? 'text-white' : 'text-gray-400'
+                        )}>{icon}</span>
+                        {label}
+                      </div>
+                      {sort.field === field && (
+                        <span className="material-symbols-outlined text-lg">
+                          {sort.direction === 'asc' ? 'arrow_upward' : 'arrow_downward'}
+                        </span>
+                      )}
                     </button>
                   ))}
                 </div>
               </div>
-            )}
 
-            {/* Clear Filters */}
-            {(selectedPriorities.length > 0 || selectedCategories.length > 0) && (
-              <button
-                onClick={() => {
-                  setSelectedPriorities([])
-                  setSelectedCategories([])
-                }}
-                className="w-full py-2.5 text-sm font-semibold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/10 hover:bg-red-100 dark:hover:bg-red-500/20 rounded-lg transition-all duration-200"
-              >
-                Clear All Filters
-              </button>
-            )}
+              {/* Priority Section */}
+              <div>
+                <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                  <span className="material-symbols-outlined text-primary">flag</span>
+                  Priority
+                </h3>
+                <div className="flex gap-2">
+                  {(['high', 'medium', 'low'] as TaskPriority[]).map((priority) => (
+                    <button
+                      key={priority}
+                      onClick={() => {
+                        setSelectedPriorities(prev =>
+                          prev.includes(priority)
+                            ? prev.filter(p => p !== priority)
+                            : [...prev, priority]
+                        )
+                      }}
+                      className={cn(
+                        "flex-1 px-4 py-3 rounded-xl text-sm font-bold transition-all duration-200 flex flex-col items-center gap-1",
+                        selectedPriorities.includes(priority)
+                          ? priority === 'high'
+                            ? 'bg-red-500 text-white shadow-lg shadow-red-500/30 scale-105'
+                            : priority === 'medium'
+                            ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/30 scale-105'
+                            : 'bg-blue-500 text-white shadow-lg shadow-blue-500/30 scale-105'
+                          : 'bg-gray-50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                      )}
+                    >
+                      <span className="material-symbols-outlined text-2xl">
+                        {priority === 'high' ? 'priority_high' : priority === 'medium' ? 'drag_handle' : 'arrow_downward'}
+                      </span>
+                      <span className="text-xs">{priority.charAt(0).toUpperCase() + priority.slice(1)}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Category Section */}
+              {categories.length > 0 && (
+                <div>
+                  <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-primary">folder</span>
+                    Categories
+                  </h3>
+                  <div className="flex gap-2 flex-wrap">
+                    {categories.map((category) => (
+                      <button
+                        key={category}
+                        onClick={() => {
+                          setSelectedCategories(prev =>
+                            prev.includes(category)
+                              ? prev.filter(c => c !== category)
+                              : [...prev, category]
+                          )
+                        }}
+                        className={cn(
+                          "px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200",
+                          selectedCategories.includes(category)
+                            ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/30'
+                            : 'bg-gray-50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                        )}
+                      >
+                        {category}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Active Filters Summary */}
+              {(selectedPriorities.length > 0 || selectedCategories.length > 0) && (
+                <div className="p-4 bg-gradient-to-r from-primary/10 to-green-500/10 rounded-xl border border-primary/20">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-bold text-gray-900 dark:text-white">Active Filters</span>
+                    <span className="text-xs font-semibold px-2 py-1 bg-primary text-white rounded-full">
+                      {selectedPriorities.length + selectedCategories.length}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setSelectedPriorities([])
+                      setSelectedCategories([])
+                    }}
+                    className="w-full mt-2 py-2.5 text-sm font-bold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/10 hover:bg-red-100 dark:hover:bg-red-500/20 rounded-lg transition-all duration-200 flex items-center justify-center gap-2"
+                  >
+                    <span className="material-symbols-outlined text-lg">clear_all</span>
+                    Clear All Filters
+                  </button>
+                </div>
+              )}
+
+              {/* Kanban Settings Section */}
+              {view === 'kanban' && (
+                <div>
+                  <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-primary">dashboard</span>
+                    Kanban Style
+                  </h3>
+                  <div className="space-y-3">
+                    {[
+                      { value: 'hybrid', label: 'Hybrid', desc: 'Best of all designs' },
+                      { value: 'trello', label: 'Trello', desc: 'Classic card layout' },
+                      { value: 'minimal', label: 'Minimal', desc: 'Clean & compact' },
+                      { value: 'notion', label: 'Notion', desc: 'Modern with emojis' },
+                      { value: 'asana', label: 'Asana', desc: 'Structured workflow' },
+                    ].map(({ value, label, desc }) => (
+                      <div key={value} className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <div className="font-semibold text-sm text-gray-900 dark:text-white">{label}</div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">{desc}</div>
+                        </div>
+                        <button
+                          onClick={() => setKanbanStyle(value as any)}
+                          className={cn(
+                            "relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none",
+                            kanbanStyle === value
+                              ? 'bg-gradient-to-r from-primary to-green-500'
+                              : 'bg-gray-300 dark:bg-gray-700'
+                          )}
+                          role="switch"
+                          aria-checked={kanbanStyle === value}
+                        >
+                          <span
+                            className={cn(
+                              "inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform duration-200",
+                              kanbanStyle === value ? 'translate-x-6' : 'translate-x-1'
+                            )}
+                          />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
-        )}
-      </header>
+        </>
+      )}
 
       {/* Content Area */}
-      <main className="flex-1 pb-24 pt-2">
+      <main className="flex-1 pb-24 pt-2 px-6 sm:px-8 md:px-12 lg:px-16">
+        {/* Filter Tabs - Always Visible */}
+        <div className="flex justify-center mb-6">
+          <div ref={containerRef} className="inline-flex gap-1 p-1.5 bg-gray-100 dark:bg-gray-800/50 rounded-full relative">
+            {/* Sliding highlight background */}
+            <div
+              className="absolute top-1.5 bottom-1.5 bg-gradient-to-r from-primary to-green-500 rounded-full shadow-lg shadow-primary/30 transition-all duration-300 ease-out pointer-events-none"
+              style={{
+                left: `${highlightStyle.left}px`,
+                width: `${highlightStyle.width}px`
+              }}
+            />
+            <button
+              ref={allRef}
+              onClick={() => setFilterStatus('all')}
+              className={cn(
+                "relative z-10 px-5 py-2 text-sm font-semibold rounded-full transition-colors duration-300 whitespace-nowrap",
+                filterStatus === 'all'
+                  ? 'text-white'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+              )}
+            >
+              <span className="font-bold">All</span>
+              <span className="ml-1.5 opacity-70">({tasks.length})</span>
+            </button>
+            <button
+              ref={activeRef}
+              onClick={() => setFilterStatus('active')}
+              className={cn(
+                "relative z-10 px-5 py-2 text-sm font-semibold rounded-full transition-colors duration-300 whitespace-nowrap",
+                filterStatus === 'active'
+                  ? 'text-white'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+              )}
+            >
+              <span className="font-bold">Active</span>
+              <span className="ml-1.5 opacity-70">({tasks.filter(t => !t.completed).length})</span>
+            </button>
+            <button
+              ref={completedRef}
+              onClick={() => setFilterStatus('completed')}
+              className={cn(
+                "relative z-10 px-5 py-2 text-sm font-semibold rounded-full transition-colors duration-300 whitespace-nowrap",
+                filterStatus === 'completed'
+                  ? 'text-white'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+              )}
+            >
+              <span className="font-bold">Completed</span>
+              <span className="ml-1.5 opacity-70">({tasks.filter(t => t.completed).length})</span>
+            </button>
+          </div>
+        </div>
+
         {view === 'kanban' ? (
-          <KanbanBoard
-            tasks={filteredTasks}
-            onTaskClick={setEditingTask}
-            onTaskStatusChange={handleTaskStatusChange}
-            onDeleteTask={deleteTask}
-          />
+          <>
+            {kanbanStyle === 'hybrid' && (
+              <HybridKanban
+                tasks={filteredTasks}
+                onTaskClick={setEditingTask}
+                onTaskStatusChange={handleTaskStatusChange}
+                onDeleteTask={deleteTask}
+              />
+            )}
+            {kanbanStyle === 'trello' && (
+              <TrelloKanban
+                tasks={filteredTasks}
+                onTaskClick={setEditingTask}
+                onTaskStatusChange={handleTaskStatusChange}
+                onDeleteTask={deleteTask}
+              />
+            )}
+            {kanbanStyle === 'minimal' && (
+              <MinimalKanban
+                tasks={filteredTasks}
+                onTaskClick={setEditingTask}
+                onTaskStatusChange={handleTaskStatusChange}
+                onDeleteTask={deleteTask}
+              />
+            )}
+            {kanbanStyle === 'notion' && (
+              <NotionKanban
+                tasks={filteredTasks}
+                onTaskClick={setEditingTask}
+                onTaskStatusChange={handleTaskStatusChange}
+                onDeleteTask={deleteTask}
+              />
+            )}
+            {kanbanStyle === 'asana' && (
+              <AsanaKanban
+                tasks={filteredTasks}
+                onTaskClick={setEditingTask}
+                onTaskStatusChange={handleTaskStatusChange}
+                onDeleteTask={deleteTask}
+              />
+            )}
+          </>
         ) : filteredTasks.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
+          <div className="flex flex-col items-center justify-center py-20 text-center">
             <div className="w-32 h-32 mb-6 rounded-3xl bg-gradient-to-br from-primary/10 to-purple-500/10 flex items-center justify-center">
               <span className="material-symbols-outlined text-6xl text-primary">task_alt</span>
             </div>
@@ -548,159 +794,27 @@ export function Tasks() {
             )}
           </div>
         ) : (
-          <div className="space-y-3 px-6">
+          <div className="flex flex-col gap-3">
             {filteredTasks.map((task) => {
               const dueText = formatDueDate(task.due)
               const isOverdue = dueText === 'Overdue'
               const completionPercentage = getCompletionPercentage(task)
 
               return (
-                <div
+                <TaskCardWithMenu
                   key={task.id}
-                  onClick={() => setEditingTask(task)}
-                  className={cn(
-                    "group relative bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-5 hover:shadow-xl hover:shadow-gray-200/50 dark:hover:shadow-gray-900/50 hover:border-primary/50 transition-all duration-300 cursor-pointer",
-                    task.completed && 'opacity-60'
-                  )}
-                >
-                  {/* Modern Priority Indicator */}
-                  <div className={cn(
-                    "absolute top-4 right-4 w-2 h-2 rounded-full",
-                    task.priority === 'high' ? 'bg-red-500 shadow-lg shadow-red-500/50' :
-                    task.priority === 'medium' ? 'bg-amber-500 shadow-lg shadow-amber-500/50' :
-                    'bg-blue-500 shadow-lg shadow-blue-500/50'
-                  )} />
-
-                  {/* Delete Button - Shows on Hover */}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      if (confirm('Delete this task?')) {
-                        deleteTask(task.id)
-                      }
-                    }}
-                    className="absolute top-2 right-2 p-2 rounded-lg bg-red-500 text-white opacity-0 group-hover:opacity-100 hover:bg-red-600 transition-all duration-200 active:scale-95"
-                    aria-label="Delete task"
-                  >
-                    <span className="material-symbols-outlined text-base">delete</span>
-                  </button>
-
-                  <div className="flex items-start gap-4">
-                    {/* Modern Checkbox */}
-                    <div
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        toggleTask(task.id)
-                      }}
-                      className="flex-shrink-0 mt-1"
-                    >
-                      <div className={cn(
-                        "w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all duration-200",
-                        task.completed
-                          ? 'bg-gradient-to-br from-primary to-purple-600 border-primary scale-110'
-                          : 'border-gray-300 dark:border-gray-600 hover:border-primary hover:scale-110'
-                      )}>
-                        {task.completed && (
-                          <span className="material-symbols-outlined text-white text-base font-bold">check</span>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Content */}
-                    <div className="flex-1 min-w-0 pr-6">
-                      <div className="flex items-start justify-between gap-3 mb-2">
-                        <h3 className={cn(
-                          "font-bold text-gray-900 dark:text-white text-lg leading-tight",
-                          task.completed && 'line-through opacity-50'
-                        )}>
-                          {task.title}
-                        </h3>
-                      </div>
-
-                      {task.description && (
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2 leading-relaxed">
-                          {task.description}
-                        </p>
-                      )}
-
-                      {/* Modern Metadata */}
-                      <div className="flex flex-wrap items-center gap-2 mb-3">
-                        {/* Status Badge */}
-                        <span className={cn(
-                          "inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium",
-                          task.status === 'completed' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' :
-                          task.status === 'in_progress' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400' :
-                          'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-400'
-                        )}>
-                          <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
-                          {task.status.replace('_', ' ')}
-                        </span>
-
-                        {/* Category */}
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400">
-                          <span className="material-symbols-outlined text-sm">folder</span>
-                          {task.category}
-                        </span>
-
-                        {/* Due Date */}
-                        {dueText && (
-                          <span className={cn(
-                            "inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium",
-                            isOverdue
-                              ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
-                              : 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400'
-                          )}>
-                            <span className="material-symbols-outlined text-sm">schedule</span>
-                            {dueText}
-                            {task.dueTime && ` ${task.dueTime}`}
-                          </span>
-                        )}
-
-                        {/* Time Estimate */}
-                        {task.timeEstimate && (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">
-                            <span className="material-symbols-outlined text-sm">timer</span>
-                            {task.timeEstimate}m
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Modern Tags */}
-                      {task.tags.length > 0 && (
-                        <div className="flex flex-wrap gap-1.5 mb-3">
-                          {task.tags.map((tag) => (
-                            <span
-                              key={tag}
-                              className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
-                            >
-                              #{tag}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-
-                      {/* Modern Subtasks Progress */}
-                      {task.subtasks.length > 0 && (
-                        <div className="space-y-1.5 pt-2 border-t border-gray-100 dark:border-gray-800">
-                          <div className="flex items-center justify-between text-xs">
-                            <span className="text-gray-600 dark:text-gray-400 font-medium">
-                              {task.subtasks.filter(s => s.completed).length}/{task.subtasks.length} subtasks
-                            </span>
-                            <span className="font-bold text-primary">
-                              {completionPercentage}%
-                            </span>
-                          </div>
-                          <div className="h-1.5 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
-                            <div
-                              className="h-full bg-gradient-to-r from-primary to-purple-600 rounded-full transition-all duration-500"
-                              style={{ width: `${completionPercentage}%` }}
-                            />
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
+                  task={task}
+                  dueText={dueText}
+                  isOverdue={isOverdue}
+                  completionPercentage={completionPercentage}
+                  openMenuTaskId={openMenuTaskId}
+                  setOpenMenuTaskId={setOpenMenuTaskId}
+                  setEditingTask={setEditingTask}
+                  toggleTask={toggleTask}
+                  deleteTask={deleteTask}
+                  tasks={tasks}
+                  setTasks={setTasks}
+                />
               )
             })}
           </div>
@@ -740,13 +854,27 @@ export function Tasks() {
         onDeleteTemplate={handleDeleteTemplate}
       />
 
-      {/* Modern Floating Action Button */}
+      {/* Floating Action Button */}
       <button
         onClick={() => setIsQuickActionsOpen(true)}
-        className="fixed bottom-24 right-6 z-30 w-14 h-14 bg-gradient-to-br from-primary to-purple-600 text-white rounded-2xl shadow-xl shadow-primary/40 hover:shadow-2xl hover:shadow-primary/50 hover:scale-110 active:scale-95 transition-all duration-300 flex items-center justify-center group"
+        className="w-16 h-16 bg-gradient-to-br from-primary via-emerald-500 to-teal-500 text-white rounded-2xl shadow-2xl shadow-primary/50 hover:shadow-[0_20px_60px_-15px_rgba(19,236,91,0.6)] hover:scale-110 hover:-translate-y-1 active:scale-100 transition-all duration-300 flex items-center justify-center group overflow-hidden"
         aria-label="Quick Actions"
+        style={{
+          position: 'fixed',
+          bottom: '6rem',
+          right: '1.5rem',
+          left: 'unset',
+          zIndex: 30
+        }}
       >
-        <span className="material-symbols-outlined text-2xl group-hover:rotate-90 transition-transform duration-300">
+        {/* Animated gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        
+        {/* Pulse effect on hover */}
+        <div className="absolute inset-0 rounded-2xl bg-primary/30 animate-ping group-hover:block hidden"></div>
+        
+        {/* Icon with rotation */}
+        <span className="material-symbols-outlined text-3xl font-bold relative z-10 group-hover:rotate-180 transition-transform duration-500 ease-out">
           add
         </span>
       </button>

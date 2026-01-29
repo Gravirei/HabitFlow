@@ -3,7 +3,7 @@
  * Sidebar menu with navigation and settings options for the Timer page
  */
 
-import React from 'react'
+
 import { motion, AnimatePresence } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 

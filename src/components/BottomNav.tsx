@@ -23,8 +23,8 @@ export function BottomNav() {
   const isActive = (path: string) => location.pathname === path
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-10 w-full border-t border-black/10 bg-background-light/80 px-4 pb-3 pt-2 backdrop-blur-lg dark:border-white/10 dark:bg-background-dark/80">
-      <div className="mx-auto flex max-w-md items-center justify-around gap-2">
+    <nav className="fixed bottom-6 left-1/2 z-50 w-auto -translate-x-1/2 transform">
+      <div className="flex items-center justify-center -space-x-2 rounded-full border border-white/20 bg-background-light/90 px-6 py-2 shadow-2xl backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/90 dark:shadow-black/50">
         {navItems.map((item) => {
           const active = isActive(item.path)
           
@@ -32,21 +32,27 @@ export function BottomNav() {
             <button
               key={item.id}
               onClick={() => navigate(item.path)}
-              className={`flex flex-1 flex-col items-center justify-end gap-1 ${
-                active ? 'text-primary' : 'text-gray-500 dark:text-gray-400'
+              className={`group flex min-w-[64px] flex-col items-center justify-center gap-0.5 rounded-lg px-2 py-1 transition-all duration-300 ${
+                active 
+                  ? 'text-primary' 
+                  : 'text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300'
               }`}
             >
-              <div className="flex h-8 items-center justify-center">
-                <span 
-                  className="material-symbols-outlined text-2xl"
-                  style={{ fontVariationSettings: active ? "'FILL' 1" : "'FILL' 0" }}
-                >
-                  {item.icon}
-                </span>
-              </div>
-              <p className="text-xs font-medium leading-normal tracking-[0.015em]">
+              <span 
+                className={`material-symbols-outlined transition-transform duration-300 ${active ? 'scale-110' : 'group-hover:scale-105'}`}
+                style={{ 
+                  fontSize: '24px',
+                  fontVariationSettings: active ? "'FILL' 1, 'wght' 600" : "'FILL' 0, 'wght' 400" 
+                }}
+              >
+                {item.icon}
+              </span>
+              
+              <span className={`text-[10px] font-medium transition-all duration-300 ${
+                active ? 'font-bold tracking-wide' : 'font-normal'
+              }`}>
                 {item.label}
-              </p>
+              </span>
             </button>
           )
         })}

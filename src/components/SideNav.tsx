@@ -44,7 +44,7 @@ export function SideNav({ isOpen, onClose }: SideNavProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm"
             onClick={onClose}
           />
 
@@ -54,7 +54,7 @@ export function SideNav({ isOpen, onClose }: SideNavProps) {
             animate={{ x: 0 }}
             exit={{ x: '-100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed inset-y-0 left-0 z-50 h-full w-[85%] max-w-sm bg-slate-50 dark:bg-slate-950 p-6 text-slate-800 dark:text-white shadow-2xl rounded-r-[32px] border-r border-slate-200 dark:border-slate-800 overflow-hidden"
+            className="fixed inset-y-0 left-0 z-[110] h-full w-[85%] max-w-sm bg-slate-50 dark:bg-slate-950 p-6 text-slate-800 dark:text-white shadow-2xl rounded-r-[32px] border-r border-slate-200 dark:border-slate-800 overflow-hidden"
           >
             <div className="flex h-full flex-col">
               {/* Profile Section */}

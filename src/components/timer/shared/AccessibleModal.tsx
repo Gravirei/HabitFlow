@@ -17,6 +17,7 @@ interface AccessibleModalProps {
   children: React.ReactNode
   className?: string
   size?: 'sm' | 'md' | 'lg' | 'xl'
+  maxWidth?: string
 }
 
 export const AccessibleModal: React.FC<AccessibleModalProps> = ({
@@ -27,6 +28,7 @@ export const AccessibleModal: React.FC<AccessibleModalProps> = ({
   children,
   className = '',
   size = 'md',
+  maxWidth,
 }) => {
   const prefersReducedMotion = useReducedMotion()
   const titleId = useId()
@@ -72,7 +74,7 @@ export const AccessibleModal: React.FC<AccessibleModalProps> = ({
           aria-modal="true"
           aria-labelledby={titleId}
           aria-describedby={description ? descId : undefined}
-          className={`relative w-full ${sizeClasses[size]} bg-gradient-to-br from-gray-900 via-black to-gray-900 rounded-3xl shadow-2xl border border-white/10 pointer-events-auto ${!prefersReducedMotion && 'animate-in zoom-in-95 fade-in duration-300'} ${className}`}
+          className={`relative w-full ${maxWidth || sizeClasses[size]} bg-gradient-to-br from-gray-900 via-black to-gray-900 rounded-3xl shadow-2xl border border-white/10 pointer-events-auto ${!prefersReducedMotion && 'animate-in zoom-in-95 fade-in duration-300'} ${className}`}
           onClick={(e) => e.stopPropagation()}
         >
           {/* Visually Hidden Title (always present for screen readers) */}

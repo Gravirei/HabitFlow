@@ -13,7 +13,7 @@ export default {
         'primary-content': '#003811',
         secondary: '#3e4c42',
         'background-light': '#f6f8f6',
-        'background-dark': '#1A2F22',
+        'background-dark': '#030712',
         'surface-light': '#ffffff',
         'surface-dark': '#141c16',
         'text-light': '#333333',

@@ -75,7 +75,14 @@ export function PremiumHistorySettingsSidebar({
     },
   ]
 
-  const premiumOptions = [
+  const premiumOptions: {
+    icon: string
+    label: string
+    description: string
+    disabled: boolean
+    onClick: () => void
+    badge?: string
+  }[] = [
     {
       icon: 'workspace_premium',
       label: 'Session Templates',

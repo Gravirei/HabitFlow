@@ -10,6 +10,7 @@ interface TemplateManagerModalProps {
   onSaveTemplate: (template: TaskTemplate) => void
   onDeleteTemplate: (templateId: string) => void
   editingTemplate?: TaskTemplate | null
+  onBack?: () => void
 }
 
 export function TemplateManagerModal({
@@ -19,6 +20,7 @@ export function TemplateManagerModal({
   onSaveTemplate,
   onDeleteTemplate,
   editingTemplate,
+  onBack,
 }: TemplateManagerModalProps) {
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [name, setName] = useState('')
@@ -170,9 +172,20 @@ export function TemplateManagerModal({
             {/* Template List */}
             <div className="flex-1 overflow-y-auto p-6">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                  Your Custom Templates
-                </h3>
+                <div className="flex items-center gap-3">
+                  {onBack && (
+                    <button
+                      onClick={onBack}
+                      className="flex items-center justify-center w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors"
+                      aria-label="Back to templates"
+                    >
+                      <span className="material-symbols-outlined text-lg">arrow_back</span>
+                    </button>
+                  )}
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                    Your Custom Templates
+                  </h3>
+                </div>
                 <button
                   onClick={() => setShowCreateForm(true)}
                   className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl font-medium hover:bg-primary/90 transition-colors"

@@ -57,12 +57,12 @@ export const LogoutConfirmDialog: React.FC<LogoutConfirmDialogProps> = ({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/80 backdrop-blur-xl z-[60]"
+            className="fixed inset-0 bg-black/80 backdrop-blur-xl z-[120]"
             onClick={handleClose}
           />
 
           {/* Dialog */}
-          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-[130] flex items-center justify-center p-4">
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}

@@ -22,6 +22,7 @@
     "test:e2e:report": "playwright show-report"
   },
   "dependencies": {
+    "@floating-ui/react": "^0.27.17",
     "@hookform/resolvers": "^3.3.3",
     "@marsidev/react-turnstile": "^1.4.1",
     "@sentry/react": "^10.32.1",
