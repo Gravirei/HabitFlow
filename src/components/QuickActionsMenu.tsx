@@ -26,6 +26,7 @@ export function QuickActionsMenu({
   const [searchQuery, setSearchQuery] = useState('')
   const [previewTemplate, setPreviewTemplate] = useState<TaskTemplate | null>(null)
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
+  const [isSearchOpen, setIsSearchOpen] = useState(false)
 
   const allTemplates = [...DEFAULT_TEMPLATES, ...customTemplates]
 
@@ -123,22 +124,48 @@ export function QuickActionsMenu({
                 </button>
               </div>
 
-              {/* Search Bar with Integrated Filters */}
-              <div className="relative">
-                {/* Search Input */}
-                <div className="relative group">
-                  <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl opacity-0 group-focus-within:opacity-20 blur transition-opacity"></div>
-                  <div className="relative flex items-center">
-                    <span className="material-symbols-outlined absolute left-5 text-gray-400 dark:text-gray-500 text-xl pointer-events-none">search</span>
-                    <input
-                      type="text"
-                      placeholder="Search templates..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full h-14 pl-14 pr-4 rounded-2xl bg-gray-50 dark:bg-gray-950 border-2 border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:border-indigo-500 dark:focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all text-base font-medium"
-                    />
-                  </div>
+              {/* Animated Search Bar */}
+              <div className="relative flex items-center justify-end mb-4">
+                {/* Search Icon Button */}
+                {!isSearchOpen && (
+                  <button
+                    onClick={() => setIsSearchOpen(true)}
+                    className="flex size-12 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 active:scale-95 transition-all duration-150 text-gray-400 dark:text-gray-500 relative z-10"
+                    aria-label="Search"
+                  >
+                    <span className="material-symbols-outlined text-2xl">search</span>
+                  </button>
+                )}
+                
+                {/* Expanding Search Input */}
+                <div className="relative">
+                  <div className={`absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full opacity-0 transition-opacity ${isSearchOpen ? 'opacity-20 blur' : ''}`}></div>
+                  <input
+                    type="text"
+                    placeholder="Search templates..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className={`h-12 pl-5 pr-12 rounded-full bg-gray-50 dark:bg-gray-950 border-2 border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:border-indigo-500 dark:focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all duration-300 ease-out absolute right-0 ${
+                      isSearchOpen ? 'w-80 opacity-100' : 'w-12 opacity-0 pointer-events-none'
+                    }`}
+                    autoFocus={isSearchOpen}
+                  />
+                  
+                  {/* Close Button */}
+                  {isSearchOpen && (
+                    <button
+                      onClick={() => {
+                        setSearchQuery('')
+                        setIsSearchOpen(false)
+                      }}
+                      className="flex size-10 items-center justify-center rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-150 text-gray-400 dark:text-gray-500 absolute right-1 top-1 z-10"
+                      aria-label="Close search"
+                    >
+                      <span className="material-symbols-outlined text-xl">close</span>
+                    </button>
+                  )}
                 </div>
+              </div>
 
                 {/* Category Pills - Positioned as floating chips */}
                 <div className="flex items-center gap-2 mt-4">
