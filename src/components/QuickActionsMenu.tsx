@@ -208,6 +208,8 @@ export function QuickActionsMenu({
             </div>
           </div>
         </div>
+        </div>
+        </div>
 
         {/* Content Area */}
         <div className="relative z-10 flex-1 overflow-y-auto px-8 py-8 custom-scrollbar">
