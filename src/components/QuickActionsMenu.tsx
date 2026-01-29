@@ -86,75 +86,98 @@ export function QuickActionsMenu({
         <div className="absolute top-10 right-10 w-64 h-64 bg-indigo-500/5 dark:bg-indigo-500/10 rounded-full blur-3xl"></div>
         <div className="absolute bottom-10 left-10 w-64 h-64 bg-purple-500/5 dark:bg-purple-500/10 rounded-full blur-3xl"></div>
 
-        {/* Minimal Header */}
-        <div className="relative z-10 px-8 py-6 border-b border-gray-200 dark:border-gray-800 bg-white/50 dark:bg-gray-900/50 backdrop-blur-xl">
-          <div className="flex items-center justify-between mb-6">
-            {/* Left: Title Area */}
-            <div className="flex items-center gap-4">
+        {/* Unique Floating Header Design */}
+        <div className="relative z-10 px-8 pt-8 pb-6">
+          {/* Floating Card Header */}
+          <div className="relative rounded-3xl border border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-900/80 backdrop-blur-2xl shadow-xl shadow-gray-900/5 dark:shadow-black/20 overflow-hidden">
+            {/* Animated Gradient Border Effect */}
+            <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl"></div>
+            
+            <div className="relative p-6">
+              {/* Top Row */}
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-4">
+                  {/* Animated Icon */}
+                  <div className="relative group">
+                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 rounded-2xl blur-xl opacity-60 group-hover:opacity-80 transition-opacity"></div>
+                    <div className="relative w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 flex items-center justify-center transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
+                      <span className="material-symbols-outlined text-white text-2xl">auto_awesome</span>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                      Create Task
+                    </h2>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Pick a template or start fresh</p>
+                  </div>
+                </div>
+                
+                {/* Close Button */}
+                <button
+                  onClick={onClose}
+                  className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-red-100 dark:hover:bg-red-900/20 hover:border-red-500 border border-gray-200 dark:border-gray-800 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-all group"
+                  aria-label="Close"
+                >
+                  <span className="material-symbols-outlined text-xl group-hover:rotate-90 transition-transform duration-300">close</span>
+                </button>
+              </div>
+
+              {/* Search Bar with Integrated Filters */}
               <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl blur-lg opacity-50"></div>
-                <div className="relative w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center">
-                  <span className="material-symbols-outlined text-white text-2xl font-light">add_circle</span>
+                {/* Search Input */}
+                <div className="relative group">
+                  <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl opacity-0 group-focus-within:opacity-20 blur transition-opacity"></div>
+                  <div className="relative flex items-center">
+                    <span className="material-symbols-outlined absolute left-5 text-gray-400 dark:text-gray-500 text-xl pointer-events-none">search</span>
+                    <input
+                      type="text"
+                      placeholder="Search templates..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full h-14 pl-14 pr-4 rounded-2xl bg-gray-50 dark:bg-gray-950 border-2 border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:border-indigo-500 dark:focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all text-base font-medium"
+                    />
+                  </div>
+                </div>
+
+                {/* Category Pills - Positioned as floating chips */}
+                <div className="flex items-center gap-2 mt-4">
+                  <span className="text-xs font-semibold text-gray-400 dark:text-gray-600 uppercase tracking-wider">Filter:</span>
+                  {[
+                    { id: 'all', label: 'All', icon: 'apps', color: 'from-gray-600 to-gray-700' },
+                    { id: 'work', label: 'Work', icon: 'business_center', color: 'from-blue-600 to-indigo-600' },
+                    { id: 'personal', label: 'Personal', icon: 'person', color: 'from-purple-600 to-pink-600' },
+                  ].map((cat) => (
+                    <button
+                      key={cat.id}
+                      onClick={() => setSelectedCategory(cat.id as 'all' | 'work' | 'personal')}
+                      className={`relative h-10 px-4 rounded-full text-xs font-bold transition-all flex items-center gap-2 ${
+                        selectedCategory === cat.id
+                          ? `bg-gradient-to-r ${cat.color} text-white shadow-lg transform scale-105`
+                          : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
+                      }`}
+                    >
+                      <span className="material-symbols-outlined text-base">{cat.icon}</span>
+                      <span>{cat.label}</span>
+                      {selectedCategory === cat.id && (
+                        <span className="absolute -top-1 -right-1 w-3 h-3 bg-white rounded-full border-2 border-current"></span>
+                      )}
+                    </button>
+                  ))}
+                  
+                  {/* Divider */}
+                  <div className="w-px h-6 bg-gray-200 dark:bg-gray-800 mx-1"></div>
+                  
+                  {/* Settings Button */}
+                  <button
+                    onClick={onManageTemplates}
+                    className="h-10 w-10 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-indigo-100 dark:hover:bg-indigo-900/20 border border-gray-200 dark:border-gray-800 hover:border-indigo-500 text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all flex items-center justify-center group"
+                    title="Manage Templates"
+                  >
+                    <span className="material-symbols-outlined text-lg group-hover:rotate-90 transition-transform duration-300">settings</span>
+                  </button>
                 </div>
               </div>
-              <div>
-                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white tracking-tight">New Task</h2>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Choose a template or start fresh</p>
-              </div>
-            </div>
-            
-            {/* Right: Close Button */}
-            <button
-              onClick={onClose}
-              className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-all"
-              aria-label="Close"
-            >
-              <span className="material-symbols-outlined text-xl">close</span>
-            </button>
-          </div>
-
-          {/* Search and Filter Bar */}
-          <div className="flex items-center gap-3">
-            {/* Search */}
-            <div className="flex-1 relative">
-              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 text-lg">search</span>
-              <input
-                type="text"
-                placeholder="Search templates..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-11 pl-12 pr-4 rounded-xl bg-gray-100 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:border-indigo-500 dark:focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all text-sm"
-              />
-            </div>
-
-            {/* Category Filters */}
-            <div className="flex items-center gap-2">
-              {[
-                { id: 'all', label: 'All', icon: 'apps' },
-                { id: 'work', label: 'Work', icon: 'business_center' },
-                { id: 'personal', label: 'Personal', icon: 'person' },
-              ].map((cat) => (
-                <button
-                  key={cat.id}
-                  onClick={() => setSelectedCategory(cat.id as 'all' | 'work' | 'personal')}
-                  className={`h-11 px-4 rounded-xl text-sm font-medium transition-all flex items-center gap-2 ${
-                    selectedCategory === cat.id
-                      ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30'
-                      : 'bg-gray-100 dark:bg-gray-900 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-800 hover:bg-gray-200 dark:hover:bg-gray-800'
-                  }`}
-                >
-                  <span className="material-symbols-outlined text-lg">{cat.icon}</span>
-                  <span className="hidden sm:inline">{cat.label}</span>
-                </button>
-              ))}
-              
-              <button
-                onClick={onManageTemplates}
-                className="h-11 w-11 rounded-xl bg-gray-100 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 hover:bg-gray-200 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-all flex items-center justify-center"
-                title="Manage Templates"
-              >
-                <span className="material-symbols-outlined text-lg">settings</span>
-              </button>
             </div>
           </div>
         </div>
