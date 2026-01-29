@@ -83,69 +83,70 @@ export function QuickActionsMenu({
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-blue-500/10 rounded-full blur-[100px]"></div>
         </div>
 
-        {/* Header Section */}
-        <div className="relative z-10 px-8 pt-7 pb-6 backdrop-blur-xl bg-white/5 dark:bg-white/[0.02] border-b border-white/10">
-          <div className="flex items-center justify-between mb-6">
-            {/* Title */}
-            <div>
-              <h2 className="text-3xl font-black text-white tracking-tight flex items-center gap-3">
-                <span className="text-4xl">✨</span>
-                Create Task
-              </h2>
-              <p className="text-sm text-slate-400 mt-1">Choose a template or start fresh</p>
+        {/* Header Section - Redesigned */}
+        <div className="relative z-10 px-6 py-4 backdrop-blur-xl bg-white/5 dark:bg-white/[0.02] border-b border-white/10">
+          {/* Top Row - Title and Close */}
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                <span className="material-symbols-outlined text-white text-xl">add_task</span>
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-white tracking-tight">Create New Task</h2>
+                <p className="text-xs text-slate-400 mt-0.5">Select a template or start from scratch</p>
+              </div>
             </div>
             
-            {/* Close Button */}
             <button
               onClick={onClose}
-              className="w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/70 hover:text-white transition-all duration-200 hover:rotate-90"
+              className="w-9 h-9 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center text-white/60 hover:text-white transition-all duration-200"
               aria-label="Close"
             >
-              <span className="material-symbols-outlined text-xl">close</span>
+              <span className="material-symbols-outlined text-lg">close</span>
             </button>
           </div>
 
-          {/* Search & Filters Row */}
-          <div className="flex flex-col sm:flex-row gap-3">
-            {/* Search */}
-            <div className="flex-1 relative group">
-              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
+          {/* Bottom Row - Search and Filters */}
+          <div className="flex items-center gap-3">
+            {/* Search Bar */}
+            <div className="flex-1 relative">
+              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px]">search</span>
               <input
                 type="text"
                 placeholder="Search templates..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-11 pl-11 pr-4 rounded-xl bg-white/10 backdrop-blur-md border border-white/10 text-white placeholder:text-slate-500 focus:bg-white/15 focus:border-indigo-400/50 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all text-sm"
+                className="w-full h-9 pl-10 pr-3 rounded-lg bg-white/10 backdrop-blur-md border border-white/10 text-white text-sm placeholder:text-slate-500 focus:bg-white/15 focus:border-indigo-400/50 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all"
               />
             </div>
 
-            {/* Category Pills */}
+            {/* Category Chips */}
             <div className="flex items-center gap-2">
               {[
-                { id: 'all', label: 'All', icon: 'apps' },
-                { id: 'work', label: 'Work', icon: 'work' },
+                { id: 'all', label: 'All', icon: 'grid_view' },
+                { id: 'work', label: 'Work', icon: 'business_center' },
                 { id: 'personal', label: 'Personal', icon: 'person' },
               ].map((cat) => (
                 <button
                   key={cat.id}
                   onClick={() => setSelectedCategory(cat.id as 'all' | 'work' | 'personal')}
-                  className={`h-11 px-4 rounded-xl font-semibold text-xs uppercase tracking-wider transition-all backdrop-blur-md ${
+                  className={`h-9 px-3 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${
                     selectedCategory === cat.id
-                      ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/30 border border-indigo-400/50'
-                      : 'bg-white/10 text-slate-300 border border-white/10 hover:bg-white/15'
+                      ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/25'
+                      : 'bg-white/5 text-slate-300 border border-white/10 hover:bg-white/10'
                   }`}
                 >
+                  <span className="material-symbols-outlined text-[16px]">{cat.icon}</span>
                   <span className="hidden sm:inline">{cat.label}</span>
-                  <span className="sm:hidden material-symbols-outlined text-base">{cat.icon}</span>
                 </button>
               ))}
               
               <button
                 onClick={onManageTemplates}
-                className="h-11 w-11 rounded-xl bg-white/10 backdrop-blur-md border border-white/10 hover:bg-white/15 text-slate-300 transition-all flex items-center justify-center"
+                className="h-9 w-9 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 text-slate-300 hover:text-white transition-all flex items-center justify-center"
                 title="Manage Templates"
               >
-                <span className="material-symbols-outlined text-lg">settings</span>
+                <span className="material-symbols-outlined text-[18px]">settings</span>
               </button>
             </div>
           </div>
