@@ -74,7 +74,7 @@ export function QuickActionsMenu({
       maxWidth="max-w-[95vw]"
     >
       {/* Sleek Modern Design with Minimal Aesthetic */}
-      <div className="flex flex-col h-[92vh] w-full relative overflow-hidden bg-gray-50 dark:bg-gray-950">
+      <div className="flex flex-col h-[92vh] w-full relative overflow-hidden bg-gray-50 dark:bg-gray-950 rounded-3xl">
         
         {/* Subtle Grid Pattern Background */}
         <div className="absolute inset-0 opacity-[0.02] dark:opacity-[0.03]" style={{
