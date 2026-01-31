@@ -31,8 +31,8 @@ export function TemplatePreviewModal({
   // Initialize form when template changes
   useState(() => {
     if (template) {
-      setEditedTitle(template.template.title || template.name)
-      setEditedDescription(template.template.description || '')
+      setEditedTitle(template.name) // Use template.name to match library card
+      setEditedDescription(template.description || '') // Use template.description to match library card
       setEditedPriority(template.template.priority || 'medium')
       setEditedCategory(template.template.category || template.category)
       setEditedTags(template.template.tags || [])
@@ -45,8 +45,8 @@ export function TemplatePreviewModal({
   const [prevTemplateId, setPrevTemplateId] = useState<string | null>(null)
   if (template && template.id !== prevTemplateId) {
     setPrevTemplateId(template.id)
-    setEditedTitle(template.template.title || template.name)
-    setEditedDescription(template.template.description || '')
+    setEditedTitle(template.name) // Use template.name to match library card
+    setEditedDescription(template.description || '') // Use template.description to match library card
     setEditedPriority(template.template.priority || 'medium')
     setEditedCategory(template.template.category || template.category)
     setEditedTags(template.template.tags || [])
