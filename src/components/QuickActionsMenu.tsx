@@ -19,16 +19,19 @@ function TemplateCard({
       {/* Background Gradient Mesh */}
       <div className={`absolute top-0 right-0 -mt-8 -mr-8 w-32 h-32 rounded-full blur-3xl opacity-0 group-hover:opacity-20 transition-opacity duration-500 ${template.color.replace('bg-', 'bg-')}`}></div>
       
+      {/* Custom Badge */}
+      {template.isCustom && (
+        <div className="absolute top-4 right-4 z-20 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-indigo-500 shadow-lg shadow-indigo-500/30">
+          <span className="material-symbols-outlined text-[14px] text-white">star</span>
+          <span className="text-[11px] font-bold text-white uppercase tracking-wide">Custom</span>
+        </div>
+      )}
+      
       <div className="relative z-10 flex flex-col h-full">
         <div className="flex items-start justify-between mb-4">
           <div className={`w-14 h-14 rounded-2xl ${template.color} flex items-center justify-center text-white shadow-lg shadow-black/5 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300`}>
             <span className="material-symbols-outlined text-2xl">{template.icon}</span>
           </div>
-          {template.isCustom && (
-            <span className="px-3 py-1 rounded-full bg-indigo-100/80 dark:bg-indigo-500/20 border border-indigo-200 dark:border-indigo-500/30 text-indigo-700 dark:text-indigo-300 text-[10px] font-bold uppercase tracking-wider shadow-sm">
-              Custom
-            </span>
-          )}
         </div>
 
         <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-2 leading-tight group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
@@ -39,22 +42,63 @@ function TemplateCard({
           {template.description || '(No description)'}
         </p>
 
-        <div className="mt-auto flex items-center gap-3">
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gray-100/50 dark:bg-white/5 border border-gray-200/50 dark:border-white/5">
-            <span className="material-symbols-outlined text-[14px] text-gray-400">
-              {template.category === 'Work' ? 'business_center' : 'face'}
-            </span>
-            <span className="text-[11px] font-medium text-gray-600 dark:text-gray-300">
-              {template.category}
-            </span>
-          </div>
-          
-          {template.template.timeEstimate && (
+        <div className="mt-auto space-y-3">
+          {/* Category, Priority, Time Badges */}
+          <div className="flex items-center gap-2 flex-wrap">
             <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gray-100/50 dark:bg-white/5 border border-gray-200/50 dark:border-white/5">
-              <span className="material-symbols-outlined text-[14px] text-gray-400">schedule</span>
-              <span className="text-[11px] font-medium text-gray-600 dark:text-gray-300">
-                {template.template.timeEstimate}m
+              <span className="material-symbols-outlined text-[14px] text-gray-400">
+                {template.category === 'Work' ? 'business_center' : template.category === 'Personal' ? 'person' : template.category === 'Health' ? 'favorite' : template.category === 'Creative' ? 'palette' : 'school'}
               </span>
+              <span className="text-[11px] font-medium text-gray-600 dark:text-gray-300">
+                {template.category}
+              </span>
+            </div>
+
+            {template.template.priority && (
+              <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-gray-200/50 dark:border-white/5 ${
+                template.template.priority === 'high' ? 'bg-red-50 dark:bg-red-500/10' :
+                template.template.priority === 'medium' ? 'bg-yellow-50 dark:bg-yellow-500/10' :
+                'bg-green-50 dark:bg-green-500/10'
+              }`}>
+                <span className={`material-symbols-outlined text-[14px] ${
+                  template.template.priority === 'high' ? 'text-red-500' :
+                  template.template.priority === 'medium' ? 'text-yellow-500' :
+                  'text-green-500'
+                }`}>flag</span>
+                <span className={`text-[11px] font-medium capitalize ${
+                  template.template.priority === 'high' ? 'text-red-600 dark:text-red-400' :
+                  template.template.priority === 'medium' ? 'text-yellow-600 dark:text-yellow-400' :
+                  'text-green-600 dark:text-green-400'
+                }`}>
+                  {template.template.priority}
+                </span>
+              </div>
+            )}
+            
+            {template.template.timeEstimate && (
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gray-100/50 dark:bg-white/5 border border-gray-200/50 dark:border-white/5">
+                <span className="material-symbols-outlined text-[14px] text-gray-400">schedule</span>
+                <span className="text-[11px] font-medium text-gray-600 dark:text-gray-300">
+                  {template.template.timeEstimate}m
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Tags - Show up to 3 */}
+          {template.template.tags && template.template.tags.length > 0 && (
+            <div className="flex items-center gap-1.5 flex-wrap">
+              {template.template.tags.slice(0, 3).map((tag, index) => (
+                <span
+                  key={index}
+                  className="px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-[10px] font-bold border border-indigo-200/30 dark:border-indigo-500/20"
+                >
+                  #{tag}
+                </span>
+              ))}
+              {template.template.tags.length > 3 && (
+                <span className="text-[10px] font-bold text-gray-400">+{template.template.tags.length - 3}</span>
+              )}
             </div>
           )}
         </div>
