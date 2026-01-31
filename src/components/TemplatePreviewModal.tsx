@@ -85,6 +85,7 @@ export function TemplatePreviewModal({
       ...template,
       name: editedTitle,
       description: editedDescription,
+      category: editedCategory, // Update top-level category for card display
       template: {
         ...template.template,
         title: editedTitle,
