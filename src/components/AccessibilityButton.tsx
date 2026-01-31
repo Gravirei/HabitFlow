@@ -222,7 +222,7 @@ export function AccessibilityButton() {
           position: 'fixed',
           left: `${position.x}px`,
           top: `${position.y}px`,
-          zIndex: 60,
+          zIndex: 80,
           transition: isDragging ? 'none' : 'all 0.3s ease-out',
         }}
         aria-label="Accessibility Options"
