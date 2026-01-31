@@ -81,11 +81,13 @@ export function TemplatePreviewModal({
     if (!template) return
     
     // Create updated template with new values
+    // IMPORTANT: Preserve sourceTemplateId so badge comparison works
     const updatedTemplate: TaskTemplate = {
       ...template,
       name: editedTitle,
       description: editedDescription,
       category: editedCategory, // Update top-level category for card display
+      sourceTemplateId: template.sourceTemplateId, // Preserve source template ID
       template: {
         ...template.template,
         title: editedTitle,
