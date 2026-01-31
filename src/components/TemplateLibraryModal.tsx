@@ -1242,17 +1242,21 @@ export function TemplateLibraryModal({
                   // Check if template has been modified from original
                   let isModified = false
                   if (savedTemplate) {
+                    // Compare only the actual content, normalize undefined/null/empty values
+                    const normalizeValue = (val: any) => val === undefined || val === null || val === '' ? '' : val
+                    const normalizeArray = (arr: any[]) => arr || []
+                    
                     isModified = 
-                      savedTemplate.name !== template.name ||
-                      savedTemplate.description !== template.description ||
-                      savedTemplate.category !== template.category ||
-                      savedTemplate.template.title !== template.template.title ||
-                      savedTemplate.template.description !== template.template.description ||
-                      savedTemplate.template.priority !== template.template.priority ||
-                      savedTemplate.template.category !== template.template.category ||
-                      savedTemplate.template.timeEstimate !== template.template.timeEstimate ||
-                      JSON.stringify(savedTemplate.template.tags) !== JSON.stringify(template.template.tags) ||
-                      JSON.stringify(savedTemplate.template.subtasks) !== JSON.stringify(template.template.subtasks)
+                      normalizeValue(savedTemplate.name) !== normalizeValue(template.name) ||
+                      normalizeValue(savedTemplate.description) !== normalizeValue(template.description) ||
+                      normalizeValue(savedTemplate.category) !== normalizeValue(template.category) ||
+                      normalizeValue(savedTemplate.template.title) !== normalizeValue(template.template.title) ||
+                      normalizeValue(savedTemplate.template.description) !== normalizeValue(template.template.description) ||
+                      normalizeValue(savedTemplate.template.priority) !== normalizeValue(template.template.priority) ||
+                      normalizeValue(savedTemplate.template.category) !== normalizeValue(template.template.category) ||
+                      normalizeValue(savedTemplate.template.timeEstimate) !== normalizeValue(template.template.timeEstimate) ||
+                      JSON.stringify(normalizeArray(savedTemplate.template.tags).sort()) !== JSON.stringify(normalizeArray(template.template.tags).sort()) ||
+                      JSON.stringify(normalizeArray(savedTemplate.template.subtasks)) !== JSON.stringify(normalizeArray(template.template.subtasks))
                   }
                   
                   return (
