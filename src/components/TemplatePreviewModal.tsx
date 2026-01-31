@@ -27,6 +27,7 @@ export function TemplatePreviewModal({
   const [editedTags, setEditedTags] = useState<string[]>([])
   const [editedSubtasks, setEditedSubtasks] = useState<Subtask[]>([])
   const [editedTimeEstimate, setEditedTimeEstimate] = useState<number | undefined>(undefined)
+  const [isEditMode, setIsEditMode] = useState(false)
 
   // Initialize form when template changes
   useState(() => {
@@ -110,12 +111,17 @@ export function TemplatePreviewModal({
         {/* Animated Background */}
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-br from-indigo-500/10 to-purple-500/10 rounded-full blur-[120px] pointer-events-none -mt-32 -mr-32"></div>
 
-        <div className="relative z-10 p-0 grid grid-cols-1 md:grid-cols-[1fr,1.5fr] min-h-[600px]">
-          {/* Left Panel: Info & Preview */}
-          <div className="relative bg-gray-50/50 dark:bg-white/5 p-8 flex flex-col items-center text-center border-b md:border-b-0 md:border-r border-gray-200/50 dark:border-white/5">
-             <div className="absolute inset-0 bg-gradient-to-b from-transparent to-white/40 dark:to-black/20 pointer-events-none"></div>
+        <div className="relative z-10 w-full h-[600px] overflow-hidden">
+          {/* Container with two panels */}
+          <div className="relative w-full h-full">
+            
+            {/* Preview Panel - Full Width */}
+            <div className={`absolute inset-0 w-full h-full p-12 flex flex-col items-center justify-center text-center transition-transform duration-500 ease-in-out ${
+              isEditMode ? '-translate-x-full' : 'translate-x-0'
+            }`}>
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent to-white/40 dark:to-black/20 pointer-events-none"></div>
              
-             <div className="relative z-10 w-full flex flex-col items-center h-full">
+              <div className="relative z-10 w-full max-w-md flex flex-col items-center h-full justify-center">
                <div className={`w-28 h-28 rounded-[2rem] ${template.color} flex items-center justify-center shadow-xl shadow-indigo-500/20 mb-6 ring-4 ring-white/50 dark:ring-white/10 rotate-3`}>
                  <span className="material-symbols-outlined text-5xl text-white drop-shadow-md">{template.icon}</span>
                </div>
@@ -191,7 +197,7 @@ export function TemplatePreviewModal({
                  
                  <div className="grid grid-cols-2 gap-3">
                    <button
-                     onClick={handleUseAsTemplate}
+                     onClick={() => setIsEditMode(true)}
                      className="py-3 rounded-xl bg-white dark:bg-white/10 hover:bg-gray-50 dark:hover:bg-white/20 text-gray-700 dark:text-white font-semibold border border-gray-200/50 dark:border-white/5 transition-all hover:-translate-y-0.5"
                    >
                      Edit
@@ -227,23 +233,33 @@ export function TemplatePreviewModal({
                    )}
                  </div>
                </div>
-             </div>
-          </div>
-
-          {/* Right Panel: Form */}
-          <div className="p-8 max-h-[600px] overflow-y-auto custom-scrollbar">
-            <div className="flex items-center justify-between mb-8">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                <span className="material-symbols-outlined text-gray-400">tune</span>
-                Customize Details
-              </h3>
-              <button
-                onClick={onClose}
-                className="w-8 h-8 rounded-full bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 flex items-center justify-center text-gray-500 transition-colors"
-              >
-                <span className="material-symbols-outlined text-lg">close</span>
-              </button>
+              </div>
             </div>
+
+            {/* Edit Panel - Slides in from right */}
+            <div className={`absolute inset-0 w-full h-full bg-white dark:bg-gray-950 transition-transform duration-500 ease-in-out ${
+              isEditMode ? 'translate-x-0' : 'translate-x-full'
+            }`}>
+              <div className="p-8 h-full overflow-y-auto custom-scrollbar">
+                <div className="flex items-center justify-between mb-8">
+                  <button
+                    onClick={() => setIsEditMode(false)}
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 text-gray-700 dark:text-white font-semibold transition-all"
+                  >
+                    <span className="material-symbols-outlined text-lg">arrow_back</span>
+                    Back
+                  </button>
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                    <span className="material-symbols-outlined text-gray-400">tune</span>
+                    Customize Details
+                  </h3>
+                  <button
+                    onClick={onClose}
+                    className="w-8 h-8 rounded-full bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 flex items-center justify-center text-gray-500 transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-lg">close</span>
+                  </button>
+                </div>
 
             <div className="space-y-6">
               {/* Title Input */}
@@ -337,9 +353,11 @@ export function TemplatePreviewModal({
                 </div>
               )}
             </div>
-          </div>
-        </div>
-      </div>
+             </div>
+           </div>
+         </div>
+       </div>
+     </div>
     </AccessibleModal>
   )
 }
