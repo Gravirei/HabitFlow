@@ -115,6 +115,7 @@ interface QuickActionsMenuProps {
   customTemplates: TaskTemplate[]
   onManageTemplates: () => void
   onSaveTemplate?: (template: TaskTemplate) => void
+  onUpdateTemplate?: (template: TaskTemplate) => void
 }
 
 export function QuickActionsMenu({
@@ -125,6 +126,7 @@ export function QuickActionsMenu({
   customTemplates,
   onManageTemplates,
   onSaveTemplate,
+  onUpdateTemplate,
 }: QuickActionsMenuProps) {
   const [selectedCategory, setSelectedCategory] = useState<'all' | 'work' | 'personal'>('all')
   const [searchQuery, setSearchQuery] = useState('')
@@ -452,6 +454,7 @@ export function QuickActionsMenu({
         onUseAsTemplate={handleUseAsTemplate}
         onSaveAsTask={handleSaveAsTask}
         onSaveToMyTemplates={onSaveTemplate}
+        onUpdateTemplate={onUpdateTemplate}
       />
 
       <TemplateLibraryModal

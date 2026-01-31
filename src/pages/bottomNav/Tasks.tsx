@@ -874,6 +874,7 @@ export function Tasks() {
           setIsTemplateManagerOpen(true)
         }}
         onSaveTemplate={handleSaveTemplate}
+        onUpdateTemplate={handleSaveTemplate}
       />
       
       <TemplateManagerModal

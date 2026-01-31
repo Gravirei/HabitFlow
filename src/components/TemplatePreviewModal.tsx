@@ -13,6 +13,7 @@ interface TemplatePreviewModalProps {
   onUseAsTemplate: (template: TaskTemplate) => void
   onSaveAsTask: (taskData: any) => void
   onSaveToMyTemplates?: (template: TaskTemplate) => void
+  onUpdateTemplate?: (template: TaskTemplate) => void
 }
 
 export function TemplatePreviewModal({
@@ -22,6 +23,7 @@ export function TemplatePreviewModal({
   onUseAsTemplate,
   onSaveAsTask,
   onSaveToMyTemplates,
+  onUpdateTemplate,
 }: TemplatePreviewModalProps) {
   const [editedTitle, setEditedTitle] = useState('')
   const [editedDescription, setEditedDescription] = useState('')
@@ -78,8 +80,29 @@ export function TemplatePreviewModal({
   const handleSaveChanges = () => {
     if (!template) return
     
-    // Update the template (you may need to call an update function here)
-    // For now, we just update the original values to reflect the save
+    // Create updated template with new values
+    const updatedTemplate: TaskTemplate = {
+      ...template,
+      name: editedTitle,
+      description: editedDescription,
+      template: {
+        ...template.template,
+        title: editedTitle,
+        description: editedDescription,
+        priority: editedPriority,
+        category: editedCategory,
+        tags: editedTags,
+        subtasks: editedSubtasks,
+        timeEstimate: editedTimeEstimate,
+      },
+    }
+    
+    // Call the update callback to persist changes
+    if (onUpdateTemplate) {
+      onUpdateTemplate(updatedTemplate)
+    }
+    
+    // Update original values to reflect the save
     setOriginalValues({
       title: editedTitle,
       description: editedDescription,
