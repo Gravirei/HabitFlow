@@ -188,50 +188,43 @@ export function TemplatePreviewModal({
 
                <div className="mt-auto w-full space-y-3">
                  <button
-                   onClick={handleSaveAsTask}
+                   onClick={() => setIsEditMode(true)}
                    className="w-full py-4 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-lg shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2 group"
                  >
-                   <span className="material-symbols-outlined group-hover:rotate-12 transition-transform">add_task</span>
-                   Create Task
+                   <span className="material-symbols-outlined group-hover:scale-110 transition-transform">edit</span>
+                   Edit Details
                  </button>
                  
-                 <div className="grid grid-cols-2 gap-3">
+                 {onSaveToMyTemplates && !template.isCustom && (
                    <button
-                     onClick={() => setIsEditMode(true)}
-                     className="py-3 rounded-xl bg-white dark:bg-white/10 hover:bg-gray-50 dark:hover:bg-white/20 text-gray-700 dark:text-white font-semibold border border-gray-200/50 dark:border-white/5 transition-all hover:-translate-y-0.5"
+                     onClick={() => {
+                       const newTemplate: TaskTemplate = {
+                         ...template,
+                         id: `custom_${Date.now()}`,
+                         name: template.name,
+                         description: template.description,
+                         isCustom: true,
+                         template: {
+                           ...template.template,
+                           title: editedTitle,
+                           description: editedDescription,
+                           priority: editedPriority,
+                           category: editedCategory,
+                           tags: editedTags,
+                           subtasks: editedSubtasks,
+                           timeEstimate: editedTimeEstimate,
+                         },
+                       }
+                       onSaveToMyTemplates(newTemplate)
+                       onClose()
+                     }}
+                     className="w-full py-4 rounded-xl bg-white dark:bg-white/10 hover:bg-gray-50 dark:hover:bg-white/20 text-gray-700 dark:text-white font-bold text-lg border-2 border-indigo-600 dark:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 transition-all duration-300 hover:-translate-y-0.5 flex items-center justify-center gap-2 group"
+                     title="Save to My Templates"
                    >
-                     Edit
+                     <span className="material-symbols-outlined group-hover:scale-110 transition-transform">favorite</span>
+                     Make It My Template
                    </button>
-                   {onSaveToMyTemplates && !template.isCustom && (
-                      <button
-                        onClick={() => {
-                          const newTemplate: TaskTemplate = {
-                            ...template,
-                            id: `custom_${Date.now()}`,
-                            name: template.name,
-                            description: template.description,
-                            isCustom: true,
-                            template: {
-                              ...template.template,
-                              title: editedTitle,
-                              description: editedDescription,
-                              priority: editedPriority,
-                              category: editedCategory,
-                              tags: editedTags,
-                              subtasks: editedSubtasks,
-                              timeEstimate: editedTimeEstimate,
-                            },
-                          }
-                          onSaveToMyTemplates(newTemplate)
-                          onClose()
-                        }}
-                        className="py-3 rounded-xl bg-white dark:bg-white/10 hover:bg-gray-50 dark:hover:bg-white/20 text-gray-700 dark:text-white font-semibold border border-gray-200/50 dark:border-white/5 transition-all hover:-translate-y-0.5"
-                        title="Save to My Templates"
-                      >
-                        Save Copy
-                      </button>
-                   )}
-                 </div>
+                 )}
                </div>
               </div>
             </div>
