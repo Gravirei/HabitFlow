@@ -159,7 +159,7 @@ export function TemplatePreviewModal({
                </p>
 
                {/* Badges: Category, Priority, Time - Shrink in edit mode */}
-               <div className={`flex items-center justify-center gap-2 flex-nowrap mb-10 transition-all duration-500 ${
+               <div className={`flex items-center justify-center gap-2 flex-nowrap mb-4 transition-all duration-500 ${
                  isEditMode ? 'scale-90' : 'scale-100'
                }`}>
                  {/* Category Badge */}
@@ -224,6 +224,25 @@ export function TemplatePreviewModal({
                    </div>
                  )}
                </div>
+
+               {/* Tags Display - Show up to 3 tags */}
+               {editedTags.length > 0 && (
+                 <div className={`flex items-center justify-center gap-2 flex-wrap mb-8 transition-all duration-500 ${
+                   isEditMode ? 'scale-90' : 'scale-100'
+                 }`}>
+                   {editedTags.slice(0, 3).map((tag, index) => (
+                     <span
+                       key={index}
+                       className="px-3 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-xs font-bold border border-indigo-200/50 dark:border-indigo-500/30"
+                     >
+                       #{tag}
+                     </span>
+                   ))}
+                   {editedTags.length > 3 && (
+                     <span className="text-xs font-bold text-gray-400">...</span>
+                   )}
+                 </div>
+               )}
 
                {template.isCustom && (
                  <span className="px-4 py-1.5 rounded-full bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 text-xs font-bold uppercase tracking-wider mb-8">
@@ -439,6 +458,48 @@ export function TemplatePreviewModal({
                   className={`w-full px-4 py-3.5 rounded-xl bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 focus:bg-white dark:focus:bg-black/40 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium resize-none ${!template.isCustom ? 'opacity-60 cursor-not-allowed' : ''}`}
                   placeholder="Add details about this task..."
                 />
+              </div>
+
+              {/* Tags Input */}
+              <div className="group">
+                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 group-focus-within:text-indigo-600 transition-colors">Tags</label>
+                <input
+                  type="text"
+                  value={editedTags.join(', ')}
+                  onChange={(e) => {
+                    if (template.isCustom) {
+                      const tagsInput = e.target.value
+                      const tagsArray = tagsInput.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0)
+                      setEditedTags(tagsArray)
+                    }
+                  }}
+                  onFocus={handleFieldFocus}
+                  readOnly={!template.isCustom}
+                  className={`w-full px-4 py-3.5 rounded-xl bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 focus:bg-white dark:focus:bg-black/40 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium ${!template.isCustom ? 'opacity-60 cursor-not-allowed' : ''}`}
+                  placeholder="e.g. meeting, team, urgent (comma separated)"
+                />
+                {editedTags.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    {editedTags.map((tag, index) => (
+                      <span
+                        key={index}
+                        className="px-3 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-xs font-bold border border-indigo-200/50 dark:border-indigo-500/30 flex items-center gap-2"
+                      >
+                        #{tag}
+                        {template.isCustom && (
+                          <button
+                            onClick={() => {
+                              setEditedTags(editedTags.filter((_, i) => i !== index))
+                            }}
+                            className="hover:bg-indigo-200 dark:hover:bg-indigo-500/20 rounded-full w-4 h-4 flex items-center justify-center transition-colors"
+                          >
+                            <span className="material-symbols-outlined text-[12px]">close</span>
+                          </button>
+                        )}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Subtasks Preview */}
