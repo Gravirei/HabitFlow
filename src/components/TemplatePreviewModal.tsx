@@ -31,6 +31,7 @@ export function TemplatePreviewModal({
   const [isEditMode, setIsEditMode] = useState(false)
   const [showEditWarning, setShowEditWarning] = useState(false)
   const editPanelRef = useRef<HTMLDivElement>(null)
+  const [tagInput, setTagInput] = useState('')
 
   // Check if template can be edited (must be custom or saved)
   const handleFieldFocus = () => {
@@ -460,30 +461,16 @@ export function TemplatePreviewModal({
                 />
               </div>
 
-              {/* Tags Input */}
+              {/* Tags Input with Inline Chips */}
               <div className="group">
                 <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 group-focus-within:text-indigo-600 transition-colors">Tags</label>
-                <input
-                  type="text"
-                  value={editedTags.join(', ')}
-                  onChange={(e) => {
-                    if (template.isCustom) {
-                      const tagsInput = e.target.value
-                      const tagsArray = tagsInput.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0)
-                      setEditedTags(tagsArray)
-                    }
-                  }}
-                  onFocus={handleFieldFocus}
-                  readOnly={!template.isCustom}
-                  className={`w-full px-4 py-3.5 rounded-xl bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 focus:bg-white dark:focus:bg-black/40 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium ${!template.isCustom ? 'opacity-60 cursor-not-allowed' : ''}`}
-                  placeholder="e.g. meeting, team, urgent (comma separated)"
-                />
-                {editedTags.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-3">
+                <div className={`flex items-center gap-2 px-3 py-2 rounded-xl bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 focus-within:bg-white dark:focus-within:bg-black/40 focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-500/10 transition-all ${!template.isCustom ? 'opacity-60 cursor-not-allowed' : ''}`}>
+                  {/* Existing tags as chips inside input */}
+                  <div className="flex flex-wrap gap-2 flex-1 min-h-[2rem]">
                     {editedTags.map((tag, index) => (
                       <span
                         key={index}
-                        className="px-3 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-xs font-bold border border-indigo-200/50 dark:border-indigo-500/30 flex items-center gap-2"
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 text-xs font-bold"
                       >
                         #{tag}
                         {template.isCustom && (
@@ -491,15 +478,48 @@ export function TemplatePreviewModal({
                             onClick={() => {
                               setEditedTags(editedTags.filter((_, i) => i !== index))
                             }}
-                            className="hover:bg-indigo-200 dark:hover:bg-indigo-500/20 rounded-full w-4 h-4 flex items-center justify-center transition-colors"
+                            className="hover:bg-indigo-200 dark:hover:bg-indigo-500/30 rounded-full w-4 h-4 flex items-center justify-center transition-colors"
+                            type="button"
                           >
                             <span className="material-symbols-outlined text-[12px]">close</span>
                           </button>
                         )}
                       </span>
                     ))}
+                    {/* Input field inside container */}
+                    <input
+                      type="text"
+                      value={tagInput}
+                      onChange={(e) => setTagInput(e.target.value)}
+                      onFocus={handleFieldFocus}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && tagInput.trim() && template.isCustom) {
+                          e.preventDefault()
+                          setEditedTags([...editedTags, tagInput.trim()])
+                          setTagInput('')
+                        }
+                      }}
+                      readOnly={!template.isCustom}
+                      className="flex-1 min-w-[120px] bg-transparent border-0 outline-none text-gray-900 dark:text-white placeholder:text-gray-400 text-sm"
+                      placeholder={editedTags.length === 0 ? "Type tag name..." : ""}
+                    />
                   </div>
-                )}
+                  {/* Add button */}
+                  {template.isCustom && (
+                    <button
+                      onClick={() => {
+                        if (tagInput.trim()) {
+                          setEditedTags([...editedTags, tagInput.trim()])
+                          setTagInput('')
+                        }
+                      }}
+                      className="flex-shrink-0 px-4 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-colors"
+                      type="button"
+                    >
+                      Add
+                    </button>
+                  )}
+                </div>
               </div>
 
               {/* Subtasks Preview */}
