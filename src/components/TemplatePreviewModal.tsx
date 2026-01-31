@@ -123,9 +123,56 @@ export function TemplatePreviewModal({
                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 max-w-[250px] leading-tight">
                  {editedTitle || template.name}
                </h2>
-               <p className="text-sm text-gray-500 dark:text-gray-400 max-w-[250px] mb-8 leading-relaxed">
+               <p className="text-sm text-gray-500 dark:text-gray-400 max-w-[250px] mb-6 leading-relaxed">
                  {editedDescription || template.description}
                </p>
+
+               {/* Badges: Category, Priority, Time */}
+               <div className="flex items-center justify-center gap-2 flex-wrap mb-6">
+                 {/* Category Badge */}
+                 {editedCategory && (
+                   <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-white/10 border border-gray-200/50 dark:border-white/5">
+                     <span className="material-symbols-outlined text-[14px] text-gray-500 dark:text-gray-400">
+                       {editedCategory === 'Work' ? 'business_center' : editedCategory === 'Personal' ? 'person' : editedCategory === 'Health' ? 'favorite' : editedCategory === 'Creative' ? 'palette' : 'school'}
+                     </span>
+                     <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                       {editedCategory}
+                     </span>
+                   </div>
+                 )}
+
+                 {/* Priority Badge */}
+                 {editedPriority && (
+                   <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-200/50 dark:border-white/5 ${
+                     editedPriority === 'high' ? 'bg-red-50 dark:bg-red-500/10' :
+                     editedPriority === 'medium' ? 'bg-yellow-50 dark:bg-yellow-500/10' :
+                     'bg-green-50 dark:bg-green-500/10'
+                   }`}>
+                     <span className={`material-symbols-outlined text-[14px] ${
+                       editedPriority === 'high' ? 'text-red-500' :
+                       editedPriority === 'medium' ? 'text-yellow-500' :
+                       'text-green-500'
+                     }`}>flag</span>
+                     <span className={`text-xs font-semibold capitalize ${
+                       editedPriority === 'high' ? 'text-red-600 dark:text-red-400' :
+                       editedPriority === 'medium' ? 'text-yellow-600 dark:text-yellow-400' :
+                       'text-green-600 dark:text-green-400'
+                     }`}>
+                       {editedPriority}
+                     </span>
+                   </div>
+                 )}
+
+                 {/* Time Estimate Badge */}
+                 {editedTimeEstimate && (
+                   <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-white/10 border border-gray-200/50 dark:border-white/5">
+                     <span className="material-symbols-outlined text-[14px] text-gray-500 dark:text-gray-400">schedule</span>
+                     <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                       {editedTimeEstimate}m
+                     </span>
+                   </div>
+                 )}
+               </div>
 
                {template.isCustom && (
                  <span className="px-4 py-1.5 rounded-full bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 text-xs font-bold uppercase tracking-wider mb-8">
