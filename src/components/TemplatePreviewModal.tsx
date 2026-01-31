@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react'
+import toast from 'react-hot-toast'
 import { AccessibleModal } from './timer/shared/AccessibleModal'
 import type { TaskTemplate } from '@/types/taskTemplate'
 import type { TaskPriority, TaskStatus, Subtask } from '@/types/task'
@@ -261,6 +262,17 @@ export function TemplatePreviewModal({
                          },
                        }
                        onSaveToMyTemplates(newTemplate)
+                       // Show success toast
+                       toast.success(`"${template.name}" saved to My Templates!`, {
+                         icon: '❤️',
+                         duration: 4000,
+                         style: {
+                           borderRadius: '12px',
+                           background: '#10b981',
+                           color: '#fff',
+                           fontWeight: '600',
+                         },
+                       })
                        onClose()
                      }}
                      className="w-full py-4 px-6 rounded-2xl bg-white dark:bg-gray-900 hover:bg-gradient-to-r hover:from-pink-50 hover:to-purple-50 dark:hover:from-pink-500/10 dark:hover:to-purple-500/10 text-gray-800 dark:text-white font-bold text-lg border-2 border-indigo-600 dark:border-indigo-400 hover:border-pink-500 dark:hover:border-pink-400 shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300 flex items-center justify-center gap-3 group relative overflow-hidden"
