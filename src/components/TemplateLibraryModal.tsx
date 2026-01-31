@@ -919,10 +919,12 @@ export const DEFAULT_TEMPLATES: TaskTemplate[] = [
 
 function LibraryTemplateCard({ 
   template, 
-  onClick 
+  onClick,
+  isAdded 
 }: { 
   template: TaskTemplate
-  onClick: () => void 
+  onClick: () => void
+  isAdded?: boolean
 }) {
   return (
     <button
@@ -931,6 +933,14 @@ function LibraryTemplateCard({
     >
       {/* Background Gradient Mesh */}
       <div className={`absolute top-0 right-0 -mt-8 -mr-8 w-32 h-32 rounded-full blur-3xl opacity-0 group-hover:opacity-20 transition-opacity duration-500 ${template.color.replace('bg-', 'bg-')}`}></div>
+      
+      {/* Added Badge */}
+      {isAdded && (
+        <div className="absolute top-4 right-4 z-20 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green-500 shadow-lg shadow-green-500/30 animate-in fade-in zoom-in duration-300">
+          <span className="material-symbols-outlined text-[14px] text-white">check_circle</span>
+          <span className="text-[11px] font-bold text-white uppercase tracking-wide">Added</span>
+        </div>
+      )}
       
       <div className="relative z-10 flex flex-col h-full">
         <div className="flex items-start justify-between mb-4">
@@ -1016,12 +1026,14 @@ interface TemplateLibraryModalProps {
   isOpen: boolean
   onClose: () => void
   onSaveToMyTemplates?: (template: TaskTemplate) => void
+  customTemplates?: TaskTemplate[]
 }
 
 export function TemplateLibraryModal({
   isOpen,
   onClose,
   onSaveToMyTemplates,
+  customTemplates = [],
 }: TemplateLibraryModalProps) {
   const [selectedCategory, setSelectedCategory] = useState<'all' | 'work' | 'personal' | 'health' | 'creative' | 'learning'>('all')
   const [searchQuery, setSearchQuery] = useState('')
@@ -1210,13 +1222,17 @@ export function TemplateLibraryModal({
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 pb-12">
-                {filteredTemplates.map((template) => (
-                  <LibraryTemplateCard 
-                    key={template.id} 
-                    template={template} 
-                    onClick={() => handleTemplateClick(template)} 
-                  />
-                ))}
+                {filteredTemplates.map((template) => {
+                  const isAdded = customTemplates.some(t => t.id === template.id)
+                  return (
+                    <LibraryTemplateCard 
+                      key={template.id} 
+                      template={template} 
+                      onClick={() => handleTemplateClick(template)}
+                      isAdded={isAdded}
+                    />
+                  )
+                })}
               </div>
             )}
           </div>

@@ -414,6 +414,7 @@ export function QuickActionsMenu({
         isOpen={showTemplateLibrary}
         onClose={() => setShowTemplateLibrary(false)}
         onSaveToMyTemplates={onSaveTemplate}
+        customTemplates={customTemplates}
       />
     </AccessibleModal>
   )
