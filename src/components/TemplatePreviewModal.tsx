@@ -68,6 +68,8 @@ export function TemplatePreviewModal({
     setEditedTags(template.template.tags || [])
     setEditedSubtasks(template.template.subtasks || [])
     setEditedTimeEstimate(template.template.timeEstimate)
+    setIsEditMode(false) // Reset edit mode when opening new template
+    setShowEditWarning(false) // Reset warning banner
   }
 
   const handleUseAsTemplate = () => {
