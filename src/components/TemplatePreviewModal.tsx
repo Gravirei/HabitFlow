@@ -719,20 +719,69 @@ export function TemplatePreviewModal({
                 </div>
               </div>
 
-              {/* Subtasks Preview */}
-              {editedSubtasks.length > 0 && (
-                <div>
-                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Subtasks included</label>
-                  <div className="space-y-2">
-                    {editedSubtasks.map((subtask, index) => (
-                      <div key={index} className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white dark:bg-white/5 border border-gray-100 dark:border-white/5">
-                        <div className="w-5 h-5 rounded-full border-2 border-gray-300 dark:border-white/20 flex items-center justify-center"></div>
-                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{subtask.title}</span>
-                      </div>
-                    ))}
-                  </div>
+              {/* Subtasks Section */}
+              <div className="group">
+                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 group-focus-within:text-indigo-600 transition-colors">Subtasks</label>
+                <div className="space-y-3">
+                  {editedSubtasks.map((subtask, index) => (
+                    <div key={index} className="flex items-center gap-3 group/subtask">
+                      <div className="w-5 h-5 rounded-full border-2 border-gray-300 dark:border-white/20 flex items-center justify-center flex-shrink-0"></div>
+                      <input
+                        type="text"
+                        value={subtask.title}
+                        onChange={(e) => {
+                          if (template.isCustom) {
+                            const newSubtasks = [...editedSubtasks]
+                            newSubtasks[index] = { ...subtask, title: e.target.value }
+                            setEditedSubtasks(newSubtasks)
+                            checkForChanges({ subtasks: newSubtasks })
+                          }
+                        }}
+                        onFocus={handleFieldFocus}
+                        readOnly={!template.isCustom}
+                        className={`flex-1 px-4 py-3 rounded-xl bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 focus:bg-white dark:focus:bg-black/40 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all text-sm font-medium ${!template.isCustom ? 'opacity-60 cursor-not-allowed' : ''}`}
+                        placeholder="Subtask title"
+                      />
+                      {template.isCustom && (
+                        <button
+                          onClick={() => {
+                            const newSubtasks = editedSubtasks.filter((_, i) => i !== index)
+                            setEditedSubtasks(newSubtasks)
+                            checkForChanges({ subtasks: newSubtasks })
+                          }}
+                          className="opacity-0 group-hover/subtask:opacity-100 w-9 h-9 rounded-lg bg-red-100 dark:bg-red-900/20 hover:bg-red-200 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 flex items-center justify-center transition-all flex-shrink-0"
+                          type="button"
+                          title="Remove subtask"
+                        >
+                          <span className="material-symbols-outlined text-[18px]">delete</span>
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                  
+                  {/* Add New Subtask Button */}
+                  {template.isCustom && (
+                    <button
+                      onClick={() => {
+                        const newSubtasks = [...editedSubtasks, { title: '', completed: false }]
+                        setEditedSubtasks(newSubtasks)
+                        checkForChanges({ subtasks: newSubtasks })
+                      }}
+                      className="w-full px-4 py-3 rounded-xl border-2 border-dashed border-gray-300 dark:border-white/10 hover:border-indigo-500 dark:hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium text-sm transition-all flex items-center justify-center gap-2 group/add"
+                      type="button"
+                    >
+                      <span className="material-symbols-outlined text-[20px] group-hover/add:scale-110 transition-transform">add_circle</span>
+                      <span>Add Subtask</span>
+                    </button>
+                  )}
+                  
+                  {editedSubtasks.length === 0 && !template.isCustom && (
+                    <div className="text-center py-8 text-gray-400 dark:text-gray-500 text-sm">
+                      No subtasks
+                    </div>
+                  )}
                 </div>
-              )}
+              </div>
             </div>
              </div>
            </div>
