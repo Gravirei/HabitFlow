@@ -1,6 +1,8 @@
 import { useState, useRef } from 'react'
 import toast from 'react-hot-toast'
+import { motion, AnimatePresence } from 'framer-motion'
 import { AccessibleModal } from './timer/shared/AccessibleModal'
+import { useReducedMotion } from '@/hooks/useReducedMotion'
 import type { TaskTemplate } from '@/types/taskTemplate'
 import type { TaskPriority, TaskStatus, Subtask } from '@/types/task'
 
@@ -32,6 +34,88 @@ export function TemplatePreviewModal({
   const [showEditWarning, setShowEditWarning] = useState(false)
   const editPanelRef = useRef<HTMLDivElement>(null)
   const [tagInput, setTagInput] = useState('')
+  
+  // Track unsaved changes for split button animation
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+  const [originalValues, setOriginalValues] = useState({
+    title: '',
+    description: '',
+    priority: 'medium' as TaskPriority,
+    category: '',
+    tags: [] as string[],
+    subtasks: [] as Subtask[],
+    timeEstimate: undefined as number | undefined,
+  })
+  
+  const prefersReducedMotion = useReducedMotion()
+
+  // Check if values have changed from original
+  const checkForChanges = (newValues: Partial<typeof originalValues>) => {
+    const current = {
+      title: editedTitle,
+      description: editedDescription,
+      priority: editedPriority,
+      category: editedCategory,
+      tags: editedTags,
+      subtasks: editedSubtasks,
+      timeEstimate: editedTimeEstimate,
+      ...newValues,
+    }
+    
+    const hasChanges = 
+      current.title !== originalValues.title ||
+      current.description !== originalValues.description ||
+      current.priority !== originalValues.priority ||
+      current.category !== originalValues.category ||
+      JSON.stringify(current.tags) !== JSON.stringify(originalValues.tags) ||
+      JSON.stringify(current.subtasks) !== JSON.stringify(originalValues.subtasks) ||
+      current.timeEstimate !== originalValues.timeEstimate
+    
+    setHasUnsavedChanges(hasChanges)
+  }
+
+  // Handle Save - Update original values and merge buttons
+  const handleSaveChanges = () => {
+    if (!template) return
+    
+    // Update the template (you may need to call an update function here)
+    // For now, we just update the original values to reflect the save
+    setOriginalValues({
+      title: editedTitle,
+      description: editedDescription,
+      priority: editedPriority,
+      category: editedCategory,
+      tags: editedTags,
+      subtasks: editedSubtasks,
+      timeEstimate: editedTimeEstimate,
+    })
+    
+    setHasUnsavedChanges(false)
+    
+    toast.success('Changes saved!', {
+      duration: 3000,
+      style: {
+        borderRadius: '12px',
+        background: '#10b981',
+        color: '#fff',
+        fontWeight: '600',
+      },
+    })
+  }
+
+  // Handle Cancel - Restore original values and close edit panel
+  const handleCancelChanges = () => {
+    setEditedTitle(originalValues.title)
+    setEditedDescription(originalValues.description)
+    setEditedPriority(originalValues.priority)
+    setEditedCategory(originalValues.category)
+    setEditedTags(originalValues.tags)
+    setEditedSubtasks(originalValues.subtasks)
+    setEditedTimeEstimate(originalValues.timeEstimate)
+    
+    setHasUnsavedChanges(false)
+    setIsEditMode(false)
+  }
 
   // Check if template can be edited (must be custom or saved)
   const handleFieldFocus = () => {
@@ -63,15 +147,36 @@ export function TemplatePreviewModal({
   const [prevTemplateId, setPrevTemplateId] = useState<string | null>(null)
   if (template && template.id !== prevTemplateId) {
     setPrevTemplateId(template.id)
-    setEditedTitle(template.name) // Use template.name to match library card
-    setEditedDescription(template.description || '') // Use template.description to match library card
-    setEditedPriority(template.template.priority || 'medium')
-    setEditedCategory(template.template.category || template.category)
-    setEditedTags(template.template.tags || [])
-    setEditedSubtasks(template.template.subtasks || [])
-    setEditedTimeEstimate(template.template.timeEstimate)
+    const initialTitle = template.name
+    const initialDescription = template.description || ''
+    const initialPriority = template.template.priority || 'medium'
+    const initialCategory = template.template.category || template.category
+    const initialTags = template.template.tags || []
+    const initialSubtasks = template.template.subtasks || []
+    const initialTimeEstimate = template.template.timeEstimate
+    
+    setEditedTitle(initialTitle)
+    setEditedDescription(initialDescription)
+    setEditedPriority(initialPriority)
+    setEditedCategory(initialCategory)
+    setEditedTags(initialTags)
+    setEditedSubtasks(initialSubtasks)
+    setEditedTimeEstimate(initialTimeEstimate)
+    
+    // Store original values
+    setOriginalValues({
+      title: initialTitle,
+      description: initialDescription,
+      priority: initialPriority,
+      category: initialCategory,
+      tags: initialTags,
+      subtasks: initialSubtasks,
+      timeEstimate: initialTimeEstimate,
+    })
+    
     setIsEditMode(false) // Reset edit mode when opening new template
     setShowEditWarning(false) // Reset warning banner
+    setHasUnsavedChanges(false) // Reset unsaved changes
   }
 
   const handleUseAsTemplate = () => {
@@ -252,14 +357,95 @@ export function TemplatePreviewModal({
                )}
 
                <div className="mt-auto w-full space-y-4 max-w-sm">
-                 <button
-                   onClick={() => setIsEditMode(!isEditMode)}
-                   className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 bg-size-200 bg-pos-0 hover:bg-pos-100 text-white font-bold text-lg shadow-xl shadow-indigo-500/30 hover:shadow-2xl hover:shadow-indigo-500/40 hover:scale-[1.02] transition-all duration-500 flex items-center justify-center gap-3 group relative overflow-hidden"
-                 >
-                   <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
-                   <span className="material-symbols-outlined group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 relative z-10">edit</span>
-                   <span className="relative z-10">{isEditMode ? 'Close Edit' : 'Edit Details'}</span>
-                 </button>
+                 {/* Animated Split Button */}
+                 {!isEditMode ? (
+                   // Edit Details Button
+                   <button
+                     onClick={() => setIsEditMode(true)}
+                     className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 bg-size-200 bg-pos-0 hover:bg-pos-100 text-white font-bold text-lg shadow-xl shadow-indigo-500/30 hover:shadow-2xl hover:shadow-indigo-500/40 hover:scale-[1.02] transition-all duration-500 flex items-center justify-center gap-3 group relative overflow-hidden"
+                   >
+                     <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+                     <span className="material-symbols-outlined group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 relative z-10">edit</span>
+                     <span className="relative z-10">Edit Details</span>
+                   </button>
+                 ) : (
+                   // Close Edit / Split Buttons
+                   <motion.div
+                     layout
+                     className="flex items-center justify-center w-full"
+                     animate={{
+                       gap: hasUnsavedChanges ? '20px' : '0px',
+                     }}
+                     transition={{
+                       duration: prefersReducedMotion ? 0 : 0.8,
+                       ease: prefersReducedMotion ? 'linear' : [0.68, -0.6, 0.32, 1.6],
+                     }}
+                   >
+                     <AnimatePresence mode="popLayout">
+                       {!hasUnsavedChanges && (
+                         <motion.button
+                           key="close-edit"
+                           layout
+                           initial={{ opacity: 0, scale: 0.5 }}
+                           animate={{ opacity: 1, scale: 1 }}
+                           exit={{ opacity: 0, scale: 0.5 }}
+                           transition={{
+                             duration: prefersReducedMotion ? 0 : 0.8,
+                             ease: prefersReducedMotion ? 'linear' : [0.68, -0.6, 0.32, 1.6],
+                           }}
+                           onClick={() => setIsEditMode(false)}
+                           className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 bg-size-200 bg-pos-0 hover:bg-pos-100 text-white font-bold text-lg shadow-xl shadow-indigo-500/30 hover:shadow-2xl hover:shadow-indigo-500/40 hover:scale-[1.02] transition-all duration-500 flex items-center justify-center gap-3 group relative overflow-hidden"
+                         >
+                           <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+                           <span className="material-symbols-outlined group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 relative z-10">edit</span>
+                           <span className="relative z-10">Close Edit</span>
+                         </motion.button>
+                       )}
+
+                       {hasUnsavedChanges && (
+                         <>
+                           {/* Cancel Button */}
+                           <motion.button
+                             key="cancel-btn"
+                             layout
+                             initial={{ opacity: 0, scale: 0.5, x: -50 }}
+                             animate={{ opacity: 1, scale: 1, x: 0 }}
+                             exit={{ opacity: 0, scale: 0.5, x: -50 }}
+                             transition={{
+                               duration: prefersReducedMotion ? 0 : 0.8,
+                               ease: prefersReducedMotion ? 'linear' : [0.68, -0.6, 0.32, 1.6],
+                             }}
+                             onClick={handleCancelChanges}
+                             className="flex-1 py-4 px-6 rounded-2xl bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white font-bold text-lg shadow-xl shadow-gray-500/30 hover:shadow-2xl hover:shadow-gray-500/40 hover:scale-[1.02] transition-all duration-300 flex items-center justify-center gap-2 group relative overflow-hidden"
+                           >
+                             <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+                             <span className="material-symbols-outlined text-xl relative z-10">close</span>
+                             <span className="relative z-10">Cancel</span>
+                           </motion.button>
+
+                           {/* Save Button */}
+                           <motion.button
+                             key="save-btn"
+                             layout
+                             initial={{ opacity: 0, scale: 0.5, x: 50 }}
+                             animate={{ opacity: 1, scale: 1, x: 0 }}
+                             exit={{ opacity: 0, scale: 0.5, x: 50 }}
+                             transition={{
+                               duration: prefersReducedMotion ? 0 : 0.8,
+                               ease: prefersReducedMotion ? 'linear' : [0.68, -0.6, 0.32, 1.6],
+                             }}
+                             onClick={handleSaveChanges}
+                             className="flex-1 py-4 px-6 rounded-2xl bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold text-lg shadow-xl shadow-green-500/30 hover:shadow-2xl hover:shadow-green-500/40 hover:scale-[1.02] transition-all duration-300 flex items-center justify-center gap-2 group relative overflow-hidden"
+                           >
+                             <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+                             <span className="material-symbols-outlined text-xl relative z-10">check</span>
+                             <span className="relative z-10">Save</span>
+                           </motion.button>
+                         </>
+                       )}
+                     </AnimatePresence>
+                   </motion.div>
+                 )}
                  
                  {onSaveToMyTemplates && !template.isCustom && (
                    <button
@@ -366,7 +552,9 @@ export function TemplatePreviewModal({
                   value={editedTitle}
                   onChange={(e) => {
                     if (template.isCustom) {
-                      setEditedTitle(e.target.value)
+                      const newValue = e.target.value
+                      setEditedTitle(newValue)
+                      checkForChanges({ title: newValue })
                     }
                   }}
                   onFocus={handleFieldFocus}
@@ -385,7 +573,9 @@ export function TemplatePreviewModal({
                       value={editedPriority}
                       onChange={(e) => {
                         if (template.isCustom) {
-                          setEditedPriority(e.target.value as TaskPriority)
+                          const newValue = e.target.value as TaskPriority
+                          setEditedPriority(newValue)
+                          checkForChanges({ priority: newValue })
                         }
                       }}
                       onFocus={handleFieldFocus}
@@ -406,7 +596,9 @@ export function TemplatePreviewModal({
                       value={editedCategory}
                       onChange={(e) => {
                         if (template.isCustom) {
-                          setEditedCategory(e.target.value)
+                          const newValue = e.target.value
+                          setEditedCategory(newValue)
+                          checkForChanges({ category: newValue })
                         }
                       }}
                       onFocus={handleFieldFocus}
@@ -433,7 +625,9 @@ export function TemplatePreviewModal({
                     value={editedTimeEstimate || ''}
                     onChange={(e) => {
                       if (template.isCustom) {
-                        setEditedTimeEstimate(e.target.value ? parseInt(e.target.value) : undefined)
+                        const newValue = e.target.value ? parseInt(e.target.value) : undefined
+                        setEditedTimeEstimate(newValue)
+                        checkForChanges({ timeEstimate: newValue })
                       }
                     }}
                     onFocus={handleFieldFocus}
@@ -451,7 +645,9 @@ export function TemplatePreviewModal({
                   value={editedDescription}
                   onChange={(e) => {
                     if (template.isCustom) {
-                      setEditedDescription(e.target.value)
+                      const newValue = e.target.value
+                      setEditedDescription(newValue)
+                      checkForChanges({ description: newValue })
                     }
                   }}
                   onFocus={handleFieldFocus}
@@ -477,7 +673,9 @@ export function TemplatePreviewModal({
                         {template.isCustom && (
                           <button
                             onClick={() => {
-                              setEditedTags(editedTags.filter((_, i) => i !== index))
+                              const newTags = editedTags.filter((_, i) => i !== index)
+                              setEditedTags(newTags)
+                              checkForChanges({ tags: newTags })
                             }}
                             className="hover:bg-indigo-200 dark:hover:bg-indigo-500/30 rounded-full w-4 h-4 flex items-center justify-center transition-colors"
                             type="button"
@@ -496,8 +694,10 @@ export function TemplatePreviewModal({
                       onKeyDown={(e) => {
                         if (e.key === 'Enter' && tagInput.trim() && template.isCustom) {
                           e.preventDefault()
-                          setEditedTags([...editedTags, tagInput.trim()])
+                          const newTags = [...editedTags, tagInput.trim()]
+                          setEditedTags(newTags)
                           setTagInput('')
+                          checkForChanges({ tags: newTags })
                         }
                       }}
                       readOnly={!template.isCustom}
@@ -510,8 +710,10 @@ export function TemplatePreviewModal({
                     <button
                       onClick={() => {
                         if (tagInput.trim()) {
-                          setEditedTags([...editedTags, tagInput.trim()])
+                          const newTags = [...editedTags, tagInput.trim()]
+                          setEditedTags(newTags)
                           setTagInput('')
+                          checkForChanges({ tags: newTags })
                         }
                       }}
                       className="flex-shrink-0 px-4 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-colors"
