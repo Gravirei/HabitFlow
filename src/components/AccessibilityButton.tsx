@@ -222,7 +222,7 @@ export function AccessibilityButton() {
           position: 'fixed',
           left: `${position.x}px`,
           top: `${position.y}px`,
-          zIndex: 50,
+          zIndex: 60,
           transition: isDragging ? 'none' : 'all 0.3s ease-out',
         }}
         aria-label="Accessibility Options"
@@ -245,14 +245,14 @@ export function AccessibilityButton() {
         <>
           {/* Backdrop */}
           <div
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 animate-in fade-in duration-300"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] animate-in fade-in duration-300"
             style={{ animationTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)' }}
             onClick={() => setIsOpen(false)}
           />
 
           {/* Panel */}
           <div 
-            className="fixed z-50 w-80 h-80 bg-gray-50 dark:bg-gray-950 rounded-3xl shadow-2xl overflow-hidden border border-gray-200 dark:border-gray-800"
+            className="fixed z-[70] w-80 h-80 bg-gray-50 dark:bg-gray-950 rounded-3xl shadow-2xl overflow-hidden border border-gray-200 dark:border-gray-800"
             style={{
               left: position.x + 64 + 16 < window.innerWidth - 320 
                 ? `${position.x + 64 + 16}px` // Right of button
