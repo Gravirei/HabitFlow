@@ -28,6 +28,16 @@ export function TemplatePreviewModal({
   const [editedSubtasks, setEditedSubtasks] = useState<Subtask[]>([])
   const [editedTimeEstimate, setEditedTimeEstimate] = useState<number | undefined>(undefined)
   const [isEditMode, setIsEditMode] = useState(false)
+  const [showEditWarning, setShowEditWarning] = useState(false)
+
+  // Check if template can be edited (must be custom or saved)
+  const handleFieldFocus = () => {
+    if (!template.isCustom) {
+      setShowEditWarning(true)
+      // Auto-hide warning after 5 seconds
+      setTimeout(() => setShowEditWarning(false), 5000)
+    }
+  }
 
   // Initialize form when template changes
   useState(() => {
@@ -262,7 +272,7 @@ export function TemplatePreviewModal({
               isEditMode ? 'translate-x-0' : 'translate-x-full'
             }`}>
               <div className="p-8 h-full overflow-y-auto custom-scrollbar">
-                <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center justify-between mb-6">
                   <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
                     <span className="material-symbols-outlined text-gray-400">tune</span>
                     Customize Details
@@ -277,6 +287,32 @@ export function TemplatePreviewModal({
                   </button>
                 </div>
 
+                {/* Warning Banner - Library templates cannot be edited */}
+                {showEditWarning && !template.isCustom && (
+                  <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-500/10 dark:to-orange-500/10 border-2 border-amber-200 dark:border-amber-500/30 animate-in slide-in-from-top duration-300">
+                    <div className="flex items-start gap-3">
+                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-500/20 flex items-center justify-center">
+                        <span className="material-symbols-outlined text-amber-600 dark:text-amber-400 text-xl">lock</span>
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-bold text-amber-900 dark:text-amber-200 mb-1 text-sm">
+                          Template is Read-Only
+                        </h4>
+                        <p className="text-sm text-amber-800 dark:text-amber-300 leading-relaxed">
+                          You cannot edit default library templates. Please save this template as your own by clicking <strong>"Make It My Template"</strong> to enable editing.
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => setShowEditWarning(false)}
+                        className="flex-shrink-0 w-6 h-6 rounded-full hover:bg-amber-200 dark:hover:bg-amber-500/20 flex items-center justify-center text-amber-600 dark:text-amber-400 transition-colors"
+                      >
+                        <span className="material-symbols-outlined text-sm">close</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+
             <div className="space-y-6">
               {/* Title Input */}
               <div className="group">
@@ -285,7 +321,9 @@ export function TemplatePreviewModal({
                   type="text"
                   value={editedTitle}
                   onChange={(e) => setEditedTitle(e.target.value)}
-                  className="w-full px-4 py-3.5 rounded-xl bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 focus:bg-white dark:focus:bg-black/40 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium"
+                  onFocus={handleFieldFocus}
+                  disabled={!template.isCustom}
+                  className="w-full px-4 py-3.5 rounded-xl bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 focus:bg-white dark:focus:bg-black/40 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium disabled:opacity-60 disabled:cursor-not-allowed"
                   placeholder="What needs to be done?"
                 />
               </div>
@@ -298,7 +336,9 @@ export function TemplatePreviewModal({
                     <select
                       value={editedPriority}
                       onChange={(e) => setEditedPriority(e.target.value as TaskPriority)}
-                      className="w-full px-4 py-3.5 rounded-xl bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white appearance-none focus:bg-white dark:focus:bg-black/40 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium cursor-pointer"
+                      onFocus={handleFieldFocus}
+                      disabled={!template.isCustom}
+                      className="w-full px-4 py-3.5 rounded-xl bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white appearance-none focus:bg-white dark:focus:bg-black/40 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                     >
                       <option value="low">Low</option>
                       <option value="medium">Medium</option>
@@ -314,7 +354,9 @@ export function TemplatePreviewModal({
                      <select
                       value={editedCategory}
                       onChange={(e) => setEditedCategory(e.target.value)}
-                      className="w-full px-4 py-3.5 rounded-xl bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white appearance-none focus:bg-white dark:focus:bg-black/40 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium cursor-pointer"
+                      onFocus={handleFieldFocus}
+                      disabled={!template.isCustom}
+                      className="w-full px-4 py-3.5 rounded-xl bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white appearance-none focus:bg-white dark:focus:bg-black/40 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                     >
                       <option value="Work">Work</option>
                       <option value="Personal">Personal</option>
@@ -336,7 +378,9 @@ export function TemplatePreviewModal({
                     type="number"
                     value={editedTimeEstimate || ''}
                     onChange={(e) => setEditedTimeEstimate(e.target.value ? parseInt(e.target.value) : undefined)}
-                    className="w-full pl-11 pr-4 py-3.5 rounded-xl bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 focus:bg-white dark:focus:bg-black/40 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium"
+                    onFocus={handleFieldFocus}
+                    disabled={!template.isCustom}
+                    className="w-full pl-11 pr-4 py-3.5 rounded-xl bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 focus:bg-white dark:focus:bg-black/40 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium disabled:opacity-60 disabled:cursor-not-allowed"
                     placeholder="e.g. 30"
                   />
                  </div>
@@ -348,8 +392,10 @@ export function TemplatePreviewModal({
                 <textarea
                   value={editedDescription}
                   onChange={(e) => setEditedDescription(e.target.value)}
+                  onFocus={handleFieldFocus}
+                  disabled={!template.isCustom}
                   rows={4}
-                  className="w-full px-4 py-3.5 rounded-xl bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 focus:bg-white dark:focus:bg-black/40 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium resize-none"
+                  className="w-full px-4 py-3.5 rounded-xl bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 focus:bg-white dark:focus:bg-black/40 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium resize-none disabled:opacity-60 disabled:cursor-not-allowed"
                   placeholder="Add details about this task..."
                 />
               </div>
