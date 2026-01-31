@@ -115,9 +115,9 @@ export function TemplatePreviewModal({
           {/* Container with two panels */}
           <div className="relative w-full h-full">
             
-            {/* Preview Panel - Full Width */}
-            <div className={`absolute inset-0 w-full h-full p-12 flex flex-col items-center justify-center text-center transition-transform duration-500 ease-in-out ${
-              isEditMode ? '-translate-x-full' : 'translate-x-0'
+            {/* Preview Panel - Shrinks to left side when edit mode */}
+            <div className={`absolute left-0 top-0 h-full p-12 flex flex-col items-center justify-center text-center transition-all duration-500 ease-in-out ${
+              isEditMode ? 'w-1/2' : 'w-full'
             }`}>
               <div className="absolute inset-0 bg-gradient-to-b from-transparent to-white/40 dark:to-black/20 pointer-events-none"></div>
              
@@ -236,26 +236,20 @@ export function TemplatePreviewModal({
               </div>
             </div>
 
-            {/* Edit Panel - Slides in from right */}
-            <div className={`absolute inset-0 w-full h-full bg-white dark:bg-gray-950 transition-transform duration-500 ease-in-out ${
+            {/* Edit Panel - Slides in from right side */}
+            <div className={`absolute right-0 top-0 w-1/2 h-full bg-white dark:bg-gray-950 border-l border-gray-200 dark:border-white/5 transition-transform duration-500 ease-in-out ${
               isEditMode ? 'translate-x-0' : 'translate-x-full'
             }`}>
               <div className="p-8 h-full overflow-y-auto custom-scrollbar">
                 <div className="flex items-center justify-between mb-8">
-                  <button
-                    onClick={() => setIsEditMode(false)}
-                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 text-gray-700 dark:text-white font-semibold transition-all"
-                  >
-                    <span className="material-symbols-outlined text-lg">arrow_back</span>
-                    Back
-                  </button>
                   <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
                     <span className="material-symbols-outlined text-gray-400">tune</span>
                     Customize Details
                   </h3>
                   <button
-                    onClick={onClose}
+                    onClick={() => setIsEditMode(false)}
                     className="w-8 h-8 rounded-full bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 flex items-center justify-center text-gray-500 transition-colors"
+                    title="Close edit panel"
                   >
                     <span className="material-symbols-outlined text-lg">close</span>
                   </button>
