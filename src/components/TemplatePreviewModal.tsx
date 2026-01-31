@@ -320,10 +320,14 @@ export function TemplatePreviewModal({
                 <input
                   type="text"
                   value={editedTitle}
-                  onChange={(e) => setEditedTitle(e.target.value)}
+                  onChange={(e) => {
+                    if (template.isCustom) {
+                      setEditedTitle(e.target.value)
+                    }
+                  }}
                   onFocus={handleFieldFocus}
-                  disabled={!template.isCustom}
-                  className="w-full px-4 py-3.5 rounded-xl bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 focus:bg-white dark:focus:bg-black/40 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium disabled:opacity-60 disabled:cursor-not-allowed"
+                  readOnly={!template.isCustom}
+                  className={`w-full px-4 py-3.5 rounded-xl bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 focus:bg-white dark:focus:bg-black/40 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium ${!template.isCustom ? 'opacity-60 cursor-not-allowed' : ''}`}
                   placeholder="What needs to be done?"
                 />
               </div>
@@ -335,10 +339,13 @@ export function TemplatePreviewModal({
                   <div className="relative">
                     <select
                       value={editedPriority}
-                      onChange={(e) => setEditedPriority(e.target.value as TaskPriority)}
+                      onChange={(e) => {
+                        if (template.isCustom) {
+                          setEditedPriority(e.target.value as TaskPriority)
+                        }
+                      }}
                       onFocus={handleFieldFocus}
-                      disabled={!template.isCustom}
-                      className="w-full px-4 py-3.5 rounded-xl bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white appearance-none focus:bg-white dark:focus:bg-black/40 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                      className={`w-full px-4 py-3.5 rounded-xl bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white appearance-none focus:bg-white dark:focus:bg-black/40 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium cursor-pointer ${!template.isCustom ? 'opacity-60 cursor-not-allowed pointer-events-none' : ''}`}
                     >
                       <option value="low">Low</option>
                       <option value="medium">Medium</option>
@@ -353,10 +360,13 @@ export function TemplatePreviewModal({
                   <div className="relative">
                      <select
                       value={editedCategory}
-                      onChange={(e) => setEditedCategory(e.target.value)}
+                      onChange={(e) => {
+                        if (template.isCustom) {
+                          setEditedCategory(e.target.value)
+                        }
+                      }}
                       onFocus={handleFieldFocus}
-                      disabled={!template.isCustom}
-                      className="w-full px-4 py-3.5 rounded-xl bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white appearance-none focus:bg-white dark:focus:bg-black/40 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                      className={`w-full px-4 py-3.5 rounded-xl bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white appearance-none focus:bg-white dark:focus:bg-black/40 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium cursor-pointer ${!template.isCustom ? 'opacity-60 cursor-not-allowed pointer-events-none' : ''}`}
                     >
                       <option value="Work">Work</option>
                       <option value="Personal">Personal</option>
@@ -377,10 +387,14 @@ export function TemplatePreviewModal({
                    <input
                     type="number"
                     value={editedTimeEstimate || ''}
-                    onChange={(e) => setEditedTimeEstimate(e.target.value ? parseInt(e.target.value) : undefined)}
+                    onChange={(e) => {
+                      if (template.isCustom) {
+                        setEditedTimeEstimate(e.target.value ? parseInt(e.target.value) : undefined)
+                      }
+                    }}
                     onFocus={handleFieldFocus}
-                    disabled={!template.isCustom}
-                    className="w-full pl-11 pr-4 py-3.5 rounded-xl bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 focus:bg-white dark:focus:bg-black/40 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium disabled:opacity-60 disabled:cursor-not-allowed"
+                    readOnly={!template.isCustom}
+                    className={`w-full pl-11 pr-4 py-3.5 rounded-xl bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 focus:bg-white dark:focus:bg-black/40 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium ${!template.isCustom ? 'opacity-60 cursor-not-allowed' : ''}`}
                     placeholder="e.g. 30"
                   />
                  </div>
@@ -391,11 +405,15 @@ export function TemplatePreviewModal({
                 <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 group-focus-within:text-indigo-600 transition-colors">Description</label>
                 <textarea
                   value={editedDescription}
-                  onChange={(e) => setEditedDescription(e.target.value)}
+                  onChange={(e) => {
+                    if (template.isCustom) {
+                      setEditedDescription(e.target.value)
+                    }
+                  }}
                   onFocus={handleFieldFocus}
-                  disabled={!template.isCustom}
+                  readOnly={!template.isCustom}
                   rows={4}
-                  className="w-full px-4 py-3.5 rounded-xl bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 focus:bg-white dark:focus:bg-black/40 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium resize-none disabled:opacity-60 disabled:cursor-not-allowed"
+                  className={`w-full px-4 py-3.5 rounded-xl bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 focus:bg-white dark:focus:bg-black/40 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium resize-none ${!template.isCustom ? 'opacity-60 cursor-not-allowed' : ''}`}
                   placeholder="Add details about this task..."
                 />
               </div>
