@@ -140,15 +140,23 @@ export function TemplatePreviewModal({
                  {editedDescription || template.description}
                </p>
 
-               {/* Badges: Category, Priority, Time - Improved Design */}
-               <div className="flex items-center justify-center gap-3 flex-wrap mb-10">
+               {/* Badges: Category, Priority, Time - Shrink in edit mode */}
+               <div className={`flex items-center justify-center gap-2 flex-nowrap mb-10 transition-all duration-500 ${
+                 isEditMode ? 'scale-90' : 'scale-100'
+               }`}>
                  {/* Category Badge */}
                  {editedCategory && (
-                   <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-gray-100 to-gray-50 dark:from-white/10 dark:to-white/5 backdrop-blur-sm border border-gray-200/50 dark:border-white/10 shadow-sm">
-                     <span className="material-symbols-outlined text-[16px] text-indigo-600 dark:text-indigo-400">
+                   <div className={`flex items-center rounded-full bg-gradient-to-r from-gray-100 to-gray-50 dark:from-white/10 dark:to-white/5 backdrop-blur-sm border border-gray-200/50 dark:border-white/10 shadow-sm transition-all duration-500 ${
+                     isEditMode ? 'gap-1 px-2 py-1.5' : 'gap-2 px-4 py-2'
+                   }`}>
+                     <span className={`material-symbols-outlined text-indigo-600 dark:text-indigo-400 transition-all duration-500 ${
+                       isEditMode ? 'text-[14px]' : 'text-[16px]'
+                     }`}>
                        {editedCategory === 'Work' ? 'business_center' : editedCategory === 'Personal' ? 'person' : editedCategory === 'Health' ? 'favorite' : editedCategory === 'Creative' ? 'palette' : 'school'}
                      </span>
-                     <span className="text-sm font-bold text-gray-800 dark:text-gray-200">
+                     <span className={`font-bold text-gray-800 dark:text-gray-200 transition-all duration-500 ${
+                       isEditMode ? 'text-xs' : 'text-sm'
+                     }`}>
                        {editedCategory}
                      </span>
                    </div>
@@ -156,17 +164,23 @@ export function TemplatePreviewModal({
 
                  {/* Priority Badge */}
                  {editedPriority && (
-                   <div className={`flex items-center gap-2 px-4 py-2 rounded-full backdrop-blur-sm border shadow-sm ${
+                   <div className={`flex items-center rounded-full backdrop-blur-sm border shadow-sm transition-all duration-500 ${
+                     isEditMode ? 'gap-1 px-2 py-1.5' : 'gap-2 px-4 py-2'
+                   } ${
                      editedPriority === 'high' ? 'bg-gradient-to-r from-red-50 to-red-100 dark:from-red-500/10 dark:to-red-500/20 border-red-200/50 dark:border-red-500/30' :
                      editedPriority === 'medium' ? 'bg-gradient-to-r from-yellow-50 to-yellow-100 dark:from-yellow-500/10 dark:to-yellow-500/20 border-yellow-200/50 dark:border-yellow-500/30' :
                      'bg-gradient-to-r from-green-50 to-green-100 dark:from-green-500/10 dark:to-green-500/20 border-green-200/50 dark:border-green-500/30'
                    }`}>
-                     <span className={`material-symbols-outlined text-[16px] ${
+                     <span className={`material-symbols-outlined transition-all duration-500 ${
+                       isEditMode ? 'text-[14px]' : 'text-[16px]'
+                     } ${
                        editedPriority === 'high' ? 'text-red-600 dark:text-red-400' :
                        editedPriority === 'medium' ? 'text-yellow-600 dark:text-yellow-400' :
                        'text-green-600 dark:text-green-400'
                      }`}>flag</span>
-                     <span className={`text-sm font-bold capitalize ${
+                     <span className={`font-bold capitalize transition-all duration-500 ${
+                       isEditMode ? 'text-xs' : 'text-sm'
+                     } ${
                        editedPriority === 'high' ? 'text-red-700 dark:text-red-300' :
                        editedPriority === 'medium' ? 'text-yellow-700 dark:text-yellow-300' :
                        'text-green-700 dark:text-green-300'
@@ -178,9 +192,15 @@ export function TemplatePreviewModal({
 
                  {/* Time Estimate Badge */}
                  {editedTimeEstimate && (
-                   <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-500/10 dark:to-blue-500/20 backdrop-blur-sm border border-blue-200/50 dark:border-blue-500/30 shadow-sm">
-                     <span className="material-symbols-outlined text-[16px] text-blue-600 dark:text-blue-400">schedule</span>
-                     <span className="text-sm font-bold text-blue-700 dark:text-blue-300">
+                   <div className={`flex items-center rounded-full bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-500/10 dark:to-blue-500/20 backdrop-blur-sm border border-blue-200/50 dark:border-blue-500/30 shadow-sm transition-all duration-500 ${
+                     isEditMode ? 'gap-1 px-2 py-1.5' : 'gap-2 px-4 py-2'
+                   }`}>
+                     <span className={`material-symbols-outlined text-blue-600 dark:text-blue-400 transition-all duration-500 ${
+                       isEditMode ? 'text-[14px]' : 'text-[16px]'
+                     }`}>schedule</span>
+                     <span className={`font-bold text-blue-700 dark:text-blue-300 transition-all duration-500 ${
+                       isEditMode ? 'text-xs' : 'text-sm'
+                     }`}>
                        {editedTimeEstimate}m
                      </span>
                    </div>
