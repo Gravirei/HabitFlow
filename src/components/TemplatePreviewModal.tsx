@@ -374,24 +374,22 @@ export function TemplatePreviewModal({
                      layout
                      className="flex items-center justify-center w-full"
                      animate={{
-                       gap: hasUnsavedChanges ? '20px' : '0px',
+                       gap: hasUnsavedChanges ? '12px' : '0px',
                      }}
                      transition={{
-                       duration: prefersReducedMotion ? 0 : 0.8,
-                       ease: prefersReducedMotion ? 'linear' : [0.68, -0.6, 0.32, 1.6],
+                       duration: prefersReducedMotion ? 0 : 0.3,
+                       ease: 'easeInOut',
                      }}
                    >
-                     <AnimatePresence mode="popLayout">
+                     <AnimatePresence mode="wait">
                        {!hasUnsavedChanges && (
                          <motion.button
                            key="close-edit"
-                           layout
-                           initial={{ opacity: 0, scale: 0.5 }}
-                           animate={{ opacity: 1, scale: 1 }}
-                           exit={{ opacity: 0, scale: 0.5 }}
+                           initial={{ opacity: 0 }}
+                           animate={{ opacity: 1 }}
+                           exit={{ opacity: 0 }}
                            transition={{
-                             duration: prefersReducedMotion ? 0 : 0.8,
-                             ease: prefersReducedMotion ? 'linear' : [0.68, -0.6, 0.32, 1.6],
+                             duration: prefersReducedMotion ? 0 : 0.2,
                            }}
                            onClick={() => setIsEditMode(false)}
                            className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 bg-size-200 bg-pos-0 hover:bg-pos-100 text-white font-bold text-lg shadow-xl shadow-indigo-500/30 hover:shadow-2xl hover:shadow-indigo-500/40 hover:scale-[1.02] transition-all duration-500 flex items-center justify-center gap-3 group relative overflow-hidden"
@@ -407,13 +405,11 @@ export function TemplatePreviewModal({
                            {/* Cancel Button */}
                            <motion.button
                              key="cancel-btn"
-                             layout
-                             initial={{ opacity: 0, scale: 0.5, x: -50 }}
-                             animate={{ opacity: 1, scale: 1, x: 0 }}
-                             exit={{ opacity: 0, scale: 0.5, x: -50 }}
+                             initial={{ opacity: 0 }}
+                             animate={{ opacity: 1 }}
+                             exit={{ opacity: 0 }}
                              transition={{
-                               duration: prefersReducedMotion ? 0 : 0.8,
-                               ease: prefersReducedMotion ? 'linear' : [0.68, -0.6, 0.32, 1.6],
+                               duration: prefersReducedMotion ? 0 : 0.2,
                              }}
                              onClick={handleCancelChanges}
                              className="flex-1 py-4 px-6 rounded-2xl bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white font-bold text-lg shadow-xl shadow-gray-500/30 hover:shadow-2xl hover:shadow-gray-500/40 hover:scale-[1.02] transition-all duration-300 flex items-center justify-center gap-2 group relative overflow-hidden"
@@ -426,13 +422,11 @@ export function TemplatePreviewModal({
                            {/* Save Button */}
                            <motion.button
                              key="save-btn"
-                             layout
-                             initial={{ opacity: 0, scale: 0.5, x: 50 }}
-                             animate={{ opacity: 1, scale: 1, x: 0 }}
-                             exit={{ opacity: 0, scale: 0.5, x: 50 }}
+                             initial={{ opacity: 0 }}
+                             animate={{ opacity: 1 }}
+                             exit={{ opacity: 0 }}
                              transition={{
-                               duration: prefersReducedMotion ? 0 : 0.8,
-                               ease: prefersReducedMotion ? 'linear' : [0.68, -0.6, 0.32, 1.6],
+                               duration: prefersReducedMotion ? 0 : 0.2,
                              }}
                              onClick={handleSaveChanges}
                              className="flex-1 py-4 px-6 rounded-2xl bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold text-lg shadow-xl shadow-green-500/30 hover:shadow-2xl hover:shadow-green-500/40 hover:scale-[1.02] transition-all duration-300 flex items-center justify-center gap-2 group relative overflow-hidden"
