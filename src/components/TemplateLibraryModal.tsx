@@ -1097,14 +1097,6 @@ export function TemplateLibraryModal({
     setIsPreviewOpen(true)
   }
 
-  // Debug: Log custom templates when modal opens
-  useEffect(() => {
-    if (isOpen) {
-      console.log('TemplateLibraryModal - customTemplates:', customTemplates)
-      console.log('TemplateLibraryModal - customTemplates IDs:', customTemplates.map(t => t.id))
-    }
-  }, [isOpen, customTemplates])
-
   return (
     <>
       <AccessibleModal
@@ -1235,9 +1227,6 @@ export function TemplateLibraryModal({
                   const isAdded = customTemplates.some(t => 
                     t.id === template.id || t.sourceTemplateId === template.id
                   )
-                  if (isAdded) {
-                    console.log(`Template "${template.name}" (${template.id}) is ADDED`)
-                  }
                   return (
                     <LibraryTemplateCard 
                       key={template.id} 
