@@ -188,11 +188,11 @@ export function TemplatePreviewModal({
 
                <div className="mt-auto w-full space-y-3">
                  <button
-                   onClick={() => setIsEditMode(true)}
+                   onClick={() => setIsEditMode(!isEditMode)}
                    className="w-full py-4 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-lg shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2 group"
                  >
                    <span className="material-symbols-outlined group-hover:scale-110 transition-transform">edit</span>
-                   Edit Details
+                   {isEditMode ? 'Close Edit' : 'Edit Details'}
                  </button>
                  
                  {onSaveToMyTemplates && !template.isCustom && (
@@ -241,10 +241,11 @@ export function TemplatePreviewModal({
                   </h3>
                   <button
                     onClick={() => setIsEditMode(false)}
-                    className="w-8 h-8 rounded-full bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 flex items-center justify-center text-gray-500 transition-colors"
-                    title="Close edit panel"
+                    className="flex items-center gap-2 px-3 py-2 rounded-xl bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 text-gray-600 dark:text-gray-300 font-medium transition-all"
+                    title="Hide edit panel"
                   >
-                    <span className="material-symbols-outlined text-lg">close</span>
+                    <span className="material-symbols-outlined text-lg">chevron_right</span>
+                    Hide
                   </button>
                 </div>
 
