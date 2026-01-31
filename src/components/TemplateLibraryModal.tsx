@@ -1097,6 +1097,14 @@ export function TemplateLibraryModal({
     setIsPreviewOpen(true)
   }
 
+  // Debug: Log custom templates when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      console.log('TemplateLibraryModal - customTemplates:', customTemplates)
+      console.log('TemplateLibraryModal - customTemplates IDs:', customTemplates.map(t => t.id))
+    }
+  }, [isOpen, customTemplates])
+
   return (
     <>
       <AccessibleModal
@@ -1223,7 +1231,13 @@ export function TemplateLibraryModal({
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 pb-12">
                 {filteredTemplates.map((template) => {
-                  const isAdded = customTemplates.some(t => t.id === template.id)
+                  // Check if template is added by comparing both ID and sourceTemplateId
+                  const isAdded = customTemplates.some(t => 
+                    t.id === template.id || t.sourceTemplateId === template.id
+                  )
+                  if (isAdded) {
+                    console.log(`Template "${template.name}" (${template.id}) is ADDED`)
+                  }
                   return (
                     <LibraryTemplateCard 
                       key={template.id} 

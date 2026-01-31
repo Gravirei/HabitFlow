@@ -270,6 +270,7 @@ export function TemplatePreviewModal({
                          name: template.name,
                          description: template.description,
                          isCustom: true,
+                         sourceTemplateId: template.id, // Track original library template
                          template: {
                            ...template.template,
                            title: editedTitle,

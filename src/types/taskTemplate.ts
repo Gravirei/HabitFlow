@@ -8,6 +8,7 @@ export interface TaskTemplate {
   category: string
   color: string
   isCustom: boolean
+  sourceTemplateId?: string // Track original library template ID
   template: {
     title: string
     description?: string
