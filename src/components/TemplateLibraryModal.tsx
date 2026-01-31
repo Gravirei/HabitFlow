@@ -920,11 +920,13 @@ export const DEFAULT_TEMPLATES: TaskTemplate[] = [
 function LibraryTemplateCard({ 
   template, 
   onClick,
-  isAdded 
+  isAdded,
+  isModified 
 }: { 
   template: TaskTemplate
   onClick: () => void
   isAdded?: boolean
+  isModified?: boolean
 }) {
   return (
     <button
@@ -934,8 +936,15 @@ function LibraryTemplateCard({
       {/* Background Gradient Mesh */}
       <div className={`absolute top-0 right-0 -mt-8 -mr-8 w-32 h-32 rounded-full blur-3xl opacity-0 group-hover:opacity-20 transition-opacity duration-500 ${template.color.replace('bg-', 'bg-')}`}></div>
       
-      {/* Added Badge */}
-      {isAdded && (
+      {/* Badge - Show "Used & Modified" if modified, otherwise "Added" */}
+      {isAdded && isModified && (
+        <div className="absolute top-4 right-4 z-20 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-purple-500 shadow-lg shadow-purple-500/30 animate-in fade-in zoom-in duration-300">
+          <span className="material-symbols-outlined text-[14px] text-white">edit_note</span>
+          <span className="text-[11px] font-bold text-white uppercase tracking-wide">Used & Modified</span>
+        </div>
+      )}
+      
+      {isAdded && !isModified && (
         <div className="absolute top-4 right-4 z-20 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green-500 shadow-lg shadow-green-500/30 animate-in fade-in zoom-in duration-300">
           <span className="material-symbols-outlined text-[14px] text-white">check_circle</span>
           <span className="text-[11px] font-bold text-white uppercase tracking-wide">Added</span>
@@ -1223,16 +1232,36 @@ export function TemplateLibraryModal({
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 pb-12">
                 {filteredTemplates.map((template) => {
-                  // Check if template is added by comparing both ID and sourceTemplateId
-                  const isAdded = customTemplates.some(t => 
+                  // Find if template is saved in customTemplates
+                  const savedTemplate = customTemplates.find(t => 
                     t.id === template.id || t.sourceTemplateId === template.id
                   )
+                  
+                  const isAdded = !!savedTemplate
+                  
+                  // Check if template has been modified from original
+                  let isModified = false
+                  if (savedTemplate) {
+                    isModified = 
+                      savedTemplate.name !== template.name ||
+                      savedTemplate.description !== template.description ||
+                      savedTemplate.category !== template.category ||
+                      savedTemplate.template.title !== template.template.title ||
+                      savedTemplate.template.description !== template.template.description ||
+                      savedTemplate.template.priority !== template.template.priority ||
+                      savedTemplate.template.category !== template.template.category ||
+                      savedTemplate.template.timeEstimate !== template.template.timeEstimate ||
+                      JSON.stringify(savedTemplate.template.tags) !== JSON.stringify(template.template.tags) ||
+                      JSON.stringify(savedTemplate.template.subtasks) !== JSON.stringify(template.template.subtasks)
+                  }
+                  
                   return (
                     <LibraryTemplateCard 
                       key={template.id} 
                       template={template} 
                       onClick={() => handleTemplateClick(template)}
                       isAdded={isAdded}
+                      isModified={isModified}
                     />
                   )
                 })}
