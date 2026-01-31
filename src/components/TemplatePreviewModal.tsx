@@ -29,11 +29,16 @@ export function TemplatePreviewModal({
   const [editedTimeEstimate, setEditedTimeEstimate] = useState<number | undefined>(undefined)
   const [isEditMode, setIsEditMode] = useState(false)
   const [showEditWarning, setShowEditWarning] = useState(false)
+  const editPanelRef = useRef<HTMLDivElement>(null)
 
   // Check if template can be edited (must be custom or saved)
   const handleFieldFocus = () => {
     if (!template.isCustom) {
       setShowEditWarning(true)
+      // Scroll to top of edit panel to show warning banner
+      if (editPanelRef.current) {
+        editPanelRef.current.scrollTo({ top: 0, behavior: 'smooth' })
+      }
       // Auto-hide warning after 5 seconds
       setTimeout(() => setShowEditWarning(false), 5000)
     }
@@ -271,7 +276,7 @@ export function TemplatePreviewModal({
             <div className={`absolute right-0 top-0 w-1/2 h-full bg-white dark:bg-gray-950 border-l border-gray-200 dark:border-white/5 transition-transform duration-500 ease-in-out ${
               isEditMode ? 'translate-x-0' : 'translate-x-full'
             }`}>
-              <div className="p-8 h-full overflow-y-auto custom-scrollbar">
+              <div ref={editPanelRef} className="p-8 h-full overflow-y-auto custom-scrollbar">
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
                     <span className="material-symbols-outlined text-gray-400">tune</span>
