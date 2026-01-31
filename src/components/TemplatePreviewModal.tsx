@@ -9,6 +9,7 @@ interface TemplatePreviewModalProps {
   template: TaskTemplate | null
   onUseAsTemplate: (template: TaskTemplate) => void
   onSaveAsTask: (taskData: any) => void
+  onSaveToMyTemplates?: (template: TaskTemplate) => void
 }
 
 export function TemplatePreviewModal({
@@ -17,6 +18,7 @@ export function TemplatePreviewModal({
   template,
   onUseAsTemplate,
   onSaveAsTask,
+  onSaveToMyTemplates,
 }: TemplatePreviewModalProps) {
   const [editedTitle, setEditedTitle] = useState('')
   const [editedDescription, setEditedDescription] = useState('')
@@ -38,6 +40,19 @@ export function TemplatePreviewModal({
       setEditedTimeEstimate(template.template.timeEstimate)
     }
   })
+
+  // Update local state when template prop changes
+  const [prevTemplateId, setPrevTemplateId] = useState<string | null>(null)
+  if (template && template.id !== prevTemplateId) {
+    setPrevTemplateId(template.id)
+    setEditedTitle(template.template.title || template.name)
+    setEditedDescription(template.template.description || '')
+    setEditedPriority(template.template.priority || 'medium')
+    setEditedCategory(template.template.category || template.category)
+    setEditedTags(template.template.tags || [])
+    setEditedSubtasks(template.template.subtasks || [])
+    setEditedTimeEstimate(template.template.timeEstimate)
+  }
 
   const handleUseAsTemplate = () => {
     if (!template) return
@@ -73,6 +88,8 @@ export function TemplatePreviewModal({
       subtasks: editedSubtasks,
       timeEstimate: editedTimeEstimate,
       dueDate: new Date().toISOString().split('T')[0],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     }
     
     onSaveAsTask(taskData)
@@ -86,140 +103,193 @@ export function TemplatePreviewModal({
       isOpen={isOpen}
       onClose={onClose}
       title="Template Preview"
-      maxWidth="max-w-3xl"
+      maxWidth="max-w-4xl"
+      className="!bg-transparent !shadow-none !border-0 p-0"
     >
-      <div className="bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-950 dark:from-black dark:via-slate-950 dark:to-black rounded-2xl overflow-hidden">
+      <div className="bg-white/95 dark:bg-gray-950/95 backdrop-blur-3xl rounded-[2rem] overflow-hidden shadow-2xl border border-white/20 dark:border-white/5 ring-1 ring-black/5 relative">
         {/* Animated Background */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-30">
-          <div className="absolute top-0 -left-20 w-64 h-64 bg-indigo-500/30 rounded-full blur-[100px]"></div>
-          <div className="absolute bottom-0 -right-20 w-64 h-64 bg-purple-500/30 rounded-full blur-[100px]"></div>
-        </div>
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-br from-indigo-500/10 to-purple-500/10 rounded-full blur-[120px] pointer-events-none -mt-32 -mr-32"></div>
 
-        <div className="relative z-10 p-8">
-          {/* Header */}
-          <div className="flex items-start gap-6 mb-8 pb-6 border-b border-white/10">
-            <div className={`w-16 h-16 rounded-2xl ${template.color} flex items-center justify-center shadow-2xl flex-shrink-0`}>
-              <span className="material-symbols-outlined text-3xl text-white">{template.icon}</span>
-            </div>
-            <div className="flex-1">
-              <h2 className="text-2xl font-bold text-white mb-2">{template.name}</h2>
-              <p className="text-sm text-slate-400">{template.description}</p>
-              {template.isCustom && (
-                <span className="inline-block mt-2 px-3 py-1 text-xs font-bold rounded-lg bg-gradient-to-r from-indigo-500 to-purple-500 text-white uppercase tracking-wider">
-                  Custom Template
-                </span>
-              )}
-            </div>
-            <button
-              onClick={onClose}
-              className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/70 hover:text-white transition-all"
-              aria-label="Close"
-            >
-              <span className="material-symbols-outlined text-lg">close</span>
-            </button>
+        <div className="relative z-10 p-0 grid grid-cols-1 md:grid-cols-[1fr,1.5fr] min-h-[600px]">
+          {/* Left Panel: Info & Preview */}
+          <div className="relative bg-gray-50/50 dark:bg-white/5 p-8 flex flex-col items-center text-center border-b md:border-b-0 md:border-r border-gray-200/50 dark:border-white/5">
+             <div className="absolute inset-0 bg-gradient-to-b from-transparent to-white/40 dark:to-black/20 pointer-events-none"></div>
+             
+             <div className="relative z-10 w-full flex flex-col items-center h-full">
+               <div className={`w-28 h-28 rounded-[2rem] ${template.color} flex items-center justify-center shadow-xl shadow-indigo-500/20 mb-6 ring-4 ring-white/50 dark:ring-white/10 rotate-3`}>
+                 <span className="material-symbols-outlined text-5xl text-white drop-shadow-md">{template.icon}</span>
+               </div>
+               
+               <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 max-w-[250px] leading-tight">
+                 {template.name}
+               </h2>
+               <p className="text-sm text-gray-500 dark:text-gray-400 max-w-[250px] mb-8 leading-relaxed">
+                 {template.description}
+               </p>
+
+               {template.isCustom && (
+                 <span className="px-4 py-1.5 rounded-full bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 text-xs font-bold uppercase tracking-wider mb-8">
+                   Custom Template
+                 </span>
+               )}
+
+               <div className="mt-auto w-full space-y-3">
+                 <button
+                   onClick={handleSaveAsTask}
+                   className="w-full py-4 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-lg shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2 group"
+                 >
+                   <span className="material-symbols-outlined group-hover:rotate-12 transition-transform">add_task</span>
+                   Create Task
+                 </button>
+                 
+                 <div className="grid grid-cols-2 gap-3">
+                   <button
+                     onClick={handleUseAsTemplate}
+                     className="py-3 rounded-xl bg-white dark:bg-white/10 hover:bg-gray-50 dark:hover:bg-white/20 text-gray-700 dark:text-white font-semibold border border-gray-200/50 dark:border-white/5 transition-all hover:-translate-y-0.5"
+                   >
+                     Edit
+                   </button>
+                   {onSaveToMyTemplates && !template.isCustom && (
+                      <button
+                        onClick={() => {
+                          const newTemplate: TaskTemplate = {
+                            ...template,
+                            id: `custom_${Date.now()}`,
+                            name: template.name,
+                            description: template.description,
+                            isCustom: true,
+                            template: {
+                              ...template.template,
+                              title: editedTitle,
+                              description: editedDescription,
+                              priority: editedPriority,
+                              category: editedCategory,
+                              tags: editedTags,
+                              subtasks: editedSubtasks,
+                              timeEstimate: editedTimeEstimate,
+                            },
+                          }
+                          onSaveToMyTemplates(newTemplate)
+                          onClose()
+                        }}
+                        className="py-3 rounded-xl bg-white dark:bg-white/10 hover:bg-gray-50 dark:hover:bg-white/20 text-gray-700 dark:text-white font-semibold border border-gray-200/50 dark:border-white/5 transition-all hover:-translate-y-0.5"
+                        title="Save to My Templates"
+                      >
+                        Save Copy
+                      </button>
+                   )}
+                 </div>
+               </div>
+             </div>
           </div>
 
-          {/* Form Fields */}
-          <div className="space-y-6 max-h-[50vh] overflow-y-auto custom-scrollbar pr-2 mb-8">
-            {/* Title */}
-            <div>
-              <label className="block text-sm font-semibold text-white mb-2">Task Title</label>
-              <input
-                type="text"
-                value={editedTitle}
-                onChange={(e) => setEditedTitle(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white placeholder:text-slate-500 focus:bg-white/15 focus:border-indigo-400/50 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all"
-                placeholder="Enter task title"
-              />
+          {/* Right Panel: Form */}
+          <div className="p-8 max-h-[600px] overflow-y-auto custom-scrollbar">
+            <div className="flex items-center justify-between mb-8">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                <span className="material-symbols-outlined text-gray-400">tune</span>
+                Customize Details
+              </h3>
+              <button
+                onClick={onClose}
+                className="w-8 h-8 rounded-full bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 flex items-center justify-center text-gray-500 transition-colors"
+              >
+                <span className="material-symbols-outlined text-lg">close</span>
+              </button>
             </div>
 
-            {/* Description */}
-            <div>
-              <label className="block text-sm font-semibold text-white mb-2">Description</label>
-              <textarea
-                value={editedDescription}
-                onChange={(e) => setEditedDescription(e.target.value)}
-                rows={3}
-                className="w-full px-4 py-3 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white placeholder:text-slate-500 focus:bg-white/15 focus:border-indigo-400/50 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all resize-none"
-                placeholder="Add description..."
-              />
-            </div>
-
-            {/* Priority & Category Row */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-semibold text-white mb-2">Priority</label>
-                <select
-                  value={editedPriority}
-                  onChange={(e) => setEditedPriority(e.target.value as TaskPriority)}
-                  className="w-full px-4 py-3 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white focus:bg-white/15 focus:border-indigo-400/50 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all"
-                >
-                  <option value="low" className="bg-slate-900">Low</option>
-                  <option value="medium" className="bg-slate-900">Medium</option>
-                  <option value="high" className="bg-slate-900">High</option>
-                </select>
+            <div className="space-y-6">
+              {/* Title Input */}
+              <div className="group">
+                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 group-focus-within:text-indigo-600 transition-colors">Task Title</label>
+                <input
+                  type="text"
+                  value={editedTitle}
+                  onChange={(e) => setEditedTitle(e.target.value)}
+                  className="w-full px-4 py-3.5 rounded-xl bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 focus:bg-white dark:focus:bg-black/40 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium"
+                  placeholder="What needs to be done?"
+                />
               </div>
 
-              <div>
-                <label className="block text-sm font-semibold text-white mb-2">Category</label>
-                <select
-                  value={editedCategory}
-                  onChange={(e) => setEditedCategory(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white focus:bg-white/15 focus:border-indigo-400/50 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all"
-                >
-                  <option value="Work" className="bg-slate-900">Work</option>
-                  <option value="Personal" className="bg-slate-900">Personal</option>
-                  <option value="Shopping" className="bg-slate-900">Shopping</option>
-                  <option value="Health" className="bg-slate-900">Health</option>
-                  <option value="Other" className="bg-slate-900">Other</option>
-                </select>
-              </div>
-            </div>
+              {/* Priority & Category */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="group">
+                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 group-focus-within:text-indigo-600 transition-colors">Priority</label>
+                  <div className="relative">
+                    <select
+                      value={editedPriority}
+                      onChange={(e) => setEditedPriority(e.target.value as TaskPriority)}
+                      className="w-full px-4 py-3.5 rounded-xl bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white appearance-none focus:bg-white dark:focus:bg-black/40 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium cursor-pointer"
+                    >
+                      <option value="low">Low</option>
+                      <option value="medium">Medium</option>
+                      <option value="high">High</option>
+                    </select>
+                    <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">expand_more</span>
+                  </div>
+                </div>
 
-            {/* Time Estimate */}
-            <div>
-              <label className="block text-sm font-semibold text-white mb-2">Time Estimate (minutes)</label>
-              <input
-                type="number"
-                value={editedTimeEstimate || ''}
-                onChange={(e) => setEditedTimeEstimate(e.target.value ? parseInt(e.target.value) : undefined)}
-                className="w-full px-4 py-3 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white placeholder:text-slate-500 focus:bg-white/15 focus:border-indigo-400/50 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all"
-                placeholder="e.g., 30"
-              />
-            </div>
-
-            {/* Subtasks */}
-            {editedSubtasks.length > 0 && (
-              <div>
-                <label className="block text-sm font-semibold text-white mb-3">Subtasks</label>
-                <div className="space-y-2">
-                  {editedSubtasks.map((subtask, index) => (
-                    <div key={index} className="flex items-center gap-3 px-4 py-2 rounded-lg bg-white/5 border border-white/10">
-                      <span className="material-symbols-outlined text-slate-400 text-sm">check_circle</span>
-                      <span className="text-sm text-white flex-1">{subtask.title}</span>
-                    </div>
-                  ))}
+                <div className="group">
+                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 group-focus-within:text-indigo-600 transition-colors">Category</label>
+                  <div className="relative">
+                     <select
+                      value={editedCategory}
+                      onChange={(e) => setEditedCategory(e.target.value)}
+                      className="w-full px-4 py-3.5 rounded-xl bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white appearance-none focus:bg-white dark:focus:bg-black/40 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium cursor-pointer"
+                    >
+                      <option value="Work">Work</option>
+                      <option value="Personal">Personal</option>
+                      <option value="Shopping">Shopping</option>
+                      <option value="Health">Health</option>
+                      <option value="Other">Other</option>
+                    </select>
+                    <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">expand_more</span>
+                  </div>
                 </div>
               </div>
-            )}
-          </div>
 
-          {/* Action Buttons */}
-          <div className="flex items-center gap-3">
-            <button
-              onClick={handleUseAsTemplate}
-              className="flex-1 px-6 py-3 rounded-xl bg-white/10 hover:bg-white/15 backdrop-blur-md border border-white/20 text-white font-semibold transition-all hover:scale-[1.02] flex items-center justify-center gap-2"
-            >
-              <span className="material-symbols-outlined text-lg">edit_note</span>
-              Use as Template
-            </button>
-            <button
-              onClick={handleSaveAsTask}
-              className="flex-1 px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-bold transition-all hover:scale-[1.02] shadow-xl shadow-indigo-500/30 flex items-center justify-center gap-2"
-            >
-              <span className="material-symbols-outlined text-lg">add_task</span>
-              Save as Task
-            </button>
+              {/* Time Estimate */}
+              <div className="group">
+                 <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 group-focus-within:text-indigo-600 transition-colors">Time Estimate (Minutes)</label>
+                 <div className="relative">
+                   <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">schedule</span>
+                   <input
+                    type="number"
+                    value={editedTimeEstimate || ''}
+                    onChange={(e) => setEditedTimeEstimate(e.target.value ? parseInt(e.target.value) : undefined)}
+                    className="w-full pl-11 pr-4 py-3.5 rounded-xl bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 focus:bg-white dark:focus:bg-black/40 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium"
+                    placeholder="e.g. 30"
+                  />
+                 </div>
+              </div>
+
+              {/* Description */}
+              <div className="group">
+                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 group-focus-within:text-indigo-600 transition-colors">Description</label>
+                <textarea
+                  value={editedDescription}
+                  onChange={(e) => setEditedDescription(e.target.value)}
+                  rows={4}
+                  className="w-full px-4 py-3.5 rounded-xl bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 focus:bg-white dark:focus:bg-black/40 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium resize-none"
+                  placeholder="Add details about this task..."
+                />
+              </div>
+
+              {/* Subtasks Preview */}
+              {editedSubtasks.length > 0 && (
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Subtasks included</label>
+                  <div className="space-y-2">
+                    {editedSubtasks.map((subtask, index) => (
+                      <div key={index} className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white dark:bg-white/5 border border-gray-100 dark:border-white/5">
+                        <div className="w-5 h-5 rounded-full border-2 border-gray-300 dark:border-white/20 flex items-center justify-center"></div>
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{subtask.title}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

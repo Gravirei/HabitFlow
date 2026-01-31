@@ -25,6 +25,7 @@ dist-ssr
 .planning
 archive
 TIMER_MD
+.agent
 
 
 # Testing

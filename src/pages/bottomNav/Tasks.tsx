@@ -8,6 +8,7 @@ import { TrelloKanban } from '@/components/kanban/TrelloKanban'
 import { MinimalKanban } from '@/components/kanban/MinimalKanban'
 import { NotionKanban } from '@/components/kanban/NotionKanban'
 import { AsanaKanban } from '@/components/kanban/AsanaKanban'
+import { AccessibilityButton } from '@/components/AccessibilityButton'
 import { TaskCardWithMenu } from '@/components/TaskCardWithMenu'
 import { QuickActionsMenu } from '@/components/QuickActionsMenu'
 import { TemplateManagerModal } from '@/components/TemplateManagerModal'
@@ -106,6 +107,34 @@ export function Tasks() {
   const [tasks, setTasks] = useLocalStorage<Task[]>('tasks', SAMPLE_TASKS)
   const [customTemplates, setCustomTemplates] = useLocalStorage<TaskTemplate[]>('taskTemplates', [])
   const [view, setView] = useState<TaskView>('list')
+  
+  // Migrate broken templates on mount
+  useEffect(() => {
+    const fixBrokenTemplates = () => {
+      let needsUpdate = false
+      const fixed = customTemplates.map(template => {
+        // Check if template has no name or description (broken template)
+        if (!template.name || !template.description) {
+          console.warn('Found broken template:', template.id)
+          needsUpdate = true
+          // Try to restore name/description from template.title/description
+          return {
+            ...template,
+            name: template.name || template.template.title || 'Unnamed Template',
+            description: template.description || template.template.description || 'No description available'
+          }
+        }
+        return template
+      })
+      
+      if (needsUpdate) {
+        console.log('Fixing broken templates...')
+        setCustomTemplates(fixed)
+      }
+    }
+    
+    fixBrokenTemplates()
+  }, []) // Run only once on mount
   const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'completed'>('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedPriorities, setSelectedPriorities] = useState<TaskPriority[]>([])
@@ -844,6 +873,7 @@ export function Tasks() {
           setIsQuickActionsOpen(false)
           setIsTemplateManagerOpen(true)
         }}
+        onSaveTemplate={handleSaveTemplate}
       />
       
       <TemplateManagerModal
@@ -853,6 +883,9 @@ export function Tasks() {
         onSaveTemplate={handleSaveTemplate}
         onDeleteTemplate={handleDeleteTemplate}
       />
+
+      {/* Accessibility Button Demo */}
+      <AccessibilityButton />
 
       {/* Floating Action Button */}
       <button

@@ -27,10 +27,8 @@ export function AccessibilityButton() {
       })
       setIsDragging(true)
       setHasMoved(false)
-      // Close modal if open when starting to drag
-      if (isOpen) {
-        setIsOpen(false)
-      }
+      // Don't close modal here - let onClick handle it
+      // Only close when actually dragging (handled in handleMouseMove)
     }
   }
 
@@ -39,6 +37,10 @@ export function AccessibilityButton() {
     const handleMouseMove = (e: MouseEvent) => {
       if (isDragging) {
         setHasMoved(true)
+        // Close modal when actually dragging (not just clicking)
+        if (isOpen) {
+          setIsOpen(false)
+        }
         let newX = e.clientX - dragOffset.x
         let newY = e.clientY - dragOffset.y
 
@@ -199,9 +201,12 @@ export function AccessibilityButton() {
       <button
         ref={buttonRef}
         onMouseDown={handleMouseDown}
-        onClick={() => {
+        onClick={(e) => {
           if (!hasMoved) {
-            setIsOpen(!isOpen)
+            // Stop event from reaching backdrop
+            e.stopPropagation()
+            // If panel is open, close it. If closed, open it.
+            setIsOpen(prev => !prev)
           }
         }}
         className={cn(
