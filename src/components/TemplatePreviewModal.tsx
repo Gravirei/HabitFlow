@@ -81,16 +81,19 @@ export function TemplatePreviewModal({
     if (!template) return
     
     // Create updated template with new values
-    // IMPORTANT: Preserve sourceTemplateId so badge comparison works
+    // IMPORTANT: 
+    // - Don't update template.name (it's the card display name, should stay constant)
+    // - Only update template.template.title (the actual task title)
+    // - Preserve sourceTemplateId so badge comparison works
     const updatedTemplate: TaskTemplate = {
       ...template,
-      name: editedTitle,
+      // Keep original name for card display
       description: editedDescription,
       category: editedCategory, // Update top-level category for card display
       sourceTemplateId: template.sourceTemplateId, // Preserve source template ID
       template: {
         ...template.template,
-        title: editedTitle,
+        title: editedTitle, // This is what the user edits
         description: editedDescription,
         priority: editedPriority,
         category: editedCategory,
