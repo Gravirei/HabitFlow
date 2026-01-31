@@ -121,27 +121,34 @@ export function TemplatePreviewModal({
             }`}>
               <div className="absolute inset-0 bg-gradient-to-b from-transparent to-white/40 dark:to-black/20 pointer-events-none"></div>
              
-              <div className="relative z-10 w-full max-w-md flex flex-col items-center h-full justify-center">
-               <div className={`w-28 h-28 rounded-[2rem] ${template.color} flex items-center justify-center shadow-xl shadow-indigo-500/20 mb-6 ring-4 ring-white/50 dark:ring-white/10 rotate-3`}>
-                 <span className="material-symbols-outlined text-5xl text-white drop-shadow-md">{template.icon}</span>
+              <div className="relative z-10 w-full max-w-md flex flex-col items-center h-full justify-center px-4">
+               {/* Icon with glow effect and animation */}
+               <div className="relative mb-8 group">
+                 <div className={`absolute inset-0 ${template.color} opacity-20 blur-3xl scale-110 group-hover:opacity-30 transition-opacity duration-500`}></div>
+                 <div className={`relative w-32 h-32 rounded-[2.5rem] ${template.color} flex items-center justify-center shadow-2xl ring-4 ring-white/20 dark:ring-white/10 backdrop-blur-xl transform hover:scale-105 transition-all duration-300`}>
+                   <span className="material-symbols-outlined text-6xl text-white drop-shadow-lg">{template.icon}</span>
+                 </div>
                </div>
                
-               <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 max-w-[250px] leading-tight">
+               {/* Title with better typography */}
+               <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white mb-3 text-center leading-tight tracking-tight">
                  {editedTitle || template.name}
                </h2>
-               <p className="text-sm text-gray-500 dark:text-gray-400 max-w-[250px] mb-6 leading-relaxed">
+               
+               {/* Description with better readability */}
+               <p className="text-base text-gray-600 dark:text-gray-400 text-center max-w-sm mb-8 leading-relaxed">
                  {editedDescription || template.description}
                </p>
 
-               {/* Badges: Category, Priority, Time */}
-               <div className="flex items-center justify-center gap-2 flex-wrap mb-6">
+               {/* Badges: Category, Priority, Time - Improved Design */}
+               <div className="flex items-center justify-center gap-3 flex-wrap mb-10">
                  {/* Category Badge */}
                  {editedCategory && (
-                   <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-white/10 border border-gray-200/50 dark:border-white/5">
-                     <span className="material-symbols-outlined text-[14px] text-gray-500 dark:text-gray-400">
+                   <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-gray-100 to-gray-50 dark:from-white/10 dark:to-white/5 backdrop-blur-sm border border-gray-200/50 dark:border-white/10 shadow-sm">
+                     <span className="material-symbols-outlined text-[16px] text-indigo-600 dark:text-indigo-400">
                        {editedCategory === 'Work' ? 'business_center' : editedCategory === 'Personal' ? 'person' : editedCategory === 'Health' ? 'favorite' : editedCategory === 'Creative' ? 'palette' : 'school'}
                      </span>
-                     <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                     <span className="text-sm font-bold text-gray-800 dark:text-gray-200">
                        {editedCategory}
                      </span>
                    </div>
@@ -149,20 +156,20 @@ export function TemplatePreviewModal({
 
                  {/* Priority Badge */}
                  {editedPriority && (
-                   <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-200/50 dark:border-white/5 ${
-                     editedPriority === 'high' ? 'bg-red-50 dark:bg-red-500/10' :
-                     editedPriority === 'medium' ? 'bg-yellow-50 dark:bg-yellow-500/10' :
-                     'bg-green-50 dark:bg-green-500/10'
+                   <div className={`flex items-center gap-2 px-4 py-2 rounded-full backdrop-blur-sm border shadow-sm ${
+                     editedPriority === 'high' ? 'bg-gradient-to-r from-red-50 to-red-100 dark:from-red-500/10 dark:to-red-500/20 border-red-200/50 dark:border-red-500/30' :
+                     editedPriority === 'medium' ? 'bg-gradient-to-r from-yellow-50 to-yellow-100 dark:from-yellow-500/10 dark:to-yellow-500/20 border-yellow-200/50 dark:border-yellow-500/30' :
+                     'bg-gradient-to-r from-green-50 to-green-100 dark:from-green-500/10 dark:to-green-500/20 border-green-200/50 dark:border-green-500/30'
                    }`}>
-                     <span className={`material-symbols-outlined text-[14px] ${
-                       editedPriority === 'high' ? 'text-red-500' :
-                       editedPriority === 'medium' ? 'text-yellow-500' :
-                       'text-green-500'
-                     }`}>flag</span>
-                     <span className={`text-xs font-semibold capitalize ${
+                     <span className={`material-symbols-outlined text-[16px] ${
                        editedPriority === 'high' ? 'text-red-600 dark:text-red-400' :
                        editedPriority === 'medium' ? 'text-yellow-600 dark:text-yellow-400' :
                        'text-green-600 dark:text-green-400'
+                     }`}>flag</span>
+                     <span className={`text-sm font-bold capitalize ${
+                       editedPriority === 'high' ? 'text-red-700 dark:text-red-300' :
+                       editedPriority === 'medium' ? 'text-yellow-700 dark:text-yellow-300' :
+                       'text-green-700 dark:text-green-300'
                      }`}>
                        {editedPriority}
                      </span>
@@ -171,9 +178,9 @@ export function TemplatePreviewModal({
 
                  {/* Time Estimate Badge */}
                  {editedTimeEstimate && (
-                   <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-white/10 border border-gray-200/50 dark:border-white/5">
-                     <span className="material-symbols-outlined text-[14px] text-gray-500 dark:text-gray-400">schedule</span>
-                     <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                   <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-500/10 dark:to-blue-500/20 backdrop-blur-sm border border-blue-200/50 dark:border-blue-500/30 shadow-sm">
+                     <span className="material-symbols-outlined text-[16px] text-blue-600 dark:text-blue-400">schedule</span>
+                     <span className="text-sm font-bold text-blue-700 dark:text-blue-300">
                        {editedTimeEstimate}m
                      </span>
                    </div>
@@ -186,13 +193,14 @@ export function TemplatePreviewModal({
                  </span>
                )}
 
-               <div className="mt-auto w-full space-y-3">
+               <div className="mt-auto w-full space-y-4 max-w-sm">
                  <button
                    onClick={() => setIsEditMode(!isEditMode)}
-                   className="w-full py-4 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-lg shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2 group"
+                   className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 bg-size-200 bg-pos-0 hover:bg-pos-100 text-white font-bold text-lg shadow-xl shadow-indigo-500/30 hover:shadow-2xl hover:shadow-indigo-500/40 hover:scale-[1.02] transition-all duration-500 flex items-center justify-center gap-3 group relative overflow-hidden"
                  >
-                   <span className="material-symbols-outlined group-hover:scale-110 transition-transform">edit</span>
-                   {isEditMode ? 'Close Edit' : 'Edit Details'}
+                   <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+                   <span className="material-symbols-outlined group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 relative z-10">edit</span>
+                   <span className="relative z-10">{isEditMode ? 'Close Edit' : 'Edit Details'}</span>
                  </button>
                  
                  {onSaveToMyTemplates && !template.isCustom && (
@@ -218,11 +226,11 @@ export function TemplatePreviewModal({
                        onSaveToMyTemplates(newTemplate)
                        onClose()
                      }}
-                     className="w-full py-4 rounded-xl bg-white dark:bg-white/10 hover:bg-gray-50 dark:hover:bg-white/20 text-gray-700 dark:text-white font-bold text-lg border-2 border-indigo-600 dark:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 transition-all duration-300 hover:-translate-y-0.5 flex items-center justify-center gap-2 group"
+                     className="w-full py-4 px-6 rounded-2xl bg-white dark:bg-gray-900 hover:bg-gradient-to-r hover:from-pink-50 hover:to-purple-50 dark:hover:from-pink-500/10 dark:hover:to-purple-500/10 text-gray-800 dark:text-white font-bold text-lg border-2 border-indigo-600 dark:border-indigo-400 hover:border-pink-500 dark:hover:border-pink-400 shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300 flex items-center justify-center gap-3 group relative overflow-hidden"
                      title="Save to My Templates"
                    >
-                     <span className="material-symbols-outlined group-hover:scale-110 transition-transform">favorite</span>
-                     Make It My Template
+                     <span className="material-symbols-outlined text-pink-600 dark:text-pink-400 group-hover:scale-125 group-hover:rotate-12 transition-all duration-300 relative z-10">favorite</span>
+                     <span className="relative z-10">Make It My Template</span>
                    </button>
                  )}
                </div>

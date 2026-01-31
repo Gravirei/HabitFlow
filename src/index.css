@@ -2,6 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  .bg-size-200 {
+    background-size: 200%;
+  }
+  .bg-pos-0 {
+    background-position: 0%;
+  }
+  .bg-pos-100 {
+    background-position: 100%;
+  }
+}
+
 /* ============================================
    THEME SYSTEM - CSS Variables
    ============================================ */
