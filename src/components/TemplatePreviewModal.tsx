@@ -262,9 +262,13 @@ export function TemplatePreviewModal({
                          },
                        }
                        onSaveToMyTemplates(newTemplate)
-                       // Show success toast
+                       // Show success toast with template icon
                        toast.success(`"${template.name}" saved to My Templates!`, {
-                         icon: '❤️',
+                         icon: (
+                           <div className={`w-8 h-8 rounded-lg ${template.color} flex items-center justify-center`}>
+                             <span className="material-symbols-outlined text-white text-lg">{template.icon}</span>
+                           </div>
+                         ),
                          duration: 4000,
                          style: {
                            borderRadius: '12px',
