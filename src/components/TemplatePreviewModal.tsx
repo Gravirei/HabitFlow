@@ -468,6 +468,7 @@ export function TemplatePreviewModal({
                  {onSaveToMyTemplates && !template.isCustom && (
                    <button
                      onClick={() => {
+                       // Save with ORIGINAL values from library template (not edited values)
                        const newTemplate: TaskTemplate = {
                          ...template,
                          id: `custom_${Date.now()}`,
@@ -477,13 +478,7 @@ export function TemplatePreviewModal({
                          sourceTemplateId: template.id, // Track original library template
                          template: {
                            ...template.template,
-                           title: editedTitle,
-                           description: editedDescription,
-                           priority: editedPriority,
-                           category: editedCategory,
-                           tags: editedTags,
-                           subtasks: editedSubtasks,
-                           timeEstimate: editedTimeEstimate,
+                           // Use original library template values, not edited ones
                          },
                        }
                        onSaveToMyTemplates(newTemplate)
