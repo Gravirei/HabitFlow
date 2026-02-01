@@ -1254,11 +1254,6 @@ export function TemplateLibraryModal({
                       }))
                     }
                     
-                    console.log('🔍 Revert Check - Library:', template.name)
-                    console.log('Title:', normalizeValue(savedTemplate.template.title), 'vs', normalizeValue(template.template.title))
-                    console.log('Description (top):', normalizeValue(savedTemplate.description), 'vs', normalizeValue(template.description))
-                    console.log('Description (template):', normalizeValue(savedTemplate.template.description), 'vs', normalizeValue(template.template.description))
-                    
                     // Only compare template.template.* fields (actual editable content)
                     // Don't compare name because library templates have name != template.title by design
                     isModified = 
@@ -1273,8 +1268,6 @@ export function TemplateLibraryModal({
                       normalizeValue(savedTemplate.template.timeEstimate) !== normalizeValue(template.template.timeEstimate) ||
                       JSON.stringify(normalizeArray(savedTemplate.template.tags).sort()) !== JSON.stringify(normalizeArray(template.template.tags).sort()) ||
                       JSON.stringify(normalizeSubtasks(normalizeArray(savedTemplate.template.subtasks))) !== JSON.stringify(normalizeSubtasks(normalizeArray(template.template.subtasks)))
-                    
-                    console.log('isModified result:', isModified)
                   }
                   
                   return (
