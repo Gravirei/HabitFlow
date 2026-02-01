@@ -558,6 +558,8 @@ export function TemplatePreviewModal({
                          sourceTemplateId: template.id, // Track original library template
                          template: {
                            ...template.template,
+                           title: template.name, // Keep unified with name
+                           description: template.description, // Keep unified with description
                            subtasks: normalizedSubtasks, // Use normalized subtasks with 'title' field
                          },
                        }
