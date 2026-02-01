@@ -85,17 +85,17 @@ export function TemplatePreviewModal({
     if (!template) return
     
     // Create updated template with new values
-    // IMPORTANT: Keep name and template.title unified
+    // Update both name (for card display) and title (for task)
     const updatedTemplate: TaskTemplate = {
       ...template,
-      name: editedTitle, // Keep unified with template.title
-      description: editedDescription, // Keep unified with template.description
+      name: editedTitle, // Update card display name
+      description: editedDescription,
       category: editedCategory, // Update top-level category for card display
       sourceTemplateId: template.sourceTemplateId, // Preserve source template ID
       template: {
         ...template.template,
-        title: editedTitle, // Same as name
-        description: editedDescription, // Same as description
+        title: editedTitle,
+        description: editedDescription,
         priority: editedPriority,
         category: editedCategory,
         tags: editedTags,
@@ -549,12 +549,11 @@ export function TemplatePreviewModal({
                          completed: st.completed || false
                        }))
                        
-                       // IMPORTANT: Keep name and template.title unified to avoid confusion
                        const newTemplate: TaskTemplate = {
                          ...template,
                          id: `custom_${Date.now()}`,
-                         name: template.template.title, // Use template.title (what task will be called)
-                         description: template.template.description, // Use template.description (what task description will be)
+                         name: template.name,
+                         description: template.description,
                          isCustom: true,
                          sourceTemplateId: template.id, // Track original library template
                          template: {
