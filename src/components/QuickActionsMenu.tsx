@@ -6,10 +6,12 @@ import type { TaskTemplate } from '@/types/taskTemplate'
 
 function TemplateCard({ 
   template, 
-  onClick 
+  onClick,
+  onQuickAdd
 }: { 
   template: TaskTemplate
-  onClick: () => void 
+  onClick: () => void
+  onQuickAdd?: (template: TaskTemplate) => void
 }) {
   return (
     <button
@@ -19,11 +21,28 @@ function TemplateCard({
       {/* Background Gradient Mesh */}
       <div className={`absolute top-0 right-0 -mt-8 -mr-8 w-32 h-32 rounded-full blur-3xl opacity-0 group-hover:opacity-20 transition-opacity duration-500 ${template.color.replace('bg-', 'bg-')}`}></div>
       
-      {/* Custom Badge */}
+      {/* Custom Badge & Quick Add Button */}
       {template.isCustom && (
-        <div className="absolute top-4 right-4 z-20 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-indigo-500 shadow-lg shadow-indigo-500/30">
-          <span className="material-symbols-outlined text-[14px] text-white">star</span>
-          <span className="text-[11px] font-bold text-white uppercase tracking-wide">Custom</span>
+        <div className="absolute top-4 right-4 z-20 flex flex-col items-end gap-2">
+          {/* Custom Badge */}
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-indigo-500 shadow-lg shadow-indigo-500/30">
+            <span className="material-symbols-outlined text-[14px] text-white">star</span>
+            <span className="text-[11px] font-bold text-white uppercase tracking-wide">Custom</span>
+          </div>
+          
+          {/* Quick Add Button */}
+          {onQuickAdd && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation() // Prevent card click
+                onQuickAdd(template)
+              }}
+              className="w-9 h-9 rounded-full bg-green-500 hover:bg-green-600 shadow-lg shadow-green-500/30 hover:shadow-xl hover:shadow-green-500/40 flex items-center justify-center transition-all hover:scale-110 group/add"
+              title="Quick add as task"
+            >
+              <span className="material-symbols-outlined text-white text-[20px] group-hover/add:scale-110 transition-transform">add</span>
+            </button>
+          )}
         </div>
       )}
       
@@ -437,7 +456,20 @@ export function QuickActionsMenu({
                     <TemplateCard 
                       key={template.id} 
                       template={template} 
-                      onClick={() => handleTemplateClick(template)} 
+                      onClick={() => handleTemplateClick(template)}
+                      onQuickAdd={(template) => {
+                        // Directly create task from template without opening preview
+                        onCreateFromTemplate(template)
+                        toast.success(`Task created from "${template.name}"!`, {
+                          duration: 3000,
+                          style: {
+                            borderRadius: '12px',
+                            background: '#10b981',
+                            color: '#fff',
+                            fontWeight: '600',
+                          },
+                        })
+                      }}
                     />
                   ))}
                 </div>
