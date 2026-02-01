@@ -379,7 +379,13 @@ export function TemplatePreviewModal({
               {template.isCustom && onDeleteTemplate && (
                 <button
                   onClick={handleDeleteClick}
-                  className="absolute top-6 left-6 z-30 w-10 h-10 rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-300 dark:hover:border-red-700 shadow-sm hover:shadow-md transition-all duration-300 flex items-center justify-center group/delete hover:scale-110"
+                  className="absolute top-6 left-6 z-30 w-10 h-10 rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-300 dark:hover:border-red-700 shadow-sm hover:shadow-md flex items-center justify-center group/delete transition-all duration-300"
+                  style={{
+                    animation: isEditMode 
+                      ? 'slideUpFade 300ms ease-in-out forwards' 
+                      : 'slideDownFadeIn 300ms ease-in-out',
+                    pointerEvents: isEditMode ? 'none' : 'auto'
+                  }}
                   title="Delete template"
                   aria-label="Delete template"
                 >
