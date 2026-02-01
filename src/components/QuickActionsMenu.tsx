@@ -43,7 +43,7 @@ function TemplateCard({
           <div className="absolute inset-0 rounded-xl bg-emerald-400 animate-ping opacity-20"></div>
           
           {/* Icon */}
-          <span className="material-symbols-outlined text-white text-[24px] relative z-10 group-hover/quickadd:rotate-90 transition-transform duration-300">add_circle</span>
+          <span className="material-symbols-outlined text-white text-[24px] relative z-10 group-hover/quickadd:scale-110 transition-transform duration-300">flash_on</span>
         </button>
       )}
       
