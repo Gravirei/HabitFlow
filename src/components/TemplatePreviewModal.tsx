@@ -151,10 +151,28 @@ export function TemplatePreviewModal({
   const checkForDuplicate = (templateToSave: TaskTemplate) => {
     if (!onSaveToMyTemplates) return false
     
-    // Find if a template with the same name already exists in customTemplates
-    const existingTemplate = customTemplates.find(
+    // Read directly from localStorage to ensure we have the latest data
+    let savedTemplates: TaskTemplate[] = []
+    try {
+      const stored = localStorage.getItem('taskTemplates')
+      if (stored) {
+        savedTemplates = JSON.parse(stored)
+      }
+    } catch (error) {
+      console.error('Error reading taskTemplates from localStorage:', error)
+    }
+    
+    console.log('🔍 Checking for duplicates...')
+    console.log('Template to save name:', templateToSave.name)
+    console.log('Saved templates count:', savedTemplates.length)
+    console.log('Saved templates names:', savedTemplates.map(t => t.name))
+    
+    // Find if a template with the same name already exists
+    const existingTemplate = savedTemplates.find(
       (t: TaskTemplate) => t.name === templateToSave.name
     )
+    
+    console.log('Existing template found?', !!existingTemplate)
     
     return !!existingTemplate
   }
@@ -545,10 +563,16 @@ export function TemplatePreviewModal({
                        }
                        
                        // Check for duplicates before saving
-                       handleSaveTemplate(newTemplate)
+                       const isDuplicate = checkForDuplicate(newTemplate)
                        
-                       // Show success toast with template icon (if not duplicate)
-                       if (!checkForDuplicate(newTemplate)) {
+                       if (isDuplicate) {
+                         // Show duplicate warning modal
+                         handleSaveTemplate(newTemplate)
+                       } else {
+                         // Save directly
+                         handleSaveTemplate(newTemplate)
+                         
+                         // Show success toast and close
                          toast.success(`"${template.name}" saved to My Templates!`, {
                            icon: (
                              <div className={`w-8 h-8 rounded-lg ${template.color} flex items-center justify-center`}>
