@@ -137,6 +137,7 @@ interface QuickActionsMenuProps {
   onManageTemplates: () => void
   onSaveTemplate?: (template: TaskTemplate) => void
   onUpdateTemplate?: (template: TaskTemplate) => void
+  existingTasks?: any[] // Pass existing tasks to check for duplicates
 }
 
 export function QuickActionsMenu({
@@ -148,11 +149,15 @@ export function QuickActionsMenu({
   onManageTemplates,
   onSaveTemplate,
   onUpdateTemplate,
+  existingTasks = [],
 }: QuickActionsMenuProps) {
   const [selectedCategory, setSelectedCategory] = useState<'all' | 'work' | 'personal'>('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [previewTemplate, setPreviewTemplate] = useState<TaskTemplate | null>(null)
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
+  const [showTaskDuplicateWarning, setShowTaskDuplicateWarning] = useState(false)
+  const [pendingTaskTemplate, setPendingTaskTemplate] = useState<TaskTemplate | null>(null)
+  const [duplicateTaskStatus, setDuplicateTaskStatus] = useState<'completed' | 'active'>('active')
   const [filtersCollapsed, setFiltersCollapsed] = useState(false)
   const [showTemplateLibrary, setShowTemplateLibrary] = useState(false)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
@@ -183,6 +188,29 @@ export function QuickActionsMenu({
   const handleTemplateClick = (template: TaskTemplate) => {
     setPreviewTemplate(template)
     setIsPreviewOpen(true)
+  }
+
+  // Handle duplicate task confirmation
+  const handleCreateDuplicateTask = () => {
+    if (pendingTaskTemplate) {
+      onCreateFromTemplate(pendingTaskTemplate)
+      toast.success(`Task created from "${pendingTaskTemplate.name}"!`, {
+        duration: 3000,
+        style: {
+          borderRadius: '12px',
+          background: '#10b981',
+          color: '#fff',
+          fontWeight: '600',
+        },
+      })
+    }
+    setShowTaskDuplicateWarning(false)
+    setPendingTaskTemplate(null)
+  }
+
+  const handleCancelDuplicateTask = () => {
+    setShowTaskDuplicateWarning(false)
+    setPendingTaskTemplate(null)
   }
 
   const handleUseAsTemplate = (template: TaskTemplate) => {
@@ -460,17 +488,28 @@ export function QuickActionsMenu({
                       template={template} 
                       onClick={() => handleTemplateClick(template)}
                       onQuickAdd={(template) => {
-                        // Directly create task from template without opening preview
-                        onCreateFromTemplate(template)
-                        toast.success(`Task created from "${template.name}"!`, {
-                          duration: 3000,
-                          style: {
-                            borderRadius: '12px',
-                            background: '#10b981',
-                            color: '#fff',
-                            fontWeight: '600',
-                          },
-                        })
+                        // Check for duplicate tasks
+                        const taskTitle = template.template.title || template.name
+                        const existingTask = existingTasks.find(task => task.title === taskTitle)
+                        
+                        if (existingTask) {
+                          // Task exists - show warning based on status
+                          setPendingTaskTemplate(template)
+                          setDuplicateTaskStatus(existingTask.completed || existingTask.status === 'completed' ? 'completed' : 'active')
+                          setShowTaskDuplicateWarning(true)
+                        } else {
+                          // No duplicate - create directly
+                          onCreateFromTemplate(template)
+                          toast.success(`Task created from "${template.name}"!`, {
+                            duration: 3000,
+                            style: {
+                              borderRadius: '12px',
+                              background: '#10b981',
+                              color: '#fff',
+                              fontWeight: '600',
+                            },
+                          })
+                        }
                       }}
                     />
                   ))}
@@ -498,6 +537,51 @@ export function QuickActionsMenu({
         onSaveToMyTemplates={onSaveTemplate}
         customTemplates={customTemplates}
       />
+
+      {/* Duplicate Task Warning Modal */}
+      {showTaskDuplicateWarning && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl max-w-md w-full p-6 border border-gray-200 dark:border-gray-700">
+            {/* Warning Icon */}
+            <div className="flex justify-center mb-4">
+              <div className={`w-16 h-16 rounded-full ${duplicateTaskStatus === 'completed' ? 'bg-blue-100 dark:bg-blue-500/20' : 'bg-yellow-100 dark:bg-yellow-500/20'} flex items-center justify-center`}>
+                <span className={`material-symbols-outlined text-4xl ${duplicateTaskStatus === 'completed' ? 'text-blue-600 dark:text-blue-400' : 'text-yellow-600 dark:text-yellow-400'}`}>
+                  {duplicateTaskStatus === 'completed' ? 'check_circle' : 'warning'}
+                </span>
+              </div>
+            </div>
+
+            {/* Title */}
+            <h3 className="text-xl font-bold text-center text-gray-900 dark:text-white mb-2">
+              {duplicateTaskStatus === 'completed' ? 'Task Already Completed' : 'Duplicate Task'}
+            </h3>
+
+            {/* Message */}
+            <p className="text-center text-gray-600 dark:text-gray-300 mb-6">
+              {duplicateTaskStatus === 'completed' 
+                ? "You've already completed this task. Start fresh?"
+                : "You already have this task in progress. Do you want to create a duplicate?"
+              }
+            </p>
+
+            {/* Buttons */}
+            <div className="flex gap-3">
+              <button
+                onClick={handleCancelDuplicateTask}
+                className="flex-1 py-3 px-4 rounded-xl bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-bold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCreateDuplicateTask}
+                className="flex-1 py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-lg shadow-indigo-500/30 hover:shadow-xl hover:shadow-indigo-500/40 transition-all"
+              >
+                {duplicateTaskStatus === 'completed' ? 'Start Fresh' : 'Create Duplicate'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </AccessibleModal>
   )
 }
