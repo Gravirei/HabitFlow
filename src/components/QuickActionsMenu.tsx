@@ -21,29 +21,33 @@ function TemplateCard({
       {/* Background Gradient Mesh */}
       <div className={`absolute top-0 right-0 -mt-8 -mr-8 w-32 h-32 rounded-full blur-3xl opacity-0 group-hover:opacity-20 transition-opacity duration-500 ${template.color.replace('bg-', 'bg-')}`}></div>
       
-      {/* Custom Badge & Quick Add Button */}
+      {/* Custom Badge */}
       {template.isCustom && (
-        <div className="absolute top-4 right-4 z-20 flex flex-col items-end gap-2">
-          {/* Custom Badge */}
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-indigo-500 shadow-lg shadow-indigo-500/30">
-            <span className="material-symbols-outlined text-[14px] text-white">star</span>
-            <span className="text-[11px] font-bold text-white uppercase tracking-wide">Custom</span>
-          </div>
-          
-          {/* Quick Add Button */}
-          {onQuickAdd && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation() // Prevent card click
-                onQuickAdd(template)
-              }}
-              className="w-9 h-9 rounded-full bg-green-500 hover:bg-green-600 shadow-lg shadow-green-500/30 hover:shadow-xl hover:shadow-green-500/40 flex items-center justify-center transition-all hover:scale-110 group/add"
-              title="Quick add as task"
-            >
-              <span className="material-symbols-outlined text-white text-[20px] group-hover/add:scale-110 transition-transform">add</span>
-            </button>
-          )}
+        <div className="absolute top-4 right-4 z-20 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-indigo-500 shadow-lg shadow-indigo-500/30">
+          <span className="material-symbols-outlined text-[14px] text-white">star</span>
+          <span className="text-[11px] font-bold text-white uppercase tracking-wide">Custom</span>
         </div>
+      )}
+      
+      {/* Quick Add Button - Bottom Right with Animations */}
+      {template.isCustom && onQuickAdd && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation() // Prevent card click
+            onQuickAdd(template)
+          }}
+          className="absolute bottom-4 right-4 z-20 w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 shadow-xl shadow-emerald-500/40 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300 flex items-center justify-center group/quickadd hover:scale-110 hover:shadow-2xl hover:shadow-emerald-500/60"
+          title="Quick add as task"
+        >
+          {/* Pulse Animation Ring */}
+          <div className="absolute inset-0 rounded-xl bg-emerald-400 animate-ping opacity-20"></div>
+          
+          {/* Shine Effect */}
+          <div className="absolute inset-0 rounded-xl bg-gradient-to-tr from-white/0 via-white/30 to-white/0 translate-x-[-100%] group-hover/quickadd:translate-x-[100%] transition-transform duration-700"></div>
+          
+          {/* Icon */}
+          <span className="material-symbols-outlined text-white text-[24px] relative z-10 group-hover/quickadd:rotate-90 transition-transform duration-300">add_circle</span>
+        </button>
       )}
       
       <div className="relative z-10 flex flex-col h-full">
