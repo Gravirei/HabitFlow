@@ -1246,17 +1246,35 @@ export function TemplateLibraryModal({
                     const normalizeValue = (val: any) => val === undefined || val === null || val === '' ? '' : val
                     const normalizeArray = (arr: any[]) => arr || []
                     
+                    // Normalize subtasks to handle both 'text' and 'title' fields
+                    const normalizeSubtasks = (subtasks: any[]) => {
+                      return subtasks.map(st => ({
+                        title: (st as any).title || (st as any).text || '',
+                        completed: st.completed || false
+                      }))
+                    }
+                    
+                    console.log('🔍 Revert Check - Library:', template.name)
+                    console.log('Title:', normalizeValue(savedTemplate.template.title), 'vs', normalizeValue(template.template.title))
+                    console.log('Description (top):', normalizeValue(savedTemplate.description), 'vs', normalizeValue(template.description))
+                    console.log('Description (template):', normalizeValue(savedTemplate.template.description), 'vs', normalizeValue(template.template.description))
+                    
+                    // Only compare template.template.* fields (actual editable content)
+                    // Don't compare name because library templates have name != template.title by design
                     isModified = 
-                      normalizeValue(savedTemplate.name) !== normalizeValue(template.name) ||
+                      // Compare top-level fields that user can edit
                       normalizeValue(savedTemplate.description) !== normalizeValue(template.description) ||
                       normalizeValue(savedTemplate.category) !== normalizeValue(template.category) ||
+                      // Compare template fields (the actual task content)
                       normalizeValue(savedTemplate.template.title) !== normalizeValue(template.template.title) ||
                       normalizeValue(savedTemplate.template.description) !== normalizeValue(template.template.description) ||
                       normalizeValue(savedTemplate.template.priority) !== normalizeValue(template.template.priority) ||
                       normalizeValue(savedTemplate.template.category) !== normalizeValue(template.template.category) ||
                       normalizeValue(savedTemplate.template.timeEstimate) !== normalizeValue(template.template.timeEstimate) ||
                       JSON.stringify(normalizeArray(savedTemplate.template.tags).sort()) !== JSON.stringify(normalizeArray(template.template.tags).sort()) ||
-                      JSON.stringify(normalizeArray(savedTemplate.template.subtasks)) !== JSON.stringify(normalizeArray(template.template.subtasks))
+                      JSON.stringify(normalizeSubtasks(normalizeArray(savedTemplate.template.subtasks))) !== JSON.stringify(normalizeSubtasks(normalizeArray(template.template.subtasks)))
+                    
+                    console.log('isModified result:', isModified)
                   }
                   
                   return (
