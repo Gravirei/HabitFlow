@@ -81,19 +81,16 @@ export function TemplatePreviewModal({
     if (!template) return
     
     // Create updated template with new values
-    // IMPORTANT: 
-    // - Don't update template.name (it's the card display name, should stay constant)
-    // - Only update template.template.title (the actual task title)
-    // - Preserve sourceTemplateId so badge comparison works
+    // Update both name (for card display) and title (for task)
     const updatedTemplate: TaskTemplate = {
       ...template,
-      // Keep original name for card display
+      name: editedTitle, // Update card display name
       description: editedDescription,
       category: editedCategory, // Update top-level category for card display
       sourceTemplateId: template.sourceTemplateId, // Preserve source template ID
       template: {
         ...template.template,
-        title: editedTitle, // This is what the user edits
+        title: editedTitle,
         description: editedDescription,
         priority: editedPriority,
         category: editedCategory,
@@ -473,7 +470,13 @@ export function TemplatePreviewModal({
                  {onSaveToMyTemplates && !template.isCustom && (
                    <button
                      onClick={() => {
-                       // Save with ORIGINAL values from library template (not edited values)
+                       // Save with ORIGINAL values from library template
+                       // Normalize subtasks to use 'title' instead of 'text'
+                       const normalizedSubtasks = (template.template.subtasks || []).map(st => ({
+                         title: (st as any).title || (st as any).text || '',
+                         completed: st.completed || false
+                       }))
+                       
                        const newTemplate: TaskTemplate = {
                          ...template,
                          id: `custom_${Date.now()}`,
@@ -483,7 +486,7 @@ export function TemplatePreviewModal({
                          sourceTemplateId: template.id, // Track original library template
                          template: {
                            ...template.template,
-                           // Use original library template values, not edited ones
+                           subtasks: normalizedSubtasks, // Use normalized subtasks with 'title' field
                          },
                        }
                        onSaveToMyTemplates(newTemplate)
@@ -752,7 +755,7 @@ export function TemplatePreviewModal({
                       <div className="w-5 h-5 rounded-full border-2 border-gray-300 dark:border-white/20 flex items-center justify-center flex-shrink-0"></div>
                       <input
                         type="text"
-                        value={subtask.title}
+                        value={(subtask as any).title || (subtask as any).text || ''}
                         onChange={(e) => {
                           if (template.isCustom) {
                             const newSubtasks = [...editedSubtasks]
