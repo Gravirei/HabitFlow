@@ -42,9 +42,6 @@ function TemplateCard({
           {/* Pulse Animation Ring */}
           <div className="absolute inset-0 rounded-xl bg-emerald-400 animate-ping opacity-20"></div>
           
-          {/* Shine Effect */}
-          <div className="absolute inset-0 rounded-xl bg-gradient-to-tr from-white/0 via-white/30 to-white/0 translate-x-[-100%] group-hover/quickadd:translate-x-[100%] transition-transform duration-700"></div>
-          
           {/* Icon */}
           <span className="material-symbols-outlined text-white text-[24px] relative z-10 group-hover/quickadd:rotate-90 transition-transform duration-300">add_circle</span>
         </button>
