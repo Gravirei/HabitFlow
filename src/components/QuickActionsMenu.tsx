@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import toast from 'react-hot-toast'
 import { AccessibleModal } from './timer/shared/AccessibleModal'
 import { TemplatePreviewModal } from './TemplatePreviewModal'
 import { TemplateLibraryModal } from './TemplateLibraryModal'
