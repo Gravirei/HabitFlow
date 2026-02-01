@@ -1272,7 +1272,7 @@ export function TemplateLibraryModal({
                   
                   return (
                     <LibraryTemplateCard 
-                      key={template.id} 
+                      key={template.id}
                       template={template} 
                       onClick={() => handleTemplateClick(template)}
                       isAdded={isAdded}
