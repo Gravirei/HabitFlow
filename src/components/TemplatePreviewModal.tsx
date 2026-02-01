@@ -4,14 +4,14 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { AccessibleModal } from './timer/shared/AccessibleModal'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
 import type { TaskTemplate } from '@/types/taskTemplate'
-import type { TaskPriority, TaskStatus, Subtask } from '@/types/task'
+import type { TaskPriority, TaskStatus, Subtask, Task } from '@/types/task'
 
 interface TemplatePreviewModalProps {
   isOpen: boolean
   onClose: () => void
   template: TaskTemplate | null
   onUseAsTemplate: (template: TaskTemplate) => void
-  onSaveAsTask: (taskData: any) => void
+  onSaveAsTask: (taskData: Omit<Task, 'id' | 'completed'>) => void
   onSaveToMyTemplates?: (template: TaskTemplate) => void
   onUpdateTemplate?: (template: TaskTemplate) => void
   customTemplates?: TaskTemplate[]
@@ -25,7 +25,8 @@ export function TemplatePreviewModal({
   onSaveAsTask,
   onSaveToMyTemplates,
   onUpdateTemplate,
-  customTemplates = [],
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  customTemplates: _customTemplates = [],
 }: TemplatePreviewModalProps) {
   const [editedTitle, setEditedTitle] = useState('')
   const [editedDescription, setEditedDescription] = useState('')
@@ -193,7 +194,7 @@ export function TemplatePreviewModal({
 
   // Handle duplicate confirmation
   const handleCreateDuplicate = () => {
-    if (pendingTemplate) {
+    if (pendingTemplate && onSaveToMyTemplates) {
       onSaveToMyTemplates(pendingTemplate)
       toast.success('Duplicate template created!', {
         duration: 3000,
@@ -217,6 +218,7 @@ export function TemplatePreviewModal({
 
   // Check if template can be edited (must be custom or saved)
   const handleFieldFocus = () => {
+    if (!template) return
     if (!template.isCustom) {
       setShowEditWarning(true)
       // Scroll to top of edit panel to show warning banner
@@ -236,7 +238,11 @@ export function TemplatePreviewModal({
       setEditedPriority(template.template.priority || 'medium')
       setEditedCategory(template.template.category || template.category)
       setEditedTags(template.template.tags || [])
-      setEditedSubtasks(template.template.subtasks || [])
+      setEditedSubtasks((template.template.subtasks || []).map((st, idx) => ({
+        id: `subtask_${idx}`,
+        text: st.text || '',
+        completed: st.completed || false
+      })))
       setEditedTimeEstimate(template.template.timeEstimate)
     }
   })
@@ -250,7 +256,11 @@ export function TemplatePreviewModal({
     const initialPriority = template.template.priority || 'medium'
     const initialCategory = template.template.category || template.category
     const initialTags = template.template.tags || []
-    const initialSubtasks = template.template.subtasks || []
+    const initialSubtasks: Subtask[] = (template.template.subtasks || []).map((st, idx) => ({
+      id: `subtask_${idx}`,
+      text: st.text || '',
+      completed: st.completed || false
+    }))
     const initialTimeEstimate = template.template.timeEstimate
     
     setEditedTitle(initialTitle)
@@ -277,7 +287,8 @@ export function TemplatePreviewModal({
     setHasUnsavedChanges(false) // Reset unsaved changes
   }
 
-  const handleUseAsTemplate = () => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const _handleUseAsTemplate = () => {
     if (!template) return
     
     const updatedTemplate: TaskTemplate = {
@@ -298,7 +309,8 @@ export function TemplatePreviewModal({
     onClose()
   }
 
-  const handleSaveAsTask = () => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const _handleSaveAsTask = () => {
     if (!template) return
     
     const taskData = {
@@ -543,9 +555,9 @@ export function TemplatePreviewModal({
                    <button
                      onClick={() => {
                        // Save with ORIGINAL values from library template
-                       // Normalize subtasks to use 'title' instead of 'text'
-                       const normalizedSubtasks = (template.template.subtasks || []).map(st => ({
-                         title: (st as any).title || (st as any).text || '',
+                       // Convert subtasks to proper Subtask format with text field
+                       const normalizedSubtasks: Omit<Subtask, 'id'>[] = (template.template.subtasks || []).map(st => ({
+                         text: st.text || '',
                          completed: st.completed || false
                        }))
                        
@@ -840,11 +852,11 @@ export function TemplatePreviewModal({
                       <div className="w-5 h-5 rounded-full border-2 border-gray-300 dark:border-white/20 flex items-center justify-center flex-shrink-0"></div>
                       <input
                         type="text"
-                        value={(subtask as any).title || (subtask as any).text || ''}
+                        value={subtask.text || ''}
                         onChange={(e) => {
                           if (template.isCustom) {
                             const newSubtasks = [...editedSubtasks]
-                            newSubtasks[index] = { ...subtask, title: e.target.value }
+                            newSubtasks[index] = { ...subtask, text: e.target.value }
                             setEditedSubtasks(newSubtasks)
                             checkForChanges({ subtasks: newSubtasks })
                           }
@@ -875,7 +887,7 @@ export function TemplatePreviewModal({
                   {template.isCustom && (
                     <button
                       onClick={() => {
-                        const newSubtasks = [...editedSubtasks, { title: '', completed: false }]
+                        const newSubtasks: Subtask[] = [...editedSubtasks, { id: `subtask_${Date.now()}`, text: '', completed: false }]
                         setEditedSubtasks(newSubtasks)
                         checkForChanges({ subtasks: newSubtasks })
                       }}

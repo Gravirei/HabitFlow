@@ -1243,13 +1243,13 @@ export function TemplateLibraryModal({
                   let isModified = false
                   if (savedTemplate) {
                     // Compare only the actual content, normalize undefined/null/empty values
-                    const normalizeValue = (val: any) => val === undefined || val === null || val === '' ? '' : val
-                    const normalizeArray = (arr: any[]) => arr || []
+                    const normalizeValue = (val: unknown) => val === undefined || val === null || val === '' ? '' : val
+                    const normalizeArray = <T,>(arr: T[] | undefined) => arr || []
                     
                     // Normalize subtasks to handle both 'text' and 'title' fields
-                    const normalizeSubtasks = (subtasks: any[]) => {
+                    const normalizeSubtasks = (subtasks: Array<{ title?: string; text?: string; completed?: boolean }>) => {
                       return subtasks.map(st => ({
-                        title: (st as any).title || (st as any).text || '',
+                        title: st.title || st.text || '',
                         completed: st.completed || false
                       }))
                     }

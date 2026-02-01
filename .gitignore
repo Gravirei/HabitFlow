@@ -41,3 +41,6 @@ coverage
 *.pem
 secrets/
 credentials/
+
+# ByteRover
+.brv
