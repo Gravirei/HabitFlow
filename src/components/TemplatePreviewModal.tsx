@@ -14,6 +14,7 @@ interface TemplatePreviewModalProps {
   onSaveAsTask: (taskData: any) => void
   onSaveToMyTemplates?: (template: TaskTemplate) => void
   onUpdateTemplate?: (template: TaskTemplate) => void
+  customTemplates?: TaskTemplate[]
 }
 
 export function TemplatePreviewModal({
@@ -24,6 +25,7 @@ export function TemplatePreviewModal({
   onSaveAsTask,
   onSaveToMyTemplates,
   onUpdateTemplate,
+  customTemplates = [],
 }: TemplatePreviewModalProps) {
   const [editedTitle, setEditedTitle] = useState('')
   const [editedDescription, setEditedDescription] = useState('')
@@ -36,6 +38,8 @@ export function TemplatePreviewModal({
   const [showEditWarning, setShowEditWarning] = useState(false)
   const editPanelRef = useRef<HTMLDivElement>(null)
   const [tagInput, setTagInput] = useState('')
+  const [showDuplicateWarning, setShowDuplicateWarning] = useState(false)
+  const [pendingTemplate, setPendingTemplate] = useState<TaskTemplate | null>(null)
   
   // Track unsaved changes for split button animation
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
@@ -141,6 +145,65 @@ export function TemplatePreviewModal({
     
     setHasUnsavedChanges(false)
     setIsEditMode(false)
+  }
+
+  // Check for duplicate template names
+  const checkForDuplicate = (templateToSave: TaskTemplate) => {
+    if (!onSaveToMyTemplates) return false
+    
+    // Find if a template with the same name already exists in customTemplates
+    const existingTemplate = customTemplates.find(
+      (t: TaskTemplate) => t.name === templateToSave.name
+    )
+    
+    return !!existingTemplate
+  }
+
+  // Handle saving template (with or without duplicate check)
+  const handleSaveTemplate = (templateToSave: TaskTemplate, force: boolean = false) => {
+    if (!onSaveToMyTemplates) return
+    
+    if (!force && checkForDuplicate(templateToSave)) {
+      // Show duplicate warning
+      setPendingTemplate(templateToSave)
+      setShowDuplicateWarning(true)
+    } else {
+      // Save directly
+      onSaveToMyTemplates(templateToSave)
+      toast.success('Template saved to My Templates!', {
+        duration: 3000,
+        style: {
+          borderRadius: '12px',
+          background: '#10b981',
+          color: '#fff',
+          fontWeight: '600',
+        },
+      })
+    }
+  }
+
+  // Handle duplicate confirmation
+  const handleCreateDuplicate = () => {
+    if (pendingTemplate) {
+      onSaveToMyTemplates(pendingTemplate)
+      toast.success('Duplicate template created!', {
+        duration: 3000,
+        style: {
+          borderRadius: '12px',
+          background: '#10b981',
+          color: '#fff',
+          fontWeight: '600',
+        },
+      })
+    }
+    setShowDuplicateWarning(false)
+    setPendingTemplate(null)
+  }
+
+  // Handle cancel duplicate
+  const handleCancelDuplicate = () => {
+    setShowDuplicateWarning(false)
+    setPendingTemplate(null)
   }
 
   // Check if template can be edited (must be custom or saved)
@@ -489,23 +552,28 @@ export function TemplatePreviewModal({
                            subtasks: normalizedSubtasks, // Use normalized subtasks with 'title' field
                          },
                        }
-                       onSaveToMyTemplates(newTemplate)
-                       // Show success toast with template icon
-                       toast.success(`"${template.name}" saved to My Templates!`, {
-                         icon: (
-                           <div className={`w-8 h-8 rounded-lg ${template.color} flex items-center justify-center`}>
-                             <span className="material-symbols-outlined text-white text-lg">{template.icon}</span>
-                           </div>
-                         ),
-                         duration: 4000,
-                         style: {
-                           borderRadius: '12px',
-                           background: '#10b981',
-                           color: '#fff',
-                           fontWeight: '600',
-                         },
-                       })
-                       onClose()
+                       
+                       // Check for duplicates before saving
+                       handleSaveTemplate(newTemplate)
+                       
+                       // Show success toast with template icon (if not duplicate)
+                       if (!checkForDuplicate(newTemplate)) {
+                         toast.success(`"${template.name}" saved to My Templates!`, {
+                           icon: (
+                             <div className={`w-8 h-8 rounded-lg ${template.color} flex items-center justify-center`}>
+                               <span className="material-symbols-outlined text-white text-lg">{template.icon}</span>
+                             </div>
+                           ),
+                           duration: 4000,
+                           style: {
+                             borderRadius: '12px',
+                             background: '#10b981',
+                             color: '#fff',
+                             fontWeight: '600',
+                           },
+                         })
+                         onClose()
+                       }
                      }}
                      className="w-full py-4 px-6 rounded-2xl bg-white dark:bg-gray-900 hover:bg-gradient-to-r hover:from-pink-50 hover:to-purple-50 dark:hover:from-pink-500/10 dark:hover:to-purple-500/10 text-gray-800 dark:text-white font-bold text-lg border-2 border-indigo-600 dark:border-indigo-400 hover:border-pink-500 dark:hover:border-pink-400 shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300 flex items-center justify-center gap-3 group relative overflow-hidden"
                      title="Save to My Templates"
@@ -815,6 +883,51 @@ export function TemplatePreviewModal({
          </div>
        </div>
      </div>
+
+     {/* Duplicate Warning Modal */}
+     {showDuplicateWarning && (
+       <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+         <motion.div
+           initial={{ opacity: 0, scale: 0.95 }}
+           animate={{ opacity: 1, scale: 1 }}
+           exit={{ opacity: 0, scale: 0.95 }}
+           className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl max-w-md w-full p-6 border border-gray-200 dark:border-gray-700"
+         >
+           {/* Warning Icon */}
+           <div className="flex justify-center mb-4">
+             <div className="w-16 h-16 rounded-full bg-yellow-100 dark:bg-yellow-500/20 flex items-center justify-center">
+               <span className="material-symbols-outlined text-4xl text-yellow-600 dark:text-yellow-400">warning</span>
+             </div>
+           </div>
+
+           {/* Title */}
+           <h3 className="text-xl font-bold text-center text-gray-900 dark:text-white mb-2">
+             Duplicate Template Name
+           </h3>
+
+           {/* Message */}
+           <p className="text-center text-gray-600 dark:text-gray-300 mb-6">
+             You already have a template with the name <strong>"{pendingTemplate?.name}"</strong>. Do you want to create a duplicate?
+           </p>
+
+           {/* Buttons */}
+           <div className="flex gap-3">
+             <button
+               onClick={handleCancelDuplicate}
+               className="flex-1 py-3 px-4 rounded-xl bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-bold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+             >
+               Cancel
+             </button>
+             <button
+               onClick={handleCreateDuplicate}
+               className="flex-1 py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-lg shadow-indigo-500/30 hover:shadow-xl hover:shadow-indigo-500/40 transition-all"
+             >
+               Create Duplicate
+             </button>
+           </div>
+         </motion.div>
+       </div>
+     )}
     </AccessibleModal>
   )
 }

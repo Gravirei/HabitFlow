@@ -455,6 +455,7 @@ export function QuickActionsMenu({
         onSaveAsTask={handleSaveAsTask}
         onSaveToMyTemplates={onSaveTemplate}
         onUpdateTemplate={onUpdateTemplate}
+        customTemplates={customTemplates}
       />
 
       <TemplateLibraryModal
