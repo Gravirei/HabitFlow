@@ -168,17 +168,8 @@ export function TemplatePreviewModal({
       setPendingTemplate(templateToSave)
       setShowDuplicateWarning(true)
     } else {
-      // Save directly
+      // Save directly (toast will be shown by caller)
       onSaveToMyTemplates(templateToSave)
-      toast.success('Template saved to My Templates!', {
-        duration: 3000,
-        style: {
-          borderRadius: '12px',
-          background: '#10b981',
-          color: '#fff',
-          fontWeight: '600',
-        },
-      })
     }
   }
 
