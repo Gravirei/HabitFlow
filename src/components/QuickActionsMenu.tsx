@@ -134,7 +134,7 @@ interface QuickActionsMenuProps {
   onCreateFromTemplate: (template: TaskTemplate) => void
   onCreateBlank: () => void
   customTemplates: TaskTemplate[]
-  onManageTemplates: () => void
+  onCreateNewTemplate: () => void
   onSaveTemplate?: (template: TaskTemplate) => void
   onUpdateTemplate?: (template: TaskTemplate) => void
   onDeleteTemplate?: (templateId: string) => void
@@ -147,7 +147,7 @@ export function QuickActionsMenu({
   onCreateFromTemplate,
   onCreateBlank,
   customTemplates,
-  onManageTemplates,
+  onCreateNewTemplate,
   onSaveTemplate,
   onUpdateTemplate,
   onDeleteTemplate,
@@ -435,10 +435,10 @@ export function QuickActionsMenu({
               </div>
 
               <button 
-                onClick={onManageTemplates}
-                className="flex size-10 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-white/5 active:scale-95 transition-all duration-150 text-gray-400 dark:text-gray-500"
-                title="Manage Templates"
-                aria-label="Manage Templates"
+                disabled
+                className="flex size-10 items-center justify-center rounded-full opacity-30 cursor-not-allowed text-gray-400 dark:text-gray-500"
+                title="Coming soon"
+                aria-label="Settings (coming soon)"
               >
                 <span className="material-symbols-outlined text-xl font-bold">settings</span>
               </button>
@@ -474,7 +474,7 @@ export function QuickActionsMenu({
                       {customTemplates.length} {customTemplates.length === 1 ? 'template' : 'templates'}
                     </span>
                     <button
-                      onClick={onManageTemplates}
+                      onClick={onCreateNewTemplate}
                       className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold shadow-lg shadow-indigo-500/30 hover:shadow-xl hover:shadow-indigo-500/40 transition-all"
                     >
                       <span className="material-symbols-outlined text-[18px]">add</span>
@@ -497,7 +497,7 @@ export function QuickActionsMenu({
                       Start building your template collection! Create custom templates to streamline your workflow and save time.
                     </p>
                     <button
-                      onClick={onManageTemplates}
+                      onClick={onCreateNewTemplate}
                       className="group flex items-center gap-3 px-8 py-4 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white text-base font-bold shadow-2xl shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:-translate-y-1 transition-all duration-300"
                     >
                       <span className="material-symbols-outlined text-2xl">add_circle</span>

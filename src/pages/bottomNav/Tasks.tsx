@@ -11,7 +11,7 @@ import { AsanaKanban } from '@/components/kanban/AsanaKanban'
 import { AccessibilityButton } from '@/components/AccessibilityButton'
 import { TaskCardWithMenu } from '@/components/TaskCardWithMenu'
 import { QuickActionsMenu } from '@/components/QuickActionsMenu'
-import { TemplateManagerModal } from '@/components/TemplateManagerModal'
+import { TemplateCreationModal } from '../../components/TemplateCreationModal'
 import { useLocalStorage } from '@/hooks/useLocalStorage'
 import type { Task, TaskPriority, TaskStatus, TaskSort, TaskView } from '@/types/task'
 import type { TaskTemplate } from '@/types/taskTemplate'
@@ -145,6 +145,7 @@ export function Tasks() {
   const [editingTask, setEditingTask] = useState<Task | null>(null)
   const [isQuickActionsOpen, setIsQuickActionsOpen] = useState(false)
   const [isTemplateManagerOpen, setIsTemplateManagerOpen] = useState(false)
+  const [templateManagerCreateMode, setTemplateManagerCreateMode] = useState(false)
   const [openMenuTaskId, setOpenMenuTaskId] = useState<string | null>(null)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [kanbanStyle, setKanbanStyle] = useLocalStorage<'trello' | 'minimal' | 'notion' | 'asana' | 'hybrid'>('kanbanStyle', 'hybrid')
@@ -869,9 +870,10 @@ export function Tasks() {
           setIsAddModalOpen(true)
         }}
         customTemplates={customTemplates}
-        onManageTemplates={() => {
+        onCreateNewTemplate={() => {
           setIsQuickActionsOpen(false)
           setIsTemplateManagerOpen(true)
+          setTemplateManagerCreateMode(true)
         }}
         onSaveTemplate={handleSaveTemplate}
         onUpdateTemplate={handleSaveTemplate}
@@ -879,12 +881,16 @@ export function Tasks() {
         existingTasks={tasks}
       />
       
-      <TemplateManagerModal
+      <TemplateCreationModal
         isOpen={isTemplateManagerOpen}
-        onClose={() => setIsTemplateManagerOpen(false)}
+        onClose={() => {
+          setIsTemplateManagerOpen(false)
+          setTemplateManagerCreateMode(false)
+        }}
         customTemplates={customTemplates}
         onSaveTemplate={handleSaveTemplate}
         onDeleteTemplate={handleDeleteTemplate}
+        openInCreateMode={templateManagerCreateMode}
       />
 
       {/* Accessibility Button Demo */}

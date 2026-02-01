@@ -3,7 +3,7 @@ import { AccessibleModal } from './timer/shared/AccessibleModal'
 import type { TaskTemplate } from '@/types/taskTemplate'
 import type { TaskPriority, TaskStatus, Subtask } from '@/types/task'
 
-interface TemplateManagerModalProps {
+interface TemplateCreationModalProps {
   isOpen: boolean
   onClose: () => void
   customTemplates: TaskTemplate[]
@@ -11,9 +11,10 @@ interface TemplateManagerModalProps {
   onDeleteTemplate: (templateId: string) => void
   editingTemplate?: TaskTemplate | null
   onBack?: () => void
+  openInCreateMode?: boolean
 }
 
-export function TemplateManagerModal({
+export function TemplateCreationModal({
   isOpen,
   onClose,
   customTemplates,
@@ -21,8 +22,9 @@ export function TemplateManagerModal({
   onDeleteTemplate,
   editingTemplate,
   onBack,
-}: TemplateManagerModalProps) {
-  const [showCreateForm, setShowCreateForm] = useState(false)
+  openInCreateMode = false,
+}: TemplateCreationModalProps) {
+  const [showCreateForm, setShowCreateForm] = useState(openInCreateMode)
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [icon, setIcon] = useState('task')
@@ -78,6 +80,12 @@ export function TemplateManagerModal({
       setRecurring(editingTemplate.template.recurring || null)
     }
   }, [editingTemplate])
+
+  useEffect(() => {
+    if (openInCreateMode) {
+      setShowCreateForm(true)
+    }
+  }, [openInCreateMode])
 
   const resetForm = () => {
     setName('')
