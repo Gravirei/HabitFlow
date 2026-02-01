@@ -137,6 +137,7 @@ interface QuickActionsMenuProps {
   onManageTemplates: () => void
   onSaveTemplate?: (template: TaskTemplate) => void
   onUpdateTemplate?: (template: TaskTemplate) => void
+  onDeleteTemplate?: (templateId: string) => void
   existingTasks?: any[] // Pass existing tasks to check for duplicates
 }
 
@@ -149,6 +150,7 @@ export function QuickActionsMenu({
   onManageTemplates,
   onSaveTemplate,
   onUpdateTemplate,
+  onDeleteTemplate,
   existingTasks = [],
 }: QuickActionsMenuProps) {
   const [selectedCategory, setSelectedCategory] = useState<'all' | 'work' | 'personal'>('all')
@@ -229,6 +231,48 @@ export function QuickActionsMenu({
     setIsPreviewOpen(false)
     onClose()
     setSearchQuery('')
+  }
+
+  const handleDeleteTemplate = (template: TaskTemplate) => {
+    try {
+      // Update localStorage
+      const stored = localStorage.getItem('taskTemplates')
+      if (stored) {
+        const templates: TaskTemplate[] = JSON.parse(stored)
+        const updatedTemplates = templates.filter(t => t.id !== template.id)
+        localStorage.setItem('taskTemplates', JSON.stringify(updatedTemplates))
+      }
+      
+      // Call the parent callback to update state
+      if (onDeleteTemplate) {
+        onDeleteTemplate(template.id)
+      }
+      
+      // Close preview modal
+      setIsPreviewOpen(false)
+      
+      // Show success toast
+      toast.success(`"${template.name}" deleted!`, {
+        duration: 3000,
+        style: {
+          borderRadius: '12px',
+          background: '#ef4444',
+          color: '#fff',
+          fontWeight: '600',
+        },
+      })
+    } catch (error) {
+      console.error('Error deleting template:', error)
+      toast.error('Failed to delete template', {
+        duration: 3000,
+        style: {
+          borderRadius: '12px',
+          background: '#ef4444',
+          color: '#fff',
+          fontWeight: '600',
+        },
+      })
+    }
   }
 
   return (
@@ -528,6 +572,7 @@ export function QuickActionsMenu({
         onSaveAsTask={handleSaveAsTask}
         onSaveToMyTemplates={onSaveTemplate}
         onUpdateTemplate={onUpdateTemplate}
+        onDeleteTemplate={handleDeleteTemplate}
         customTemplates={customTemplates}
       />
 
@@ -582,6 +627,7 @@ export function QuickActionsMenu({
           </div>
         </div>
       )}
+
     </AccessibleModal>
   )
 }

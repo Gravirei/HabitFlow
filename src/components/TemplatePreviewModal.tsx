@@ -14,6 +14,7 @@ interface TemplatePreviewModalProps {
   onSaveAsTask: (taskData: Omit<Task, 'id' | 'completed'>) => void
   onSaveToMyTemplates?: (template: TaskTemplate) => void
   onUpdateTemplate?: (template: TaskTemplate) => void
+  onDeleteTemplate?: (template: TaskTemplate) => void
   customTemplates?: TaskTemplate[]
 }
 
@@ -25,6 +26,7 @@ export function TemplatePreviewModal({
   onSaveAsTask,
   onSaveToMyTemplates,
   onUpdateTemplate,
+  onDeleteTemplate,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   customTemplates: _customTemplates = [],
 }: TemplatePreviewModalProps) {
@@ -41,6 +43,7 @@ export function TemplatePreviewModal({
   const [tagInput, setTagInput] = useState('')
   const [showDuplicateWarning, setShowDuplicateWarning] = useState(false)
   const [pendingTemplate, setPendingTemplate] = useState<TaskTemplate | null>(null)
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
   
   // Track unsaved changes for split button animation
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
@@ -216,6 +219,23 @@ export function TemplatePreviewModal({
     setPendingTemplate(null)
   }
 
+  // Handle delete template
+  const handleDeleteClick = () => {
+    setShowDeleteConfirmation(true)
+  }
+
+  const handleConfirmDelete = () => {
+    if (!template || !onDeleteTemplate) return
+    
+    onDeleteTemplate(template)
+    setShowDeleteConfirmation(false)
+    onClose() // Close the preview modal after deletion
+  }
+
+  const handleCancelDelete = () => {
+    setShowDeleteConfirmation(false)
+  }
+
   // Check if template can be edited (must be custom or saved)
   const handleFieldFocus = () => {
     if (!template) return
@@ -354,6 +374,18 @@ export function TemplatePreviewModal({
               isEditMode ? 'w-1/2' : 'w-full'
             }`}>
               <div className="absolute inset-0 bg-gradient-to-b from-transparent to-white/40 dark:to-black/20 pointer-events-none"></div>
+             
+              {/* Delete Button - Top Left Corner */}
+              {template.isCustom && onDeleteTemplate && (
+                <button
+                  onClick={handleDeleteClick}
+                  className="absolute top-6 left-6 z-30 w-10 h-10 rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-300 dark:hover:border-red-700 shadow-sm hover:shadow-md transition-all duration-300 flex items-center justify-center group/delete hover:scale-110"
+                  title="Delete template"
+                  aria-label="Delete template"
+                >
+                  <span className="material-symbols-outlined text-gray-600 dark:text-gray-400 group-hover/delete:text-red-600 dark:group-hover/delete:text-red-500 text-[22px] transition-colors">delete</span>
+                </button>
+              )}
              
               <div className="relative z-10 w-full max-w-md flex flex-col items-center h-full justify-center px-4">
                {/* Icon with glow effect and animation */}
@@ -952,6 +984,57 @@ export function TemplatePreviewModal({
                className="flex-1 py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-lg shadow-indigo-500/30 hover:shadow-xl hover:shadow-indigo-500/40 transition-all"
              >
                Create Duplicate
+             </button>
+           </div>
+         </motion.div>
+       </div>
+     )}
+
+     {/* Delete Confirmation Modal */}
+     {showDeleteConfirmation && (
+       <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+         <motion.div
+           initial={{ opacity: 0, scale: 0.95 }}
+           animate={{ opacity: 1, scale: 1 }}
+           exit={{ opacity: 0, scale: 0.95 }}
+           className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl max-w-md w-full p-6 border border-gray-200 dark:border-gray-700"
+         >
+           {/* Delete Icon */}
+           <div className="flex justify-center mb-4">
+             <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-500/20 flex items-center justify-center">
+               <span className="material-symbols-outlined text-4xl text-red-600 dark:text-red-400">delete</span>
+             </div>
+           </div>
+
+           {/* Title */}
+           <h3 className="text-xl font-bold text-center text-gray-900 dark:text-white mb-2">
+             Delete Template?
+           </h3>
+
+           {/* Message */}
+           <p className="text-center text-gray-600 dark:text-gray-300 mb-2">
+             Are you sure you want to delete
+           </p>
+           <p className="text-center text-gray-900 dark:text-white font-bold mb-6">
+             "{template.name}"?
+           </p>
+           <p className="text-center text-sm text-gray-500 dark:text-gray-400 mb-6">
+             This action cannot be undone.
+           </p>
+
+           {/* Buttons */}
+           <div className="flex gap-3">
+             <button
+               onClick={handleCancelDelete}
+               className="flex-1 py-3 px-4 rounded-xl bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-bold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+             >
+               Cancel
+             </button>
+             <button
+               onClick={handleConfirmDelete}
+               className="flex-1 py-3 px-4 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold shadow-lg shadow-red-500/30 hover:shadow-xl hover:shadow-red-500/40 transition-all"
+             >
+               Delete
              </button>
            </div>
          </motion.div>
