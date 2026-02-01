@@ -36,7 +36,7 @@ function TemplateCard({
             e.stopPropagation() // Prevent card click
             onQuickAdd(template)
           }}
-          className="absolute bottom-4 right-4 z-20 w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 shadow-xl shadow-emerald-500/40 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300 flex items-center justify-center group/quickadd hover:scale-110 hover:shadow-2xl hover:shadow-emerald-500/60"
+          className="absolute bottom-4 right-4 z-20 w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 shadow-lg shadow-black/20 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300 flex items-center justify-center group/quickadd hover:scale-110 hover:shadow-xl hover:shadow-black/30"
           title="Quick add as task"
         >
           {/* Pulse Animation Ring */}
