@@ -145,7 +145,6 @@ export function Tasks() {
   const [editingTask, setEditingTask] = useState<Task | null>(null)
   const [isQuickActionsOpen, setIsQuickActionsOpen] = useState(false)
   const [isTemplateManagerOpen, setIsTemplateManagerOpen] = useState(false)
-  const [templateManagerCreateMode, setTemplateManagerCreateMode] = useState(false)
   const [openMenuTaskId, setOpenMenuTaskId] = useState<string | null>(null)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [kanbanStyle, setKanbanStyle] = useLocalStorage<'trello' | 'minimal' | 'notion' | 'asana' | 'hybrid'>('kanbanStyle', 'hybrid')
@@ -873,7 +872,6 @@ export function Tasks() {
         onCreateNewTemplate={() => {
           setIsQuickActionsOpen(false)
           setIsTemplateManagerOpen(true)
-          setTemplateManagerCreateMode(true)
         }}
         onSaveTemplate={handleSaveTemplate}
         onUpdateTemplate={handleSaveTemplate}
@@ -883,14 +881,8 @@ export function Tasks() {
       
       <TemplateCreationModal
         isOpen={isTemplateManagerOpen}
-        onClose={() => {
-          setIsTemplateManagerOpen(false)
-          setTemplateManagerCreateMode(false)
-        }}
-        customTemplates={customTemplates}
+        onClose={() => setIsTemplateManagerOpen(false)}
         onSaveTemplate={handleSaveTemplate}
-        onDeleteTemplate={handleDeleteTemplate}
-        openInCreateMode={templateManagerCreateMode}
       />
 
       {/* Accessibility Button Demo */}
