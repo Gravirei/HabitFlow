@@ -78,7 +78,6 @@ export function TemplateCreationModal({
   const [color, setColor] = useState('bg-blue-500')
   const [customHex, setCustomHex] = useState<string | null>(null)
   const [title, setTitle] = useState('')
-  const [taskDescription, setTaskDescription] = useState('')
   const [priority, setPriority] = useState<TaskPriority>('medium')
   const [status, setStatus] = useState<TaskStatus>('todo')
   const [tags, setTags] = useState<string[]>([])
@@ -98,7 +97,6 @@ export function TemplateCreationModal({
       setColor(editingTemplate.color)
       setCustomHex(null)
       setTitle(editingTemplate.template.title)
-      setTaskDescription(editingTemplate.template.description || '')
       setPriority(editingTemplate.template.priority)
       setStatus(editingTemplate.template.status)
       setTags(editingTemplate.template.tags)
@@ -117,7 +115,6 @@ export function TemplateCreationModal({
     setColor('bg-blue-500')
     setCustomHex(null)
     setTitle('')
-    setTaskDescription('')
     setPriority('medium')
     setStatus('todo')
     setTags([])
@@ -143,7 +140,7 @@ export function TemplateCreationModal({
       isCustom: true,
       template: {
         title: title.trim() || name.trim(), // Use template name as default title
-        description: taskDescription.trim() || undefined,
+        description: description.trim() || undefined, // Use same description as template
         priority,
         status,
         category,
