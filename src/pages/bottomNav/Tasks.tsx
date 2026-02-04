@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { BottomNav } from '@/components/BottomNav'
 import { TaskModal } from '@/components/TaskModal'
@@ -834,30 +835,44 @@ export function Tasks() {
             )}
           </div>
         ) : (
-          <div className="flex flex-col gap-3">
-            {filteredTasks.map((task) => {
-              const dueText = formatDueDate(task.due)
-              const isOverdue = dueText === 'Overdue'
-              const completionPercentage = getCompletionPercentage(task)
+          <motion.div className="flex flex-col gap-3" layout>
+            <AnimatePresence mode="popLayout">
+              {filteredTasks.map((task) => {
+                const dueText = formatDueDate(task.due)
+                const isOverdue = dueText === 'Overdue'
+                const completionPercentage = getCompletionPercentage(task)
 
-              return (
-                <TaskCardWithMenu
-                  key={task.id}
-                  task={task}
-                  dueText={dueText}
-                  isOverdue={isOverdue}
-                  completionPercentage={completionPercentage}
-                  openMenuTaskId={openMenuTaskId}
-                  setOpenMenuTaskId={setOpenMenuTaskId}
-                  setEditingTask={setEditingTask}
-                  toggleTask={toggleTask}
-                  deleteTask={deleteTask}
-                  tasks={tasks}
-                  setTasks={setTasks}
-                />
-              )
-            })}
-          </div>
+                return (
+                  <motion.div
+                    key={task.id}
+                    layout
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.25 } }}
+                    transition={{ 
+                      layout: { duration: 0.5, ease: "easeInOut" },
+                      opacity: { duration: 0.5 },
+                      scale: { duration: 0.5 }
+                    }}
+                  >
+                    <TaskCardWithMenu
+                      task={task}
+                      dueText={dueText}
+                      isOverdue={isOverdue}
+                      completionPercentage={completionPercentage}
+                      openMenuTaskId={openMenuTaskId}
+                      setOpenMenuTaskId={setOpenMenuTaskId}
+                      setEditingTask={setEditingTask}
+                      toggleTask={toggleTask}
+                      deleteTask={deleteTask}
+                      tasks={tasks}
+                      setTasks={setTasks}
+                    />
+                  </motion.div>
+                )
+              })}
+            </AnimatePresence>
+          </motion.div>
         )}
       </main>
 
