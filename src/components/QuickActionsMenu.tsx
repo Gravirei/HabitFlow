@@ -211,6 +211,11 @@ export function QuickActionsMenu({
     return saved !== null ? JSON.parse(saved) : true
   })
 
+  const [selectedQuickAddTemplate, setSelectedQuickAddTemplate] = useState<string | null>(() => {
+    const saved = localStorage.getItem('quickActionsSelectedTemplate')
+    return saved !== null ? saved : null
+  })
+
   // Save settings to localStorage when they change
   useEffect(() => {
     localStorage.setItem('quickActionsShowFilter', JSON.stringify(showFilter))
@@ -219,6 +224,12 @@ export function QuickActionsMenu({
   useEffect(() => {
     localStorage.setItem('quickActionsEnableQuickAdd', JSON.stringify(enableQuickAdd))
   }, [enableQuickAdd])
+
+  useEffect(() => {
+    if (selectedQuickAddTemplate) {
+      localStorage.setItem('quickActionsSelectedTemplate', selectedQuickAddTemplate)
+    }
+  }, [selectedQuickAddTemplate])
 
   // Close search on outside click
   useEffect(() => {
@@ -421,30 +432,41 @@ export function QuickActionsMenu({
             {enableQuickAdd && (
               <button
                 onClick={() => {
-                  onCreateFromTemplate({
-                    id: 'quick_today',
-                    name: 'Quick Task',
-                    icon: 'bolt',
-                    category: 'Work',
-                    color: 'bg-yellow-500',
-                    isCustom: false,
-                    template: {
-                      title: 'Quick Task',
-                      priority: 'medium',
-                      status: 'todo',
-                      category: 'Work',
-                      tags: [],
-                      subtasks: [],
-                    },
-                  })
-                  onClose()
+                  if (!selectedQuickAddTemplate) {
+                    toast.error('No template selected!', {
+                      description: 'Please select a template from Settings for Quick Add functionality.',
+                      duration: 4000,
+                    })
+                    return
+                  }
+                  
+                  const template = customTemplates.find(t => t.id === selectedQuickAddTemplate)
+                  if (template) {
+                    onCreateFromTemplate(template)
+                    toast.success('Quick task added!', {
+                      icon: (
+                        <div 
+                          className="w-8 h-8 rounded-lg flex items-center justify-center"
+                          style={{ backgroundColor: template.colorHex || template.color.replace('bg-', '#') }}
+                        >
+                          <span className="material-symbols-outlined text-white text-lg">{template.icon}</span>
+                        </div>
+                      ),
+                      duration: 3000,
+                    })
+                    onClose()
+                  }
                 }}
                 className="w-full flex items-center gap-4 p-4 rounded-2xl bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 hover:bg-amber-500/20 hover:border-amber-500/30 hover:-translate-y-0.5 transition-all duration-300"
               >
                 <span className="material-symbols-outlined text-2xl">bolt</span>
                 <div className="text-left">
                   <div className="text-sm font-bold">Quick Add</div>
-                  <div className="text-[10px] opacity-80 font-medium">Minimal fields</div>
+                  <div className="text-[10px] opacity-80 font-medium">
+                    {selectedQuickAddTemplate 
+                      ? customTemplates.find(t => t.id === selectedQuickAddTemplate)?.name || 'Minimal fields'
+                      : 'Minimal fields'}
+                  </div>
                 </div>
               </button>
             )}
@@ -731,12 +753,58 @@ export function QuickActionsMenu({
               description="Display category filter dropdown in quick actions menu"
             />
             
-            <ToggleSwitch
-              enabled={enableQuickAdd}
-              onChange={() => setEnableQuickAdd(!enableQuickAdd)}
-              label="Enable Quick Add Button"
-              description="Show quick add button at the bottom of the menu"
-            />
+            <div className="space-y-2">
+              <ToggleSwitch
+                enabled={enableQuickAdd}
+                onChange={() => setEnableQuickAdd(!enableQuickAdd)}
+                label="Enable Quick Add Button"
+                description="Show quick add button at the bottom of the menu"
+              />
+              
+              {/* Template Selector - Collapsible */}
+              {enableQuickAdd && (
+                <div className="ml-6 mt-3 space-y-2 animate-in slide-in-from-top duration-300">
+                  <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                    Select Template
+                  </div>
+                  
+                  {customTemplates.length > 0 ? (
+                    <div className="space-y-1.5">
+                      {customTemplates.map((template) => (
+                        <button
+                          key={template.id}
+                          onClick={() => setSelectedQuickAddTemplate(template.id)}
+                          className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all duration-200 ${
+                            selectedQuickAddTemplate === template.id
+                              ? 'bg-white/10 ring-1 ring-white/20'
+                              : 'bg-white/5 hover:bg-white/10'
+                          }`}
+                        >
+                          <div 
+                            className="flex h-8 w-8 items-center justify-center rounded-lg flex-shrink-0"
+                            style={{ backgroundColor: template.colorHex || '#3b82f6' }}
+                          >
+                            <span className="material-symbols-outlined text-white text-sm">{template.icon}</span>
+                          </div>
+                          <span className="text-sm font-medium text-white flex-1 text-left truncate">
+                            {template.name}
+                          </span>
+                          {selectedQuickAddTemplate === template.id && (
+                            <span className="material-symbols-outlined text-green-400 text-lg">check_circle</span>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-sm text-gray-400 text-center py-4">
+                      No custom templates available.
+                      <br />
+                      <span className="text-xs">Create one to use Quick Add.</span>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
