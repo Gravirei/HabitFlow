@@ -177,7 +177,17 @@ export function TemplateCreationModal({
     setSubtasks(subtasks.filter((_, i) => i !== index))
   }
 
-  const selectedColorHex = colorOptions.find((c) => c.value === color)?.hex || '#3b82f6'
+  // Get hex color from color value (handles both preset and custom colors)
+  const selectedColorHex = (() => {
+    const matched = colorOptions.find((c) => c.value === color)
+    if (matched) return matched.hex
+    
+    // Extract hex from custom bg-[...] format
+    const customMatch = color.match(/bg-\[([a-fA-F0-9]{6})\]/)
+    if (customMatch) return '#' + customMatch[1]
+    
+    return '#3b82f6' // fallback
+  })()
 
   return (
     <AccessibleModal
