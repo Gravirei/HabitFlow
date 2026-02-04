@@ -691,13 +691,13 @@ export function QuickActionsMenu({
       <div className={`absolute inset-0 z-[60] flex items-end justify-end overflow-hidden transition-all duration-500 ${showSettingsSidebar ? 'pointer-events-auto' : 'pointer-events-none'}`}>
         {/* Backdrop */}
         <div
-          className={`absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity duration-500 ${showSettingsSidebar ? 'opacity-100' : 'opacity-0'}`}
+          className={`absolute inset-0 bg-black/40 transition-opacity duration-500 ${showSettingsSidebar ? 'opacity-100' : 'opacity-0'}`}
           onClick={() => setShowSettingsSidebar(false)}
         />
         
         {/* Sidebar */}
         <div
-          className={`relative w-80 h-full bg-gray-50/80 dark:bg-white/5 backdrop-blur-xl border-l border-gray-200/50 dark:border-white/5 shadow-2xl flex flex-col transition-transform duration-500 ease-in-out ${
+          className={`relative w-80 h-full bg-gray-50/80 dark:bg-white/5 backdrop-blur-xl border-l border-gray-200/50 dark:border-white/5 shadow-2xl flex flex-col transition-transform duration-500 ease-in-out rounded-l-[2.5rem] ${
             showSettingsSidebar ? 'translate-x-0' : 'translate-x-full'
           }`}
           onClick={(e) => e.stopPropagation()}
