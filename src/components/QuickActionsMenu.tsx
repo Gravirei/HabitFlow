@@ -198,6 +198,7 @@ export function QuickActionsMenu({
   const [showTemplateLibrary, setShowTemplateLibrary] = useState(false)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [showSettingsSidebar, setShowSettingsSidebar] = useState(false)
+  const [templateListCollapsed, setTemplateListCollapsed] = useState(false)
   const searchRef = useRef<HTMLDivElement>(null)
 
   // Settings state with localStorage
@@ -764,9 +765,17 @@ export function QuickActionsMenu({
               {/* Template Selector - Collapsible */}
               {enableQuickAdd && (
                 <div className="ml-6 mt-3 space-y-2 animate-in slide-in-from-top duration-300">
-                  <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-                    Select Template
-                  </div>
+                  <button
+                    onClick={() => setTemplateListCollapsed(!templateListCollapsed)}
+                    className="w-full flex items-center justify-between text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 hover:text-gray-300 transition-colors"
+                  >
+                    <span>Select Template</span>
+                    <span className={`material-symbols-outlined text-[14px] transition-transform duration-300 ${templateListCollapsed ? '' : 'rotate-180'}`}>
+                      expand_more
+                    </span>
+                  </button>
+                  
+                  <div className={`transition-all duration-300 overflow-hidden ${templateListCollapsed ? 'max-h-0 opacity-0' : 'max-h-[600px] opacity-100'}`}>
                   
                   {customTemplates.length > 0 ? (
                     <div className="space-y-1.5">
@@ -802,6 +811,7 @@ export function QuickActionsMenu({
                       <span className="text-xs">Create one to use Quick Add.</span>
                     </div>
                   )}
+                  </div>
                 </div>
               )}
             </div>
