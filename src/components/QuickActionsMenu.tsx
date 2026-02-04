@@ -688,7 +688,7 @@ export function QuickActionsMenu({
       )}
 
       {/* Settings Sidebar */}
-      <div className={`absolute inset-0 z-[60] flex items-end justify-end transition-all duration-500 ${showSettingsSidebar ? 'pointer-events-auto' : 'pointer-events-none'}`}>
+      <div className={`absolute inset-0 z-[60] flex items-end justify-end overflow-hidden transition-all duration-500 ${showSettingsSidebar ? 'pointer-events-auto' : 'pointer-events-none'}`}>
         {/* Backdrop */}
         <div
           className={`absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity duration-500 ${showSettingsSidebar ? 'opacity-100' : 'opacity-0'}`}
