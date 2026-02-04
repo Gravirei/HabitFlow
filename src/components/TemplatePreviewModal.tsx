@@ -59,6 +59,33 @@ export function TemplatePreviewModal({
   
   const prefersReducedMotion = useReducedMotion()
 
+  // Get hex color from template (supports both colorHex and color properties)
+  const getTemplateColorHex = (tmpl: TaskTemplate) => {
+    if (tmpl.colorHex) return tmpl.colorHex
+    
+    // Fallback: Extract from Tailwind class
+    const colorMap: Record<string, string> = {
+      'bg-blue-500': '#3b82f6',
+      'bg-purple-500': '#a855f7',
+      'bg-green-500': '#22c55e',
+      'bg-red-500': '#ef4444',
+      'bg-orange-500': '#f97316',
+      'bg-yellow-500': '#eab308',
+      'bg-pink-500': '#ec4899',
+      'bg-indigo-500': '#6366f1',
+      'bg-teal-500': '#14b8a6',
+      'bg-cyan-500': '#06b6d4',
+    }
+    
+    if (colorMap[tmpl.color]) return colorMap[tmpl.color]
+    
+    // Extract from custom bg-[...] format
+    const customMatch = tmpl.color.match(/bg-\[([a-fA-F0-9]{6})\]/)
+    if (customMatch) return '#' + customMatch[1]
+    
+    return '#3b82f6' // fallback
+  }
+
   // Check if values have changed from original
   const checkForChanges = (newValues: Partial<typeof originalValues>) => {
     const current = {
@@ -396,8 +423,14 @@ export function TemplatePreviewModal({
               <div className="relative z-10 w-full max-w-md flex flex-col items-center h-full justify-center px-4">
                {/* Icon with glow effect and animation */}
                <div className="relative mb-8 group">
-                 <div className={`absolute inset-0 ${template.color} opacity-20 blur-3xl scale-110 group-hover:opacity-30 transition-opacity duration-500`}></div>
-                 <div className={`relative w-32 h-32 rounded-[2.5rem] ${template.color} flex items-center justify-center shadow-2xl ring-4 ring-white/20 dark:ring-white/10 backdrop-blur-xl transform hover:scale-105 transition-all duration-300`}>
+                 <div 
+                   className="absolute inset-0 opacity-20 blur-3xl scale-110 group-hover:opacity-30 transition-opacity duration-500"
+                   style={{ backgroundColor: getTemplateColorHex(template) }}
+                 ></div>
+                 <div 
+                   className="relative w-32 h-32 rounded-[2.5rem] flex items-center justify-center shadow-2xl ring-4 ring-white/20 dark:ring-white/10 backdrop-blur-xl transform hover:scale-105 transition-all duration-300"
+                   style={{ backgroundColor: getTemplateColorHex(template) }}
+                 >
                    <span className="material-symbols-outlined text-6xl text-white drop-shadow-lg">{template.icon}</span>
                  </div>
                </div>
@@ -627,7 +660,10 @@ export function TemplatePreviewModal({
                          // Show success toast and close
                          toast.success(`"${template.name}" saved to My Templates!`, {
                            icon: (
-                             <div className={`w-8 h-8 rounded-lg ${template.color} flex items-center justify-center`}>
+                             <div 
+                               className="w-8 h-8 rounded-lg flex items-center justify-center"
+                               style={{ backgroundColor: getTemplateColorHex(template) }}
+                             >
                                <span className="material-symbols-outlined text-white text-lg">{template.icon}</span>
                              </div>
                            ),

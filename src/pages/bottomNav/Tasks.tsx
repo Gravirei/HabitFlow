@@ -870,7 +870,7 @@ export function Tasks() {
         }}
         customTemplates={customTemplates}
         onCreateNewTemplate={() => {
-          setIsQuickActionsOpen(false)
+          // Don't close QuickActionsMenu - keep it open behind the modal
           setIsTemplateManagerOpen(true)
         }}
         onSaveTemplate={handleSaveTemplate}

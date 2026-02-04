@@ -14,13 +14,43 @@ function TemplateCard({
   onClick: () => void
   onQuickAdd?: (template: TaskTemplate) => void
 }) {
+  // Get hex color from template (supports both colorHex and color properties)
+  const getTemplateColorHex = (tmpl: TaskTemplate) => {
+    if (tmpl.colorHex) return tmpl.colorHex
+    
+    // Fallback: Extract from Tailwind class
+    const colorMap: Record<string, string> = {
+      'bg-blue-500': '#3b82f6',
+      'bg-purple-500': '#a855f7',
+      'bg-green-500': '#22c55e',
+      'bg-red-500': '#ef4444',
+      'bg-orange-500': '#f97316',
+      'bg-yellow-500': '#eab308',
+      'bg-pink-500': '#ec4899',
+      'bg-indigo-500': '#6366f1',
+      'bg-teal-500': '#14b8a6',
+      'bg-cyan-500': '#06b6d4',
+    }
+    
+    if (colorMap[tmpl.color]) return colorMap[tmpl.color]
+    
+    // Extract from custom bg-[...] format
+    const customMatch = tmpl.color.match(/bg-\[([a-fA-F0-9]{6})\]/)
+    if (customMatch) return '#' + customMatch[1]
+    
+    return '#3b82f6' // fallback
+  }
+
   return (
     <button
       onClick={onClick}
       className="group relative flex flex-col text-left h-full min-h-[180px] p-6 rounded-3xl bg-white/40 dark:bg-gray-800/40 backdrop-blur-md border border-white/20 dark:border-white/5 hover:bg-white/60 dark:hover:bg-gray-800/60 hover:border-white/40 dark:hover:border-white/10 shadow-sm hover:shadow-xl hover:shadow-indigo-500/10 hover:-translate-y-1 transition-all duration-300 overflow-hidden"
     >
       {/* Background Gradient Mesh */}
-      <div className={`absolute top-0 right-0 -mt-8 -mr-8 w-32 h-32 rounded-full blur-3xl opacity-0 group-hover:opacity-20 transition-opacity duration-500 ${template.color.replace('bg-', 'bg-')}`}></div>
+      <div 
+        className="absolute top-0 right-0 -mt-8 -mr-8 w-32 h-32 rounded-full blur-3xl opacity-0 group-hover:opacity-20 transition-opacity duration-500"
+        style={{ backgroundColor: getTemplateColorHex(template) }}
+      ></div>
       
       {/* Custom Badge */}
       {template.isCustom && (
@@ -50,7 +80,10 @@ function TemplateCard({
       
       <div className="relative z-10 flex flex-col h-full">
         <div className="flex items-start justify-between mb-4">
-          <div className={`w-14 h-14 rounded-2xl ${template.color} flex items-center justify-center text-white shadow-lg shadow-black/5 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300`}>
+          <div 
+            className="w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-black/5 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300"
+            style={{ backgroundColor: getTemplateColorHex(template) }}
+          >
             <span className="material-symbols-outlined text-2xl">{template.icon}</span>
           </div>
         </div>

@@ -18,6 +18,7 @@ interface AccessibleModalProps {
   className?: string
   size?: 'sm' | 'md' | 'lg' | 'xl'
   maxWidth?: string
+  closeOnBackdropClick?: boolean
 }
 
 export const AccessibleModal: React.FC<AccessibleModalProps> = ({
@@ -29,6 +30,7 @@ export const AccessibleModal: React.FC<AccessibleModalProps> = ({
   className = '',
   size = 'md',
   maxWidth,
+  closeOnBackdropClick = true,
 }) => {
   const prefersReducedMotion = useReducedMotion()
   const titleId = useId()
@@ -58,7 +60,12 @@ export const AccessibleModal: React.FC<AccessibleModalProps> = ({
       {/* Backdrop */}
       <div
         className={`fixed inset-0 bg-black/80 backdrop-blur-xl z-50 ${!prefersReducedMotion && 'animate-in fade-in duration-300'}`}
-        onClick={onClose}
+        onClick={(e) => {
+          e.stopPropagation()
+          if (closeOnBackdropClick) {
+            onClose()
+          }
+        }}
         aria-hidden="true"
       />
 

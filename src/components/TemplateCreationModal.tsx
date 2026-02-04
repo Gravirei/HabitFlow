@@ -76,6 +76,7 @@ export function TemplateCreationModal({
   const [icon, setIcon] = useState('task')
   const [category, setCategory] = useState('Work')
   const [color, setColor] = useState('bg-blue-500')
+  const [customHex, setCustomHex] = useState<string | null>(null)
   const [title, setTitle] = useState('')
   const [taskDescription, setTaskDescription] = useState('')
   const [priority, setPriority] = useState<TaskPriority>('medium')
@@ -95,6 +96,7 @@ export function TemplateCreationModal({
       setIcon(editingTemplate.icon)
       setCategory(editingTemplate.category)
       setColor(editingTemplate.color)
+      setCustomHex(null)
       setTitle(editingTemplate.template.title)
       setTaskDescription(editingTemplate.template.description || '')
       setPriority(editingTemplate.template.priority)
@@ -113,6 +115,7 @@ export function TemplateCreationModal({
     setIcon('task')
     setCategory('Work')
     setColor('bg-blue-500')
+    setCustomHex(null)
     setTitle('')
     setTaskDescription('')
     setPriority('medium')
@@ -127,7 +130,7 @@ export function TemplateCreationModal({
   }
 
   const handleSave = () => {
-    if (!name.trim() || !title.trim()) return
+    if (!name.trim()) return
 
     const template: TaskTemplate = {
       id: editingTemplate?.id || `tmpl_custom_${Date.now()}`,
@@ -136,9 +139,10 @@ export function TemplateCreationModal({
       icon,
       category,
       color,
+      colorHex: selectedColorHex, // Save the hex color
       isCustom: true,
       template: {
-        title: title.trim(),
+        title: title.trim() || name.trim(), // Use template name as default title
         description: taskDescription.trim() || undefined,
         priority,
         status,
@@ -198,17 +202,19 @@ export function TemplateCreationModal({
       }}
       title={editingTemplate ? 'Edit Template' : 'Create Template'}
       maxWidth="max-w-xl"
+      closeOnBackdropClick={true}
     >
       <div className="overflow-hidden rounded-2xl bg-white shadow-2xl ring-1 ring-gray-900/5 dark:bg-gray-900">
         {/* Header */}
         <div className="relative border-b border-gray-100 bg-gradient-to-br from-gray-50 to-white px-6 py-5 dark:border-gray-800 dark:from-gray-800 dark:to-gray-900">
           <div className="flex items-center gap-3">
             <div
-              className={`h-10 w-10 rounded-xl ${color} flex items-center justify-center shadow-lg shadow-indigo-500/20`}
+              className="h-10 w-10 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20"
+              style={{ backgroundColor: selectedColorHex }}
             >
               <span className="material-symbols-outlined text-white">{icon}</span>
             </div>
-            <div>
+            <div className="flex-1">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
                 {editingTemplate ? 'Edit Template' : 'Create Template'}
               </h2>
@@ -218,6 +224,16 @@ export function TemplateCreationModal({
                   : 'Design a reusable task template'}
               </p>
             </div>
+            <button
+              onClick={() => {
+                onClose()
+                resetForm()
+              }}
+              className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors"
+              aria-label="Close"
+            >
+              <span className="material-symbols-outlined text-gray-600 dark:text-gray-400 text-xl">close</span>
+            </button>
           </div>
         </div>
 
@@ -320,9 +336,10 @@ export function TemplateCreationModal({
                   onClick={() => setIcon(ico)}
                   className={`flex h-12 w-full items-center justify-center rounded-xl transition-all duration-200 ${
                     icon === ico
-                      ? `${color} shadow-md shadow-indigo-500/20`
+                      ? 'shadow-md shadow-indigo-500/20'
                       : 'bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700'
                   }`}
+                  style={icon === ico ? { backgroundColor: selectedColorHex } : undefined}
                   title={ico}
                 >
                   <span
@@ -349,7 +366,10 @@ export function TemplateCreationModal({
               {colorOptions.map((col) => (
                 <button
                   key={col.value}
-                  onClick={() => setColor(col.value)}
+                  onClick={() => {
+                    setColor(col.value)
+                    setCustomHex(col.hex)
+                  }}
                   className={`h-10 w-full rounded-lg transition-all duration-200 ${
                     color === col.value
                       ? 'scale-105 shadow-md ring-2 ring-gray-400 ring-offset-2'
@@ -371,8 +391,10 @@ export function TemplateCreationModal({
                     const matched = colorOptions.find((c) => c.hex === hex.toUpperCase())
                     if (matched) {
                       setColor(matched.value)
+                      setCustomHex(matched.hex)
                     } else {
                       setColor('bg-[' + hex.replace('#', '') + ']')
+                      setCustomHex(hex)
                     }
                   }}
                   className="absolute inset-0 h-12 w-12 cursor-pointer opacity-0"
@@ -421,19 +443,6 @@ export function TemplateCreationModal({
             </div>
 
             <div className="grid gap-4">
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Task Title <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Default task title"
-                  className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-gray-900 shadow-sm transition-all placeholder:text-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                />
-              </div>
-
               <div className="grid grid-cols-3 gap-4">
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -601,7 +610,7 @@ export function TemplateCreationModal({
             </button>
             <button
               onClick={handleSave}
-              disabled={!name.trim() || !title.trim()}
+              disabled={!name.trim()}
               className="flex items-center gap-2 rounded-xl bg-gray-900 px-6 py-2 text-sm font-semibold text-white transition-colors hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
             >
               <span className="material-symbols-outlined text-sm">save</span>
