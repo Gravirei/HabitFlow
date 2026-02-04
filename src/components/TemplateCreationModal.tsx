@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { AccessibleModal } from './timer/shared/AccessibleModal'
-import { AdvancedColorPicker } from './AdvancedColorPicker'
 import type { TaskTemplate } from '@/types/taskTemplate'
 import type { TaskPriority, TaskStatus, Subtask } from '@/types/task'
 
@@ -351,19 +350,54 @@ export function TemplateCreationModal({
                 />
               ))}
             </div>
-            {/* Advanced Color Picker */}
-            <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800/50">
-              <AdvancedColorPicker
-                value={selectedColorHex}
-                onChange={(hex) => {
-                  const matched = colorOptions.find((c) => c.hex === hex.toUpperCase())
-                  if (matched) {
-                    setColor(matched.value)
-                  } else {
-                    setColor('bg-[' + hex.replace('#', '') + ']')
-                  }
-                }}
-              />
+            {/* Simple Color Picker */}
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <input
+                  type="color"
+                  value={selectedColorHex}
+                  onChange={(e) => {
+                    const hex = e.target.value
+                    const matched = colorOptions.find((c) => c.hex === hex.toUpperCase())
+                    if (matched) {
+                      setColor(matched.value)
+                    } else {
+                      setColor('bg-[' + hex.replace('#', '') + ']')
+                    }
+                  }}
+                  className="absolute inset-0 h-12 w-12 cursor-pointer opacity-0"
+                />
+                <div
+                  className="h-12 w-12 rounded-xl border-2 border-gray-300 dark:border-gray-600 shadow-md cursor-pointer hover:scale-110 transition-transform"
+                  style={{ backgroundColor: selectedColorHex }}
+                />
+              </div>
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                  Custom Color
+                </label>
+                <div className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 dark:border-gray-700 dark:bg-gray-900">
+                  <span className="text-sm font-bold text-gray-500">#</span>
+                  <input
+                    type="text"
+                    value={selectedColorHex.replace('#', '')}
+                    onChange={(e) => {
+                      const hex = '#' + e.target.value.replace(/[^a-fA-F0-9]/g, '').slice(0, 6)
+                      if (/^#[a-fA-F0-9]{6}$/.test(hex)) {
+                        const matched = colorOptions.find((c) => c.hex === hex.toUpperCase())
+                        if (matched) {
+                          setColor(matched.value)
+                        } else {
+                          setColor('bg-[' + hex.replace('#', '') + ']')
+                        }
+                      }
+                    }}
+                    maxLength={6}
+                    className="flex-1 bg-transparent font-mono text-sm font-semibold uppercase text-gray-900 placeholder:text-gray-400 focus:outline-none dark:text-white"
+                    placeholder="3B82F6"
+                  />
+                </div>
+              </div>
             </div>
           </div>
 
