@@ -704,9 +704,14 @@ export function QuickActionsMenu({
         >
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-white/5">
-            <div>
-              <h3 className="text-lg font-bold text-white">Settings</h3>
-              <p className="text-xs text-gray-400 mt-0.5">Customize your quick actions</p>
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-indigo-500/20">
+                <span className="material-symbols-outlined text-2xl text-white">settings</span>
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-white">Settings</h3>
+                <p className="text-xs text-gray-400 mt-0.5">Customize your quick actions</p>
+              </div>
             </div>
             <button
               onClick={() => setShowSettingsSidebar(false)}
