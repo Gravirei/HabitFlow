@@ -105,7 +105,13 @@ export function TaskCardWithMenu({
 
   return (
     <div
-      onClick={() => setEditingTask(task)}
+      onClick={() => {
+        // Only open subtasks if there are subtasks
+        if (task.subtasks && task.subtasks.length > 0) {
+          setShowSubtasksMenu(true)
+        }
+        // Do nothing if no subtasks
+      }}
       className={cn(
         'group relative cursor-pointer rounded-xl border border-gray-200 bg-white p-4 transition-all duration-300 hover:border-primary/50 hover:shadow-lg hover:shadow-gray-200/50 dark:border-gray-800 dark:bg-gray-900 dark:hover:shadow-gray-900/50',
         openMenuTaskId && openMenuTaskId !== task.id && 'pointer-events-none opacity-50 blur-sm'
