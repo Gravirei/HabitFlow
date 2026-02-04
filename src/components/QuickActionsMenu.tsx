@@ -697,13 +697,13 @@ export function QuickActionsMenu({
         
         {/* Sidebar */}
         <div
-          className={`relative w-80 h-full bg-gray-900/95 backdrop-blur-xl shadow-2xl flex flex-col transition-transform duration-500 ease-in-out ${
+          className={`relative w-80 h-full bg-[#0f1117] backdrop-blur-xl shadow-2xl flex flex-col transition-transform duration-500 ease-in-out ${
             showSettingsSidebar ? 'translate-x-0' : 'translate-x-full'
           }`}
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-white/5">
             <div>
               <h3 className="text-lg font-bold text-white">Settings</h3>
               <p className="text-xs text-gray-400 mt-0.5">Customize your quick actions</p>
