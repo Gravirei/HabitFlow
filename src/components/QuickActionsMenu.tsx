@@ -689,7 +689,7 @@ export function QuickActionsMenu({
 
       {/* Settings Sidebar */}
       {showSettingsSidebar && (
-        <div className="fixed inset-0 z-[60] flex items-end justify-end pointer-events-none">
+        <div className="absolute inset-0 z-[60] flex items-end justify-end pointer-events-none">
           {/* Backdrop */}
           <div
             className="absolute inset-0 bg-black/40 backdrop-blur-sm pointer-events-auto"
@@ -698,7 +698,7 @@ export function QuickActionsMenu({
           
           {/* Sidebar */}
           <div
-            className="relative pointer-events-auto w-80 h-[85vh] bg-white dark:bg-gray-900 shadow-2xl flex flex-col animate-in slide-in-from-right duration-300"
+            className="relative pointer-events-auto w-80 h-full bg-white dark:bg-gray-900 shadow-2xl flex flex-col animate-in slide-in-from-right duration-300"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
