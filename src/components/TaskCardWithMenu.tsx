@@ -1081,7 +1081,7 @@ export function TaskCardWithMenu({
         <>
           {/* Backdrop */}
           <div
-            className="animate-in fade-in fixed inset-0 z-[140] bg-black/60 backdrop-blur-sm duration-200"
+            className="animate-in fade-in fixed inset-0 z-[160] bg-black/70 backdrop-blur-md duration-200"
             onClick={(e) => {
               e.stopPropagation()
               e.preventDefault()
@@ -1093,7 +1093,7 @@ export function TaskCardWithMenu({
 
           {/* Modal */}
           <div
-            className="pointer-events-none fixed inset-0 z-[150] flex items-center justify-center p-4"
+            className="pointer-events-none fixed inset-0 z-[170] flex items-center justify-center p-4"
             onClick={(e) => e.stopPropagation()}
             onMouseDown={(e) => e.stopPropagation()}
           >
