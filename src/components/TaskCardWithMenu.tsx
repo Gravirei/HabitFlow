@@ -36,6 +36,8 @@ export function TaskCardWithMenu({
   const [showSubtasksMenu, setShowSubtasksMenu] = useState(false)
   const [selectedPriority, setSelectedPriority] = useState<'low' | 'medium' | 'high'>(task.priority)
   const [showIncompleteSubtasksWarning, setShowIncompleteSubtasksWarning] = useState(false)
+  const [showUncheckSubtaskWarning, setShowUncheckSubtaskWarning] = useState(false)
+  const [pendingSubtaskToggle, setPendingSubtaskToggle] = useState<{taskId: string, subtaskId: string} | null>(null)
   const isMenuOpen = openMenuTaskId === task.id
 
   // Check if task has incomplete subtasks
@@ -65,14 +67,37 @@ export function TaskCardWithMenu({
   }
 
   const handleToggleSubtask = (taskId: string, subtaskId: string) => {
+    const targetTask = tasks.find(t => t.id === taskId)
+    const targetSubtask = targetTask?.subtasks.find(st => st.id === subtaskId)
+    
+    // If task is completed and we're trying to uncheck a subtask, show warning
+    if (targetTask?.completed && targetSubtask?.completed) {
+      setPendingSubtaskToggle({taskId, subtaskId})
+      setShowUncheckSubtaskWarning(true)
+      return
+    }
+    
+    // Proceed with normal toggle
+    executeSubtaskToggle(taskId, subtaskId)
+  }
+
+  const executeSubtaskToggle = (taskId: string, subtaskId: string) => {
     setTasks(
       tasks.map((t) => {
         if (t.id === taskId) {
+          const updatedSubtasks = t.subtasks.map((st) =>
+            st.id === subtaskId ? { ...st, completed: !st.completed } : st
+          )
+          
+          // Check if all subtasks are completed
+          const allSubtasksCompleted = updatedSubtasks.length > 0 && updatedSubtasks.every(st => st.completed)
+          
           return {
             ...t,
-            subtasks: t.subtasks.map((st) =>
-              st.id === subtaskId ? { ...st, completed: !st.completed } : st
-            ),
+            subtasks: updatedSubtasks,
+            // Auto-complete task when all subtasks are done
+            completed: allSubtasksCompleted,
+            status: allSubtasksCompleted ? 'completed' : t.status
           }
         }
         return t
@@ -963,6 +988,92 @@ export function TaskCardWithMenu({
                   className="rounded-xl px-6 py-2.5 font-semibold text-gray-700 transition-all duration-200 hover:bg-gray-100 active:scale-95 dark:text-gray-300 dark:hover:bg-gray-800"
                 >
                   Done
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Uncheck Subtask Warning Modal */}
+      {showUncheckSubtaskWarning && (
+        <>
+          {/* Backdrop */}
+          <div
+            className="animate-in fade-in fixed inset-0 z-[140] bg-black/60 backdrop-blur-sm duration-200"
+            onClick={(e) => {
+              e.stopPropagation()
+              e.preventDefault()
+              setShowUncheckSubtaskWarning(false)
+              setPendingSubtaskToggle(null)
+            }}
+            onMouseDown={(e) => e.stopPropagation()}
+          />
+
+          {/* Modal */}
+          <div
+            className="pointer-events-none fixed inset-0 z-[150] flex items-center justify-center p-4"
+            onClick={(e) => e.stopPropagation()}
+            onMouseDown={(e) => e.stopPropagation()}
+          >
+            <div
+              className="animate-in zoom-in-95 pointer-events-auto w-full max-w-md rounded-2xl bg-white shadow-2xl duration-200 dark:bg-gray-900"
+              onClick={(e) => e.stopPropagation()}
+              onMouseDown={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="border-b border-gray-200 px-6 py-5 dark:border-gray-800">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/30">
+                    <span className="material-symbols-outlined text-2xl text-amber-600 dark:text-amber-400">
+                      warning
+                    </span>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                      Task Will Be Marked as Incomplete
+                    </h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      This will change the task status
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Content */}
+              <div className="px-6 py-5">
+                <p className="mb-4 text-gray-700 dark:text-gray-300">
+                  <span className="font-semibold">"{task.title}"</span> is currently marked as completed.
+                </p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Unchecking this subtask will automatically mark the task as incomplete. Do you want to continue?
+                </p>
+              </div>
+
+              {/* Actions */}
+              <div className="flex items-center justify-end gap-3 border-t border-gray-200 px-6 py-4 dark:border-gray-800">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setShowUncheckSubtaskWarning(false)
+                    setPendingSubtaskToggle(null)
+                  }}
+                  className="rounded-xl px-6 py-2.5 font-semibold text-gray-700 transition-all duration-200 hover:bg-gray-100 active:scale-95 dark:text-gray-300 dark:hover:bg-gray-800"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    if (pendingSubtaskToggle) {
+                      executeSubtaskToggle(pendingSubtaskToggle.taskId, pendingSubtaskToggle.subtaskId)
+                      setPendingSubtaskToggle(null)
+                    }
+                    setShowUncheckSubtaskWarning(false)
+                  }}
+                  className="rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-2.5 font-semibold text-white transition-all duration-200 hover:shadow-lg hover:shadow-amber-500/30 active:scale-95"
+                >
+                  Uncheck Subtask
                 </button>
               </div>
             </div>
