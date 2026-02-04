@@ -697,7 +697,7 @@ export function QuickActionsMenu({
         
         {/* Sidebar */}
         <div
-          className={`relative w-80 h-full bg-[#0f1117] backdrop-blur-xl shadow-2xl flex flex-col transition-transform duration-500 ease-in-out ${
+          className={`relative w-80 h-full bg-gray-900/30 backdrop-blur-2xl shadow-2xl flex flex-col transition-transform duration-500 ease-in-out ${
             showSettingsSidebar ? 'translate-x-0' : 'translate-x-full'
           }`}
           onClick={(e) => e.stopPropagation()}
