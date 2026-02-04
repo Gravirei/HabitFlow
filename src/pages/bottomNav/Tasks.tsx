@@ -323,24 +323,35 @@ export function Tasks() {
 
     // Sort
     filtered.sort((a, b) => {
+      // Primary sort: Completed tasks always go to bottom
+      if (a.completed !== b.completed) {
+        return a.completed ? 1 : -1
+      }
+
+      // Secondary sort: Within each group (active/completed), sort by priority
+      const priorityOrder = { high: 0, medium: 1, low: 2 }
+      const priorityComparison = priorityOrder[a.priority] - priorityOrder[b.priority]
+      
+      // Tertiary sort: Use the selected sort field
       let comparison = 0
       
       switch (sort.field) {
         case 'priority':
-          const priorityOrder = { high: 0, medium: 1, low: 2 }
-          comparison = priorityOrder[a.priority] - priorityOrder[b.priority]
+          comparison = priorityComparison
           break
         case 'dueDate':
-          if (!a.due && !b.due) comparison = 0
+          if (!a.due && !b.due) comparison = priorityComparison
           else if (!a.due) comparison = 1
           else if (!b.due) comparison = -1
           else comparison = new Date(a.due).getTime() - new Date(b.due).getTime()
           break
         case 'createdAt':
           comparison = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+          if (comparison === 0) comparison = priorityComparison
           break
         case 'title':
           comparison = a.title.localeCompare(b.title)
+          if (comparison === 0) comparison = priorityComparison
           break
       }
 
