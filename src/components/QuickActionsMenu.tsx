@@ -782,7 +782,13 @@ export function QuickActionsMenu({
                       {customTemplates.map((template) => (
                         <button
                           key={template.id}
-                          onClick={() => setSelectedQuickAddTemplate(template.id)}
+                          onClick={() => {
+                            if (selectedQuickAddTemplate === template.id) {
+                              setSelectedQuickAddTemplate(null)
+                            } else {
+                              setSelectedQuickAddTemplate(template.id)
+                            }
+                          }}
                           className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all duration-200 ${
                             selectedQuickAddTemplate === template.id
                               ? 'bg-white/10 ring-1 ring-white/20'
