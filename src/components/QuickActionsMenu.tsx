@@ -688,16 +688,16 @@ export function QuickActionsMenu({
       )}
 
       {/* Settings Sidebar */}
-      <div className={`absolute inset-0 z-[60] flex items-end justify-end pointer-events-none transition-all duration-500 ${showSettingsSidebar ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+      <div className={`absolute inset-0 z-[60] flex items-end justify-end transition-all duration-500 ${showSettingsSidebar ? 'pointer-events-auto' : 'pointer-events-none'}`}>
         {/* Backdrop */}
         <div
-          className={`absolute inset-0 bg-black/40 backdrop-blur-sm pointer-events-auto transition-opacity duration-500 ${showSettingsSidebar ? 'opacity-100' : 'opacity-0'}`}
+          className={`absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity duration-500 ${showSettingsSidebar ? 'opacity-100' : 'opacity-0'}`}
           onClick={() => setShowSettingsSidebar(false)}
         />
         
         {/* Sidebar */}
         <div
-          className={`relative pointer-events-auto w-80 h-full bg-gray-900/95 backdrop-blur-xl shadow-2xl flex flex-col transition-transform duration-500 ease-in-out ${
+          className={`relative w-80 h-full bg-gray-900/95 backdrop-blur-xl shadow-2xl flex flex-col transition-transform duration-500 ease-in-out ${
             showSettingsSidebar ? 'translate-x-0' : 'translate-x-full'
           }`}
           onClick={(e) => e.stopPropagation()}
