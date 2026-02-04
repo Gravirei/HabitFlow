@@ -688,53 +688,53 @@ export function QuickActionsMenu({
       )}
 
       {/* Settings Sidebar */}
-      {showSettingsSidebar && (
-        <div className="absolute inset-0 z-[60] flex items-end justify-end pointer-events-none">
-          {/* Backdrop */}
-          <div
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm pointer-events-auto"
-            onClick={() => setShowSettingsSidebar(false)}
-          />
-          
-          {/* Sidebar */}
-          <div
-            className="relative pointer-events-auto w-80 h-full bg-white dark:bg-gray-900 shadow-2xl flex flex-col animate-in slide-in-from-right duration-300"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-800">
-              <div>
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white">Settings</h3>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Customize your quick actions</p>
-              </div>
-              <button
-                onClick={() => setShowSettingsSidebar(false)}
-                className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                aria-label="Close settings"
-              >
-                <span className="material-symbols-outlined text-xl text-gray-600 dark:text-gray-400">close</span>
-              </button>
+      <div className={`absolute inset-0 z-[60] flex items-end justify-end pointer-events-none transition-all duration-500 ${showSettingsSidebar ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+        {/* Backdrop */}
+        <div
+          className={`absolute inset-0 bg-black/40 backdrop-blur-sm pointer-events-auto transition-opacity duration-500 ${showSettingsSidebar ? 'opacity-100' : 'opacity-0'}`}
+          onClick={() => setShowSettingsSidebar(false)}
+        />
+        
+        {/* Sidebar */}
+        <div
+          className={`relative pointer-events-auto w-80 h-full bg-gray-900/95 backdrop-blur-xl shadow-2xl flex flex-col transition-transform duration-500 ease-in-out ${
+            showSettingsSidebar ? 'translate-x-0' : 'translate-x-full'
+          }`}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
+            <div>
+              <h3 className="text-lg font-bold text-white">Settings</h3>
+              <p className="text-xs text-gray-400 mt-0.5">Customize your quick actions</p>
             </div>
+            <button
+              onClick={() => setShowSettingsSidebar(false)}
+              className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-white/10 transition-colors"
+              aria-label="Close settings"
+            >
+              <span className="material-symbols-outlined text-xl text-gray-400">arrow_forward</span>
+            </button>
+          </div>
 
-            {/* Content */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-1">
-              <ToggleSwitch
-                enabled={showFilter}
-                onChange={() => setShowFilter(!showFilter)}
-                label="Show Filter"
-                description="Display category filter dropdown in quick actions menu"
-              />
-              
-              <ToggleSwitch
-                enabled={enableQuickAdd}
-                onChange={() => setEnableQuickAdd(!enableQuickAdd)}
-                label="Enable Quick Add Button"
-                description="Show quick add button at the bottom of the menu"
-              />
-            </div>
+          {/* Content */}
+          <div className="flex-1 overflow-y-auto p-6 space-y-1">
+            <ToggleSwitch
+              enabled={showFilter}
+              onChange={() => setShowFilter(!showFilter)}
+              label="Show Filter"
+              description="Display category filter dropdown in quick actions menu"
+            />
+            
+            <ToggleSwitch
+              enabled={enableQuickAdd}
+              onChange={() => setEnableQuickAdd(!enableQuickAdd)}
+              label="Enable Quick Add Button"
+              description="Show quick add button at the bottom of the menu"
+            />
           </div>
         </div>
-      )}
+      </div>
 
     </AccessibleModal>
   )
