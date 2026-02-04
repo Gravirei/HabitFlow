@@ -3,6 +3,7 @@ import toast from 'react-hot-toast'
 import { AccessibleModal } from './timer/shared/AccessibleModal'
 import { TemplatePreviewModal } from './TemplatePreviewModal'
 import { TemplateLibraryModal } from './TemplateLibraryModal'
+import { ToggleSwitch } from './timer/settings/ToggleSwitch'
 import type { TaskTemplate } from '@/types/taskTemplate'
 
 function TemplateCard({ 
@@ -196,7 +197,28 @@ export function QuickActionsMenu({
   const [filtersCollapsed, setFiltersCollapsed] = useState(false)
   const [showTemplateLibrary, setShowTemplateLibrary] = useState(false)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const [showSettingsSidebar, setShowSettingsSidebar] = useState(false)
   const searchRef = useRef<HTMLDivElement>(null)
+
+  // Settings state with localStorage
+  const [showFilter, setShowFilter] = useState(() => {
+    const saved = localStorage.getItem('quickActionsShowFilter')
+    return saved !== null ? JSON.parse(saved) : true
+  })
+  
+  const [enableQuickAdd, setEnableQuickAdd] = useState(() => {
+    const saved = localStorage.getItem('quickActionsEnableQuickAdd')
+    return saved !== null ? JSON.parse(saved) : true
+  })
+
+  // Save settings to localStorage when they change
+  useEffect(() => {
+    localStorage.setItem('quickActionsShowFilter', JSON.stringify(showFilter))
+  }, [showFilter])
+
+  useEffect(() => {
+    localStorage.setItem('quickActionsEnableQuickAdd', JSON.stringify(enableQuickAdd))
+  }, [enableQuickAdd])
 
   // Close search on outside click
   useEffect(() => {
@@ -334,39 +356,41 @@ export function QuickActionsMenu({
             </div>
           </div>
 
-          <div className="space-y-1">
-            <button
-              onClick={() => setFiltersCollapsed(!filtersCollapsed)}
-              className="w-full flex items-center justify-between px-4 mb-3 text-xs font-bold text-gray-400 uppercase tracking-widest hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-            >
-              <span>Filters</span>
-              <span className={`material-symbols-outlined text-[16px] transition-transform duration-300 ${filtersCollapsed ? '' : 'rotate-180'}`}>
-                expand_more
-              </span>
-            </button>
-            <div className={`space-y-1 transition-all duration-300 overflow-hidden ${filtersCollapsed ? 'max-h-0 opacity-0' : 'max-h-96 opacity-100'}`}>
-              {[
-                { id: 'all', label: 'All Templates', icon: 'grid_view' },
-                { id: 'work', label: 'Work', icon: 'business_center' },
-                { id: 'personal', label: 'Personal', icon: 'person' },
-              ].map((cat) => (
-                <button
-                  key={cat.id}
-                  onClick={() => setSelectedCategory(cat.id as 'all' | 'work' | 'personal')}
-                  className={`w-full group flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-semibold transition-all duration-200 ${
-                    selectedCategory === cat.id
-                      ? 'bg-white dark:bg-white/10 text-indigo-600 dark:text-white shadow-md shadow-gray-200/50 dark:shadow-none ring-1 ring-gray-200/50 dark:ring-white/10'
-                      : 'text-gray-600 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'
-                  }`}
-                >
-                  <div className={`p-1.5 rounded-lg transition-colors ${selectedCategory === cat.id ? 'bg-indigo-50 dark:bg-white/20' : 'bg-gray-100 dark:bg-white/5 group-hover:bg-white dark:group-hover:bg-white/10'}`}>
-                    <span className={`material-symbols-outlined text-[18px] ${selectedCategory === cat.id ? 'text-indigo-600 dark:text-white' : 'text-gray-500 group-hover:text-gray-700 dark:text-gray-400 dark:group-hover:text-white'}`}>{cat.icon}</span>
-                  </div>
-                  {cat.label}
-                </button>
-              ))}
+          {showFilter && (
+            <div className="space-y-1">
+              <button
+                onClick={() => setFiltersCollapsed(!filtersCollapsed)}
+                className="w-full flex items-center justify-between px-4 mb-3 text-xs font-bold text-gray-400 uppercase tracking-widest hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+              >
+                <span>Filters</span>
+                <span className={`material-symbols-outlined text-[16px] transition-transform duration-300 ${filtersCollapsed ? '' : 'rotate-180'}`}>
+                  expand_more
+                </span>
+              </button>
+              <div className={`space-y-1 transition-all duration-300 overflow-hidden ${filtersCollapsed ? 'max-h-0 opacity-0' : 'max-h-96 opacity-100'}`}>
+                {[
+                  { id: 'all', label: 'All Templates', icon: 'grid_view' },
+                  { id: 'work', label: 'Work', icon: 'business_center' },
+                  { id: 'personal', label: 'Personal', icon: 'person' },
+                ].map((cat) => (
+                  <button
+                    key={cat.id}
+                    onClick={() => setSelectedCategory(cat.id as 'all' | 'work' | 'personal')}
+                    className={`w-full group flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-semibold transition-all duration-200 ${
+                      selectedCategory === cat.id
+                        ? 'bg-white dark:bg-white/10 text-indigo-600 dark:text-white shadow-md shadow-gray-200/50 dark:shadow-none ring-1 ring-gray-200/50 dark:ring-white/10'
+                        : 'text-gray-600 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'
+                    }`}
+                  >
+                    <div className={`p-1.5 rounded-lg transition-colors ${selectedCategory === cat.id ? 'bg-indigo-50 dark:bg-white/20' : 'bg-gray-100 dark:bg-white/5 group-hover:bg-white dark:group-hover:bg-white/10'}`}>
+                      <span className={`material-symbols-outlined text-[18px] ${selectedCategory === cat.id ? 'text-indigo-600 dark:text-white' : 'text-gray-500 group-hover:text-gray-700 dark:text-gray-400 dark:group-hover:text-white'}`}>{cat.icon}</span>
+                    </div>
+                    {cat.label}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="space-y-1 mt-6">
             <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest px-4 mb-3">Library</h3>
@@ -394,34 +418,36 @@ export function QuickActionsMenu({
               </div>
             </button>
 
-            <button
-              onClick={() => {
-                onCreateFromTemplate({
-                  id: 'quick_today',
-                  name: 'Quick Task',
-                  icon: 'bolt',
-                  category: 'Work',
-                  color: 'bg-yellow-500',
-                  isCustom: false,
-                  template: {
-                    title: 'Quick Task',
-                    priority: 'medium',
-                    status: 'todo',
+            {enableQuickAdd && (
+              <button
+                onClick={() => {
+                  onCreateFromTemplate({
+                    id: 'quick_today',
+                    name: 'Quick Task',
+                    icon: 'bolt',
                     category: 'Work',
-                    tags: [],
-                    subtasks: [],
-                  },
-                })
-                onClose()
-              }}
-              className="w-full flex items-center gap-4 p-4 rounded-2xl bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 hover:bg-amber-500/20 hover:border-amber-500/30 hover:-translate-y-0.5 transition-all duration-300"
-            >
-              <span className="material-symbols-outlined text-2xl">bolt</span>
-              <div className="text-left">
-                <div className="text-sm font-bold">Quick Add</div>
-                <div className="text-[10px] opacity-80 font-medium">Minimal fields</div>
-              </div>
-            </button>
+                    color: 'bg-yellow-500',
+                    isCustom: false,
+                    template: {
+                      title: 'Quick Task',
+                      priority: 'medium',
+                      status: 'todo',
+                      category: 'Work',
+                      tags: [],
+                      subtasks: [],
+                    },
+                  })
+                  onClose()
+                }}
+                className="w-full flex items-center gap-4 p-4 rounded-2xl bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 hover:bg-amber-500/20 hover:border-amber-500/30 hover:-translate-y-0.5 transition-all duration-300"
+              >
+                <span className="material-symbols-outlined text-2xl">bolt</span>
+                <div className="text-left">
+                  <div className="text-sm font-bold">Quick Add</div>
+                  <div className="text-[10px] opacity-80 font-medium">Minimal fields</div>
+                </div>
+              </button>
+            )}
           </div>
         </div>
 
@@ -468,10 +494,10 @@ export function QuickActionsMenu({
               </div>
 
               <button 
-                disabled
-                className="flex size-10 items-center justify-center rounded-full opacity-30 cursor-not-allowed text-gray-400 dark:text-gray-500"
-                title="Coming soon"
-                aria-label="Settings (coming soon)"
+                onClick={() => setShowSettingsSidebar(true)}
+                className="flex size-10 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-white/5 active:scale-95 transition-all duration-150 text-gray-400 dark:text-gray-500"
+                title="Settings"
+                aria-label="Open settings"
               >
                 <span className="material-symbols-outlined text-xl font-bold">settings</span>
               </button>
@@ -656,6 +682,55 @@ export function QuickActionsMenu({
               >
                 {duplicateTaskStatus === 'completed' ? 'Start Fresh' : 'Create Duplicate'}
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Settings Sidebar */}
+      {showSettingsSidebar && (
+        <div className="fixed inset-0 z-[60] flex items-end justify-end pointer-events-none">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm pointer-events-auto"
+            onClick={() => setShowSettingsSidebar(false)}
+          />
+          
+          {/* Sidebar */}
+          <div
+            className="relative pointer-events-auto w-80 h-[85vh] bg-white dark:bg-gray-900 shadow-2xl flex flex-col animate-in slide-in-from-right duration-300"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-800">
+              <div>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white">Settings</h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Customize your quick actions</p>
+              </div>
+              <button
+                onClick={() => setShowSettingsSidebar(false)}
+                className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                aria-label="Close settings"
+              >
+                <span className="material-symbols-outlined text-xl text-gray-600 dark:text-gray-400">close</span>
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-1">
+              <ToggleSwitch
+                enabled={showFilter}
+                onChange={() => setShowFilter(!showFilter)}
+                label="Show Filter"
+                description="Display category filter dropdown in quick actions menu"
+              />
+              
+              <ToggleSwitch
+                enabled={enableQuickAdd}
+                onChange={() => setEnableQuickAdd(!enableQuickAdd)}
+                label="Enable Quick Add Button"
+                description="Show quick add button at the bottom of the menu"
+              />
             </div>
           </div>
         </div>
