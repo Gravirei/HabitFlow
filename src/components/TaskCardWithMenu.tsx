@@ -38,6 +38,8 @@ export function TaskCardWithMenu({
   const [showIncompleteSubtasksWarning, setShowIncompleteSubtasksWarning] = useState(false)
   const [showUncheckSubtaskWarning, setShowUncheckSubtaskWarning] = useState(false)
   const [pendingSubtaskToggle, setPendingSubtaskToggle] = useState<{taskId: string, subtaskId: string} | null>(null)
+  const [stagedSubtasks, setStagedSubtasks] = useState<typeof task.subtasks>([])
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   const isMenuOpen = openMenuTaskId === task.id
 
   // Check if task has incomplete subtasks
@@ -66,6 +68,23 @@ export function TaskCardWithMenu({
     toggleTask(task.id)
   }
 
+  // Initialize staged subtasks when modal opens
+  const initializeStagedSubtasks = () => {
+    setStagedSubtasks([...task.subtasks])
+    setHasUnsavedChanges(false)
+  }
+
+  // Handle visual toggle in modal (staging only)
+  const handleStageSubtaskToggle = (subtaskId: string) => {
+    setStagedSubtasks(prev => 
+      prev.map(st => 
+        st.id === subtaskId ? { ...st, completed: !st.completed } : st
+      )
+    )
+    setHasUnsavedChanges(true)
+  }
+
+  // Original function for actual subtask toggle (used when applying changes)
   const handleToggleSubtask = (taskId: string, subtaskId: string) => {
     const targetTask = tasks.find(t => t.id === taskId)
     const targetSubtask = targetTask?.subtasks.find(st => st.id === subtaskId)
@@ -105,6 +124,51 @@ export function TaskCardWithMenu({
     )
   }
 
+  // Apply all staged changes at once
+  const applySubtaskChanges = () => {
+    // Check if trying to uncheck from completed task
+    if (task.completed) {
+      const wasChecked = task.subtasks.find(st => st.completed)
+      const willBeUnchecked = stagedSubtasks.find(st => !st.completed)
+      
+      if (wasChecked && willBeUnchecked) {
+        setShowUncheckSubtaskWarning(true)
+        return
+      }
+    }
+
+    // Apply all staged changes
+    setTasks(
+      tasks.map((t) => {
+        if (t.id === task.id) {
+          // Check if all staged subtasks are completed
+          const allSubtasksCompleted = stagedSubtasks.length > 0 && stagedSubtasks.every(st => st.completed)
+          
+          return {
+            ...t,
+            subtasks: [...stagedSubtasks],
+            // Auto-complete task when all subtasks are done
+            completed: allSubtasksCompleted,
+            status: allSubtasksCompleted ? 'completed' : t.status
+          }
+        }
+        return t
+      })
+    )
+    
+    // Close modal and reset state
+    setShowSubtasksMenu(false)
+    setStagedSubtasks([])
+    setHasUnsavedChanges(false)
+  }
+
+  // Handle modal close (revert changes)
+  const handleCloseSubtasksModal = () => {
+    setShowSubtasksMenu(false)
+    setStagedSubtasks([])
+    setHasUnsavedChanges(false)
+  }
+
   // Floating UI setup
   const { refs, floatingStyles } = useFloating({
     open: isMenuOpen,
@@ -133,6 +197,7 @@ export function TaskCardWithMenu({
       onClick={() => {
         // Only open subtasks if there are subtasks
         if (task.subtasks && task.subtasks.length > 0) {
+          initializeStagedSubtasks()
           setShowSubtasksMenu(true)
         }
         // Do nothing if no subtasks
@@ -403,6 +468,7 @@ export function TaskCardWithMenu({
                 <button
                   onClick={(e) => {
                     e.stopPropagation()
+                    initializeStagedSubtasks()
                     setShowSubtasksMenu(true)
                     setOpenMenuTaskId(null)
                   }}
@@ -853,7 +919,7 @@ export function TaskCardWithMenu({
             onClick={(e) => {
               e.stopPropagation()
               e.preventDefault()
-              setShowSubtasksMenu(false)
+              handleCloseSubtasksModal()
             }}
             onMouseDown={(e) => e.stopPropagation()}
           />
@@ -879,14 +945,14 @@ export function TaskCardWithMenu({
                     <div>
                       <h3 className="text-lg font-bold text-gray-900 dark:text-white">Subtasks</h3>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
-                        {task.subtasks.filter(s => s.completed).length} of {task.subtasks.length} completed
+                        {stagedSubtasks.filter(s => s.completed).length} of {stagedSubtasks.length} completed
                       </p>
                     </div>
                   </div>
                   <button
                     onClick={(e) => {
                       e.stopPropagation()
-                      setShowSubtasksMenu(false)
+                      handleCloseSubtasksModal()
                     }}
                     className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100 transition-colors hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700"
                     aria-label="Close"
@@ -896,13 +962,13 @@ export function TaskCardWithMenu({
                 </div>
 
                 {/* Progress Bar */}
-                {task.subtasks.length > 0 && (
+                {stagedSubtasks.length > 0 && (
                   <div className="mt-4">
                     <div className="h-2 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
                       <div
                         className="h-full rounded-full bg-gradient-to-r from-primary via-accent-purple to-primary transition-all duration-300"
                         style={{ 
-                          width: `${task.subtasks.length > 0 ? (task.subtasks.filter(s => s.completed).length / task.subtasks.length) * 100 : 0}%` 
+                          width: `${stagedSubtasks.length > 0 ? (stagedSubtasks.filter(s => s.completed).length / stagedSubtasks.length) * 100 : 0}%` 
                         }}
                       />
                     </div>
@@ -912,9 +978,9 @@ export function TaskCardWithMenu({
 
               {/* Content - Subtasks List */}
               <div className="max-h-[50vh] overflow-y-auto p-6">
-                {task.subtasks.length > 0 ? (
+                {stagedSubtasks.length > 0 ? (
                   <div className="space-y-2">
-                    {task.subtasks.map((subtask) => (
+                    {stagedSubtasks.map((subtask) => (
                       <div
                         key={subtask.id}
                         className={cn(
@@ -925,7 +991,7 @@ export function TaskCardWithMenu({
                         )}
                         onClick={(e) => {
                           e.stopPropagation()
-                          handleToggleSubtask(task.id, subtask.id)
+                          handleStageSubtaskToggle(subtask.id)
                         }}
                       >
                         {/* Checkbox */}
@@ -979,15 +1045,30 @@ export function TaskCardWithMenu({
               </div>
 
               {/* Actions */}
-              <div className="flex items-center justify-end border-t border-gray-200 px-6 py-4 dark:border-gray-800">
+              <div className="flex items-center justify-end gap-3 border-t border-gray-200 px-6 py-4 dark:border-gray-800">
                 <button
                   onClick={(e) => {
                     e.stopPropagation()
-                    setShowSubtasksMenu(false)
+                    handleCloseSubtasksModal()
                   }}
                   className="rounded-xl px-6 py-2.5 font-semibold text-gray-700 transition-all duration-200 hover:bg-gray-100 active:scale-95 dark:text-gray-300 dark:hover:bg-gray-800"
                 >
-                  Done
+                  Cancel
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    applySubtaskChanges()
+                  }}
+                  disabled={!hasUnsavedChanges}
+                  className={cn(
+                    "rounded-xl px-6 py-2.5 font-semibold text-white transition-all duration-200 active:scale-95",
+                    hasUnsavedChanges
+                      ? "bg-gradient-to-r from-primary to-green-500 hover:shadow-lg hover:shadow-primary/30"
+                      : "bg-gray-400 cursor-not-allowed dark:bg-gray-600"
+                  )}
+                >
+                  Apply Changes
                 </button>
               </div>
             </div>
@@ -1065,15 +1146,33 @@ export function TaskCardWithMenu({
                 <button
                   onClick={(e) => {
                     e.stopPropagation()
-                    if (pendingSubtaskToggle) {
-                      executeSubtaskToggle(pendingSubtaskToggle.taskId, pendingSubtaskToggle.subtaskId)
-                      setPendingSubtaskToggle(null)
-                    }
+                    
+                    // Apply staged changes directly (they already include the uncheck action)
+                    setTasks(
+                      tasks.map((t) => {
+                        if (t.id === task.id) {
+                          const allSubtasksCompleted = stagedSubtasks.length > 0 && stagedSubtasks.every(st => st.completed)
+                          
+                          return {
+                            ...t,
+                            subtasks: [...stagedSubtasks],
+                            completed: allSubtasksCompleted,
+                            status: allSubtasksCompleted ? 'completed' : t.status
+                          }
+                        }
+                        return t
+                      })
+                    )
+                    
                     setShowUncheckSubtaskWarning(false)
+                    setShowSubtasksMenu(false)
+                    setStagedSubtasks([])
+                    setHasUnsavedChanges(false)
+                    setPendingSubtaskToggle(null)
                   }}
                   className="rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-2.5 font-semibold text-white transition-all duration-200 hover:shadow-lg hover:shadow-amber-500/30 active:scale-95"
                 >
-                  Uncheck Subtask
+                  Apply Changes
                 </button>
               </div>
             </div>
