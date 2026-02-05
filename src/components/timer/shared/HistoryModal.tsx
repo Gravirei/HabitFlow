@@ -5,7 +5,7 @@
  */
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react'
-import { motion, AnimatePresence, Variants } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { useTimerHistory } from '../hooks/useTimerHistory'
 import { validateTimerHistory } from '../utils/validation'
@@ -237,30 +237,6 @@ export const HistoryModal: React.FC<HistoryModalProps> = React.memo(({ isOpen, o
     }
   }
 
-  // Animation variants
-  const containerVariants: Variants = {
-    hidden: { opacity: 0 },
-    visible: { 
-      opacity: 1,
-      transition: { 
-        staggerChildren: 0.05,
-        delayChildren: 0.1
-      }
-    },
-    exit: { opacity: 0 }
-  }
-
-  const itemVariants: Variants = {
-    hidden: { opacity: 0, y: 20, scale: 0.95 },
-    visible: { 
-      opacity: 1, 
-      y: 0, 
-      scale: 1,
-      transition: { type: 'spring' as const, stiffness: 400, damping: 25 }
-    },
-    exit: { opacity: 0, scale: 0.9, transition: { duration: 0.2 } }
-  }
-
   if (!isOpen) return null
 
   return (
@@ -465,10 +441,8 @@ export const HistoryModal: React.FC<HistoryModalProps> = React.memo(({ isOpen, o
                     }`}
                   >
                     {isActive && (
-                      <motion.div
-                        layoutId="activeTab"
+                      <div
                         className="absolute inset-0 bg-white/10 rounded-lg shadow-sm"
-                        transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
                       />
                     )}
                     <span className="relative z-10 flex items-center justify-center gap-2">
@@ -530,16 +504,11 @@ export const HistoryModal: React.FC<HistoryModalProps> = React.memo(({ isOpen, o
                 )}
               </motion.div>
             ) : (
-              <motion.div
-                key={filterMode} // Re-animate container when filter changes
-                variants={containerVariants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
+              <div
                 className="space-y-8 pb-10"
               >
                 {Object.entries(groupedHistory).map(([dateGroup, records]) => (
-                  <motion.div key={dateGroup} variants={itemVariants} className="relative">
+                  <div key={dateGroup} className="relative">
                     {/* Sticky Date Header */}
                     <div className="sticky top-0 z-10 flex items-center gap-4 py-3 mb-2 bg-background-dark/95 backdrop-blur-sm">
                       <h3 className="text-primary font-bold text-sm uppercase tracking-wider pl-2 border-l-2 border-primary">
@@ -730,9 +699,9 @@ export const HistoryModal: React.FC<HistoryModalProps> = React.memo(({ isOpen, o
                         })}
                       </AnimatePresence>
                     </div>
-                  </motion.div>
+                  </div>
                 ))}
-              </motion.div>
+              </div>
             )}
           </div>
         </motion.div>
