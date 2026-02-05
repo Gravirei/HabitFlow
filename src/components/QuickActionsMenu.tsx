@@ -485,7 +485,7 @@ export function QuickActionsMenu({
                 ].map((cat) => (
                   <div
                     key={cat.id}
-                    className="flex origin-left scale-[0.85] transform items-center gap-2"
+                    className="flex origin-center scale-[0.85] transform items-center justify-center gap-2"
                   >
                     <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-white/5">
                       <span className="material-symbols-outlined text-[14px] text-gray-400">
