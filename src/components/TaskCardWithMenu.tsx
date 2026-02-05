@@ -37,7 +37,7 @@ export function TaskCardWithMenu({
   const [selectedPriority, setSelectedPriority] = useState<'low' | 'medium' | 'high'>(task.priority)
   const [showIncompleteSubtasksWarning, setShowIncompleteSubtasksWarning] = useState(false)
   const [showUncheckSubtaskWarning, setShowUncheckSubtaskWarning] = useState(false)
-  const [pendingSubtaskToggle, setPendingSubtaskToggle] = useState<{taskId: string, subtaskId: string} | null>(null)
+  // removed unused pendingSubtaskToggle
   const [stagedSubtasks, setStagedSubtasks] = useState<typeof task.subtasks>([])
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   const isMenuOpen = openMenuTaskId === task.id
@@ -85,44 +85,7 @@ export function TaskCardWithMenu({
   }
 
   // Original function for actual subtask toggle (used when applying changes)
-  const handleToggleSubtask = (taskId: string, subtaskId: string) => {
-    const targetTask = tasks.find(t => t.id === taskId)
-    const targetSubtask = targetTask?.subtasks.find(st => st.id === subtaskId)
-    
-    // If task is completed and we're trying to uncheck a subtask, show warning
-    if (targetTask?.completed && targetSubtask?.completed) {
-      setPendingSubtaskToggle({taskId, subtaskId})
-      setShowUncheckSubtaskWarning(true)
-      return
-    }
-    
-    // Proceed with normal toggle
-    executeSubtaskToggle(taskId, subtaskId)
-  }
 
-  const executeSubtaskToggle = (taskId: string, subtaskId: string) => {
-    setTasks(
-      tasks.map((t) => {
-        if (t.id === taskId) {
-          const updatedSubtasks = t.subtasks.map((st) =>
-            st.id === subtaskId ? { ...st, completed: !st.completed } : st
-          )
-          
-          // Check if all subtasks are completed
-          const allSubtasksCompleted = updatedSubtasks.length > 0 && updatedSubtasks.every(st => st.completed)
-          
-          return {
-            ...t,
-            subtasks: updatedSubtasks,
-            // Auto-complete task when all subtasks are done
-            completed: allSubtasksCompleted,
-            status: allSubtasksCompleted ? 'completed' : t.status
-          }
-        }
-        return t
-      })
-    )
-  }
 
   // Apply all staged changes at once
   const applySubtaskChanges = () => {
@@ -693,13 +656,13 @@ export function TaskCardWithMenu({
                     color: 'text-gray-600 dark:text-gray-400',
                   },
                   {
-                    value: 'in-progress',
+                    value: 'in_progress',
                     label: 'In Progress',
                     icon: 'schedule',
                     color: 'text-blue-600 dark:text-blue-400',
                   },
                   {
-                    value: 'done',
+                    value: 'completed',
                     label: 'Done',
                     icon: 'check_circle',
                     color: 'text-green-600 dark:text-green-400',
@@ -714,8 +677,8 @@ export function TaskCardWithMenu({
                           t.id === task.id
                             ? {
                                 ...t,
-                                status: status.value as any,
-                                completed: status.value === 'done',
+                                status: status.value as 'todo' | 'in_progress' | 'completed',
+                                completed: status.value === 'completed',
                               }
                             : t
                         )
@@ -851,7 +814,7 @@ export function TaskCardWithMenu({
                     key={priority.value}
                     onClick={(e) => {
                       e.stopPropagation()
-                      setSelectedPriority(priority.value as any)
+                      setSelectedPriority(priority.value as 'high' | 'medium' | 'low')
                     }}
                     className={cn(
                       'flex w-full items-center gap-3 rounded-xl border-2 px-4 py-3 text-left transition-all duration-200',
@@ -1017,7 +980,7 @@ export function TaskCardWithMenu({
                               : 'text-gray-900 dark:text-white'
                           )}
                         >
-                          {subtask.text || subtask.title}
+                          {subtask.text}
                         </span>
 
                         {/* Done Badge */}
@@ -1086,8 +1049,8 @@ export function TaskCardWithMenu({
               e.stopPropagation()
               e.preventDefault()
               setShowUncheckSubtaskWarning(false)
-              setPendingSubtaskToggle(null)
-            }}
+                    // setPendingSubtaskToggle(null)
+                  }}
             onMouseDown={(e) => e.stopPropagation()}
           />
 
@@ -1137,7 +1100,7 @@ export function TaskCardWithMenu({
                   onClick={(e) => {
                     e.stopPropagation()
                     setShowUncheckSubtaskWarning(false)
-                    setPendingSubtaskToggle(null)
+                    // setPendingSubtaskToggle(null)
                   }}
                   className="rounded-xl px-6 py-2.5 font-semibold text-gray-700 transition-all duration-200 hover:bg-gray-100 active:scale-95 dark:text-gray-300 dark:hover:bg-gray-800"
                 >
@@ -1168,7 +1131,11 @@ export function TaskCardWithMenu({
                     setShowSubtasksMenu(false)
                     setStagedSubtasks([])
                     setHasUnsavedChanges(false)
-                    setPendingSubtaskToggle(null)
+                    setShowUncheckSubtaskWarning(false)
+                    setShowSubtasksMenu(false)
+                    setStagedSubtasks([])
+                    setHasUnsavedChanges(false)
+                    // setPendingSubtaskToggle(null)
                   }}
                   className="rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-2.5 font-semibold text-white transition-all duration-200 hover:shadow-lg hover:shadow-amber-500/30 active:scale-95"
                 >

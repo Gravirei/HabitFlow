@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { AccessibleModal } from './timer/shared/AccessibleModal'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
 import type { TaskTemplate } from '@/types/taskTemplate'
-import type { TaskPriority, TaskStatus, Subtask, Task } from '@/types/task'
+import type { TaskPriority, Subtask, Task } from '@/types/task'
 
 interface TemplatePreviewModalProps {
   isOpen: boolean
@@ -22,8 +22,10 @@ export function TemplatePreviewModal({
   isOpen,
   onClose,
   template,
-  onUseAsTemplate,
-  onSaveAsTask,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  onUseAsTemplate: _onUseAsTemplate,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  onSaveAsTask: _onSaveAsTask,
   onSaveToMyTemplates,
   onUpdateTemplate,
   onDeleteTemplate,
@@ -334,49 +336,7 @@ export function TemplatePreviewModal({
     setHasUnsavedChanges(false) // Reset unsaved changes
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const _handleUseAsTemplate = () => {
-    if (!template) return
-    
-    const updatedTemplate: TaskTemplate = {
-      ...template,
-      template: {
-        ...template.template,
-        title: editedTitle,
-        description: editedDescription,
-        priority: editedPriority,
-        category: editedCategory,
-        tags: editedTags,
-        subtasks: editedSubtasks,
-        timeEstimate: editedTimeEstimate,
-      },
-    }
-    
-    onUseAsTemplate(updatedTemplate)
-    onClose()
-  }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const _handleSaveAsTask = () => {
-    if (!template) return
-    
-    const taskData = {
-      title: editedTitle,
-      description: editedDescription,
-      priority: editedPriority,
-      status: 'todo' as TaskStatus,
-      category: editedCategory,
-      tags: editedTags,
-      subtasks: editedSubtasks,
-      timeEstimate: editedTimeEstimate,
-      dueDate: new Date().toISOString().split('T')[0],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    }
-    
-    onSaveAsTask(taskData)
-    onClose()
-  }
 
   if (!template) return null
 

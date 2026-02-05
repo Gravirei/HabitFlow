@@ -1,6 +1,19 @@
 import { useState, useEffect, useRef } from 'react'
 import type { Task, TaskPriority, TaskStatus, Subtask } from '@/types/task'
 import { AccessibleModal } from './timer/shared/AccessibleModal'
+import { 
+  useFloating, 
+  autoUpdate, 
+  offset, 
+  flip, 
+  shift, 
+  useDismiss, 
+  useRole, 
+  useClick, 
+  useInteractions,
+  FloatingPortal,
+  FloatingFocusManager
+} from '@floating-ui/react'
 
 interface TaskModalProps {
   isOpen: boolean
@@ -10,6 +23,7 @@ interface TaskModalProps {
 }
 
 export function TaskModal({ isOpen, onClose, onSave, task }: TaskModalProps) {
+  // Form State
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [priority, setPriority] = useState<TaskPriority>('medium')
@@ -17,19 +31,41 @@ export function TaskModal({ isOpen, onClose, onSave, task }: TaskModalProps) {
   const [category, setCategory] = useState('')
   const [tags, setTags] = useState<string[]>([])
   const [tagInput, setTagInput] = useState('')
+  const [isCategoryOpen, setIsCategoryOpen] = useState(false)
+  
+  const { refs, floatingStyles, context } = useFloating({
+    open: isCategoryOpen,
+    onOpenChange: setIsCategoryOpen,
+    middleware: [offset(4), flip(), shift()],
+    whileElementsMounted: autoUpdate,
+  })
+
+  const click = useClick(context)
+  const dismiss = useDismiss(context)
+  const role = useRole(context)
+
+  const { getReferenceProps, getFloatingProps } = useInteractions([
+    click,
+    dismiss,
+    role,
+  ])
+  
+  // Date & Time
   const [dueDate, setDueDate] = useState('')
   const [dueTime, setDueTime] = useState('')
-  const [reminder, setReminder] = useState('')
   const [recurring, setRecurring] = useState<'daily' | 'weekly' | 'monthly' | null>(null)
+  const [timeEstimate, setTimeEstimate] = useState<number | undefined>()
+  
+  // Subtasks
   const [subtasks, setSubtasks] = useState<Subtask[]>([])
   const [subtaskInput, setSubtaskInput] = useState('')
-  const [notes, setNotes] = useState('')
-  const [timeEstimate, setTimeEstimate] = useState<number | undefined>()
+
+  // UI State
   const [activeTab, setActiveTab] = useState<'details' | 'schedule' | 'subtasks'>('details')
-  const [isHoveringSave, setIsHoveringSave] = useState(false)
   const tagInputRef = useRef<HTMLInputElement>(null)
   const subtaskInputRef = useRef<HTMLInputElement>(null)
 
+  // Initialize form when task changes or modal opens
   useEffect(() => {
     if (task) {
       setTitle(task.title)
@@ -40,10 +76,8 @@ export function TaskModal({ isOpen, onClose, onSave, task }: TaskModalProps) {
       setTags(task.tags)
       setDueDate(task.due ? task.due.split('T')[0] : '')
       setDueTime(task.dueTime || '')
-      setReminder(task.reminder || '')
       setRecurring(task.recurring || null)
       setSubtasks(task.subtasks)
-      setNotes(task.notes || '')
       setTimeEstimate(task.timeEstimate)
     } else {
       resetForm()
@@ -60,11 +94,9 @@ export function TaskModal({ isOpen, onClose, onSave, task }: TaskModalProps) {
     setTagInput('')
     setDueDate('')
     setDueTime('')
-    setReminder('')
     setRecurring(null)
     setSubtasks([])
     setSubtaskInput('')
-    setNotes('')
     setTimeEstimate(undefined)
     setActiveTab('details')
   }
@@ -76,26 +108,27 @@ export function TaskModal({ isOpen, onClose, onSave, task }: TaskModalProps) {
       id: task?.id || `task_${Date.now()}`,
       title: title.trim(),
       description: description.trim() || undefined,
-      completed: task?.completed || false,
+      completed: status === 'completed', // Sync completed status
       status,
       priority,
       category: category.trim() || 'Uncategorized',
       tags,
       due: dueDate ? new Date(dueDate).toISOString() : undefined,
       dueTime: dueTime || undefined,
-      reminder: reminder || undefined,
       recurring,
       subtasks,
-      notes: notes.trim() || undefined,
       timeEstimate,
       createdAt: task?.createdAt || new Date().toISOString(),
       updatedAt: new Date().toISOString(),
+      notes: task?.notes // Preserve notes if any, or add field if needed
     }
 
     onSave(taskData)
     onClose()
     if (!task) resetForm()
   }
+
+  // --- Handlers ---
 
   const addTag = () => {
     if (tagInput.trim() && !tags.includes(tagInput.trim())) {
@@ -128,753 +161,384 @@ export function TaskModal({ isOpen, onClose, onSave, task }: TaskModalProps) {
     setSubtasks(subtasks.filter((st) => st.id !== id))
   }
 
+  // --- UI Configs ---
+
   const getPriorityConfig = (p: TaskPriority) => {
     switch (p) {
-      case 'high':
-        return {
-          color: 'bg-gradient-to-br from-rose-500 to-red-600',
-          icon: 'priority_high',
-          textColor: 'text-rose-500',
-          bgLight: 'bg-rose-50 dark:bg-rose-500/10',
-          border: 'border-rose-200 dark:border-rose-500/30',
-          shadow: 'shadow-rose-500/20',
-        }
-      case 'medium':
-        return {
-          color: 'bg-gradient-to-br from-amber-500 to-orange-500',
-          icon: 'error',
-          textColor: 'text-amber-500',
-          bgLight: 'bg-amber-50 dark:bg-amber-500/10',
-          border: 'border-amber-200 dark:border-amber-500/30',
-          shadow: 'shadow-amber-500/20',
-        }
-      case 'low':
-        return {
-          color: 'bg-gradient-to-br from-emerald-500 to-green-600',
-          icon: 'low_priority',
-          textColor: 'text-emerald-500',
-          bgLight: 'bg-emerald-50 dark:bg-emerald-500/10',
-          border: 'border-emerald-200 dark:border-emerald-500/30',
-          shadow: 'shadow-emerald-500/20',
-        }
-      default:
-        return {
-          color: 'bg-gradient-to-br from-blue-500 to-indigo-600',
-          icon: 'flag',
-          textColor: 'text-blue-500',
-          bgLight: 'bg-blue-50 dark:bg-blue-500/10',
-          border: 'border-blue-200 dark:border-blue-500/30',
-          shadow: 'shadow-blue-500/20',
-        }
+      case 'high': return { label: 'High Priority', color: 'text-rose-500', bg: 'bg-rose-500/10', border: 'border-rose-200 dark:border-rose-500/20' }
+      case 'medium': return { label: 'Medium Priority', color: 'text-amber-500', bg: 'bg-amber-500/10', border: 'border-amber-200 dark:border-amber-500/20' }
+      case 'low': return { label: 'Low Priority', color: 'text-teal-500', bg: 'bg-teal-500/10', border: 'border-teal-200 dark:border-teal-500/20' }
     }
   }
 
   const getStatusConfig = (s: TaskStatus) => {
     switch (s) {
-      case 'todo':
-        return {
-          color: 'bg-gradient-to-br from-gray-400 to-gray-600',
-          icon: 'radio_button_unchecked',
-          bgLight: 'bg-gray-50 dark:bg-gray-500/10',
-          border: 'border-gray-200 dark:border-gray-500/30',
-        }
-      case 'in_progress':
-        return {
-          color: 'bg-gradient-to-br from-blue-500 to-indigo-600',
-          icon: 'pending',
-          bgLight: 'bg-blue-50 dark:bg-blue-500/10',
-          border: 'border-blue-200 dark:border-blue-500/30',
-        }
-      case 'completed':
-        return {
-          color: 'bg-gradient-to-br from-emerald-500 to-green-500',
-          icon: 'check_circle',
-          bgLight: 'bg-emerald-50 dark:bg-emerald-500/10',
-          border: 'border-emerald-200 dark:border-emerald-500/30',
-        }
-      default:
-        return {
-          color: 'bg-gradient-to-br from-gray-400 to-gray-600',
-          icon: 'circle',
-          bgLight: 'bg-gray-50 dark:bg-gray-500/10',
-          border: 'border-gray-200 dark:border-gray-500/30',
-        }
+      case 'todo': return { label: 'To Do', icon: 'radio_button_unchecked', color: 'text-slate-500', bg: 'bg-slate-100 dark:bg-slate-800' }
+      case 'in_progress': return { label: 'In Progress', icon: 'pending', color: 'text-blue-500', bg: 'bg-blue-500/10 dark:bg-blue-900/20' }
+      case 'completed': return { label: 'Completed', icon: 'check_circle', color: 'text-green-500', bg: 'bg-green-500/10 dark:bg-green-900/20' }
     }
   }
 
-  const getRecurringConfig = (r: string | null) => {
-    switch (r) {
-      case 'daily':
-        return {
-          icon: 'today',
-          color: 'from-violet-500 to-purple-600',
-          bg: 'bg-violet-50 dark:bg-violet-500/10',
-        }
-      case 'weekly':
-        return {
-          icon: 'date_range',
-          color: 'from-blue-500 to-cyan-600',
-          bg: 'bg-blue-50 dark:bg-blue-500/10',
-        }
-      case 'monthly':
-        return {
-          icon: 'calendar_month',
-          color: 'from-amber-500 to-orange-500',
-          bg: 'bg-amber-50 dark:bg-amber-500/10',
-        }
-      default:
-        return {
-          icon: 'block',
-          color: 'from-gray-400 to-gray-500',
-          bg: 'bg-gray-50 dark:bg-gray-500/10',
-        }
-    }
-  }
-
-  const completedSubtasks = subtasks.filter((st) => st.completed).length
-  const progressPercent = subtasks.length > 0 ? (completedSubtasks / subtasks.length) * 100 : 0
+  // --- Render ---
 
   return (
     <AccessibleModal
       isOpen={isOpen}
       onClose={onClose}
       title={task ? 'Edit Task' : 'New Task'}
-      maxWidth="max-w-4xl"
-      className="!border-0 !bg-transparent !shadow-none"
+      maxWidth="max-w-3xl"
+      className="!bg-white/80 dark:!bg-gray-900/80 !backdrop-blur-xl !border !border-white/20 dark:!border-white/10 !shadow-2xl overflow-hidden font-sans"
     >
-      <div className="relative">
-        {/* Animated Background Elements */}
-        <div className="pointer-events-none absolute -inset-6 overflow-hidden">
-          <div
-            className="absolute left-1/4 top-0 h-96 w-96 animate-pulse rounded-full bg-gradient-to-br from-indigo-500/20 via-purple-500/15 to-pink-500/10 blur-[100px]"
-            style={{ animationDuration: '8s' }}
-          />
-          <div
-            className="absolute bottom-0 right-1/4 h-80 w-80 animate-pulse rounded-full bg-gradient-to-br from-violet-500/15 via-fuchsia-500/10 to-rose-500/10 blur-[80px]"
-            style={{ animationDuration: '10s', animationDelay: '1s' }}
-          />
-          <div className="absolute left-1/2 top-1/2 h-[30rem] w-[30rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-cyan-500/5 via-blue-500/5 to-indigo-500/5 blur-[120px]" />
-        </div>
-
-        {/* Main Container */}
-        <div className="relative overflow-hidden rounded-[2.5rem] border border-white/30 bg-white/70 shadow-2xl shadow-black/20 ring-1 ring-black/5 backdrop-blur-3xl dark:border-white/10 dark:bg-gray-900/70">
-          {/* Header */}
-          <div className="relative bg-gradient-to-b from-white/50 to-transparent px-8 py-6 dark:from-white/5 dark:to-transparent">
-            {/* Decorative gradient line */}
-            <div className="absolute left-0 right-0 top-0 h-px bg-gradient-to-r from-transparent via-indigo-500/30 to-transparent" />
-
-            <div className="flex items-center justify-between gap-6 pr-12">
-              {/* Title Section */}
-              <div className="flex items-center gap-4">
-                <div
-                  className={`h-14 w-14 rounded-2xl ${getPriorityConfig(priority).color} flex items-center justify-center shadow-xl shadow-black/10 ring-2 ring-white/20`}
-                >
-                  <span className="material-symbols-outlined text-2xl text-white">task_alt</span>
-                </div>
-                <div>
-                  <h2 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                    {task ? 'Edit Task' : 'Create New Task'}
-                  </h2>
-                  <p className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-green-500" />
-                    {task ? 'Update your task details' : 'Fill in the details below'}
-                  </p>
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex items-center gap-3">
-                {/* Help Button */}
-                <button className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-100 ring-1 ring-black/5 transition-all duration-200 hover:scale-105 hover:bg-gray-200 active:scale-95 dark:bg-white/5 dark:hover:bg-white/10">
-                  <span className="material-symbols-outlined text-lg text-gray-500 dark:text-gray-400">
-                    help_outline
-                  </span>
-                </button>
-
-                {/* Close Button */}
-                <button
-                  onClick={onClose}
-                  className="group flex h-10 w-10 items-center justify-center rounded-xl bg-gray-100 ring-1 ring-black/5 transition-all duration-200 hover:scale-105 hover:bg-red-50 active:scale-95 dark:bg-white/5 dark:hover:bg-red-500/10"
-                >
-                  <span className="material-symbols-outlined text-lg text-gray-400 transition-colors group-hover:text-red-500">
-                    close
-                  </span>
-                </button>
-              </div>
+      <div className="flex flex-col h-[70vh] max-h-[800px]">
+        
+        {/* Header Section */}
+        <div className="flex-shrink-0 px-8 pt-8 pb-4">
+          <div className="flex items-start justify-between gap-4 mb-6">
+            <div className="flex-1">
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="What needs to be done?"
+                className="w-full text-3xl font-bold bg-transparent border-none p-0 placeholder:text-gray-300 dark:placeholder:text-gray-600 text-gray-900 dark:text-white focus:ring-0 focus:outline-none"
+              />
             </div>
+            <button 
+              onClick={onClose}
+              className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/5 transition-colors text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+            >
+              <span className="material-symbols-outlined">close</span>
+            </button>
           </div>
 
-          {/* Tab Navigation */}
-          <div className="px-8 pb-2">
-            <div className="flex items-center gap-2 rounded-2xl border border-gray-200/50 bg-gray-100/50 p-1.5 backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
-              {[
-                { id: 'details', label: 'Details', icon: 'info', badge: null },
-                { id: 'schedule', label: 'Schedule', icon: 'event', badge: null },
-                { id: 'subtasks', label: 'Subtasks', icon: 'checklist', badge: subtasks.length },
-              ].map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id as any)}
-                  className={`relative flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-3 transition-all duration-300 ${
-                    activeTab === tab.id
-                      ? 'bg-white text-gray-900 shadow-lg shadow-black/5 ring-1 ring-black/5 dark:bg-white/10 dark:text-white'
-                      : 'text-gray-500 hover:bg-white/50 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-200'
-                  }`}
-                >
-                  <span
-                    className={`material-symbols-outlined text-[20px] ${activeTab === tab.id ? 'text-indigo-500' : ''}`}
-                  >
-                    {tab.icon}
-                  </span>
-                  <span className="text-sm font-semibold">{tab.label}</span>
-                  {tab.badge !== null && tab.badge > 0 && (
-                    <span
-                      className={`absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold ${
-                        activeTab === tab.id
-                          ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/30'
-                          : 'bg-gray-300 text-white dark:bg-gray-600'
-                      }`}
+          {/* Quick Actions / Metadata */}
+          <div className="flex flex-wrap items-center gap-3">
+             {/* Priority Selector */}
+             <div className="relative group">
+                <button className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${getPriorityConfig(priority).bg} ${getPriorityConfig(priority).color} ${getPriorityConfig(priority).border} border`}>
+                  <span className="material-symbols-outlined text-[18px] filled">flag</span>
+                  <span className="capitalize">{priority}</span>
+                </button>
+                {/* Dropdown would go here - simplified for this implementation to cycle */}
+                 <div className="absolute top-full left-0 mt-2 w-32 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10 p-1 flex flex-col">
+                  {(['high', 'medium', 'low'] as TaskPriority[]).map(p => (
+                    <button 
+                      key={p} 
+                      onClick={() => setPriority(p)}
+                      className={`text-left px-3 py-2 rounded-lg text-sm hover:bg-gray-50 dark:hover:bg-white/5 capitalize ${priority === p ? 'text-teal-600 font-medium' : 'text-gray-600 dark:text-gray-300'}`}
                     >
-                      {tab.badge}
-                    </span>
-                  )}
-                  {activeTab === tab.id && (
-                    <div className="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-indigo-500/5 to-purple-500/5" />
-                  )}
+                      {p}
+                    </button>
+                  ))}
+                 </div>
+             </div>
+
+             {/* Status Selector */}
+             <div className="relative group">
+                <button className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${getStatusConfig(status).bg} ${getStatusConfig(status).color} border border-transparent`}>
+                  <span className="material-symbols-outlined text-[18px]">{getStatusConfig(status).icon}</span>
+                  <span>{getStatusConfig(status).label}</span>
                 </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Content Area */}
-          <div className="custom-scrollbar h-[520px] overflow-y-auto">
-            <div className="px-8 py-6">
-              <div className="space-y-6">
-                {/* Title Input - Floating Style */}
-                <div className="group relative">
-                  <input
-                    type="text"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    placeholder="What needs to be done?"
-                    className="w-full border-0 border-b-2 border-gray-200 bg-transparent px-0 py-4 text-2xl font-semibold text-gray-900 transition-all placeholder:text-gray-300 placeholder:transition-colors focus:border-indigo-500 focus:outline-none focus:ring-0 dark:border-gray-700 dark:text-white dark:placeholder:text-gray-600"
-                    autoFocus
-                  />
-                  <div
-                    className={`absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-300 ${title.trim() ? 'w-full' : 'w-0'}`}
-                  />
-                </div>
-
-                {/* Tab Content */}
-                {activeTab === 'details' && (
-                  <div className="animate-fadeIn space-y-6">
-                    {/* Description */}
-                    <div className="group relative">
-                      <div className="absolute -inset-0.5 rounded-2xl bg-gradient-to-r from-indigo-500 to-purple-500 opacity-0 transition-opacity duration-300 group-hover:opacity-20" />
-                      <div className="relative">
-                        <label className="mb-2 ml-1 block text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                          Description
-                        </label>
-                        <textarea
-                          value={description}
-                          onChange={(e) => setDescription(e.target.value)}
-                          placeholder="Add a detailed description..."
-                          rows={4}
-                          className="w-full resize-none rounded-2xl border border-gray-200/50 bg-gray-50/50 px-5 py-4 text-sm leading-relaxed text-gray-900 transition-all placeholder:text-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:border-gray-700/50 dark:bg-white/5 dark:text-white"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Priority & Status Cards */}
-                    <div className="grid grid-cols-2 gap-4">
-                      {/* Priority Selector */}
-                      <div className="rounded-2xl border border-gray-200/50 bg-gray-50/50 p-5 dark:border-white/10 dark:bg-white/5">
-                        <label className="mb-4 block flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                          <span className="h-2 w-2 rounded-full bg-indigo-500" />
-                          Priority
-                        </label>
-                        <div className="space-y-2">
-                          {(['high', 'medium', 'low'] as TaskPriority[]).map((p) => {
-                            const config = getPriorityConfig(p)
-                            const isSelected = priority === p
-                            return (
-                              <button
-                                key={p}
-                                onClick={() => setPriority(p)}
-                                className={`relative flex w-full items-center gap-3 rounded-xl px-4 py-3.5 transition-all duration-300 ${
-                                  isSelected
-                                    ? `${config.bgLight} scale-[1.02] ring-2 ring-indigo-500/50`
-                                    : 'hover:scale-[1.01] hover:bg-white dark:hover:bg-white/5'
-                                }`}
-                              >
-                                {isSelected && (
-                                  <div
-                                    className={`absolute inset-0 rounded-xl ${config.color.replace('bg-gradient-to-br', 'bg-gradient-to-r')} opacity-10 blur-sm`}
-                                  />
-                                )}
-                                <div
-                                  className={`h-9 w-9 rounded-xl ${config.color} flex flex-shrink-0 items-center justify-center shadow-lg shadow-black/10`}
-                                >
-                                  <span className="material-symbols-outlined text-[20px] text-white">
-                                    {config.icon}
-                                  </span>
-                                </div>
-                                <span
-                                  className={`flex-1 text-left font-semibold capitalize ${isSelected ? 'text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-300'}`}
-                                >
-                                  {p}
-                                </span>
-                                {isSelected && (
-                                  <span className="material-symbols-outlined text-[20px] text-indigo-500">
-                                    check_circle
-                                  </span>
-                                )}
-                              </button>
-                            )
-                          })}
-                        </div>
-                      </div>
-
-                      {/* Status Selector */}
-                      <div className="rounded-2xl border border-gray-200/50 bg-gray-50/50 p-5 dark:border-white/10 dark:bg-white/5">
-                        <label className="mb-4 block flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                          <span className="h-2 w-2 rounded-full bg-purple-500" />
-                          Status
-                        </label>
-                        <div className="space-y-2">
-                          {[
-                            { value: 'todo' as TaskStatus, label: 'To Do' },
-                            { value: 'in_progress' as TaskStatus, label: 'In Progress' },
-                            { value: 'completed' as TaskStatus, label: 'Completed' },
-                          ].map((s) => {
-                            const config = getStatusConfig(s.value)
-                            const isSelected = status === s.value
-                            return (
-                              <button
-                                key={s.value}
-                                onClick={() => setStatus(s.value)}
-                                className={`relative flex w-full items-center gap-3 rounded-xl px-4 py-3.5 transition-all duration-300 ${
-                                  isSelected
-                                    ? `${config.bgLight} scale-[1.02] ring-2 ring-indigo-500/50`
-                                    : 'hover:scale-[1.01] hover:bg-white dark:hover:bg-white/5'
-                                }`}
-                              >
-                                {isSelected && (
-                                  <div
-                                    className={`absolute inset-0 rounded-xl ${config.color.replace('bg-gradient-to-br', 'bg-gradient-to-r')} opacity-10 blur-sm`}
-                                  />
-                                )}
-                                <div
-                                  className={`h-9 w-9 rounded-xl ${config.color} flex flex-shrink-0 items-center justify-center shadow-lg shadow-black/10`}
-                                >
-                                  <span className="material-symbols-outlined text-[20px] text-white">
-                                    {config.icon}
-                                  </span>
-                                </div>
-                                <span
-                                  className={`flex-1 text-left font-semibold ${isSelected ? 'text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-300'}`}
-                                >
-                                  {s.label}
-                                </span>
-                                {isSelected && (
-                                  <span className="material-symbols-outlined text-[20px] text-indigo-500">
-                                    check_circle
-                                  </span>
-                                )}
-                              </button>
-                            )
-                          })}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Category & Tags */}
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="rounded-2xl border border-gray-200/50 bg-gray-50/50 p-5 dark:border-white/10 dark:bg-white/5">
-                        <label className="mb-3 block flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                          <span className="h-2 w-2 rounded-full bg-rose-500" />
-                          Category
-                        </label>
-                        <div className="group relative">
-                          <input
-                            type="text"
-                            value={category}
-                            onChange={(e) => setCategory(e.target.value)}
-                            placeholder="e.g., Work, Personal"
-                            className="w-full rounded-xl border border-gray-200/50 bg-white/50 px-4 py-3 text-sm text-gray-900 transition-all placeholder:text-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:border-gray-700/50 dark:bg-black/20 dark:text-white"
-                          />
-                          <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2">
-                            <span className="material-symbols-outlined text-[18px] text-gray-400">
-                              category
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="rounded-2xl border border-gray-200/50 bg-gray-50/50 p-5 dark:border-white/10 dark:bg-white/5">
-                        <label className="mb-3 block flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                          <span className="h-2 w-2 rounded-full bg-cyan-500" />
-                          Tags
-                        </label>
-                        <div className="flex gap-2">
-                          <div className="group relative flex-1">
-                            <input
-                              ref={tagInputRef}
-                              type="text"
-                              value={tagInput}
-                              onChange={(e) => setTagInput(e.target.value)}
-                              onKeyPress={(e) =>
-                                e.key === 'Enter' && (e.preventDefault(), addTag())
-                              }
-                              placeholder="Add tag..."
-                              className="w-full rounded-xl border border-gray-200/50 bg-white/50 px-4 py-3 pr-10 text-sm text-gray-900 transition-all placeholder:text-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:border-gray-700/50 dark:bg-black/20 dark:text-white"
-                            />
-                            <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-[18px] text-gray-400">
-                              tag
-                            </span>
-                          </div>
-                          <button
-                            onClick={addTag}
-                            className="flex h-auto items-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 px-4 text-white transition-all hover:scale-105 hover:shadow-lg hover:shadow-indigo-500/30 active:scale-95"
-                          >
-                            <span className="material-symbols-outlined text-[20px]">add</span>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Tags Display */}
-                    {tags.length > 0 && (
-                      <div className="animate-fadeIn flex flex-wrap gap-2">
-                        {tags.map((tag) => (
-                          <span
-                            key={tag}
-                            className="group inline-flex items-center gap-1.5 rounded-full border border-indigo-200 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 px-3 py-1.5 text-xs font-semibold text-indigo-600 shadow-sm transition-all hover:shadow-md dark:border-indigo-500/30 dark:text-indigo-400"
-                          >
-                            #{tag}
-                            <button
-                              onClick={() => removeTag(tag)}
-                              className="ml-1 rounded-full p-0.5 opacity-60 transition-colors hover:bg-indigo-100 group-hover:opacity-100 dark:hover:bg-indigo-500/20"
-                            >
-                              <span className="material-symbols-outlined text-[12px]">close</span>
-                            </button>
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Schedule Tab */}
-                {activeTab === 'schedule' && (
-                  <div className="animate-fadeIn space-y-6">
-                    {/* Due Date & Time */}
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="rounded-2xl border border-violet-200/50 bg-gradient-to-br from-violet-50/80 to-purple-50/80 p-5 dark:border-violet-500/20 dark:from-violet-500/5 dark:to-purple-500/5">
-                        <label className="mb-3 block flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-violet-600 dark:text-violet-400">
-                          <span className="material-symbols-outlined text-[14px]">event</span>
-                          Due Date
-                        </label>
-                        <div className="group relative">
-                          <input
-                            type="date"
-                            value={dueDate}
-                            onChange={(e) => setDueDate(e.target.value)}
-                            className="w-full cursor-pointer rounded-xl border border-violet-200/50 bg-white/50 px-4 py-3 text-sm text-gray-900 transition-all focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-500/20 dark:border-violet-500/30 dark:bg-black/20 dark:text-white"
-                          />
-                          {dueDate && (
-                            <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2">
-                              <span className="material-symbols-outlined text-[18px] text-green-500">
-                                check_circle
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="rounded-2xl border border-cyan-200/50 bg-gradient-to-br from-cyan-50/80 to-blue-50/80 p-5 dark:border-cyan-500/20 dark:from-cyan-500/5 dark:to-blue-500/5">
-                        <label className="mb-3 block flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-cyan-600 dark:text-cyan-400">
-                          <span className="material-symbols-outlined text-[14px]">schedule</span>
-                          Due Time
-                        </label>
-                        <div className="group relative">
-                          <input
-                            type="time"
-                            value={dueTime}
-                            onChange={(e) => setDueTime(e.target.value)}
-                            className="w-full cursor-pointer rounded-xl border border-cyan-200/50 bg-white/50 px-4 py-3 text-sm text-gray-900 transition-all focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20 dark:border-cyan-500/30 dark:bg-black/20 dark:text-white"
-                          />
-                          {dueTime && (
-                            <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2">
-                              <span className="material-symbols-outlined text-[18px] text-green-500">
-                                check_circle
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Time Estimate */}
-                    <div className="rounded-2xl border border-amber-200/50 bg-gradient-to-br from-amber-50/80 to-orange-50/80 p-5 dark:border-amber-500/20 dark:from-amber-500/5 dark:to-orange-500/5">
-                      <label className="mb-3 block flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-400">
-                        <span className="material-symbols-outlined text-[14px]">timer</span>
-                        Time Estimate
-                      </label>
-                      <div className="group relative">
-                        <input
-                          type="number"
-                          value={timeEstimate || ''}
-                          onChange={(e) =>
-                            setTimeEstimate(e.target.value ? parseInt(e.target.value) : undefined)
-                          }
-                          placeholder="Enter minutes"
-                          min="0"
-                          className="w-full rounded-xl border border-amber-200/50 bg-white/50 px-4 py-3 pr-16 text-sm text-gray-900 transition-all placeholder:text-gray-400 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 dark:border-amber-500/30 dark:bg-black/20 dark:text-white"
-                        />
-                        <span className="absolute right-4 top-1/2 -translate-y-1/2 rounded-lg bg-amber-50 px-2 py-1 text-sm font-medium text-amber-500 dark:bg-amber-500/10">
-                          min
-                        </span>
-                      </div>
-                      {timeEstimate && (
-                        <div className="mt-3 flex items-center gap-2 text-xs text-amber-600 dark:text-amber-400">
-                          <span className="material-symbols-outlined text-[14px]">lightbulb</span>
-                          Estimated: {Math.floor(timeEstimate / 60)}h {timeEstimate % 60}m
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Recurring */}
-                    <div className="rounded-2xl border border-emerald-200/50 bg-gradient-to-br from-emerald-50/80 to-teal-50/80 p-5 dark:border-emerald-500/20 dark:from-emerald-500/5 dark:to-teal-500/5">
-                      <label className="mb-4 block flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
-                        <span className="material-symbols-outlined text-[14px]">repeat</span>
-                        Recurring
-                      </label>
-                      <div className="grid grid-cols-4 gap-3">
-                        {[
-                          { value: null, label: 'None', icon: 'block' },
-                          { value: 'daily', label: 'Daily', icon: 'today' },
-                          { value: 'weekly', label: 'Weekly', icon: 'date_range' },
-                          { value: 'monthly', label: 'Monthly', icon: 'calendar_month' },
-                        ].map((r) => {
-                          const config = getRecurringConfig(r.value)
-                          const isSelected = recurring === r.value
-                          return (
-                            <button
-                              key={r.label}
-                              onClick={() => setRecurring(r.value as any)}
-                              className={`relative flex flex-col items-center gap-2 rounded-xl px-3 py-4 transition-all duration-300 ${
-                                isSelected
-                                  ? `${config.bg} scale-[1.02] ring-2 ring-emerald-500/50`
-                                  : 'hover:scale-[1.01] hover:bg-white dark:hover:bg-white/5'
-                              }`}
-                            >
-                              {isSelected && (
-                                <div
-                                  className={`absolute inset-0 rounded-xl bg-gradient-to-br ${config.color} opacity-10 blur-sm`}
-                                />
-                              )}
-                              <div
-                                className={`h-12 w-12 rounded-xl ${
-                                  isSelected
-                                    ? `bg-gradient-to-br ${config.color} shadow-lg shadow-black/10`
-                                    : 'bg-gray-100 dark:bg-white/10'
-                                } flex items-center justify-center transition-all`}
-                              >
-                                <span
-                                  className={`material-symbols-outlined text-[24px] ${isSelected ? 'text-white' : 'text-gray-400'}`}
-                                >
-                                  {r.icon}
-                                </span>
-                              </div>
-                              <span
-                                className={`text-xs font-semibold ${isSelected ? 'text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-300'}`}
-                              >
-                                {r.label}
-                              </span>
-                            </button>
-                          )
-                        })}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Subtasks Tab */}
-                {activeTab === 'subtasks' && (
-                  <div className="animate-fadeIn space-y-6">
-                    {/* Progress Bar */}
-                    {subtasks.length > 0 && (
-                      <div className="rounded-2xl border border-indigo-200/50 bg-gradient-to-r from-indigo-500/5 to-purple-500/5 p-4 dark:border-indigo-500/20">
-                        <div className="mb-2 flex items-center justify-between">
-                          <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">
-                            Progress
-                          </span>
-                          <span className="text-sm font-medium text-indigo-600 dark:text-indigo-400">
-                            {completedSubtasks}/{subtasks.length}
-                          </span>
-                        </div>
-                        <div className="h-2 overflow-hidden rounded-full bg-gray-200/50 dark:bg-gray-700/50">
-                          <div
-                            className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-500 ease-out"
-                            style={{ width: `${progressPercent}%` }}
-                          />
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Add Subtask */}
-                    <div className="rounded-2xl border border-blue-200/50 bg-gradient-to-br from-blue-50/80 to-indigo-50/80 p-5 dark:border-blue-500/20 dark:from-blue-500/5 dark:to-indigo-500/5">
-                      <label className="mb-3 block flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">
-                        <span className="material-symbols-outlined text-[14px]">add_task</span>
-                        Add Subtask
-                      </label>
-                      <div className="flex gap-3">
-                        <input
-                          ref={subtaskInputRef}
-                          type="text"
-                          value={subtaskInput}
-                          onChange={(e) => setSubtaskInput(e.target.value)}
-                          onKeyPress={(e) =>
-                            e.key === 'Enter' && (e.preventDefault(), addSubtask())
-                          }
-                          placeholder="What needs to be done first?"
-                          className="flex-1 rounded-xl border border-blue-200/50 bg-white/50 px-4 py-3 text-sm text-gray-900 transition-all placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-blue-500/30 dark:bg-black/20 dark:text-white"
-                        />
-                        <button
-                          onClick={addSubtask}
-                          disabled={!subtaskInput.trim()}
-                          className="flex h-auto items-center gap-2 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 px-6 font-semibold text-white transition-all hover:scale-105 hover:shadow-lg hover:shadow-blue-500/30 active:scale-95 disabled:opacity-50 disabled:hover:scale-100"
-                        >
-                          <span className="material-symbols-outlined text-[20px]">add</span>
-                          Add
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Subtasks List */}
-                    <div>
-                      <div className="mb-4 flex items-center justify-between">
-                        <label className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                          <span className="material-symbols-outlined text-[14px]">checklist</span>
-                          Subtasks
-                        </label>
-                        {subtasks.length > 0 && (
-                          <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-400 dark:bg-white/5">
-                            {completedSubtasks} of {subtasks.length} completed
-                          </span>
-                        )}
-                      </div>
-                      <div className="custom-scrollbar max-h-[350px] space-y-3 overflow-y-auto pr-2">
-                        {subtasks.length > 0 ? (
-                          subtasks.map((subtask) => (
-                            <div
-                              key={subtask.id}
-                              className={`group relative flex items-center gap-3 rounded-xl border px-4 py-3.5 transition-all duration-300 ${
-                                subtask.completed
-                                  ? 'border-green-200/50 bg-gradient-to-r from-green-50/80 to-emerald-50/80 dark:border-green-500/30 dark:from-green-500/5 dark:to-emerald-500/5'
-                                  : 'border-gray-200/50 bg-white/50 hover:border-indigo-300 dark:border-white/10 dark:bg-white/5 dark:hover:border-indigo-500/30'
-                              }`}
-                            >
-                              <button
-                                onClick={() => toggleSubtask(subtask.id)}
-                                className={`flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-lg border-2 transition-all duration-300 ${
-                                  subtask.completed
-                                    ? 'border-green-500 bg-gradient-to-br from-green-500 to-emerald-500 shadow-lg shadow-green-500/20'
-                                    : 'border-gray-300 hover:border-indigo-500 dark:border-gray-600'
-                                }`}
-                              >
-                                {subtask.completed && (
-                                  <span className="material-symbols-outlined text-[14px] font-bold text-white">
-                                    check
-                                  </span>
-                                )}
-                              </button>
-                              <span
-                                className={`flex-1 text-sm transition-all ${
-                                  subtask.completed
-                                    ? 'text-gray-400 line-through dark:text-gray-500'
-                                    : 'text-gray-700 dark:text-gray-200'
-                                }`}
-                              >
-                                {subtask.text}
-                              </span>
-                              <button
-                                onClick={() => removeSubtask(subtask.id)}
-                                className="rounded-lg p-2 opacity-0 transition-all hover:scale-110 hover:bg-red-50 active:scale-95 group-hover:opacity-100 dark:hover:bg-red-500/10"
-                              >
-                                <span className="material-symbols-outlined text-[18px] text-red-500">
-                                  delete
-                                </span>
-                              </button>
-                            </div>
-                          ))
-                        ) : (
-                          <div className="rounded-2xl border-2 border-dashed border-gray-200/50 bg-gray-50/30 px-4 py-16 text-center dark:border-gray-700/50 dark:bg-white/5">
-                            <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800">
-                              <span className="material-symbols-outlined text-4xl text-gray-400 dark:text-gray-500">
-                                checklist
-                              </span>
-                            </div>
-                            <p className="mb-1 text-lg font-semibold text-gray-700 dark:text-gray-200">
-                              No subtasks yet
-                            </p>
-                            <p className="mx-auto max-w-xs text-sm text-gray-500 dark:text-gray-400">
-                              Break down your task into smaller, manageable steps
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Footer */}
-          <div className="border-t border-gray-200/50 bg-gray-50/30 px-8 py-6 backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.02]">
-            <div className="flex items-center justify-between">
-              <button
-                onClick={resetForm}
-                className="group flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold text-gray-500 transition-all hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/10 dark:hover:text-gray-200"
-              >
-                <span className="material-symbols-outlined text-[18px] transition-transform duration-300 group-hover:rotate-180">
-                  restart_alt
-                </span>
-                Reset
-              </button>
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={onClose}
-                  className="rounded-xl px-6 py-2.5 text-sm font-semibold text-gray-600 transition-all hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-white/10 dark:hover:text-white"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSave}
-                  disabled={!title.trim()}
-                  onMouseEnter={() => setIsHoveringSave(true)}
-                  onMouseLeave={() => setIsHoveringSave(false)}
-                  className="group relative overflow-hidden rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 px-8 py-3 font-semibold text-white transition-all hover:scale-105 hover:shadow-2xl hover:shadow-indigo-500/30 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <div
-                    className={`absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 transition-opacity duration-300 ${isHoveringSave ? 'opacity-100' : 'opacity-0'}`}
-                  />
-                  <span className="relative z-10 flex items-center gap-2">
-                    <span className="material-symbols-outlined text-[20px] transition-transform group-hover:scale-110">
-                      save
-                    </span>
-                    {task ? 'Save Changes' : 'Create Task'}
-                  </span>
-                  <div className="absolute inset-0 overflow-hidden rounded-xl">
-                    <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent group-hover:animate-[shimmer_1.5s_infinite]" />
-                  </div>
-                </button>
-              </div>
-            </div>
+                 <div className="absolute top-full left-0 mt-2 w-40 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10 p-1 flex flex-col">
+                  {(['todo', 'in_progress', 'completed'] as TaskStatus[]).map(s => (
+                    <button 
+                      key={s} 
+                      onClick={() => setStatus(s)}
+                      className={`text-left px-3 py-2 rounded-lg text-sm hover:bg-gray-50 dark:hover:bg-white/5 ${status === s ? 'text-teal-600 font-medium' : 'text-gray-600 dark:text-gray-300'}`}
+                    >
+                      {getStatusConfig(s).label}
+                    </button>
+                  ))}
+                 </div>
+             </div>
           </div>
         </div>
+
+        {/* Tab Navigation */}
+        <div className="flex items-center gap-6 px-8 border-b border-gray-100 dark:border-white/5">
+          {[
+            { id: 'details', label: 'Details' },
+            { id: 'schedule', label: 'Schedule' },
+            { id: 'subtasks', label: `Subtasks ${subtasks.length > 0 ? `(${subtasks.filter(t => t.completed).length}/${subtasks.length})` : ''}` }
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as 'details' | 'schedule' | 'subtasks')}
+              className={`pb-4 text-sm font-medium transition-all relative ${
+                activeTab === tab.id 
+                  ? 'text-teal-600 dark:text-teal-400' 
+                  : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
+              }`}
+            >
+              {tab.label}
+              {activeTab === tab.id && (
+                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-teal-500 rounded-full layout-id-underline" />
+              )}
+            </button>
+          ))}
+        </div>
+
+        {/* Content Area */}
+        <div className="flex-1 overflow-y-auto px-8 py-6 custom-scrollbar">
+          
+          {/* Details Tab */}
+          {activeTab === 'details' && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <div className="space-y-2">
+                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Description</label>
+                <textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Add more details about this task..."
+                  rows={3}
+                  className="w-full bg-gray-50 dark:bg-black/20 border-0 rounded-2xl p-4 text-gray-900 dark:text-white placeholder:text-gray-400 focus:ring-2 focus:ring-teal-500/20 resize-none transition-all"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                   <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Category</label>
+                   <div className="relative">
+                      <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[20px] pointer-events-none">folder</span>
+                      
+                      <button
+                        ref={refs.setReference}
+                        {...getReferenceProps()}
+                        className={`w-full text-left bg-gray-50 dark:bg-black/20 border-0 rounded-xl py-3 pl-10 pr-4 text-sm transition-all focus:ring-2 focus:ring-teal-500/20 flex items-center justify-between group ${category ? 'text-gray-900 dark:text-white' : 'text-gray-400'}`}
+                      >
+                        <span>{category || 'Select category'}</span>
+                        <span className={`material-symbols-outlined text-[20px] text-gray-400 transition-transform duration-200 ${isCategoryOpen ? 'rotate-180' : ''}`}>expand_more</span>
+                      </button>
+
+                      {isCategoryOpen && (
+                        <FloatingPortal>
+                          <FloatingFocusManager context={context} modal={false}>
+                            <div
+                              ref={refs.setFloating}
+                              style={floatingStyles}
+                              {...getFloatingProps()}
+                              className="z-50 min-w-[200px] p-1 bg-white/90 dark:bg-gray-800/95 backdrop-blur-xl border border-gray-100 dark:border-white/10 rounded-xl shadow-2xl animate-in fade-in zoom-in-95 duration-200 focus:outline-none"
+                            >
+                               {['Work', 'Personal', 'Learning', 'Creative', 'Health'].map((cat) => (
+                                 <button
+                                   key={cat}
+                                   onClick={() => {
+                                     setCategory(cat)
+                                     setIsCategoryOpen(false)
+                                   }}
+                                   className={`w-full text-left px-3 py-2.5 rounded-lg text-sm transition-colors flex items-center gap-2 ${
+                                     category === cat 
+                                       ? 'bg-teal-50 text-teal-700 dark:bg-teal-500/20 dark:text-teal-300' 
+                                       : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5'
+                                   }`}
+                                 >
+                                   {category === cat && (
+                                     <span className="material-symbols-outlined text-[16px] text-teal-500">check</span>
+                                   )}
+                                   <span className={category === cat ? 'font-medium ml-1' : 'ml-6'}>{cat}</span>
+                                 </button>
+                               ))}
+                            </div>
+                          </FloatingFocusManager>
+                        </FloatingPortal>
+                      )}
+                   </div>
+                </div>
+
+                <div className="space-y-2">
+                   <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Tags</label>
+                   <div className="relative">
+                      <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]">tag</span>
+                      <input 
+                        ref={tagInputRef}
+                        type="text"
+                        value={tagInput}
+                        onChange={(e) => setTagInput(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
+                        placeholder="Add tag and press Enter"
+                        className="w-full bg-gray-50 dark:bg-black/20 border-0 rounded-xl py-3 pl-10 pr-4 text-gray-900 dark:text-white placeholder:text-gray-400 focus:ring-2 focus:ring-teal-500/20"
+                      />
+                   </div>
+                   {tags.length > 0 && (
+                     <div className="flex flex-wrap gap-2 mt-2">
+                       {tags.map(tag => (
+                         <span key={tag} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-teal-50 text-teal-700 dark:bg-teal-500/10 dark:text-teal-300 text-xs font-medium">
+                           #{tag}
+                           <button onClick={() => removeTag(tag)} className="hover:text-teal-900 dark:hover:text-white">
+                             <span className="material-symbols-outlined text-[12px]">close</span>
+                           </button>
+                         </span>
+                       ))}
+                     </div>
+                   )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Schedule Tab */}
+          {activeTab === 'schedule' && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Due Date</label>
+                    <div className="relative">
+                       <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]">calendar_today</span>
+                       <input 
+                        type="date"
+                        value={dueDate}
+                        onChange={(e) => setDueDate(e.target.value)}
+                        className="w-full bg-gray-50 dark:bg-black/20 border-0 rounded-xl py-3 pl-10 pr-4 text-gray-900 dark:text-white focus:ring-2 focus:ring-teal-500/20"
+                       />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Time</label>
+                    <div className="relative">
+                       <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]">schedule</span>
+                       <input 
+                        type="time"
+                        value={dueTime}
+                        onChange={(e) => setDueTime(e.target.value)}
+                        className="w-full bg-gray-50 dark:bg-black/20 border-0 rounded-xl py-3 pl-10 pr-4 text-gray-900 dark:text-white focus:ring-2 focus:ring-teal-500/20"
+                       />
+                    </div>
+                  </div>
+               </div>
+
+               <div className="space-y-2">
+                  <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Recurring</label>
+                  <div className="grid grid-cols-4 gap-3">
+                     {[
+                       { value: null, label: 'Never', icon: 'block' },
+                       { value: 'daily', label: 'Daily', icon: 'repeat' },
+                       { value: 'weekly', label: 'Weekly', icon: 'event_repeat' },
+                       { value: 'monthly', label: 'Monthly', icon: 'calendar_month' }
+                     ].map((opt) => (
+                       <button
+                         key={String(opt.value)}
+                         onClick={() => setRecurring(opt.value as 'daily' | 'weekly' | 'monthly' | null)}
+                         className={`flex flex-col items-center gap-2 p-3 rounded-xl border transition-all ${
+                           recurring === opt.value
+                             ? 'bg-teal-50 border-teal-200 text-teal-700 dark:bg-teal-500/20 dark:border-teal-500/30 dark:text-teal-300'
+                             : 'bg-transparent border-gray-200 dark:border-white/10 text-gray-500 hover:border-gray-300 dark:hover:border-white/20'
+                         }`}
+                       >
+                         <span className="material-symbols-outlined">{opt.icon}</span>
+                         <span className="text-xs font-medium">{opt.label}</span>
+                       </button>
+                     ))}
+                  </div>
+               </div>
+
+               <div className="space-y-2">
+                  <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Est. Duration (mins)</label>
+                  <div className="relative">
+                     <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]">timer</span>
+                     <input 
+                      type="number"
+                      min="0"
+                      value={timeEstimate || ''}
+                      onChange={(e) => setTimeEstimate(e.target.value ? parseInt(e.target.value) : undefined)}
+                      placeholder="e.g. 30"
+                      className="w-full bg-gray-50 dark:bg-black/20 border-0 rounded-xl py-3 pl-10 pr-4 text-gray-900 dark:text-white placeholder:text-gray-400 focus:ring-2 focus:ring-teal-500/20"
+                     />
+                  </div>
+               </div>
+            </div>
+          )}
+
+          {/* Subtasks Tab */}
+          {activeTab === 'subtasks' && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+               {/* Progress */}
+               {subtasks.length > 0 && (
+                 <div className="bg-gray-50 dark:bg-white/5 rounded-xl p-4 flex items-center gap-4">
+                    <div className="flex-1 h-2 bg-gray-200 dark:bg-white/10 rounded-full overflow-hidden">
+                       <div 
+                         className="h-full bg-teal-500 rounded-full transition-all duration-500"
+                         style={{ width: `${(subtasks.filter(s => s.completed).length / subtasks.length) * 100}%` }}
+                       />
+                    </div>
+                    <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
+                      {Math.round((subtasks.filter(s => s.completed).length / subtasks.length) * 100)}%
+                    </span>
+                 </div>
+               )}
+
+               <div className="space-y-3">
+                  {subtasks.map((st) => (
+                    <div key={st.id} className="flex items-center gap-3 p-3 bg-white dark:bg-white/5 border border-gray-100 dark:border-white/5 rounded-xl group hover:border-teal-200 dark:hover:border-teal-500/30 transition-colors">
+                       <button 
+                         onClick={() => toggleSubtask(st.id)}
+                         className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${
+                           st.completed 
+                             ? 'bg-teal-500 border-teal-500 text-white' 
+                             : 'border-gray-300 dark:border-gray-500 hover:border-teal-500'
+                         }`}
+                       >
+                         {st.completed && <span className="material-symbols-outlined text-[16px]">check</span>}
+                       </button>
+                       <input 
+                         type="text"
+                         value={st.text}
+                         readOnly
+                         className={`flex-1 bg-transparent border-none p-0 focus:ring-0 text-sm ${
+                           st.completed 
+                             ? 'text-gray-400 line-through' 
+                             : 'text-gray-700 dark:text-gray-200'
+                         }`}
+                       />
+                       <button onClick={() => removeSubtask(st.id)} className="opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-red-500 transition-all">
+                          <span className="material-symbols-outlined text-[18px]">delete</span>
+                       </button>
+                    </div>
+                  ))}
+
+                  {/* Add New Input */}
+                  <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-black/20 border border-transparent rounded-xl focus-within:bg-white focus-within:dark:bg-black/40 focus-within:border-teal-500/50 transition-all">
+                     <span className="material-symbols-outlined text-gray-400">add</span>
+                     <input
+                       ref={subtaskInputRef}
+                       type="text"
+                       value={subtaskInput}
+                       onChange={(e) => setSubtaskInput(e.target.value)}
+                       onKeyDown={(e) => e.key === 'Enter' && addSubtask()}
+                       placeholder="Add a subtask..."
+                       className="flex-1 bg-transparent border-none p-0 focus:ring-0 text-sm text-gray-900 dark:text-white placeholder:text-gray-500"
+                     />
+                     <button 
+                       onClick={addSubtask}
+                       disabled={!subtaskInput.trim()}
+                       className="text-xs font-semibold uppercase tracking-wider text-teal-600 disabled:opacity-50 disabled:cursor-not-allowed hover:text-teal-700"
+                     >
+                       Add
+                     </button>
+                  </div>
+               </div>
+            </div>
+          )}
+
+        </div>
+
+        {/* Footer */}
+        <div className="flex-shrink-0 p-6 border-t border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-black/20 backdrop-blur-md flex justify-end gap-3 rounded-b-3xl">
+          <button
+            onClick={onClose}
+            className="px-6 py-2.5 rounded-xl font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={!title.trim()}
+            className="px-8 py-2.5 rounded-xl font-medium text-white bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-400 hover:to-teal-500 shadow-lg shadow-teal-500/20 disabled:opacity-50 disabled:shadow-none transition-all transform active:scale-95"
+          >
+            Save Task
+          </button>
+        </div>
+
       </div>
     </AccessibleModal>
   )

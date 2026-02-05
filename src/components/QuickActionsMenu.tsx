@@ -5,6 +5,7 @@ import { TemplatePreviewModal } from './TemplatePreviewModal'
 import { TemplateLibraryModal } from './TemplateLibraryModal'
 import { ToggleSwitch } from './timer/settings/ToggleSwitch'
 import type { TaskTemplate } from '@/types/taskTemplate'
+import type { Task } from '@/types/task'
 
 function TemplateCard({
   template,
@@ -200,7 +201,7 @@ interface QuickActionsMenuProps {
   onSaveTemplate?: (template: TaskTemplate) => void
   onUpdateTemplate?: (template: TaskTemplate) => void
   onDeleteTemplate?: (templateId: string) => void
-  existingTasks?: any[] // Pass existing tasks to check for duplicates
+  existingTasks?: Task[] // Pass existing tasks to check for duplicates
 }
 
 export function QuickActionsMenu({
@@ -539,9 +540,7 @@ export function QuickActionsMenu({
               <button
                 onClick={() => {
                   if (!selectedQuickAddTemplate) {
-                    toast.error('No template selected!', {
-                      description:
-                        'Please select a template from Settings for Quick Add functionality.',
+                    toast.error('No template selected! Please select a template from Settings for Quick Add functionality.', {
                       duration: 4000,
                     })
                     return

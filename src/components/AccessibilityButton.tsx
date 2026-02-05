@@ -210,7 +210,7 @@ export function AccessibilityButton() {
           }
         }}
         className={cn(
-          "fixed w-16 h-16 rounded-full flex items-center justify-center group relative",
+          "fixed w-16 h-16 rounded-full flex items-center justify-center group",
           "bg-white/20 dark:bg-white/10 backdrop-blur-xl",
           "border border-white/30 dark:border-white/20",
           "shadow-2xl shadow-black/30",
