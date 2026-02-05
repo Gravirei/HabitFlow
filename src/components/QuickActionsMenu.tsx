@@ -757,25 +757,23 @@ export function QuickActionsMenu({
             <div className="space-y-2">
               {/* Collapsible Quick Add Section */}
               <div className="space-y-2">
-                {/* Header with collapse button */}
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setTemplateListCollapsed(!templateListCollapsed)}
-                    className="flex items-center justify-center text-gray-400 hover:text-gray-300 transition-colors -ml-1"
-                  >
-                    <span className={`material-symbols-outlined text-[16px] transition-transform duration-300 ${templateListCollapsed ? '' : 'rotate-180'}`}>
-                      expand_more
-                    </span>
-                  </button>
-                  
-                  <div className="flex-1">
-                    <ToggleSwitch
-                      enabled={enableQuickAdd}
-                      onChange={() => setEnableQuickAdd(!enableQuickAdd)}
-                      label="Enable Quick Add Button"
-                      description="Show quick add button at the bottom of the menu"
-                    />
-                  </div>
+                {/* Clickable header without arrow */}
+                <div 
+                  onClick={(e) => {
+                    // Only toggle if not clicking on the toggle switch itself
+                    const target = e.target as HTMLElement
+                    if (!target.closest('button[role="switch"]') && !target.closest('.toggle-switch-wrapper')) {
+                      setTemplateListCollapsed(!templateListCollapsed)
+                    }
+                  }}
+                  className="cursor-pointer hover:bg-white/5 rounded-lg p-2 -m-2 transition-colors"
+                >
+                  <ToggleSwitch
+                    enabled={enableQuickAdd}
+                    onChange={() => setEnableQuickAdd(!enableQuickAdd)}
+                    label="Enable Quick Add Button"
+                    description={templateListCollapsed ? undefined : "Show quick add button at the bottom of the menu"}
+                  />
                 </div>
                 
                 {/* Collapsible Content */}
