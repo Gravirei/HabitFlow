@@ -214,7 +214,7 @@ export function QuickActionsMenu({
     return '#3b82f6' // fallback
   }
 
-  const [selectedCategory, setSelectedCategory] = useState<'all' | 'work' | 'personal'>('all')
+  const [selectedCategory, setSelectedCategory] = useState<'all' | 'work' | 'personal' | 'health' | 'creative' | 'learning'>('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [previewTemplate, setPreviewTemplate] = useState<TaskTemplate | null>(null)
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
@@ -411,10 +411,13 @@ export function QuickActionsMenu({
                   { id: 'all', label: 'All Templates', icon: 'grid_view' },
                   { id: 'work', label: 'Work', icon: 'business_center' },
                   { id: 'personal', label: 'Personal', icon: 'person' },
+                  { id: 'health', label: 'Health', icon: 'favorite' },
+                  { id: 'creative', label: 'Creative', icon: 'palette' },
+                  { id: 'learning', label: 'Learning', icon: 'school' },
                 ].map((cat) => (
                   <button
                     key={cat.id}
-                    onClick={() => setSelectedCategory(cat.id as 'all' | 'work' | 'personal')}
+                    onClick={() => setSelectedCategory(cat.id as 'all' | 'work' | 'personal' | 'health' | 'creative' | 'learning')}
                     className={`w-full group flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-semibold transition-all duration-200 ${
                       selectedCategory === cat.id
                         ? 'bg-white dark:bg-white/10 text-indigo-600 dark:text-white shadow-md shadow-gray-200/50 dark:shadow-none ring-1 ring-gray-200/50 dark:ring-white/10'
