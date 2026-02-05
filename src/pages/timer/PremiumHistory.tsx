@@ -172,50 +172,6 @@ function PremiumHistoryContent() {
       })
     }
 
-    // Add mock stopped countdown sessions for demonstration
-    // These show what incomplete countdowns look like
-    if (combined.filter(r => r.mode === 'Countdown').length > 0) {
-      // Add a stopped session (only if we have countdowns)
-      const mockStopped = {
-        id: 'mock-stopped-1',
-        mode: 'Countdown' as TimerMode,
-        duration: 1500, // 25 minutes completed
-        timestamp: Date.now() - 86400000, // Yesterday
-        sessionName: 'Reading Session',
-        targetDuration: 1800, // Goal was 30 minutes
-        completed: false // Stopped early
-      }
-      
-      // Only add if it passes all filters
-      let shouldAdd = true
-      
-      // Check mode filter
-      if (filterMode !== 'All' && mockStopped.mode !== filterMode) {
-        shouldAdd = false
-      }
-      
-      // Check date range filter
-      if (dateRangeStart && dateRangeEnd) {
-        const startTime = dateRangeStart.getTime()
-        const endTime = dateRangeEnd.getTime() + 86400000 - 1
-        if (mockStopped.timestamp < startTime || mockStopped.timestamp > endTime) {
-          shouldAdd = false
-        }
-      }
-      
-      // Check duration filter
-      if (minDuration > 0 || maxDuration < 7200) {
-        if (mockStopped.duration < minDuration || mockStopped.duration > maxDuration) {
-          shouldAdd = false
-        }
-      }
-      
-      if (shouldAdd) {
-        combined.push(mockStopped)
-        combined.sort((a, b) => b.timestamp - a.timestamp)
-      }
-    }
-
     return combined
   }, [stopwatchHistory, countdownHistory, intervalsHistory, filterMode, dateRangeStart, dateRangeEnd, minDuration, maxDuration, searchQuery, completionFilter])
 
