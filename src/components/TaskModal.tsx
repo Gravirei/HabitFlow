@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import type { Task, TaskPriority, TaskStatus, Subtask } from '@/types/task'
 import { AccessibleModal } from './timer/shared/AccessibleModal'
+import { motion, AnimatePresence } from 'framer-motion'
 import { 
   useFloating, 
   autoUpdate, 
@@ -290,18 +291,19 @@ export function TaskModal({ isOpen, onClose, onSave, task }: TaskModalProps) {
         </div>
 
         {/* Content Area */}
-        <div className="flex-1 overflow-hidden px-8 py-6 relative">
-          <div className="absolute inset-0 px-8 py-6 overflow-y-auto custom-scrollbar">
-            {/* Details Tab */}
+        <div className="flex-1 overflow-hidden relative">
+          <AnimatePresence mode="wait" initial={false} custom={direction}>
             {activeTab === 'details' && (
-              <div 
+              <motion.div
                 key="details"
-                className={`space-y-6 ${
-                  direction === 'right' 
-                    ? 'animate-in slide-in-from-left-full fade-in duration-300' 
-                    : 'animate-in slide-in-from-right-full fade-in duration-300'
-                }`}
+                custom={direction}
+                initial={{ x: direction === 'right' ? -300 : 300, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: direction === 'right' ? 300 : -300, opacity: 0 }}
+                transition={{ duration: 0.3, ease: 'easeInOut' }}
+                className="absolute inset-0 px-8 py-6 overflow-y-auto custom-scrollbar"
               >
+                <div className="space-y-6">
               <div className="space-y-2">
                 <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Description</label>
                 <textarea
@@ -391,19 +393,22 @@ export function TaskModal({ isOpen, onClose, onSave, task }: TaskModalProps) {
                    )}
                 </div>
               </div>
-              </div>
+                </div>
+              </motion.div>
             )}
 
             {/* Schedule Tab */}
             {activeTab === 'schedule' && (
-              <div 
+              <motion.div
                 key="schedule"
-                className={`space-y-6 ${
-                  direction === 'right' 
-                    ? 'animate-in slide-in-from-left-full fade-in duration-300' 
-                    : 'animate-in slide-in-from-right-full fade-in duration-300'
-                }`}
+                custom={direction}
+                initial={{ x: direction === 'right' ? -300 : 300, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: direction === 'right' ? 300 : -300, opacity: 0 }}
+                transition={{ duration: 0.3, ease: 'easeInOut' }}
+                className="absolute inset-0 px-8 py-6 overflow-y-auto custom-scrollbar"
               >
+                <div className="space-y-6">
                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Due Date</label>
@@ -471,19 +476,22 @@ export function TaskModal({ isOpen, onClose, onSave, task }: TaskModalProps) {
                      />
                   </div>
                </div>
-              </div>
+                </div>
+              </motion.div>
             )}
 
             {/* Subtasks Tab */}
             {activeTab === 'subtasks' && (
-              <div 
+              <motion.div
                 key="subtasks"
-                className={`space-y-6 ${
-                  direction === 'right' 
-                    ? 'animate-in slide-in-from-left-full fade-in duration-300' 
-                    : 'animate-in slide-in-from-right-full fade-in duration-300'
-                }`}
+                custom={direction}
+                initial={{ x: direction === 'right' ? -300 : 300, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: direction === 'right' ? 300 : -300, opacity: 0 }}
+                transition={{ duration: 0.3, ease: 'easeInOut' }}
+                className="absolute inset-0 px-8 py-6 overflow-y-auto custom-scrollbar"
               >
+                <div className="space-y-6">
                {/* Progress */}
                {subtasks.length > 0 && (
                  <div className="bg-gray-50 dark:bg-white/5 rounded-xl p-4 flex items-center gap-4">
@@ -549,10 +557,11 @@ export function TaskModal({ isOpen, onClose, onSave, task }: TaskModalProps) {
                      </button>
                   </div>
                </div>
-              </div>
+                </div>
+              </motion.div>
             )}
 
-          </div>
+          </AnimatePresence>
         </div>
 
         {/* Footer */}
