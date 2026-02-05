@@ -214,7 +214,7 @@ export function QuickActionsMenu({
     return '#3b82f6' // fallback
   }
 
-  const [selectedCategory, setSelectedCategory] = useState<'all' | 'work' | 'personal' | 'health' | 'creative' | 'learning'>('all')
+  const [selectedCategories, setSelectedCategories] = useState<Set<string>>(new Set(['all']))
   const [searchQuery, setSearchQuery] = useState('')
   const [previewTemplate, setPreviewTemplate] = useState<TaskTemplate | null>(null)
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
@@ -274,8 +274,34 @@ export function QuickActionsMenu({
     }
   }, [isSearchOpen])
 
+  const handleCategoryToggle = (categoryId: string) => {
+    const newCategories = new Set(selectedCategories)
+    
+    if (categoryId === 'all') {
+      // Turn on All, turn off everything else
+      setSelectedCategories(new Set(['all']))
+    } else {
+      // Remove 'all' if it's there
+      newCategories.delete('all')
+      
+      // Toggle the selected category
+      if (newCategories.has(categoryId)) {
+        newCategories.delete(categoryId)
+      } else {
+        newCategories.add(categoryId)
+      }
+      
+      // If no categories selected, auto-enable All
+      if (newCategories.size === 0) {
+        newCategories.add('all')
+      }
+      
+      setSelectedCategories(newCategories)
+    }
+  }
+
   const filteredTemplates = customTemplates.filter(template => {
-    const matchesCategory = selectedCategory === 'all' || template.category.toLowerCase() === selectedCategory
+    const matchesCategory = selectedCategories.has('all') || selectedCategories.has(template.category.toLowerCase())
     const matchesSearch = template.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          template.description?.toLowerCase().includes(searchQuery.toLowerCase())
     return matchesCategory && matchesSearch
@@ -406,29 +432,22 @@ export function QuickActionsMenu({
                   expand_more
                 </span>
               </button>
-              <div className={`space-y-1 transition-all duration-300 overflow-hidden ${filtersCollapsed ? 'max-h-0 opacity-0' : 'max-h-96 opacity-100'}`}>
+              <div className={`space-y-2 transition-all duration-300 overflow-hidden ${filtersCollapsed ? 'max-h-0 opacity-0' : 'max-h-96 opacity-100'}`}>
                 {[
-                  { id: 'all', label: 'All Templates', icon: 'grid_view' },
-                  { id: 'work', label: 'Work', icon: 'business_center' },
-                  { id: 'personal', label: 'Personal', icon: 'person' },
-                  { id: 'health', label: 'Health', icon: 'favorite' },
-                  { id: 'creative', label: 'Creative', icon: 'palette' },
-                  { id: 'learning', label: 'Learning', icon: 'school' },
+                  { id: 'all', label: 'All Templates' },
+                  { id: 'work', label: 'Work' },
+                  { id: 'personal', label: 'Personal' },
+                  { id: 'health', label: 'Health' },
+                  { id: 'creative', label: 'Creative' },
+                  { id: 'learning', label: 'Learning' },
                 ].map((cat) => (
-                  <button
-                    key={cat.id}
-                    onClick={() => setSelectedCategory(cat.id as 'all' | 'work' | 'personal' | 'health' | 'creative' | 'learning')}
-                    className={`w-full group flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-semibold transition-all duration-200 ${
-                      selectedCategory === cat.id
-                        ? 'bg-white dark:bg-white/10 text-indigo-600 dark:text-white shadow-md shadow-gray-200/50 dark:shadow-none ring-1 ring-gray-200/50 dark:ring-white/10'
-                        : 'text-gray-600 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'
-                    }`}
-                  >
-                    <div className={`p-1.5 rounded-lg transition-colors ${selectedCategory === cat.id ? 'bg-indigo-50 dark:bg-white/20' : 'bg-gray-100 dark:bg-white/5 group-hover:bg-white dark:group-hover:bg-white/10'}`}>
-                      <span className={`material-symbols-outlined text-[18px] ${selectedCategory === cat.id ? 'text-indigo-600 dark:text-white' : 'text-gray-500 group-hover:text-gray-700 dark:text-gray-400 dark:group-hover:text-white'}`}>{cat.icon}</span>
-                    </div>
-                    {cat.label}
-                  </button>
+                  <div key={cat.id} className="transform scale-90 origin-left">
+                    <ToggleSwitch
+                      enabled={selectedCategories.has(cat.id)}
+                      onChange={() => handleCategoryToggle(cat.id)}
+                      label={cat.label}
+                    />
+                  </div>
                 ))}
               </div>
             </div>
