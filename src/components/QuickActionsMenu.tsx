@@ -187,6 +187,33 @@ export function QuickActionsMenu({
   onDeleteTemplate,
   existingTasks = [],
 }: QuickActionsMenuProps) {
+  // Helper function to get hex color from template
+  const getTemplateColorHex = (template: TaskTemplate): string => {
+    if (template.colorHex) return template.colorHex
+    
+    // Fallback: Extract from Tailwind class
+    const colorMap: Record<string, string> = {
+      'bg-blue-500': '#3b82f6',
+      'bg-purple-500': '#a855f7',
+      'bg-green-500': '#22c55e',
+      'bg-red-500': '#ef4444',
+      'bg-orange-500': '#f97316',
+      'bg-yellow-500': '#eab308',
+      'bg-pink-500': '#ec4899',
+      'bg-indigo-500': '#6366f1',
+      'bg-teal-500': '#14b8a6',
+      'bg-cyan-500': '#06b6d4',
+    }
+    
+    if (colorMap[template.color]) return colorMap[template.color]
+    
+    // Extract from custom bg-[...] format
+    const customMatch = template.color.match(/bg-\[([a-fA-F0-9]{6})\]/)
+    if (customMatch) return '#' + customMatch[1]
+    
+    return '#3b82f6' // fallback
+  }
+
   const [selectedCategory, setSelectedCategory] = useState<'all' | 'work' | 'personal'>('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [previewTemplate, setPreviewTemplate] = useState<TaskTemplate | null>(null)
@@ -802,7 +829,7 @@ export function QuickActionsMenu({
                         >
                           <div 
                             className="flex h-8 w-8 items-center justify-center rounded-lg flex-shrink-0"
-                            style={{ backgroundColor: template.colorHex || '#3b82f6' }}
+                            style={{ backgroundColor: getTemplateColorHex(template) }}
                           >
                             <span className="material-symbols-outlined text-white text-sm">{template.icon}</span>
                           </div>
