@@ -62,8 +62,19 @@ export function TaskModal({ isOpen, onClose, onSave, task }: TaskModalProps) {
 
   // UI State
   const [activeTab, setActiveTab] = useState<'details' | 'schedule' | 'subtasks'>('details')
+  const [direction, setDirection] = useState<'left' | 'right'>('right')
   const tagInputRef = useRef<HTMLInputElement>(null)
   const subtaskInputRef = useRef<HTMLInputElement>(null)
+
+  // Tab order for directional animation
+  const tabOrder = ['details', 'schedule', 'subtasks'] as const
+
+  const handleTabChange = (newTab: 'details' | 'schedule' | 'subtasks') => {
+    const currentIndex = tabOrder.indexOf(activeTab)
+    const newIndex = tabOrder.indexOf(newTab)
+    setDirection(newIndex > currentIndex ? 'left' : 'right')
+    setActiveTab(newTab)
+  }
 
   // Initialize form when task changes or modal opens
   useEffect(() => {
@@ -263,7 +274,7 @@ export function TaskModal({ isOpen, onClose, onSave, task }: TaskModalProps) {
           ].map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id as 'details' | 'schedule' | 'subtasks')}
+              onClick={() => handleTabChange(tab.id as 'details' | 'schedule' | 'subtasks')}
               className={`pb-4 text-sm font-medium transition-all relative ${
                 activeTab === tab.id 
                   ? 'text-teal-600 dark:text-teal-400' 
@@ -279,11 +290,18 @@ export function TaskModal({ isOpen, onClose, onSave, task }: TaskModalProps) {
         </div>
 
         {/* Content Area */}
-        <div className="flex-1 overflow-y-auto px-8 py-6 custom-scrollbar">
-          
-          {/* Details Tab */}
-          {activeTab === 'details' && (
-            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+        <div className="flex-1 overflow-hidden px-8 py-6 relative">
+          <div className="absolute inset-0 px-8 py-6 overflow-y-auto custom-scrollbar">
+            {/* Details Tab */}
+            {activeTab === 'details' && (
+              <div 
+                key="details"
+                className={`space-y-6 ${
+                  direction === 'right' 
+                    ? 'animate-in slide-in-from-left-full fade-in duration-300' 
+                    : 'animate-in slide-in-from-right-full fade-in duration-300'
+                }`}
+              >
               <div className="space-y-2">
                 <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Description</label>
                 <textarea
@@ -373,12 +391,19 @@ export function TaskModal({ isOpen, onClose, onSave, task }: TaskModalProps) {
                    )}
                 </div>
               </div>
-            </div>
-          )}
+              </div>
+            )}
 
-          {/* Schedule Tab */}
-          {activeTab === 'schedule' && (
-            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+            {/* Schedule Tab */}
+            {activeTab === 'schedule' && (
+              <div 
+                key="schedule"
+                className={`space-y-6 ${
+                  direction === 'right' 
+                    ? 'animate-in slide-in-from-left-full fade-in duration-300' 
+                    : 'animate-in slide-in-from-right-full fade-in duration-300'
+                }`}
+              >
                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Due Date</label>
@@ -446,12 +471,19 @@ export function TaskModal({ isOpen, onClose, onSave, task }: TaskModalProps) {
                      />
                   </div>
                </div>
-            </div>
-          )}
+              </div>
+            )}
 
-          {/* Subtasks Tab */}
-          {activeTab === 'subtasks' && (
-            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+            {/* Subtasks Tab */}
+            {activeTab === 'subtasks' && (
+              <div 
+                key="subtasks"
+                className={`space-y-6 ${
+                  direction === 'right' 
+                    ? 'animate-in slide-in-from-left-full fade-in duration-300' 
+                    : 'animate-in slide-in-from-right-full fade-in duration-300'
+                }`}
+              >
                {/* Progress */}
                {subtasks.length > 0 && (
                  <div className="bg-gray-50 dark:bg-white/5 rounded-xl p-4 flex items-center gap-4">
@@ -517,9 +549,10 @@ export function TaskModal({ isOpen, onClose, onSave, task }: TaskModalProps) {
                      </button>
                   </div>
                </div>
-            </div>
-          )}
+              </div>
+            )}
 
+          </div>
         </div>
 
         {/* Footer */}
