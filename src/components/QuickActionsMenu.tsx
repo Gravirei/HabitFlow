@@ -439,21 +439,26 @@ export function QuickActionsMenu({
                   expand_more
                 </span>
               </button>
-              <div className={`space-y-1 transition-all duration-300 overflow-hidden ${filtersCollapsed ? 'max-h-0 opacity-0' : 'max-h-96 opacity-100'}`}>
+              <div className={`space-y-0.5 transition-all duration-300 overflow-hidden ${filtersCollapsed ? 'max-h-0 opacity-0' : 'max-h-96 opacity-100'}`}>
                 {[
-                  { id: 'all', label: 'All Templates' },
-                  { id: 'work', label: 'Work' },
-                  { id: 'personal', label: 'Personal' },
-                  { id: 'health', label: 'Health' },
-                  { id: 'creative', label: 'Creative' },
-                  { id: 'learning', label: 'Learning' },
+                  { id: 'all', label: 'All Templates', icon: 'grid_view' },
+                  { id: 'work', label: 'Work', icon: 'business_center' },
+                  { id: 'personal', label: 'Personal', icon: 'person' },
+                  { id: 'health', label: 'Health', icon: 'favorite' },
+                  { id: 'creative', label: 'Creative', icon: 'palette' },
+                  { id: 'learning', label: 'Learning', icon: 'school' },
                 ].map((cat) => (
-                  <div key={cat.id} className="transform scale-[0.85] origin-left">
-                    <ToggleSwitch
-                      enabled={selectedCategories.has(cat.id)}
-                      onChange={() => handleCategoryToggle(cat.id)}
-                      label={cat.label}
-                    />
+                  <div key={cat.id} className="flex items-center gap-2 transform scale-[0.85] origin-left">
+                    <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-white/5">
+                      <span className="material-symbols-outlined text-[14px] text-gray-400">{cat.icon}</span>
+                    </div>
+                    <div className="flex-1">
+                      <ToggleSwitch
+                        enabled={selectedCategories.has(cat.id)}
+                        onChange={() => handleCategoryToggle(cat.id)}
+                        label={cat.label}
+                      />
+                    </div>
                   </div>
                 ))}
               </div>
