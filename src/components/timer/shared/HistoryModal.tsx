@@ -4,13 +4,14 @@
  * Redesigned with modern glassmorphism and smooth animations
  */
 
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence, Variants } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { useTimerHistory } from '../hooks/useTimerHistory'
 import { validateTimerHistory } from '../utils/validation'
 import type { TimerHistoryRecord, TimerMode } from '../types/timer.types'
 import { formatTime } from '../constants/timer.constants'
+import { tieredStorage } from '../../../lib/storage/tieredStorage'
 
 interface HistoryModalProps {
   isOpen: boolean
@@ -27,6 +28,33 @@ export const HistoryModal: React.FC<HistoryModalProps> = React.memo(({ isOpen, o
   const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set())
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
+  const [manualRefreshStopwatch, setManualRefreshStopwatch] = useState<TimerHistoryRecord[]>([])
+  const [manualRefreshCountdown, setManualRefreshCountdown] = useState<TimerHistoryRecord[]>([])
+  const [manualRefreshIntervals, setManualRefreshIntervals] = useState<TimerHistoryRecord[]>([])
+  const [useManualData, setUseManualData] = useState(false)
+  
+  // Reload history from localStorage when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      const loadFreshData = async () => {
+        try {
+          const [stopwatch, countdown, intervals] = await Promise.all([
+            tieredStorage.getHistory('Stopwatch'),
+            tieredStorage.getHistory('Countdown'),
+            tieredStorage.getHistory('Intervals')
+          ])
+          setManualRefreshStopwatch(stopwatch)
+          setManualRefreshCountdown(countdown)
+          setManualRefreshIntervals(intervals)
+          setUseManualData(true)
+        } catch (error) {
+          console.error('[HistoryModal] Error loading fresh data:', error)
+          setUseManualData(false)
+        }
+      }
+      loadFreshData()
+    }
+  }, [isOpen])
   
   // Load history from all modes using useTimerHistory (supports tiered storage)
   const { history: rawStopwatchHistory, deleteRecord: deleteStopwatchRecord, clearHistory: clearStopwatchHistory } = useTimerHistory({ 
@@ -42,10 +70,19 @@ export const HistoryModal: React.FC<HistoryModalProps> = React.memo(({ isOpen, o
     storageKey: 'timer-intervals-history' 
   })
 
-  // Validate and sanitize history data
-  const stopwatchHistory = useMemo(() => validateTimerHistory(rawStopwatchHistory), [rawStopwatchHistory])
-  const countdownHistory = useMemo(() => validateTimerHistory(rawCountdownHistory), [rawCountdownHistory])
-  const intervalsHistory = useMemo(() => validateTimerHistory(rawIntervalsHistory), [rawIntervalsHistory])
+  // Validate and sanitize history data - use fresh data when modal opens
+  const stopwatchHistory = useMemo(() => 
+    validateTimerHistory(useManualData ? manualRefreshStopwatch : rawStopwatchHistory), 
+    [rawStopwatchHistory, manualRefreshStopwatch, useManualData]
+  )
+  const countdownHistory = useMemo(() => 
+    validateTimerHistory(useManualData ? manualRefreshCountdown : rawCountdownHistory), 
+    [rawCountdownHistory, manualRefreshCountdown, useManualData]
+  )
+  const intervalsHistory = useMemo(() => 
+    validateTimerHistory(useManualData ? manualRefreshIntervals : rawIntervalsHistory), 
+    [rawIntervalsHistory, manualRefreshIntervals, useManualData]
+  )
 
   // Combine, filter, and sort history
   const allHistory = useMemo(() => {
