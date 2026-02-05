@@ -250,7 +250,7 @@ export function QuickActionsMenu({
   const [showTaskDuplicateWarning, setShowTaskDuplicateWarning] = useState(false)
   const [pendingTaskTemplate, setPendingTaskTemplate] = useState<TaskTemplate | null>(null)
   const [duplicateTaskStatus, setDuplicateTaskStatus] = useState<'completed' | 'active'>('active')
-  const [filtersCollapsed, setFiltersCollapsed] = useState(false)
+  const [filtersCollapsed, setFiltersCollapsed] = useState(true)
   const [showTemplateLibrary, setShowTemplateLibrary] = useState(false)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [showSettingsSidebar, setShowSettingsSidebar] = useState(false)
