@@ -761,9 +761,9 @@ export function QuickActionsMenu({
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setTemplateListCollapsed(!templateListCollapsed)}
-                    className="flex items-center justify-center text-gray-400 hover:text-gray-300 transition-colors"
+                    className="flex items-center justify-center text-gray-400 hover:text-gray-300 transition-colors -ml-1"
                   >
-                    <span className={`material-symbols-outlined text-[18px] transition-transform duration-300 ${templateListCollapsed ? '' : 'rotate-180'}`}>
+                    <span className={`material-symbols-outlined text-[16px] transition-transform duration-300 ${templateListCollapsed ? '' : 'rotate-180'}`}>
                       expand_more
                     </span>
                   </button>
