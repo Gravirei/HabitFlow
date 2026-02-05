@@ -758,10 +758,10 @@ export function QuickActionsMenu({
               {/* Collapsible Quick Add Section */}
               <div className="space-y-2">
                 {/* Header with collapse button */}
-                <div className="flex items-start gap-2">
+                <div className="flex items-center gap-2">
                   <button
                     onClick={() => setTemplateListCollapsed(!templateListCollapsed)}
-                    className="flex items-center justify-center mt-1 text-gray-400 hover:text-gray-300 transition-colors"
+                    className="flex items-center justify-center text-gray-400 hover:text-gray-300 transition-colors"
                   >
                     <span className={`material-symbols-outlined text-[18px] transition-transform duration-300 ${templateListCollapsed ? '' : 'rotate-180'}`}>
                       expand_more
