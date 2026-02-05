@@ -276,6 +276,7 @@ export function QuickActionsMenu({
 
   const handleCategoryToggle = (categoryId: string) => {
     const newCategories = new Set(selectedCategories)
+    const allCategories = ['work', 'personal', 'health', 'creative', 'learning']
     
     if (categoryId === 'all') {
       // Turn on All, turn off everything else
@@ -291,12 +292,18 @@ export function QuickActionsMenu({
         newCategories.add(categoryId)
       }
       
-      // If no categories selected, auto-enable All
-      if (newCategories.size === 0) {
-        newCategories.add('all')
-      }
+      // Check if all 5 categories are now selected
+      const allSelected = allCategories.every(cat => newCategories.has(cat))
       
-      setSelectedCategories(newCategories)
+      if (allSelected) {
+        // If all categories selected, turn them all off and enable "All"
+        setSelectedCategories(new Set(['all']))
+      } else if (newCategories.size === 0) {
+        // If no categories selected, auto-enable All
+        setSelectedCategories(new Set(['all']))
+      } else {
+        setSelectedCategories(newCategories)
+      }
     }
   }
 
@@ -432,7 +439,7 @@ export function QuickActionsMenu({
                   expand_more
                 </span>
               </button>
-              <div className={`space-y-2 transition-all duration-300 overflow-hidden ${filtersCollapsed ? 'max-h-0 opacity-0' : 'max-h-96 opacity-100'}`}>
+              <div className={`space-y-1 transition-all duration-300 overflow-hidden ${filtersCollapsed ? 'max-h-0 opacity-0' : 'max-h-96 opacity-100'}`}>
                 {[
                   { id: 'all', label: 'All Templates' },
                   { id: 'work', label: 'Work' },
@@ -441,7 +448,7 @@ export function QuickActionsMenu({
                   { id: 'creative', label: 'Creative' },
                   { id: 'learning', label: 'Learning' },
                 ].map((cat) => (
-                  <div key={cat.id} className="transform scale-90 origin-left">
+                  <div key={cat.id} className="transform scale-[0.85] origin-left">
                     <ToggleSwitch
                       enabled={selectedCategories.has(cat.id)}
                       onChange={() => handleCategoryToggle(cat.id)}
