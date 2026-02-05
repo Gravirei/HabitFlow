@@ -766,13 +766,13 @@ export function QuickActionsMenu({
                       setTemplateListCollapsed(!templateListCollapsed)
                     }
                   }}
-                  className="cursor-pointer hover:bg-white/5 rounded-lg p-2 -m-2 transition-colors"
+                  className="cursor-pointer hover:bg-white/5 rounded-lg transition-colors"
                 >
                   <ToggleSwitch
                     enabled={enableQuickAdd}
                     onChange={() => setEnableQuickAdd(!enableQuickAdd)}
                     label="Enable Quick Add Button"
-                    description={templateListCollapsed ? undefined : "Show quick add button at the bottom of the menu"}
+                    description="Show quick add button at the bottom of the menu"
                   />
                 </div>
                 
