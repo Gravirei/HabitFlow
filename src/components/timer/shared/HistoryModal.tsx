@@ -191,10 +191,14 @@ export const HistoryModal: React.FC<HistoryModalProps> = React.memo(({ isOpen, o
     // Delete using the appropriate deleteRecord function based on mode
     if (record.mode === 'Stopwatch') {
       deleteStopwatchRecord(record.id)
+      // Update manual refresh state for instant UI update
+      setManualRefreshStopwatch(prev => prev.filter(r => r.id !== record.id))
     } else if (record.mode === 'Countdown') {
       deleteCountdownRecord(record.id)
+      setManualRefreshCountdown(prev => prev.filter(r => r.id !== record.id))
     } else if (record.mode === 'Intervals') {
       deleteIntervalsRecord(record.id)
+      setManualRefreshIntervals(prev => prev.filter(r => r.id !== record.id))
     }
     
     setDeleteConfirmId(null)
@@ -210,12 +214,19 @@ export const HistoryModal: React.FC<HistoryModalProps> = React.memo(({ isOpen, o
       clearStopwatchHistory()
       clearCountdownHistory()
       clearIntervalsHistory()
+      // Update manual refresh state for instant UI update
+      setManualRefreshStopwatch([])
+      setManualRefreshCountdown([])
+      setManualRefreshIntervals([])
     } else if (filterMode === 'Stopwatch') {
       clearStopwatchHistory()
+      setManualRefreshStopwatch([])
     } else if (filterMode === 'Countdown') {
       clearCountdownHistory()
+      setManualRefreshCountdown([])
     } else if (filterMode === 'Intervals') {
       clearIntervalsHistory()
+      setManualRefreshIntervals([])
     }
   }
 
