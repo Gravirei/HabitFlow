@@ -461,19 +461,27 @@ const StatCard = ({ label, value, color, icon }: { label: string, value: string 
   )
 }
 
-const HistoryCard = ({ 
+const HistoryCard = React.forwardRef<HTMLDivElement, { 
+  record: TimerHistoryRecord, 
+  isExpanded: boolean, 
+  onToggle: () => void, 
+  onDelete: () => void, 
+  getModeGradient: (mode: TimerMode) => string, 
+  getModeIcon: (mode: TimerMode) => string 
+}>(({ 
   record, 
   isExpanded, 
   onToggle, 
   onDelete, 
   getModeGradient, 
   getModeIcon 
-}: any) => {
+}, ref) => {
   const startTime = new Date(record.timestamp)
   const endTime = new Date(record.timestamp + record.duration * 1000)
 
   return (
     <motion.div
+      ref={ref}
       layout
       variants={itemVariants}
       initial="hidden"
@@ -576,7 +584,9 @@ const HistoryCard = ({
       </AnimatePresence>
     </motion.div>
   )
-}
+})
+
+HistoryCard.displayName = 'HistoryCard'
 
 const EmptyState = ({ searchQuery, filterMode }: { searchQuery: string, filterMode: string }) => (
   <motion.div 
