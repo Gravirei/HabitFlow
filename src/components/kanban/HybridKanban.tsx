@@ -10,8 +10,8 @@ interface HybridKanbanProps {
 
 export function HybridKanban({ tasks, onTaskClick, onTaskStatusChange, onDeleteTask }: HybridKanbanProps) {
   const todoTasks = tasks.filter(t => t.status === 'todo' && !t.completed)
-  const inProgressTasks = tasks.filter(t => t.status === 'in-progress')
-  const doneTasks = tasks.filter(t => t.completed || t.status === 'done')
+  const inProgressTasks = tasks.filter(t => t.status === 'in_progress')
+  const doneTasks = tasks.filter(t => t.completed || t.status === 'completed')
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -88,7 +88,7 @@ export function HybridKanban({ tasks, onTaskClick, onTaskStatusChange, onDeleteT
               )}
 
               {/* Progress bar for in-progress tasks */}
-              {task.status === 'in-progress' && task.subtasks && task.subtasks.length > 0 && (
+              {task.status === 'in_progress' && task.subtasks && task.subtasks.length > 0 && (
                 <div className="mb-3">
                   <div className="flex justify-between text-xs mb-1.5">
                     <span className="text-gray-600 dark:text-gray-400 font-medium">Progress</span>

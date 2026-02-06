@@ -10,8 +10,8 @@ interface MinimalKanbanProps {
 
 export function MinimalKanban({ tasks, onTaskClick, onTaskStatusChange, onDeleteTask }: MinimalKanbanProps) {
   const todoTasks = tasks.filter(t => t.status === 'todo' && !t.completed)
-  const inProgressTasks = tasks.filter(t => t.status === 'in-progress')
-  const doneTasks = tasks.filter(t => t.completed || t.status === 'done')
+  const inProgressTasks = tasks.filter(t => t.status === 'in_progress')
+  const doneTasks = tasks.filter(t => t.completed || t.status === 'completed')
 
   const formatDueDate = (dueDate: Date | string | undefined) => {
     if (!dueDate) return null
@@ -39,7 +39,7 @@ export function MinimalKanban({ tasks, onTaskClick, onTaskStatusChange, onDelete
               onClick={() => onTaskClick(task)}
               className={cn(
                 "group cursor-pointer p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors",
-                task.status === 'in-progress' && 'border-l-2 border-blue-500'
+                task.status === 'in_progress' && 'border-l-2 border-blue-500'
               )}
             >
               <div className="flex items-start gap-3">
@@ -48,7 +48,7 @@ export function MinimalKanban({ tasks, onTaskClick, onTaskStatusChange, onDelete
                   checked={task.completed}
                   onChange={(e) => {
                     e.stopPropagation()
-                    onTaskStatusChange(task.id, task.completed ? 'todo' : 'done')
+                    onTaskStatusChange(task.id, task.completed ? 'todo' : 'completed')
                   }}
                   className="mt-1 rounded border-gray-300"
                 />
@@ -66,7 +66,7 @@ export function MinimalKanban({ tasks, onTaskClick, onTaskStatusChange, onDelete
                   )}
 
                   {/* Progress bar */}
-                  {task.status === 'in-progress' && task.subtasks && task.subtasks.length > 0 && (
+                  {task.status === 'in_progress' && task.subtasks && task.subtasks.length > 0 && (
                     <div className="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-1 mb-2">
                       <div className="bg-blue-500 h-1 rounded-full" style={{ width: `${progress}%` }}></div>
                     </div>
@@ -87,7 +87,7 @@ export function MinimalKanban({ tasks, onTaskClick, onTaskStatusChange, onDelete
                         <span>{formatDueDate(task.due)}</span>
                       </>
                     )}
-                    {task.status === 'in-progress' && task.subtasks && task.subtasks.length > 0 && (
+                    {task.status === 'in_progress' && task.subtasks && task.subtasks.length > 0 && (
                       <>
                         <span>•</span>
                         <span>{progress}%</span>

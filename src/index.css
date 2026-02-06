@@ -2,6 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  .bg-size-200 {
+    background-size: 200%;
+  }
+  .bg-pos-0 {
+    background-position: 0%;
+  }
+  .bg-pos-100 {
+    background-position: 100%;
+  }
+}
+
 /* ============================================
    THEME SYSTEM - CSS Variables
    ============================================ */
@@ -481,5 +493,27 @@ select:focus-visible {
   to {
     opacity: 1;
     transform: scale(1);
+  }
+}
+
+@keyframes slideUpFade {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes slideDownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

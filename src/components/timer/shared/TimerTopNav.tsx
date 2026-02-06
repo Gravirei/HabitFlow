@@ -42,11 +42,13 @@ export const TimerTopNav: React.FC = () => {
   // Load initial history
   useEffect(() => {
     const loadHistory = async () => {
+      // Force cloud fetch on initial load to get the latest data from Supabase
       const [stopwatch, countdown, intervals] = await Promise.all([
-        tieredStorage.getHistory('Stopwatch'),
-        tieredStorage.getHistory('Countdown'),
-        tieredStorage.getHistory('Intervals'),
+        tieredStorage.getHistory('Stopwatch', true), // forceCloud: true for initial load
+        tieredStorage.getHistory('Countdown', true),
+        tieredStorage.getHistory('Intervals', true),
       ])
+      
       setStopwatchHistory(stopwatch)
       setCountdownHistory(countdown)
       setIntervalsHistory(intervals)
@@ -57,8 +59,10 @@ export const TimerTopNav: React.FC = () => {
   // Subscribe to history changes and update counts
   useEffect(() => {
     const unsubscribe = tieredStorage.onHistoryChange(async (event) => {
-      // Refresh the specific mode that changed
-      const updatedHistory = await tieredStorage.getHistory(event.mode)
+      // OPTIMIZATION: Use local cache (forceCloud: false) for instant updates
+      // The cache is already updated before this event is emitted
+      const updatedHistory = await tieredStorage.getHistory(event.mode, false)
+      
       if (event.mode === 'Stopwatch') {
         setStopwatchHistory(updatedHistory)
       } else if (event.mode === 'Countdown') {
@@ -67,6 +71,7 @@ export const TimerTopNav: React.FC = () => {
         setIntervalsHistory(updatedHistory)
       }
     })
+
     return unsubscribe
   }, [])
 

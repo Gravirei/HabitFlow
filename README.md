@@ -1,6 +1,21 @@
-# React + TypeScript + Vite Template
+# HabitFlow
 
-A modern, production-ready template for building React applications with TypeScript and Vite, including a comprehensive set of libraries and tools.
+A modern, full-featured habit tracking and productivity application built with React, TypeScript, and Vite.
+
+## 🌳 Branch Structure
+
+We follow a structured branching strategy for organized development:
+
+- **`main`** - Production-ready code (protected)
+- **`develop`** - Integration branch for active development (default)
+- **`staging`** - Pre-production testing environment
+- **`feature/*`** - Feature development branches
+- **`bugfix/*`** - Bug fix branches
+- **`hotfix/*`** - Critical production fixes
+
+📖 See [BRANCHING_STRATEGY.md](./BRANCHING_STRATEGY.md) for complete workflow details.
+
+---
 
 ## ✨ Features
 

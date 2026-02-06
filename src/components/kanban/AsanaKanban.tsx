@@ -10,8 +10,8 @@ interface AsanaKanbanProps {
 
 export function AsanaKanban({ tasks, onTaskClick, onTaskStatusChange, onDeleteTask }: AsanaKanbanProps) {
   const todoTasks = tasks.filter(t => t.status === 'todo' && !t.completed)
-  const inProgressTasks = tasks.filter(t => t.status === 'in-progress')
-  const doneTasks = tasks.filter(t => t.completed || t.status === 'done')
+  const inProgressTasks = tasks.filter(t => t.status === 'in_progress')
+  const doneTasks = tasks.filter(t => t.completed || t.status === 'completed')
 
   const formatDueDate = (dueDate: Date | string | undefined) => {
     if (!dueDate) return null
@@ -58,7 +58,7 @@ export function AsanaKanban({ tasks, onTaskClick, onTaskStatusChange, onDeleteTa
                     checked={task.completed}
                     onChange={(e) => {
                       e.stopPropagation()
-                      onTaskStatusChange(task.id, task.completed ? 'todo' : 'done')
+                      onTaskStatusChange(task.id, task.completed ? 'todo' : 'completed')
                     }}
                     className="mt-0.5 w-4 h-4 rounded border-gray-300"
                   />
@@ -78,7 +78,7 @@ export function AsanaKanban({ tasks, onTaskClick, onTaskStatusChange, onDeleteTa
                 </div>
 
                 {/* Progress Bar */}
-                {task.status === 'in-progress' && task.subtasks && task.subtasks.length > 0 && (
+                {task.status === 'in_progress' && task.subtasks && task.subtasks.length > 0 && (
                   <div className="mb-3">
                     <div className="flex justify-between text-xs mb-1">
                       <span className="text-gray-600 dark:text-gray-400 font-medium">Progress</span>

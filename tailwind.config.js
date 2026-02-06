@@ -53,6 +53,7 @@ export default {
       },
       fontFamily: {
         display: ['Space Grotesk', 'Manrope', 'Inter', 'system-ui', 'sans-serif'],
+        sans: ['Plus Jakarta Sans', 'Inter', 'system-ui', 'sans-serif'],
       },
       borderRadius: {
         DEFAULT: '0.25rem',

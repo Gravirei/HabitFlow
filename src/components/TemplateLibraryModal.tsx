@@ -14,8 +14,8 @@ export const DEFAULT_TEMPLATES: TaskTemplate[] = [
     color: 'bg-blue-500',
     isCustom: false,
     template: {
-      title: 'Weekly Team Sync',
-      description: 'Discuss progress, align on priorities, and resolve blockers with the team',
+      title: 'Team Sync Meeting',
+      description: 'Coordinate with your team on project updates and blockers',
       priority: 'medium',
       status: 'todo',
       category: 'Work',
@@ -38,8 +38,8 @@ export const DEFAULT_TEMPLATES: TaskTemplate[] = [
     color: 'bg-purple-500',
     isCustom: false,
     template: {
-      title: 'Review Pull Request #',
-      description: 'Analyze code changes for quality, security, and best practices',
+      title: 'Pull Request Review',
+      description: 'Ensure code quality by reviewing teammate submissions',
       priority: 'high',
       status: 'todo',
       category: 'Work',
@@ -63,8 +63,8 @@ export const DEFAULT_TEMPLATES: TaskTemplate[] = [
     color: 'bg-green-500',
     isCustom: false,
     template: {
-      title: 'Write Article: [Topic]',
-      description: 'Research, write, and publish a comprehensive blog post on the topic',
+      title: 'Content Writing',
+      description: 'Create engaging articles to share knowledge or promote your brand',
       priority: 'medium',
       status: 'todo',
       category: 'Work',
@@ -89,8 +89,8 @@ export const DEFAULT_TEMPLATES: TaskTemplate[] = [
     color: 'bg-red-500',
     isCustom: false,
     template: {
-      title: 'Daily Workout',
-      description: 'Complete cardio and strength training to stay fit and healthy',
+      title: 'Fitness Training',
+      description: 'Build strength and endurance with a structured exercise routine',
       priority: 'high',
       status: 'todo',
       category: 'Personal',
@@ -114,8 +114,8 @@ export const DEFAULT_TEMPLATES: TaskTemplate[] = [
     color: 'bg-orange-500',
     isCustom: false,
     template: {
-      title: 'Grocery Run',
-      description: 'Plan and purchase weekly food supplies and essentials',
+      title: 'Weekly Groceries',
+      description: 'Stock up on fresh ingredients and household essentials',
       priority: 'medium',
       status: 'todo',
       category: 'Personal',
@@ -140,8 +140,8 @@ export const DEFAULT_TEMPLATES: TaskTemplate[] = [
     color: 'bg-indigo-500',
     isCustom: false,
     template: {
-      title: 'Study: [Subject]',
-      description: 'Engage in active learning with notes, exercises, and review',
+      title: 'Deep Learning Session',
+      description: 'Master new concepts through focused, distraction-free study',
       priority: 'high',
       status: 'todo',
       category: 'Personal',
@@ -165,8 +165,8 @@ export const DEFAULT_TEMPLATES: TaskTemplate[] = [
     color: 'bg-teal-500',
     isCustom: false,
     template: {
-      title: 'Weekend House Cleaning',
-      description: 'Deep clean all rooms and organize cluttered spaces',
+      title: 'Home Deep Clean',
+      description: 'Maintain a tidy living space with thorough cleaning routines',
       priority: 'low',
       status: 'todo',
       category: 'Personal',
@@ -191,8 +191,8 @@ export const DEFAULT_TEMPLATES: TaskTemplate[] = [
     color: 'bg-red-600',
     isCustom: false,
     template: {
-      title: 'Fix: [Bug Title]',
-      description: 'Investigate root cause, implement fix, and verify the solution',
+      title: 'Critical Bug Resolution',
+      description: 'Debug and patch urgent issues affecting production',
       priority: 'high',
       status: 'todo',
       category: 'Work',
@@ -216,8 +216,8 @@ export const DEFAULT_TEMPLATES: TaskTemplate[] = [
     color: 'bg-cyan-500',
     isCustom: false,
     template: {
-      title: 'Plan: [Project Name]',
-      description: 'Create comprehensive project roadmap with clear deliverables',
+      title: 'Project Kickoff',
+      description: 'Define scope, milestones, and resources for a new initiative',
       priority: 'high',
       status: 'todo',
       category: 'Work',
@@ -242,8 +242,8 @@ export const DEFAULT_TEMPLATES: TaskTemplate[] = [
     color: 'bg-amber-500',
     isCustom: false,
     template: {
-      title: 'Read: [Book Title]',
-      description: 'Immerse in a book chapter and capture key takeaways',
+      title: 'Book Reading',
+      description: 'Expand your knowledge with dedicated daily reading time',
       priority: 'low',
       status: 'todo',
       category: 'Personal',
@@ -267,8 +267,8 @@ export const DEFAULT_TEMPLATES: TaskTemplate[] = [
     color: 'bg-sky-500',
     isCustom: false,
     template: {
-      title: 'Clear Email Inbox',
-      description: 'Process, respond to, and organize all emails to reach inbox zero',
+      title: 'Inbox Zero Sprint',
+      description: 'Achieve a clean inbox by processing all pending emails',
       priority: 'medium',
       status: 'todo',
       category: 'Work',
@@ -293,8 +293,8 @@ export const DEFAULT_TEMPLATES: TaskTemplate[] = [
     color: 'bg-pink-500',
     isCustom: false,
     template: {
-      title: 'Create Social Post: [Platform]',
-      description: 'Design, write, and schedule captivating social media content',
+      title: 'Social Content Creation',
+      description: 'Craft engaging posts to grow your online audience',
       priority: 'medium',
       status: 'todo',
       category: 'Work',
@@ -318,8 +318,8 @@ export const DEFAULT_TEMPLATES: TaskTemplate[] = [
     color: 'bg-lime-500',
     isCustom: false,
     template: {
-      title: 'Meal Prep Sunday',
-      description: 'Plan menu, shop ingredients, and prepare meals for the week',
+      title: 'Sunday Meal Prep',
+      description: 'Batch cook nutritious meals to save time during the week',
       priority: 'medium',
       status: 'todo',
       category: 'Personal',
@@ -345,8 +345,8 @@ export const DEFAULT_TEMPLATES: TaskTemplate[] = [
     color: 'bg-violet-500',
     isCustom: false,
     template: {
-      title: 'Prepare: [Presentation Topic]',
-      description: 'Design impactful slides with clear messaging and visuals',
+      title: 'Slide Deck Creation',
+      description: 'Build compelling presentations that captivate your audience',
       priority: 'high',
       status: 'todo',
       category: 'Work',
@@ -371,8 +371,8 @@ export const DEFAULT_TEMPLATES: TaskTemplate[] = [
     color: 'bg-purple-400',
     isCustom: false,
     template: {
-      title: 'Morning Meditation',
-      description: 'Center your mind with breathing exercises and body awareness',
+      title: 'Mindfulness Practice',
+      description: 'Reduce stress and improve focus through guided meditation',
       priority: 'medium',
       status: 'todo',
       category: 'Personal',
@@ -397,8 +397,8 @@ export const DEFAULT_TEMPLATES: TaskTemplate[] = [
     color: 'bg-emerald-500',
     isCustom: false,
     template: {
-      title: 'Network Building Session',
-      description: 'Strengthen professional relationships through meaningful connections',
+      title: 'Professional Outreach',
+      description: 'Expand your network by connecting with industry professionals',
       priority: 'low',
       status: 'todo',
       category: 'Work',
@@ -423,8 +423,8 @@ export const DEFAULT_TEMPLATES: TaskTemplate[] = [
     color: 'bg-green-600',
     isCustom: false,
     template: {
-      title: 'Monthly Finance Review',
-      description: 'Analyze expenses, update budget, and plan for upcoming costs',
+      title: 'Budget Check-In',
+      description: 'Track spending and optimize your financial health monthly',
       priority: 'high',
       status: 'todo',
       category: 'Personal',
@@ -450,8 +450,8 @@ export const DEFAULT_TEMPLATES: TaskTemplate[] = [
     color: 'bg-yellow-500',
     isCustom: false,
     template: {
-      title: 'Work on: [Project Name]',
-      description: 'Make progress on personal creative or technical projects',
+      title: 'Passion Project',
+      description: 'Dedicate time to creative work that fuels your interests',
       priority: 'medium',
       status: 'todo',
       category: 'Personal',
@@ -475,8 +475,8 @@ export const DEFAULT_TEMPLATES: TaskTemplate[] = [
     color: 'bg-slate-500',
     isCustom: false,
     template: {
-      title: 'Car Maintenance Checkup',
-      description: 'Inspect fluids, tires, and overall vehicle condition',
+      title: 'Vehicle Service',
+      description: 'Keep your car running smoothly with regular checkups',
       priority: 'medium',
       status: 'todo',
       category: 'Personal',
@@ -501,8 +501,8 @@ export const DEFAULT_TEMPLATES: TaskTemplate[] = [
     color: 'bg-indigo-600',
     isCustom: false,
     template: {
-      title: 'Update Professional Portfolio',
-      description: 'Add recent projects, update skills, and refresh design',
+      title: 'Portfolio Refresh',
+      description: 'Showcase your best work with an updated professional portfolio',
       priority: 'low',
       status: 'todo',
       category: 'Work',
@@ -528,8 +528,8 @@ export const DEFAULT_TEMPLATES: TaskTemplate[] = [
     color: 'bg-rose-500',
     isCustom: false,
     template: {
-      title: 'Mental Health Check-In',
-      description: 'Reflect on emotions and prepare discussion topics for therapy',
+      title: 'Therapy Session Prep',
+      description: 'Prepare for your mental health counseling appointment',
       priority: 'high',
       status: 'todo',
       category: 'Health',
@@ -554,8 +554,8 @@ export const DEFAULT_TEMPLATES: TaskTemplate[] = [
     color: 'bg-green-500',
     isCustom: false,
     template: {
-      title: 'Plan Healthy Meals',
-      description: 'Create nutritious meal plan with macro tracking',
+      title: 'Weekly Nutrition Planning',
+      description: 'Design a balanced meal plan to meet your dietary goals',
       priority: 'medium',
       status: 'todo',
       category: 'Health',
@@ -581,8 +581,8 @@ export const DEFAULT_TEMPLATES: TaskTemplate[] = [
     color: 'bg-indigo-400',
     isCustom: false,
     template: {
-      title: 'Evening Wind-Down Routine',
-      description: 'Follow steps to improve sleep quality and duration',
+      title: 'Sleep Optimization Routine',
+      description: 'Establish healthy sleep habits for better rest and recovery',
       priority: 'high',
       status: 'todo',
       category: 'Health',
@@ -607,8 +607,8 @@ export const DEFAULT_TEMPLATES: TaskTemplate[] = [
     color: 'bg-red-400',
     isCustom: false,
     template: {
-      title: 'Doctor Visit Preparation',
-      description: 'Organize symptoms, questions, and medical information',
+      title: 'Medical Appointment Prep',
+      description: 'Prepare thoroughly for your upcoming doctor visit',
       priority: 'high',
       status: 'todo',
       category: 'Health',
@@ -633,8 +633,8 @@ export const DEFAULT_TEMPLATES: TaskTemplate[] = [
     color: 'bg-teal-400',
     isCustom: false,
     template: {
-      title: 'Daily Yoga Practice',
-      description: 'Complete yoga sequence for mind-body wellness',
+      title: 'Yoga & Stretching Session',
+      description: 'Improve flexibility and reduce stress through yoga',
       priority: 'medium',
       status: 'todo',
       category: 'Health',
@@ -661,8 +661,8 @@ export const DEFAULT_TEMPLATES: TaskTemplate[] = [
     color: 'bg-fuchsia-500',
     isCustom: false,
     template: {
-      title: 'Create Digital Art Piece',
-      description: 'Conceptualize and execute original digital artwork',
+      title: 'Digital Artwork Creation',
+      description: 'Design original digital illustrations and artwork',
       priority: 'medium',
       status: 'todo',
       category: 'Creative',
@@ -687,8 +687,8 @@ export const DEFAULT_TEMPLATES: TaskTemplate[] = [
     color: 'bg-purple-500',
     isCustom: false,
     template: {
-      title: 'Create New Music Track',
-      description: 'Write, record, and produce original music composition',
+      title: 'Music Production Session',
+      description: 'Compose and produce original music tracks',
       priority: 'medium',
       status: 'todo',
       category: 'Creative',
@@ -713,8 +713,8 @@ export const DEFAULT_TEMPLATES: TaskTemplate[] = [
     color: 'bg-cyan-500',
     isCustom: false,
     template: {
-      title: 'Photography Session',
-      description: 'Organize location, equipment, and creative direction',
+      title: 'Photo Shoot Planning',
+      description: 'Plan and execute a professional photography session',
       priority: 'high',
       status: 'todo',
       category: 'Creative',
@@ -739,8 +739,8 @@ export const DEFAULT_TEMPLATES: TaskTemplate[] = [
     color: 'bg-amber-600',
     isCustom: false,
     template: {
-      title: 'Writing: [Story/Poem Title]',
-      description: 'Develop characters, plot, and narrative for creative work',
+      title: 'Creative Writing Session',
+      description: 'Write fiction, poetry, or creative non-fiction pieces',
       priority: 'medium',
       status: 'todo',
       category: 'Creative',
@@ -792,8 +792,8 @@ export const DEFAULT_TEMPLATES: TaskTemplate[] = [
     color: 'bg-blue-600',
     isCustom: false,
     template: {
-      title: 'Course: [Course Name] - Module X',
-      description: 'Watch lectures, take notes, and complete assignments',
+      title: 'Online Course Module',
+      description: 'Complete lessons and assignments from online courses',
       priority: 'high',
       status: 'todo',
       category: 'Learning',
@@ -818,8 +818,8 @@ export const DEFAULT_TEMPLATES: TaskTemplate[] = [
     color: 'bg-emerald-600',
     isCustom: false,
     template: {
-      title: 'Learn [Language] - Daily Practice',
-      description: 'Build fluency through structured language exercises',
+      title: 'Language Practice Session',
+      description: 'Practice speaking, reading, and writing in a new language',
       priority: 'high',
       status: 'todo',
       category: 'Learning',
@@ -845,8 +845,8 @@ export const DEFAULT_TEMPLATES: TaskTemplate[] = [
     color: 'bg-yellow-600',
     isCustom: false,
     template: {
-      title: 'Practice: [Skill Name]',
-      description: 'Focus on improving specific skill through targeted practice',
+      title: 'Skill Development Practice',
+      description: 'Dedicate time to deliberate practice of a specific skill',
       priority: 'medium',
       status: 'todo',
       category: 'Learning',
@@ -871,8 +871,8 @@ export const DEFAULT_TEMPLATES: TaskTemplate[] = [
     color: 'bg-violet-600',
     isCustom: false,
     template: {
-      title: 'Study for [Certification Name]',
-      description: 'Systematic preparation for certification examination',
+      title: 'Certification Exam Prep',
+      description: 'Study and prepare for professional certification exams',
       priority: 'high',
       status: 'todo',
       category: 'Learning',
@@ -897,8 +897,8 @@ export const DEFAULT_TEMPLATES: TaskTemplate[] = [
     color: 'bg-slate-600',
     isCustom: false,
     template: {
-      title: 'Research: [Topic]',
-      description: 'Gather sources, analyze data, and write academic paper',
+      title: 'Academic Research Session',
+      description: 'Conduct research and write scholarly papers',
       priority: 'high',
       status: 'todo',
       category: 'Learning',
@@ -919,22 +919,74 @@ export const DEFAULT_TEMPLATES: TaskTemplate[] = [
 
 function LibraryTemplateCard({ 
   template, 
-  onClick 
+  onClick,
+  isAdded,
+  isModified 
 }: { 
   template: TaskTemplate
-  onClick: () => void 
+  onClick: () => void
+  isAdded?: boolean
+  isModified?: boolean
 }) {
+  // Get hex color from template (supports both colorHex and color properties)
+  const getTemplateColorHex = (tmpl: TaskTemplate) => {
+    if (tmpl.colorHex) return tmpl.colorHex
+    
+    // Fallback: Extract from Tailwind class
+    const colorMap: Record<string, string> = {
+      'bg-blue-500': '#3b82f6',
+      'bg-purple-500': '#a855f7',
+      'bg-green-500': '#22c55e',
+      'bg-red-500': '#ef4444',
+      'bg-orange-500': '#f97316',
+      'bg-yellow-500': '#eab308',
+      'bg-pink-500': '#ec4899',
+      'bg-indigo-500': '#6366f1',
+      'bg-teal-500': '#14b8a6',
+      'bg-cyan-500': '#06b6d4',
+    }
+    
+    if (colorMap[tmpl.color]) return colorMap[tmpl.color]
+    
+    // Extract from custom bg-[...] format
+    const customMatch = tmpl.color.match(/bg-\[([a-fA-F0-9]{6})\]/)
+    if (customMatch) return '#' + customMatch[1]
+    
+    return '#3b82f6' // fallback
+  }
+
   return (
     <button
       onClick={onClick}
       className="group relative flex flex-col text-left h-full min-h-[180px] p-6 rounded-3xl bg-white/40 dark:bg-gray-800/40 backdrop-blur-md border border-white/20 dark:border-white/5 hover:bg-white/60 dark:hover:bg-gray-800/60 hover:border-white/40 dark:hover:border-white/10 shadow-sm hover:shadow-xl hover:shadow-indigo-500/10 hover:-translate-y-1 transition-all duration-300 overflow-hidden"
     >
       {/* Background Gradient Mesh */}
-      <div className={`absolute top-0 right-0 -mt-8 -mr-8 w-32 h-32 rounded-full blur-3xl opacity-0 group-hover:opacity-20 transition-opacity duration-500 ${template.color.replace('bg-', 'bg-')}`}></div>
+      <div 
+        className="absolute top-0 right-0 -mt-8 -mr-8 w-32 h-32 rounded-full blur-3xl opacity-0 group-hover:opacity-20 transition-opacity duration-500"
+        style={{ backgroundColor: getTemplateColorHex(template) }}
+      ></div>
+      
+      {/* Badge - Show "Used & Modified" if modified, otherwise "Added" */}
+      {isAdded && isModified && (
+        <div className="absolute top-4 right-4 z-20 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-purple-500 shadow-lg shadow-purple-500/30 animate-in fade-in zoom-in duration-300">
+          <span className="material-symbols-outlined text-[14px] text-white">edit_note</span>
+          <span className="text-[11px] font-bold text-white uppercase tracking-wide">Used & Modified</span>
+        </div>
+      )}
+      
+      {isAdded && !isModified && (
+        <div className="absolute top-4 right-4 z-20 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green-500 shadow-lg shadow-green-500/30 animate-in fade-in zoom-in duration-300">
+          <span className="material-symbols-outlined text-[14px] text-white">check_circle</span>
+          <span className="text-[11px] font-bold text-white uppercase tracking-wide">Added</span>
+        </div>
+      )}
       
       <div className="relative z-10 flex flex-col h-full">
         <div className="flex items-start justify-between mb-4">
-          <div className={`w-14 h-14 rounded-2xl ${template.color} flex items-center justify-center text-white shadow-lg shadow-black/5 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300`}>
+          <div 
+            className="w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-black/5 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300"
+            style={{ backgroundColor: getTemplateColorHex(template) }}
+          >
             <span className="material-symbols-outlined text-2xl">{template.icon}</span>
           </div>
         </div>
@@ -947,22 +999,63 @@ function LibraryTemplateCard({
           {template.description || '(No description)'}
         </p>
 
-        <div className="mt-auto flex items-center gap-3">
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gray-100/50 dark:bg-white/5 border border-gray-200/50 dark:border-white/5">
-            <span className="material-symbols-outlined text-[14px] text-gray-400">
-              {template.category === 'Work' ? 'business_center' : 'face'}
-            </span>
-            <span className="text-[11px] font-medium text-gray-600 dark:text-gray-300">
-              {template.category}
-            </span>
-          </div>
-          
-          {template.template.timeEstimate && (
+        <div className="mt-auto space-y-2">
+          {/* Category, Priority, Time Badges */}
+          <div className="flex items-center gap-2 flex-wrap">
             <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gray-100/50 dark:bg-white/5 border border-gray-200/50 dark:border-white/5">
-              <span className="material-symbols-outlined text-[14px] text-gray-400">schedule</span>
-              <span className="text-[11px] font-medium text-gray-600 dark:text-gray-300">
-                {template.template.timeEstimate}m
+              <span className="material-symbols-outlined text-[14px] text-gray-400">
+                {template.category === 'Work' ? 'business_center' : template.category === 'Personal' ? 'person' : template.category === 'Health' ? 'favorite' : template.category === 'Creative' ? 'palette' : 'school'}
               </span>
+              <span className="text-[11px] font-medium text-gray-600 dark:text-gray-300">
+                {template.category}
+              </span>
+            </div>
+
+            {template.template.priority && (
+              <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-gray-200/50 dark:border-white/5 ${
+                template.template.priority === 'high' ? 'bg-red-50 dark:bg-red-500/10' :
+                template.template.priority === 'medium' ? 'bg-yellow-50 dark:bg-yellow-500/10' :
+                'bg-green-50 dark:bg-green-500/10'
+              }`}>
+                <span className={`material-symbols-outlined text-[14px] ${
+                  template.template.priority === 'high' ? 'text-red-500' :
+                  template.template.priority === 'medium' ? 'text-yellow-500' :
+                  'text-green-500'
+                }`}>flag</span>
+                <span className={`text-[11px] font-medium capitalize ${
+                  template.template.priority === 'high' ? 'text-red-600 dark:text-red-400' :
+                  template.template.priority === 'medium' ? 'text-yellow-600 dark:text-yellow-400' :
+                  'text-green-600 dark:text-green-400'
+                }`}>
+                  {template.template.priority}
+                </span>
+              </div>
+            )}
+            
+            {template.template.timeEstimate && (
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gray-100/50 dark:bg-white/5 border border-gray-200/50 dark:border-white/5">
+                <span className="material-symbols-outlined text-[14px] text-gray-400">schedule</span>
+                <span className="text-[11px] font-medium text-gray-600 dark:text-gray-300">
+                  {template.template.timeEstimate}m
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Tags - Show up to 3 */}
+          {template.template.tags && template.template.tags.length > 0 && (
+            <div className="flex items-center gap-1.5 flex-wrap">
+              {template.template.tags.slice(0, 3).map((tag, index) => (
+                <span
+                  key={index}
+                  className="px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-[10px] font-bold border border-indigo-200/30 dark:border-indigo-500/20"
+                >
+                  #{tag}
+                </span>
+              ))}
+              {template.template.tags.length > 3 && (
+                <span className="text-[10px] font-bold text-gray-400">...</span>
+              )}
             </div>
           )}
         </div>
@@ -975,12 +1068,14 @@ interface TemplateLibraryModalProps {
   isOpen: boolean
   onClose: () => void
   onSaveToMyTemplates?: (template: TaskTemplate) => void
+  customTemplates?: TaskTemplate[]
 }
 
 export function TemplateLibraryModal({
   isOpen,
   onClose,
   onSaveToMyTemplates,
+  customTemplates = [],
 }: TemplateLibraryModalProps) {
   const [selectedCategory, setSelectedCategory] = useState<'all' | 'work' | 'personal' | 'health' | 'creative' | 'learning'>('all')
   const [searchQuery, setSearchQuery] = useState('')
@@ -1169,13 +1264,55 @@ export function TemplateLibraryModal({
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 pb-12">
-                {filteredTemplates.map((template) => (
-                  <LibraryTemplateCard 
-                    key={template.id} 
-                    template={template} 
-                    onClick={() => handleTemplateClick(template)} 
-                  />
-                ))}
+                {filteredTemplates.map((template) => {
+                  // Find if template is saved in customTemplates
+                  const savedTemplate = customTemplates.find(t => 
+                    t.id === template.id || t.sourceTemplateId === template.id
+                  )
+                  
+                  const isAdded = !!savedTemplate
+                  
+                  // Check if template has been modified from original
+                  let isModified = false
+                  if (savedTemplate) {
+                    // Compare only the actual content, normalize undefined/null/empty values
+                    const normalizeValue = (val: unknown) => val === undefined || val === null || val === '' ? '' : val
+                    const normalizeArray = <T,>(arr: T[] | undefined) => arr || []
+                    
+                    // Normalize subtasks to handle both 'text' and 'title' fields
+                    const normalizeSubtasks = (subtasks: Array<{ title?: string; text?: string; completed?: boolean }>) => {
+                      return subtasks.map(st => ({
+                        title: st.title || st.text || '',
+                        completed: st.completed || false
+                      }))
+                    }
+                    
+                    // Only compare template.template.* fields (actual editable content)
+                    // Don't compare name because library templates have name != template.title by design
+                    isModified = 
+                      // Compare top-level fields that user can edit
+                      normalizeValue(savedTemplate.description) !== normalizeValue(template.description) ||
+                      normalizeValue(savedTemplate.category) !== normalizeValue(template.category) ||
+                      // Compare template fields (the actual task content)
+                      normalizeValue(savedTemplate.template.title) !== normalizeValue(template.template.title) ||
+                      normalizeValue(savedTemplate.template.description) !== normalizeValue(template.template.description) ||
+                      normalizeValue(savedTemplate.template.priority) !== normalizeValue(template.template.priority) ||
+                      normalizeValue(savedTemplate.template.category) !== normalizeValue(template.template.category) ||
+                      normalizeValue(savedTemplate.template.timeEstimate) !== normalizeValue(template.template.timeEstimate) ||
+                      JSON.stringify(normalizeArray(savedTemplate.template.tags).sort()) !== JSON.stringify(normalizeArray(template.template.tags).sort()) ||
+                      JSON.stringify(normalizeSubtasks(normalizeArray(savedTemplate.template.subtasks))) !== JSON.stringify(normalizeSubtasks(normalizeArray(template.template.subtasks)))
+                  }
+                  
+                  return (
+                    <LibraryTemplateCard 
+                      key={template.id}
+                      template={template} 
+                      onClick={() => handleTemplateClick(template)}
+                      isAdded={isAdded}
+                      isModified={isModified}
+                    />
+                  )
+                })}
               </div>
             )}
           </div>

@@ -7,7 +7,9 @@ export interface TaskTemplate {
   icon: string
   category: string
   color: string
+  colorHex?: string // Store hex color for custom colors
   isCustom: boolean
+  sourceTemplateId?: string // Track original library template ID
   template: {
     title: string
     description?: string

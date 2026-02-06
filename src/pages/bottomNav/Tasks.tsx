@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { BottomNav } from '@/components/BottomNav'
 import { TaskModal } from '@/components/TaskModal'
@@ -11,7 +12,7 @@ import { AsanaKanban } from '@/components/kanban/AsanaKanban'
 import { AccessibilityButton } from '@/components/AccessibilityButton'
 import { TaskCardWithMenu } from '@/components/TaskCardWithMenu'
 import { QuickActionsMenu } from '@/components/QuickActionsMenu'
-import { TemplateManagerModal } from '@/components/TemplateManagerModal'
+import { TemplateCreationModal } from '../../components/TemplateCreationModal'
 import { useLocalStorage } from '@/hooks/useLocalStorage'
 import type { Task, TaskPriority, TaskStatus, TaskSort, TaskView } from '@/types/task'
 import type { TaskTemplate } from '@/types/taskTemplate'
@@ -323,24 +324,35 @@ export function Tasks() {
 
     // Sort
     filtered.sort((a, b) => {
+      // Primary sort: Completed tasks always go to bottom
+      if (a.completed !== b.completed) {
+        return a.completed ? 1 : -1
+      }
+
+      // Secondary sort: Within each group (active/completed), sort by priority
+      const priorityOrder = { high: 0, medium: 1, low: 2 }
+      const priorityComparison = priorityOrder[a.priority] - priorityOrder[b.priority]
+      
+      // Tertiary sort: Use the selected sort field
       let comparison = 0
       
       switch (sort.field) {
         case 'priority':
-          const priorityOrder = { high: 0, medium: 1, low: 2 }
-          comparison = priorityOrder[a.priority] - priorityOrder[b.priority]
+          comparison = priorityComparison
           break
         case 'dueDate':
-          if (!a.due && !b.due) comparison = 0
+          if (!a.due && !b.due) comparison = priorityComparison
           else if (!a.due) comparison = 1
           else if (!b.due) comparison = -1
           else comparison = new Date(a.due).getTime() - new Date(b.due).getTime()
           break
         case 'createdAt':
           comparison = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+          if (comparison === 0) comparison = priorityComparison
           break
         case 'title':
           comparison = a.title.localeCompare(b.title)
+          if (comparison === 0) comparison = priorityComparison
           break
       }
 
@@ -823,30 +835,44 @@ export function Tasks() {
             )}
           </div>
         ) : (
-          <div className="flex flex-col gap-3">
-            {filteredTasks.map((task) => {
-              const dueText = formatDueDate(task.due)
-              const isOverdue = dueText === 'Overdue'
-              const completionPercentage = getCompletionPercentage(task)
+          <motion.div className="flex flex-col gap-3" layout>
+            <AnimatePresence mode="popLayout">
+              {filteredTasks.map((task) => {
+                const dueText = formatDueDate(task.due)
+                const isOverdue = dueText === 'Overdue'
+                const completionPercentage = getCompletionPercentage(task)
 
-              return (
-                <TaskCardWithMenu
-                  key={task.id}
-                  task={task}
-                  dueText={dueText}
-                  isOverdue={isOverdue}
-                  completionPercentage={completionPercentage}
-                  openMenuTaskId={openMenuTaskId}
-                  setOpenMenuTaskId={setOpenMenuTaskId}
-                  setEditingTask={setEditingTask}
-                  toggleTask={toggleTask}
-                  deleteTask={deleteTask}
-                  tasks={tasks}
-                  setTasks={setTasks}
-                />
-              )
-            })}
-          </div>
+                return (
+                  <motion.div
+                    key={task.id}
+                    layout
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.25 } }}
+                    transition={{ 
+                      layout: { duration: 0.5, ease: "easeInOut" },
+                      opacity: { duration: 0.5 },
+                      scale: { duration: 0.5 }
+                    }}
+                  >
+                    <TaskCardWithMenu
+                      task={task}
+                      dueText={dueText}
+                      isOverdue={isOverdue}
+                      completionPercentage={completionPercentage}
+                      openMenuTaskId={openMenuTaskId}
+                      setOpenMenuTaskId={setOpenMenuTaskId}
+                      setEditingTask={setEditingTask}
+                      toggleTask={toggleTask}
+                      deleteTask={deleteTask}
+                      tasks={tasks}
+                      setTasks={setTasks}
+                    />
+                  </motion.div>
+                )
+              })}
+            </AnimatePresence>
+          </motion.div>
         )}
       </main>
 
@@ -869,19 +895,20 @@ export function Tasks() {
           setIsAddModalOpen(true)
         }}
         customTemplates={customTemplates}
-        onManageTemplates={() => {
-          setIsQuickActionsOpen(false)
+        onCreateNewTemplate={() => {
+          // Don't close QuickActionsMenu - keep it open behind the modal
           setIsTemplateManagerOpen(true)
         }}
         onSaveTemplate={handleSaveTemplate}
+        onUpdateTemplate={handleSaveTemplate}
+        onDeleteTemplate={handleDeleteTemplate}
+        existingTasks={tasks}
       />
       
-      <TemplateManagerModal
+      <TemplateCreationModal
         isOpen={isTemplateManagerOpen}
         onClose={() => setIsTemplateManagerOpen(false)}
-        customTemplates={customTemplates}
         onSaveTemplate={handleSaveTemplate}
-        onDeleteTemplate={handleDeleteTemplate}
       />
 
       {/* Accessibility Button Demo */}
