@@ -139,12 +139,13 @@ export const useCategoryStore = create<CategoryState>()(
         },
       },
       merge: (persisted, current) => {
-        const typedPersisted = persisted as { state?: Partial<CategoryState> } | undefined
-        const persistedCategories = typedPersisted?.state?.categories
+        // Zustand persist passes the *inner* state object to merge(), not `{ state }`.
+        const typedPersisted = persisted as Partial<CategoryState> | undefined
+        const persistedCategories = typedPersisted?.categories
 
         return {
           ...current,
-          ...typedPersisted?.state,
+          ...typedPersisted,
           categories:
             persistedCategories && persistedCategories.length > 0
               ? persistedCategories
