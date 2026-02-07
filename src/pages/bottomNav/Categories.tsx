@@ -32,7 +32,7 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 
-import { CreateCategoryModal, EditCategoryModal } from '@/components/categories'
+import { CreateCategoryModal, EditCategoryModal, CategoryTemplatesModal } from '@/components/categories'
 import { ConfirmDialog } from '@/components/timer/settings/ConfirmDialog'
 import { useCategoryStore } from '@/store/useCategoryStore'
 import { useHabitStore } from '@/store/useHabitStore'
@@ -128,6 +128,8 @@ export function Categories() {
   const navigate = useNavigate()
   const [isSideNavOpen, setIsSideNavOpen] = useState(false)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const [isTemplatesModalOpen, setIsTemplatesModalOpen] = useState(false)
+  const [isImportExportModalOpen, setIsImportExportModalOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
 
   type CategoryFilter = 'All' | 'Habits' | 'Tasks' | 'Favorites' | 'Empty'
@@ -518,7 +520,7 @@ export function Categories() {
             </AnimatePresence>
           </div>
 
-          <div className="flex size-12 shrink-0 items-center justify-end gap-2">
+          <div className="flex shrink-0 items-center justify-end gap-2">
             {isReorderMode ? (
               <button
                 type="button"
@@ -528,23 +530,41 @@ export function Categories() {
                 Done
               </button>
             ) : (
-              <button
-                type="button"
-                onClick={() => {
-                  setIsSearchOpen(!isSearchOpen)
-                  if (isSearchOpen) setSearchQuery('')
-                }}
-                aria-label={isSearchOpen ? 'Close search' : 'Open search'}
-                className={`flex size-10 items-center justify-center rounded-full transition-colors ${
-                  isSearchOpen
-                    ? 'bg-primary/10 text-primary'
-                    : 'text-slate-800 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-surface-dark'
-                }`}
-              >
-                <span className="material-symbols-outlined" aria-hidden="true">
-                  {isSearchOpen ? 'close' : 'search'}
-                </span>
-              </button>
+              <>
+                <button
+                  type="button"
+                  onClick={() => setIsTemplatesModalOpen(true)}
+                  className="rounded-full bg-white/5 px-3 py-1.5 text-xs font-semibold text-gray-200 transition-colors hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+                  aria-label="Templates"
+                >
+                  Templates
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsImportExportModalOpen(true)}
+                  className="rounded-full bg-white/5 px-3 py-1.5 text-xs font-semibold text-gray-200 transition-colors hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+                  aria-label="Import/Export"
+                >
+                  Import/Export
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsSearchOpen(!isSearchOpen)
+                    if (isSearchOpen) setSearchQuery('')
+                  }}
+                  aria-label={isSearchOpen ? 'Close search' : 'Open search'}
+                  className={`flex size-10 items-center justify-center rounded-full transition-colors ${
+                    isSearchOpen
+                      ? 'bg-primary/10 text-primary'
+                      : 'text-slate-800 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-surface-dark'
+                  }`}
+                >
+                  <span className="material-symbols-outlined" aria-hidden="true">
+                    {isSearchOpen ? 'close' : 'search'}
+                  </span>
+                </button>
+              </>
             )}
           </div>
         </div>
@@ -896,6 +916,11 @@ export function Categories() {
         cancelText="Cancel"
         variant="danger"
         icon="delete"
+      />
+
+      <CategoryTemplatesModal
+        isOpen={isTemplatesModalOpen}
+        onClose={() => setIsTemplatesModalOpen(false)}
       />
 
       <SideNav isOpen={isSideNavOpen} onClose={() => setIsSideNavOpen(false)} />
