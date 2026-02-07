@@ -391,6 +391,8 @@ export function Categories() {
     if (!isReorderMode) return
 
     // When entering reorder mode, start from the current store order (including pinned)
+    setIsSearchOpen(false)
+    setSearchQuery('')
     setReorderIds(orderedCategories.map((c) => c.id))
     setOpenMenuCategoryId(null)
   }, [isReorderMode, orderedCategories])
@@ -502,17 +504,21 @@ export function Categories() {
               </button>
             ) : (
               <button
+                type="button"
                 onClick={() => {
                   setIsSearchOpen(!isSearchOpen)
                   if (isSearchOpen) setSearchQuery('')
                 }}
+                aria-label={isSearchOpen ? 'Close search' : 'Open search'}
                 className={`flex size-10 items-center justify-center rounded-full transition-colors ${
                   isSearchOpen
                     ? 'bg-primary/10 text-primary'
                     : 'text-slate-800 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-surface-dark'
                 }`}
               >
-                <span className="material-symbols-outlined">{isSearchOpen ? 'close' : 'search'}</span>
+                <span className="material-symbols-outlined" aria-hidden="true">
+                  {isSearchOpen ? 'close' : 'search'}
+                </span>
               </button>
             )}
           </div>
@@ -639,135 +645,208 @@ export function Categories() {
           </div>
         ) : (
           <>
-            {/* Pinned Section */}
-            <div>
-              <div className="mb-3 flex items-center justify-between px-2">
-                <h2 className="text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                  Pinned
-                </h2>
-                <span className="material-symbols-outlined text-sm text-gray-400">more_horiz</span>
+            {orderedCategories.length === 0 ? (
+              <div className="flex flex-col items-center justify-center gap-4 rounded-3xl border border-gray-200 bg-white p-10 text-center dark:border-white/10 dark:bg-surface-dark">
+                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/15 text-primary">
+                  <span className="material-symbols-outlined text-3xl">category</span>
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold">Create your first category</h2>
+                  <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                    Organize habits into collections like Work, Health, or Home.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsCreateModalOpen(true)}
+                  className="rounded-full bg-primary px-6 py-3 text-sm font-bold text-background-dark shadow-[0_8px_24px_rgba(19,236,91,0.35)] transition-transform active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+                >
+                  Create category
+                </button>
               </div>
-              <div className="no-scrollbar -mx-2 flex snap-x gap-4 overflow-x-auto px-2 pb-4">
-                {pinnedCategories.map((category) => (
-                  <div
-                    key={category.id}
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => navigate(`/category/${category.id}`)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault()
-                        navigate(`/category/${category.id}`)
-                      }
-                    }}
-                    className={clsx(
-                      'group relative h-40 min-w-[280px] cursor-pointer snap-center overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50',
-                      category.gradient
-                    )}
-                  >
-                    <CategoryQuickActions
-                      categoryId={category.id}
-                      isPinned
-                      isOpen={openMenuCategoryId === category.id}
-                      onToggle={() =>
-                        setOpenMenuCategoryId((current) =>
-                          current === category.id ? null : category.id
-                        )
-                      }
-                      onEdit={() => setEditCategoryId(category.id)}
-                      onTogglePin={() => togglePinned(category.id)}
-                      onDelete={() => setDeleteCategoryId(category.id)}
-                      onReorder={() => setIsReorderMode(true)}
-                    />
-                    {category.color === 'primary' && (
-                      <>
-                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(19,236,91,0.15),transparent_70%)] opacity-30"></div>
-                        <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-primary/20 blur-3xl"></div>
-                      </>
-                    )}
-                    {category.color === 'blue' && (
-                      <div className="absolute -bottom-8 -left-8 h-32 w-32 rounded-full bg-blue-500/10 blur-3xl"></div>
-                    )}
-
-                    <div className="relative z-10 flex h-full flex-col justify-between p-5">
-                      <div className="flex items-start justify-between">
-                        <div
-                          className={clsx(
-                            'rounded-xl p-2.5 backdrop-blur-sm',
-                            category.color === 'primary'
-                              ? 'bg-primary/20 text-primary'
-                              : 'bg-blue-500/20 text-blue-500'
-                          )}
-                        >
-                          <span className="material-symbols-outlined">{category.icon}</span>
-                        </div>
-                        <span className="rounded-full bg-white/10 px-2 py-1 text-[10px] font-bold text-black backdrop-blur-sm dark:text-white">
-                          {category.progress}% Done
-                        </span>
-                      </div>
-                      <div>
-                        <h3 className={clsx('mb-1 text-xl font-bold', category.textColor)}>
-                          {category.name}
-                        </h3>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">{category.count}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* All Collections - Masonry Grid */}
-            <div>
-              <div className="mb-3 px-2">
-                <h2 className="text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                  All Collections
-                </h2>
-              </div>
-              <div className="columns-2 gap-4 space-y-4 px-2">
-                {allCollections.map((category) => (
-                  <div key={category.id} className="break-inside-avoid">
-                    <CategoryCard
-                      category={category}
-                      onClick={() => navigate(`/category/${category.id}`)}
-                      quickActions={
-                        <CategoryQuickActions
-                          categoryId={category.id}
-                          isPinned={false}
-                          isOpen={openMenuCategoryId === category.id}
-                          onToggle={() =>
-                            setOpenMenuCategoryId((current) =>
-                              current === category.id ? null : category.id
-                            )
-                          }
-                          onEdit={() => setEditCategoryId(category.id)}
-                          onTogglePin={() => togglePinned(category.id)}
-                          onDelete={() => setDeleteCategoryId(category.id)}
-                          onReorder={() => setIsReorderMode(true)}
-                        />
-                      }
-                    />
-                  </div>
-                ))}
-
-                {/* New Category Button */}
-                <div className="break-inside-avoid">
+            ) : pinnedCategories.length === 0 && allCollections.length === 0 ? (
+              <div className="flex flex-col items-center justify-center gap-4 rounded-3xl border border-gray-200 bg-white p-10 text-center dark:border-white/10 dark:bg-surface-dark">
+                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gray-100 text-gray-500 dark:bg-white/5 dark:text-gray-300">
+                  <span className="material-symbols-outlined text-3xl">search_off</span>
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold">No categories match your search</h2>
+                  <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                    Try a different keyword or reset your filters.
+                  </p>
+                </div>
+                <div className="flex flex-wrap items-center justify-center gap-2">
+                  {isSearchOpen ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsSearchOpen(false)
+                        setSearchQuery('')
+                      }}
+                      className="rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-bold text-gray-700 hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 dark:border-white/10 dark:bg-surface-dark dark:text-gray-200 dark:hover:bg-white/5"
+                    >
+                      Clear search
+                    </button>
+                  ) : null}
+                  {activeFilter !== 'All' ? (
+                    <button
+                      type="button"
+                      onClick={() => setActiveFilter('All')}
+                      className="rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-bold text-gray-700 hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 dark:border-white/10 dark:bg-surface-dark dark:text-gray-200 dark:hover:bg-white/5"
+                    >
+                      Reset filters
+                    </button>
+                  ) : null}
                   <button
                     type="button"
-                    onClick={() => setIsCreateModalOpen(true)}
-                    className="flex h-32 w-full flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-gray-300 p-5 transition-colors hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 dark:border-white/10 dark:hover:bg-white/5"
-                    aria-label="Create new category"
+                    onClick={() => {
+                      setActiveFilter('All')
+                      setIsSearchOpen(false)
+                      setSearchQuery('')
+                    }}
+                    className="rounded-full bg-primary/10 px-4 py-2 text-sm font-bold text-primary hover:bg-primary/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
                   >
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/20 text-primary">
-                      <span className="material-symbols-outlined">add</span>
-                    </div>
-                    <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                      New Category
-                    </span>
+                    Reset
                   </button>
                 </div>
               </div>
-            </div>
+            ) : (
+              <>
+                {/* Pinned Section */}
+                {pinnedCategories.length > 0 ? (
+                  <div>
+                    <div className="mb-3 flex items-center justify-between px-2">
+                      <h2 className="text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                        {activeFilter === 'Favorites' ? 'Favorites' : 'Pinned'}
+                      </h2>
+                      <span className="material-symbols-outlined text-sm text-gray-400">more_horiz</span>
+                    </div>
+                    <div className="no-scrollbar -mx-2 flex snap-x gap-4 overflow-x-auto px-2 pb-4">
+                      {pinnedCategories.map((category) => (
+                        <div
+                          key={category.id}
+                          role="button"
+                          tabIndex={0}
+                          onClick={() => navigate(`/category/${category.id}`)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault()
+                              navigate(`/category/${category.id}`)
+                            }
+                          }}
+                          className={clsx(
+                            'group relative h-40 min-w-[280px] cursor-pointer snap-center overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50',
+                            category.gradient
+                          )}
+                        >
+                          <CategoryQuickActions
+                            categoryId={category.id}
+                            isPinned
+                            isOpen={openMenuCategoryId === category.id}
+                            onToggle={() =>
+                              setOpenMenuCategoryId((current) =>
+                                current === category.id ? null : category.id
+                              )
+                            }
+                            onEdit={() => setEditCategoryId(category.id)}
+                            onTogglePin={() => togglePinned(category.id)}
+                            onDelete={() => setDeleteCategoryId(category.id)}
+                            onReorder={() => setIsReorderMode(true)}
+                          />
+                          {category.color === 'primary' && (
+                            <>
+                              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(19,236,91,0.15),transparent_70%)] opacity-30"></div>
+                              <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-primary/20 blur-3xl"></div>
+                            </>
+                          )}
+                          {category.color === 'blue' && (
+                            <div className="absolute -bottom-8 -left-8 h-32 w-32 rounded-full bg-blue-500/10 blur-3xl"></div>
+                          )}
+
+                          <div className="relative z-10 flex h-full flex-col justify-between p-5">
+                            <div className="flex items-start justify-between">
+                              <div
+                                className={clsx(
+                                  'rounded-xl p-2.5 backdrop-blur-sm',
+                                  category.color === 'primary'
+                                    ? 'bg-primary/20 text-primary'
+                                    : 'bg-blue-500/20 text-blue-500'
+                                )}
+                              >
+                                <span className="material-symbols-outlined">{category.icon}</span>
+                              </div>
+                              <span className="rounded-full bg-white/10 px-2 py-1 text-[10px] font-bold text-black backdrop-blur-sm dark:text-white">
+                                {category.progress}% Done
+                              </span>
+                            </div>
+                            <div>
+                              <h3 className={clsx('mb-1 text-xl font-bold', category.textColor)}>
+                                {category.name}
+                              </h3>
+                              <p className="text-xs text-gray-500 dark:text-gray-400">{category.count}</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
+
+                {/* All Collections - Masonry Grid */}
+                {activeFilter !== 'Favorites' ? (
+                  <div>
+                    <div className="mb-3 px-2">
+                      <h2 className="text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                        All Collections
+                      </h2>
+                    </div>
+                    <div className="columns-2 gap-4 space-y-4 px-2">
+                      {allCollections.map((category) => (
+                        <div key={category.id} className="break-inside-avoid">
+                          <CategoryCard
+                            category={category}
+                            onClick={() => navigate(`/category/${category.id}`)}
+                            quickActions={
+                              <CategoryQuickActions
+                                categoryId={category.id}
+                                isPinned={false}
+                                isOpen={openMenuCategoryId === category.id}
+                                onToggle={() =>
+                                  setOpenMenuCategoryId((current) =>
+                                    current === category.id ? null : category.id
+                                  )
+                                }
+                                onEdit={() => setEditCategoryId(category.id)}
+                                onTogglePin={() => togglePinned(category.id)}
+                                onDelete={() => setDeleteCategoryId(category.id)}
+                                onReorder={() => setIsReorderMode(true)}
+                              />
+                            }
+                          />
+                        </div>
+                      ))}
+
+                      {/* New Category Button */}
+                      <div className="break-inside-avoid">
+                        <button
+                          type="button"
+                          onClick={() => setIsCreateModalOpen(true)}
+                          className="flex h-32 w-full flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-gray-300 p-5 transition-colors hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 dark:border-white/10 dark:hover:bg-white/5"
+                          aria-label="Create new category"
+                        >
+                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/20 text-primary">
+                            <span className="material-symbols-outlined">add</span>
+                          </div>
+                          <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                            New Category
+                          </span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ) : null}
+              </>
+            )}
           </>
         )}
       </main>
