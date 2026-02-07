@@ -24,6 +24,7 @@ import { Today } from '@/pages/bottomNav/Today'
 import { Habits } from '@/pages/bottomNav/Habits'
 import { Tasks } from '@/pages/bottomNav/Tasks'
 import { Categories } from '@/pages/bottomNav/Categories'
+import { CategoryDetail } from '@/pages/CategoryDetail'
 import { Timer } from '@/pages/bottomNav/Timer'
 import { Statistics } from '@/pages/bottomNav/Statistics'
 import { PremiumHistory } from '@/pages/timer/PremiumHistory'
@@ -121,6 +122,7 @@ function App() {
           <Route path="/habits" element={<RequireAuth><RequireVerifiedEmail><Habits /></RequireVerifiedEmail></RequireAuth>} />
           <Route path="/tasks" element={<RequireAuth><RequireVerifiedEmail><Tasks /></RequireVerifiedEmail></RequireAuth>} />
           <Route path="/categories" element={<RequireAuth><RequireVerifiedEmail><Categories /></RequireVerifiedEmail></RequireAuth>} />
+          <Route path="/category/:categoryId" element={<RequireAuth><RequireVerifiedEmail><CategoryDetail /></RequireVerifiedEmail></RequireAuth>} />
           <Route path="/timer" element={<RequireAuth><RequireVerifiedEmail><Timer /></RequireVerifiedEmail></RequireAuth>} />
           <Route path="/timer/premium-history" element={<RequireAuth><RequireVerifiedEmail><PremiumHistory /></RequireVerifiedEmail></RequireAuth>} />
           <Route path="/timer/analytics" element={<RequireAuth><RequireVerifiedEmail><Analytics /></RequireVerifiedEmail></RequireAuth>} />
