@@ -14,6 +14,15 @@ export interface Habit {
   startDate: string
   totalCompletions: number
   completedDates: string[]
+
+  /**
+   * New category reference (stable string id). Optional for backward compatibility.
+   */
+  categoryId?: string
+
+  /**
+   * Legacy category enum kept for migration/backward compatibility.
+   */
   category?: 'health' | 'work' | 'personal'
 }
 
