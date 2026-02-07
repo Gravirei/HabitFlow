@@ -79,7 +79,18 @@ export const useTaskStore = create<TaskState>()(
       storage: {
         getItem: (name) => {
           const value = localStorage.getItem(name)
-          return value ? JSON.parse(value) : null
+          if (value) return JSON.parse(value)
+
+          // Legacy migration: Tasks page previously stored under localStorage['tasks'].
+          // If the new persisted key doesn't exist yet, hydrate from legacy.
+          const legacyTasks = readLegacyTasks()
+          if (legacyTasks) {
+            // Best-effort cleanup to avoid divergence.
+            localStorage.removeItem('tasks')
+            return { state: { tasks: legacyTasks }, version: 0 }
+          }
+
+          return null
         },
         setItem: (name, value) => {
           localStorage.setItem(name, JSON.stringify(value))
@@ -93,19 +104,19 @@ export const useTaskStore = create<TaskState>()(
         const typedPersisted = persisted as Partial<TaskState> | undefined
         const persistedTasks = typedPersisted?.tasks
 
+        // Prefer persisted tasks if present.
         if (persistedTasks && persistedTasks.length > 0) {
           return { ...current, ...typedPersisted, tasks: persistedTasks }
         }
 
-        // Legacy migration: Tasks page previously stored under localStorage['tasks'].
+        // Legacy migration: if persisted tasks are empty/missing but legacy exists, migrate.
         const legacyTasks = readLegacyTasks()
         if (legacyTasks) {
-          // Best-effort cleanup to avoid divergence.
           localStorage.removeItem('tasks')
           return { ...current, ...typedPersisted, tasks: legacyTasks }
         }
 
-        return { ...current, ...typedPersisted }
+        return { ...current, ...typedPersisted, tasks: current.tasks }
       },
     }
   )
