@@ -1,10 +1,12 @@
-import { useState } from 'react'
+import { useEffect, useState, type ElementType, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { BottomNav } from '@/components/BottomNav'
 import { SideNav } from '@/components/SideNav'
 import { motion, AnimatePresence } from 'framer-motion'
 import clsx from 'clsx'
 
+import { CreateCategoryModal, EditCategoryModal } from '@/components/categories'
+import { ConfirmDialog } from '@/components/timer/settings/ConfirmDialog'
 import { useCategoryStore } from '@/store/useCategoryStore'
 import { useHabitStore } from '@/store/useHabitStore'
 import type { Category as StoreCategory } from '@/types/category'
@@ -85,10 +87,16 @@ export function Categories() {
   const [searchQuery, setSearchQuery] = useState('')
   const [activeFilter, setActiveFilter] = useState('All')
 
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const [editCategoryId, setEditCategoryId] = useState<string | null>(null)
+  const [deleteCategoryId, setDeleteCategoryId] = useState<string | null>(null)
+
+  const [openMenuCategoryId, setOpenMenuCategoryId] = useState<string | null>(null)
+
   const filters = ['All', 'Habits', 'Tasks', 'Favorites']
 
-  const { getPinnedCategories, getAllCategories } = useCategoryStore()
-  const { getHabitsByCategory, isHabitCompletedToday } = useHabitStore()
+  const { getPinnedCategories, getAllCategories, togglePinned, deleteCategory } = useCategoryStore()
+  const { getHabitsByCategory, isHabitCompletedToday, clearCategoryFromHabits } = useHabitStore()
 
   const pinnedCategories = getPinnedCategories().map((category) => {
     const habits = getHabitsByCategory(category.id)
@@ -111,8 +119,33 @@ export function Categories() {
       return ui
     })
 
+  useEffect(() => {
+    if (!openMenuCategoryId) return
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setOpenMenuCategoryId(null)
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [openMenuCategoryId])
+
+  const habitsInDeleteCategory = deleteCategoryId
+    ? getHabitsByCategory(deleteCategoryId).length
+    : 0
+
+  const handleConfirmDelete = () => {
+    if (!deleteCategoryId) return
+    clearCategoryFromHabits(deleteCategoryId)
+    deleteCategory(deleteCategoryId)
+    setDeleteCategoryId(null)
+  }
+
   return (
-    <div className="relative flex min-h-screen w-full flex-col bg-background-light font-display text-slate-900 dark:bg-background-dark dark:text-white">
+    <div
+      className="relative flex min-h-screen w-full flex-col bg-background-light font-display text-slate-900 dark:bg-background-dark dark:text-white"
+      onClickCapture={() => setOpenMenuCategoryId(null)}
+    >
       {/* Header - Consistent with Habits Page */}
       <header className="sticky top-0 z-20 flex shrink-0 flex-col gap-4 bg-background-light p-4 pb-2 dark:bg-background-dark">
         <div className="flex h-12 items-center justify-between">
@@ -214,10 +247,23 @@ export function Categories() {
                 type="button"
                 onClick={() => navigate(`/category/${category.id}`)}
                 className={clsx(
-                  'group relative h-40 min-w-[280px] cursor-pointer snap-center overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br text-left',
+                  'group relative h-40 min-w-[280px] cursor-pointer snap-center overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50',
                   category.gradient
                 )}
               >
+                <CategoryQuickActions
+                  categoryId={category.id}
+                  isPinned
+                  isOpen={openMenuCategoryId === category.id}
+                  onToggle={() =>
+                    setOpenMenuCategoryId((current) =>
+                      current === category.id ? null : category.id
+                    )
+                  }
+                  onEdit={() => setEditCategoryId(category.id)}
+                  onTogglePin={() => togglePinned(category.id)}
+                  onDelete={() => setDeleteCategoryId(category.id)}
+                />
                 {category.color === 'primary' && (
                   <>
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(19,236,91,0.15),transparent_70%)] opacity-30"></div>
@@ -269,13 +315,33 @@ export function Categories() {
                 <CategoryCard
                   category={category}
                   onClick={() => navigate(`/category/${category.id}`)}
+                  quickActions={
+                    <CategoryQuickActions
+                      categoryId={category.id}
+                      isPinned={false}
+                      isOpen={openMenuCategoryId === category.id}
+                      onToggle={() =>
+                        setOpenMenuCategoryId((current) =>
+                          current === category.id ? null : category.id
+                        )
+                      }
+                      onEdit={() => setEditCategoryId(category.id)}
+                      onTogglePin={() => togglePinned(category.id)}
+                      onDelete={() => setDeleteCategoryId(category.id)}
+                    />
+                  }
                 />
               </div>
             ))}
 
             {/* New Category Button */}
             <div className="break-inside-avoid">
-              <button className="flex h-32 w-full flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-gray-300 p-5 transition-colors hover:bg-gray-50 dark:border-white/10 dark:hover:bg-white/5">
+              <button
+                type="button"
+                onClick={() => setIsCreateModalOpen(true)}
+                className="flex h-32 w-full flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-gray-300 p-5 transition-colors hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 dark:border-white/10 dark:hover:bg-white/5"
+                aria-label="Create new category"
+              >
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/20 text-primary">
                   <span className="material-symbols-outlined">add</span>
                 </div>
@@ -300,18 +366,191 @@ export function Categories() {
         </button>
       </div>
 
+      <CreateCategoryModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onCreated={(categoryId) => {
+          setIsCreateModalOpen(false)
+          navigate(`/category/${categoryId}`)
+        }}
+      />
+      {editCategoryId && (
+        <EditCategoryModal
+          isOpen={true}
+          categoryId={editCategoryId}
+          onClose={() => setEditCategoryId(null)}
+        />
+      )}
+
+      <ConfirmDialog
+        isOpen={Boolean(deleteCategoryId)}
+        onClose={() => setDeleteCategoryId(null)}
+        onConfirm={handleConfirmDelete}
+        title="Delete category?"
+        message={`This will remove the category and set ${habitsInDeleteCategory} habit${
+          habitsInDeleteCategory === 1 ? '' : 's'
+        } to Uncategorized. This action can't be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+        icon="delete"
+      />
+
       <SideNav isOpen={isSideNavOpen} onClose={() => setIsSideNavOpen(false)} />
       <BottomNav />
     </div>
   )
 }
 
-function CategoryCard({ category, onClick }: { category: Category; onClick?: () => void }) {
-  const Wrapper: any = onClick ? 'button' : 'div'
+function CategoryQuickActions({
+  categoryId,
+  isPinned,
+  isOpen,
+  onToggle,
+  onEdit,
+  onTogglePin,
+  onDelete,
+}: {
+  categoryId: string
+  isPinned: boolean
+  isOpen: boolean
+  onToggle: () => void
+  onEdit: () => void
+  onTogglePin: () => void
+  onDelete: () => void
+}) {
+  const menuId = `category-actions-${categoryId}`
+
+  return (
+    <div
+      className="absolute right-3 top-3 z-20"
+      onClick={(e) => e.stopPropagation()}
+      onMouseDown={(e) => e.stopPropagation()}
+    >
+      <button
+        type="button"
+        className={clsx(
+          'flex h-9 w-9 items-center justify-center rounded-full bg-black/20 text-white backdrop-blur-sm transition-colors hover:bg-black/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50',
+          !isOpen && 'opacity-0 group-hover:opacity-100 group-focus-within:opacity-100'
+        )}
+        aria-label="Category actions"
+        aria-haspopup="menu"
+        aria-expanded={isOpen}
+        aria-controls={menuId}
+        onClick={(e) => {
+          e.stopPropagation()
+          onToggle()
+        }}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            onToggle()
+          }
+        }}
+      >
+        <span className="material-symbols-outlined text-[20px]">more_vert</span>
+      </button>
+
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            id={menuId}
+            role="menu"
+            aria-label="Category actions"
+            initial={{ opacity: 0, scale: 0.98, y: -4 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.98, y: -4 }}
+            transition={{ duration: 0.12 }}
+            className="absolute right-0 mt-2 w-44 overflow-hidden rounded-2xl border border-white/10 bg-gray-900/95 p-1 shadow-2xl backdrop-blur-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <ActionItem
+              label="Edit"
+              icon="edit"
+              onSelect={() => {
+                onToggle()
+                onEdit()
+              }}
+            />
+            <ActionItem
+              label={isPinned ? 'Unpin' : 'Pin'}
+              icon={isPinned ? 'keep_off' : 'keep'}
+              onSelect={() => {
+                onToggle()
+                onTogglePin()
+              }}
+            />
+            <div className="my-1 h-px bg-white/10" />
+            <ActionItem
+              label="Delete"
+              icon="delete"
+              variant="danger"
+              onSelect={() => {
+                onToggle()
+                onDelete()
+              }}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
+
+function ActionItem({
+  label,
+  icon,
+  variant = 'default',
+  onSelect,
+}: {
+  label: string
+  icon: string
+  variant?: 'default' | 'danger'
+  onSelect: () => void
+}) {
+  return (
+    <button
+      type="button"
+      role="menuitem"
+      className={clsx(
+        'flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50',
+        variant === 'danger'
+          ? 'text-red-200 hover:bg-red-500/10'
+          : 'text-gray-100 hover:bg-white/5'
+      )}
+      onClick={(e) => {
+        e.stopPropagation()
+        onSelect()
+      }}
+    >
+      <span
+        className={clsx(
+          'material-symbols-outlined text-[18px]',
+          variant === 'danger' ? 'text-red-300' : 'text-gray-300'
+        )}
+        aria-hidden="true"
+      >
+        {icon}
+      </span>
+      <span>{label}</span>
+    </button>
+  )
+}
+
+function CategoryCard({
+  category,
+  onClick,
+  quickActions,
+}: {
+  category: Category
+  onClick?: () => void
+  quickActions?: ReactNode
+}) {
+  const Wrapper: ElementType = onClick ? 'button' : 'div'
   const wrapperProps = onClick ? ({ type: 'button', onClick } as const) : undefined
 
   const getColorClasses = (color: string) => {
-    const map: Record<string, any> = {
+    const map: Record<string, Record<string, string>> = {
       emerald: {
         bg: 'bg-emerald-100 dark:bg-emerald-500/10',
         text: 'text-emerald-600 dark:text-emerald-400',
@@ -377,6 +616,7 @@ function CategoryCard({ category, onClick }: { category: Category; onClick?: () 
           category.height
         )}
       >
+        {quickActions}
         <div className="absolute inset-0 bg-black/10"></div>
         <div className="relative z-10">
           <h3 className="text-lg font-bold text-white">{category.name}</h3>
@@ -396,6 +636,7 @@ function CategoryCard({ category, onClick }: { category: Category; onClick?: () 
         category.height
       )}
     >
+      {quickActions}
       {category.type === 'progress' && (
         <div className="flex flex-col items-center gap-4 text-center">
           <div
