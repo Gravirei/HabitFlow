@@ -23,6 +23,8 @@ export interface Task {
   status: TaskStatus
   priority: TaskPriority
   category: string
+  /** HabitFlow Categories linkage (Phase 5). Preserve legacy `category` string for existing UI/filtering. */
+  categoryId?: string
   tags: string[]
   due?: string // ISO date string
   dueTime?: string // HH:mm format
