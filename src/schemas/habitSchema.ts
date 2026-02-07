@@ -6,6 +6,10 @@
 import { z } from 'zod'
 
 export const habitSchema = z.object({
+  // Optional: set silently via query param on NewHabit (Phase 2 Categories work)
+  // Backward compatible: existing callers/forms don't need to provide it.
+  categoryId: z.string().optional().or(z.literal('')),
+
   name: z
     .string()
     .min(1, 'Habit name is required')

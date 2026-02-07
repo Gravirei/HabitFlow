@@ -13,6 +13,11 @@ export function NewHabit() {
   const { addHabit } = useHabitStore()
   const [searchParams] = useSearchParams()
 
+  // Phase 2 Categories: allow preselecting category via query param.
+  // Example: /new-habit?categoryId=fitness
+  // Keep backward compatibility: when absent (or empty), store nothing.
+  const categoryIdFromQuery = searchParams.get('categoryId')?.trim() || undefined
+
   const {
     register,
     handleSubmit,
@@ -49,6 +54,7 @@ export function NewHabit() {
       reminderEnabled: data.reminderEnabled,
       reminderTime: data.reminderEnabled ? data.reminderTime : undefined,
       startDate: format(new Date(), 'yyyy-MM-dd'),
+      categoryId: categoryIdFromQuery,
     })
 
     toast.success('🎉 Habit created successfully!')

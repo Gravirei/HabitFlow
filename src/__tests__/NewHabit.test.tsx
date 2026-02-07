@@ -11,6 +11,10 @@ import { NewHabit } from '@/pages/NewHabit'
 import * as router from 'react-router-dom'
 import toast from 'react-hot-toast'
 
+const { addHabitMock } = vi.hoisted(() => ({
+  addHabitMock: vi.fn(),
+}))
+
 // Mock dependencies
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom')
@@ -32,7 +36,7 @@ vi.mock('@/store/useHabitStore', () => ({
   useHabitStore: vi.fn(() => ({
     habits: [],
     isFirstVisit: true,
-    addHabit: vi.fn(),
+    addHabit: addHabitMock,
     updateHabit: vi.fn(),
     deleteHabit: vi.fn(),
     toggleHabitCompletion: vi.fn(),
@@ -197,6 +201,31 @@ describe('NewHabit Form', () => {
   })
 
   describe('Form Submission', () => {
+    it('should include categoryId when provided via query param', async () => {
+      const user = userEvent.setup()
+      ;(router.useSearchParams as any).mockReturnValue([
+        new URLSearchParams('categoryId=fitness'),
+      ])
+
+      renderForm()
+
+      const nameInput = screen.getByPlaceholderText('e.g., Drink Water')
+      await user.type(nameInput, 'Test Habit')
+
+      const saveButton = screen.getByRole('button', { name: /save habit/i })
+      fireEvent.click(saveButton)
+
+      await waitFor(() => {
+        expect(addHabitMock).toHaveBeenCalledTimes(1)
+        expect(addHabitMock).toHaveBeenCalledWith(
+          expect.objectContaining({
+            name: 'Test Habit',
+            categoryId: 'fitness',
+          })
+        )
+      })
+    })
+
     it('should submit valid form successfully', async () => {
       const user = userEvent.setup()
       renderForm()

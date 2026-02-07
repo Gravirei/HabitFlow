@@ -7,6 +7,21 @@ import { describe, it, expect } from 'vitest'
 import { habitSchema, validateHabitName, validateGoal } from '@/schemas/habitSchema'
 
 describe('habitSchema', () => {
+  it('should allow optional categoryId', () => {
+    const validData = {
+      categoryId: 'fitness',
+      name: 'Test Habit',
+      description: '',
+      frequency: 'daily' as const,
+      goal: 1,
+      reminderEnabled: false,
+      reminderTime: '',
+    }
+
+    const result = habitSchema.safeParse(validData)
+    expect(result.success).toBe(true)
+  })
+
   describe('name validation', () => {
     it('should accept valid habit names', () => {
       const validData = {
