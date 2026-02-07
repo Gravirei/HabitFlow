@@ -1,8 +1,9 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import { useCategoryStore } from '@/store/useCategoryStore'
 import { useHabitStore } from '@/store/useHabitStore'
+import { useTaskStore } from '@/store/useTaskStore'
 
 const fallbackGradientByColor: Record<string, string> = {
   primary: 'from-gray-900 to-black dark:from-surface-card dark:to-surface-dark',
@@ -28,12 +29,22 @@ export function CategoryDetail() {
   const { getCategoryById } = useCategoryStore()
   const { getHabitsByCategory, isHabitCompletedToday, toggleHabitCompletion } = useHabitStore()
 
+  type ContentView = 'both' | 'habits' | 'tasks'
+  const [contentView, setContentView] = useState<ContentView>('both')
+
+  const tasks = useTaskStore((state) => state.tasks)
+
   const category = categoryId ? getCategoryById(categoryId) : undefined
 
   const habits = useMemo(() => {
     if (!categoryId) return []
     return getHabitsByCategory(categoryId)
   }, [categoryId, getHabitsByCategory])
+
+  const categoryTasks = useMemo(() => {
+    if (!categoryId) return []
+    return tasks.filter((task) => task.categoryId === categoryId)
+  }, [categoryId, tasks])
 
   const completedToday = useMemo(
     () => habits.filter((habit) => isHabitCompletedToday(habit.id)).length,
@@ -136,6 +147,9 @@ export function CategoryDetail() {
               </h1>
               <p className="mt-1 text-sm text-white/80">
                 {habits.length} Habit{habits.length === 1 ? '' : 's'}
+                {categoryTasks.length > 0
+                  ? ` • ${categoryTasks.length} Task${categoryTasks.length === 1 ? '' : 's'}`
+                  : ''}
               </p>
             </div>
           </div>
@@ -150,6 +164,35 @@ export function CategoryDetail() {
       </header>
 
       <main className="flex-1 px-4 py-6 pb-28">
+        {/* Content toggle */}
+        <div className="mb-6">
+          <div
+            className="inline-flex overflow-hidden rounded-full border border-slate-200 bg-white p-1 shadow-sm dark:border-white/10 dark:bg-surface-dark"
+            role="group"
+            aria-label="Category content view"
+          >
+            {([
+              { key: 'both', label: 'Both' },
+              { key: 'habits', label: 'Habits' },
+              { key: 'tasks', label: 'Tasks' },
+            ] as const).map((opt) => (
+              <button
+                key={opt.key}
+                type="button"
+                onClick={() => setContentView(opt.key)}
+                className={
+                  'rounded-full px-4 py-2 text-xs font-bold transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 sm:text-sm ' +
+                  (contentView === opt.key
+                    ? 'bg-primary text-background-dark shadow-[0_4px_12px_rgba(19,236,91,0.25)]'
+                    : 'text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-white/5')
+                }
+                aria-pressed={contentView === opt.key}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        </div>
         {/* Progress Bar */}
         <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-surface-dark">
           <div className="flex items-center justify-between">
@@ -166,8 +209,9 @@ export function CategoryDetail() {
           </div>
         </div>
 
-        {/* Habits list */}
-        <section className="mt-6">
+        {(contentView === 'both' || contentView === 'habits') && (
+          <section>
+            {/* Habits list */}
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
               Habits
@@ -241,7 +285,77 @@ export function CategoryDetail() {
               })}
             </ul>
           )}
-        </section>
+          </section>
+        )}
+
+        {(contentView === 'both' || contentView === 'tasks') && (
+          <section className={contentView === 'both' ? 'mt-8' : ''}>
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                Tasks
+              </h2>
+              <button
+                type="button"
+                onClick={() => navigate(`/tasks?new=1&categoryId=${category.id}`)}
+                className="rounded-full bg-primary/10 px-4 py-2 text-xs font-bold text-primary hover:bg-primary/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 sm:text-sm"
+              >
+                Add Task
+              </button>
+            </div>
+
+            {categoryTasks.length === 0 ? (
+              <div className="rounded-3xl border border-slate-200 bg-white p-6 text-center shadow-sm dark:border-white/10 dark:bg-surface-dark">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                  <span className="material-symbols-outlined">task_alt</span>
+                </div>
+                <h3 className="mt-4 text-base font-bold text-slate-900 dark:text-white">
+                  No tasks yet
+                </h3>
+                <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                  Add a task to keep this category moving.
+                </p>
+                <div className="mt-5 flex justify-center">
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/tasks?new=1&categoryId=${category.id}`)}
+                    className="inline-flex items-center justify-center rounded-xl bg-primary px-5 py-3 text-sm font-bold text-background-dark shadow-sm transition-all duration-200 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+                  >
+                    Add a task
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <ul className="space-y-3">
+                {categoryTasks.map((task) => (
+                  <li key={task.id}>
+                    <div className="flex items-center justify-between gap-3 rounded-3xl border border-slate-100 bg-white p-4 shadow-sm dark:border-white/5 dark:bg-surface-dark">
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-bold text-slate-900 dark:text-white">
+                          {task.title}
+                        </p>
+                        {task.description ? (
+                          <p className="mt-0.5 truncate text-xs text-slate-600 dark:text-slate-300">
+                            {task.description}
+                          </p>
+                        ) : null}
+                      </div>
+                      <span
+                        className={
+                          'rounded-full px-3 py-1 text-[11px] font-bold ' +
+                          (task.completed
+                            ? 'bg-primary/10 text-primary'
+                            : 'bg-slate-100 text-slate-600 dark:bg-white/5 dark:text-slate-300')
+                        }
+                      >
+                        {task.completed ? 'Done' : 'To do'}
+                      </span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        )}
       </main>
 
       {/* FAB (always available, mirrors Categories page pattern) */}
