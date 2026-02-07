@@ -123,6 +123,34 @@ export function Categories() {
   const [searchQuery, setSearchQuery] = useState('')
   const [activeFilter, setActiveFilter] = useState('All')
 
+  type CategorySort = 'order' | 'name' | 'mostUsed' | 'completionToday'
+
+  const [sort, setSort] = useState<CategorySort>(() => {
+    try {
+      const stored = localStorage.getItem('categories.sort')
+      if (
+        stored === 'order' ||
+        stored === 'name' ||
+        stored === 'mostUsed' ||
+        stored === 'completionToday'
+      ) {
+        return stored
+      }
+    } catch {
+      // ignore
+    }
+
+    return 'order'
+  })
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('categories.sort', sort)
+    } catch {
+      // ignore
+    }
+  }, [sort])
+
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [editCategoryId, setEditCategoryId] = useState<string | null>(null)
   const [deleteCategoryId, setDeleteCategoryId] = useState<string | null>(null)
