@@ -1,4 +1,11 @@
-import { useEffect, useMemo, useState, type ElementType, type ReactNode } from 'react'
+import {
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useState,
+  type ElementType,
+  type ReactNode,
+} from 'react'
 import { useNavigate } from 'react-router-dom'
 import { BottomNav } from '@/components/BottomNav'
 import { SideNav } from '@/components/SideNav'
@@ -121,7 +128,9 @@ export function Categories() {
   const [isSideNavOpen, setIsSideNavOpen] = useState(false)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
-  const [activeFilter, setActiveFilter] = useState('All')
+
+  type CategoryFilter = 'All' | 'Habits' | 'Tasks' | 'Favorites' | 'Empty'
+  const [activeFilter, setActiveFilter] = useState<CategoryFilter>('All')
 
   type CategorySort = 'order' | 'name' | 'mostUsed' | 'completionToday'
 
@@ -160,13 +169,19 @@ export function Categories() {
   const [reorderIds, setReorderIds] = useState<string[]>([])
   const [activeDragId, setActiveDragId] = useState<string | null>(null)
 
-  const filters = ['All', 'Habits', 'Tasks', 'Favorites']
+  const filters: Array<{ key: CategoryFilter; label: string; disabled?: boolean; hint?: string }> = [
+    { key: 'All', label: 'All' },
+    { key: 'Habits', label: 'Habits' },
+    { key: 'Tasks', label: 'Tasks', disabled: true, hint: 'Coming soon' },
+    { key: 'Favorites', label: 'Favorites' },
+    { key: 'Empty', label: 'Empty' },
+  ]
 
   const categories = useCategoryStore((state) => state.categories)
   const { togglePinned, deleteCategory, reorderCategories } = useCategoryStore()
 
   const habits = useHabitStore((state) => state.habits)
-  const { isHabitCompletedToday, clearCategoryFromHabits } = useHabitStore()
+  const { isHabitCompletedToday, clearCategoryFromHabits, getHabitsByCategory } = useHabitStore()
 
   const orderedCategories = useMemo(() => {
     return [...categories].sort((a, b) => a.order - b.order)
@@ -222,8 +237,115 @@ export function Categories() {
     return map
   }, [orderedCategories, habits, isHabitCompletedToday])
 
+  const deferredSearchQuery = useDeferredValue(searchQuery)
+
+  const normalizedSearchQuery = useMemo(() => {
+    return deferredSearchQuery.trim().toLocaleLowerCase()
+  }, [deferredSearchQuery])
+
+  const filterCounts = useMemo(() => {
+    const all = orderedCategories.length
+    let habitsCount = 0
+    let favoritesCount = 0
+    let emptyCount = 0
+
+    for (const category of orderedCategories) {
+      const stats = derivedStatsByCategoryId.get(category.id)
+      const habitCount = stats?.habitCount ?? 0
+
+      if (habitCount > 0) habitsCount += 1
+      if (category.isPinned) favoritesCount += 1
+      if (habitCount === 0 && category.stats.taskCount === 0) emptyCount += 1
+    }
+
+    return {
+      All: all,
+      Habits: habitsCount,
+      Favorites: favoritesCount,
+      Empty: emptyCount,
+    }
+  }, [orderedCategories, derivedStatsByCategoryId])
+
+  const isCategoryVisibleForFilter = (category: StoreCategory) => {
+    const stats = derivedStatsByCategoryId.get(category.id)
+    const habitCount = stats?.habitCount ?? 0
+
+    switch (activeFilter) {
+      case 'Habits':
+        return habitCount > 0
+      case 'Favorites':
+        return category.isPinned
+      case 'Empty':
+        return habitCount === 0 && category.stats.taskCount === 0
+      case 'Tasks':
+      case 'All':
+      default:
+        return true
+    }
+  }
+
+  const matchesSearchQuery = (category: StoreCategory) => {
+    if (!normalizedSearchQuery) return true
+    return category.name.toLocaleLowerCase().includes(normalizedSearchQuery)
+  }
+
+  const sortCategories = (values: StoreCategory[]) => {
+    const next = [...values]
+
+    const statFor = (category: StoreCategory) =>
+      derivedStatsByCategoryId.get(category.id) ?? {
+        habitCount: 0,
+        completedToday: 0,
+        completionTodayPct: 0,
+      }
+
+    next.sort((a, b) => {
+      const nameCmp = a.name.localeCompare(b.name)
+
+      switch (sort) {
+        case 'name':
+          return nameCmp
+        case 'mostUsed': {
+          const diff = statFor(b).habitCount - statFor(a).habitCount
+          return diff !== 0 ? diff : nameCmp
+        }
+        case 'completionToday': {
+          const diff = statFor(b).completionTodayPct - statFor(a).completionTodayPct
+          return diff !== 0 ? diff : nameCmp
+        }
+        case 'order':
+        default: {
+          const diff = a.order - b.order
+          return diff !== 0 ? diff : nameCmp
+        }
+      }
+    })
+
+    return next
+  }
+
+  const filteredPinnedStoreCategories = useMemo(() => {
+    return sortCategories(
+      pinnedStoreCategories.filter((category) => {
+        if (!isCategoryVisibleForFilter(category)) return false
+        return matchesSearchQuery(category)
+      })
+    )
+  }, [pinnedStoreCategories, activeFilter, normalizedSearchQuery, sort, derivedStatsByCategoryId])
+
+  const filteredUnpinnedStoreCategories = useMemo(() => {
+    if (activeFilter === 'Favorites') return []
+
+    return sortCategories(
+      unpinnedStoreCategories.filter((category) => {
+        if (!isCategoryVisibleForFilter(category)) return false
+        return matchesSearchQuery(category)
+      })
+    )
+  }, [unpinnedStoreCategories, activeFilter, normalizedSearchQuery, sort, derivedStatsByCategoryId])
+
   const pinnedCategories = useMemo(() => {
-    return pinnedStoreCategories.map((category) => {
+    return filteredPinnedStoreCategories.map((category) => {
       const stats = derivedStatsByCategoryId.get(category.id) ?? {
         habitCount: 0,
         completedToday: 0,
@@ -232,10 +354,10 @@ export function Categories() {
 
       return toUICategory(category, stats.habitCount, stats.completionTodayPct)
     })
-  }, [pinnedStoreCategories, derivedStatsByCategoryId])
+  }, [filteredPinnedStoreCategories, derivedStatsByCategoryId])
 
   const allCollections = useMemo(() => {
-    return unpinnedStoreCategories.map((category) => {
+    return filteredUnpinnedStoreCategories.map((category) => {
       const stats = derivedStatsByCategoryId.get(category.id) ?? {
         habitCount: 0,
         completedToday: 0,
@@ -249,7 +371,7 @@ export function Categories() {
 
       return ui
     })
-  }, [unpinnedStoreCategories, derivedStatsByCategoryId])
+  }, [filteredUnpinnedStoreCategories, derivedStatsByCategoryId])
 
   useEffect(() => {
     if (!openMenuCategoryId && !isReorderMode) return
@@ -396,25 +518,75 @@ export function Categories() {
           </div>
         </div>
 
-        {/* Filter Chips */}
-        <div className="w-full px-4 pb-2">
-          <div className="grid grid-cols-4 gap-2">
-            {filters.map((filter) => (
-              <button
-                key={filter}
-                onClick={() => setActiveFilter(filter)}
-                className={clsx(
-                  'whitespace-nowrap rounded-full py-2.5 text-xs font-bold transition-all duration-200 sm:text-sm',
-                  activeFilter === filter
-                    ? 'bg-primary text-background-dark shadow-[0_4px_12px_rgba(19,236,91,0.3)]'
-                    : 'border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 dark:border-white/5 dark:bg-surface-dark dark:text-gray-300 dark:hover:bg-white/5'
-                )}
-              >
-                {filter}
-              </button>
-            ))}
-          </div>
-        </div>
+        {!isReorderMode && (
+          <>
+            <div className="flex items-center justify-end px-4">
+              <label className="flex items-center gap-2 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                <span>Sort</span>
+                <select
+                  value={sort}
+                  onChange={(e) => setSort(e.target.value as CategorySort)}
+                  className="rounded-full border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 dark:border-white/10 dark:bg-surface-dark dark:text-gray-200"
+                  aria-label="Sort categories"
+                >
+                  <option value="order">Order</option>
+                  <option value="name">Name (A→Z)</option>
+                  <option value="mostUsed">Most used</option>
+                  <option value="completionToday">Completion today</option>
+                </select>
+              </label>
+            </div>
+
+            {/* Filter Chips */}
+            <div className="w-full px-4 pb-2">
+              <div className="grid grid-cols-5 gap-2">
+                {filters.map((filter) => {
+                  const count = filterCounts[filter.key as keyof typeof filterCounts]
+                  const label =
+                    typeof count === 'number' && filter.key !== 'Tasks'
+                      ? `${filter.label} (${count})`
+                      : filter.label
+
+                  return (
+                    <button
+                      key={filter.key}
+                      type="button"
+                      onClick={() => {
+                        if (filter.disabled) return
+                        setActiveFilter(filter.key)
+                      }}
+                      disabled={filter.disabled}
+                      className={clsx(
+                        'whitespace-nowrap rounded-full py-2.5 text-xs font-bold transition-all duration-200 sm:text-sm',
+                        filter.disabled &&
+                          'cursor-not-allowed border border-gray-200 bg-white/60 text-gray-400 dark:border-white/5 dark:bg-surface-dark/60 dark:text-gray-500',
+                        !filter.disabled &&
+                          (activeFilter === filter.key
+                            ? 'bg-primary text-background-dark shadow-[0_4px_12px_rgba(19,236,91,0.3)]'
+                            : 'border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 dark:border-white/5 dark:bg-surface-dark dark:text-gray-300 dark:hover:bg-white/5')
+                      )}
+                      aria-label={
+                        filter.disabled && filter.hint
+                          ? `${filter.label}. ${filter.hint}`
+                          : label
+                      }
+                      title={filter.disabled ? filter.hint : undefined}
+                    >
+                      {label}
+                      {filter.disabled && filter.hint ? (
+                        <span className="sr-only">{filter.hint}</span>
+                      ) : null}
+                    </button>
+                  )
+                })}
+              </div>
+
+              <div className="mt-2 text-[11px] font-medium text-gray-400 dark:text-gray-500">
+                {filters.find((f) => f.key === 'Tasks')?.hint}
+              </div>
+            </div>
+          </>
+        )}
       </header>
 
       {/* Main Content */}

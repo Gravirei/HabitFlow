@@ -54,21 +54,31 @@ const categories: Category[] = [
 const reorderCategoriesMock = vi.fn()
 
 vi.mock('@/store/useCategoryStore', () => ({
-  useCategoryStore: () => ({
-    getPinnedCategories: () => categories.filter((c) => c.isPinned),
-    getAllCategories: () => [...categories].sort((a, b) => a.order - b.order),
-    togglePinned: vi.fn(),
-    deleteCategory: vi.fn(),
-    reorderCategories: reorderCategoriesMock,
-  }),
+  useCategoryStore: (selector?: any) => {
+    const state = {
+      categories,
+      getPinnedCategories: () => categories.filter((c) => c.isPinned),
+      getAllCategories: () => [...categories].sort((a, b) => a.order - b.order),
+      togglePinned: vi.fn(),
+      deleteCategory: vi.fn(),
+      reorderCategories: reorderCategoriesMock,
+    }
+
+    return typeof selector === 'function' ? selector(state) : state
+  },
 }))
 
 vi.mock('@/store/useHabitStore', () => ({
-  useHabitStore: () => ({
-    getHabitsByCategory: () => [],
-    isHabitCompletedToday: () => false,
-    clearCategoryFromHabits: vi.fn(),
-  }),
+  useHabitStore: (selector?: any) => {
+    const state = {
+      habits: [],
+      getHabitsByCategory: () => [],
+      isHabitCompletedToday: () => false,
+      clearCategoryFromHabits: vi.fn(),
+    }
+
+    return typeof selector === 'function' ? selector(state) : state
+  },
 }))
 
 describe('Categories (reorder mode)', () => {
