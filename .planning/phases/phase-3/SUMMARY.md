@@ -1,6 +1,6 @@
 # Summary: Phase 3 - Category CRUD & Customization
 
-**Status:** ◉ In Progress (Wave 3)
+**Status:** ✓ Complete
 
 ## What Was Built (so far)
 
@@ -22,12 +22,21 @@
   - Delete behavior: clears the category from all habits (moves them to Uncategorized) before deleting.
 - Pinned/unpinned categories update live via store `togglePinned`.
 
+### Wave 4 (completed)
+- Added DnD reorder mode:
+  - New "Reorder" option inside the existing kebab menu.
+  - Reorder mode uses a DnD-friendly grid (no masonry) with drag handles + drag overlay.
+  - Order persists via `useCategoryStore.reorderCategories(orderedIds)`.
+  - Clear exit affordance via "Done" button (and Escape key).
+  - Navigation into category detail is disabled while in reorder mode.
+- Added minimal UI test: `src/__tests__/Categories.reorder.test.tsx`.
+
 ## Deviations from Plan
 - Lint remains non-green repo-wide due to pre-existing issues outside Phase 3 scope; used targeted tests/typecheck.
 
 ## Verification Results
-- `npm test -- src/__tests__/useCategoryStore.crud.test.ts src/__tests__/useHabitStore.test.ts` ✓
-- Lint/typecheck remain non-green repo-wide due to pre-existing issues outside Phase 3 scope; Wave 3 verified via targeted tests + lint for touched file(s). ✓
+- `npm test -- src/__tests__/useCategoryStore.crud.test.ts src/__tests__/useHabitStore.test.ts src/__tests__/Categories.reorder.test.tsx` ✓
+- Lint/typecheck remain non-green repo-wide due to pre-existing issues outside Phase 3 scope; verified via targeted tests. ✓
 
 ## Files Changed
 - `src/pages/bottomNav/Categories.tsx`
