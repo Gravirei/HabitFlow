@@ -32,7 +32,7 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 
-import { CreateCategoryModal, EditCategoryModal, CategoryTemplatesModal } from '@/components/categories'
+import { CreateCategoryModal, EditCategoryModal, CategoryTemplatesModal, CategoryImportExportModal } from '@/components/categories'
 import { ConfirmDialog } from '@/components/timer/settings/ConfirmDialog'
 import { useCategoryStore } from '@/store/useCategoryStore'
 import { useHabitStore } from '@/store/useHabitStore'
@@ -921,6 +921,11 @@ export function Categories() {
       <CategoryTemplatesModal
         isOpen={isTemplatesModalOpen}
         onClose={() => setIsTemplatesModalOpen(false)}
+      />
+
+      <CategoryImportExportModal
+        isOpen={isImportExportModalOpen}
+        onClose={() => setIsImportExportModalOpen(false)}
       />
 
       <SideNav isOpen={isSideNavOpen} onClose={() => setIsSideNavOpen(false)} />
