@@ -14,6 +14,7 @@ import { TaskCardWithMenu } from '@/components/TaskCardWithMenu'
 import { QuickActionsMenu } from '@/components/QuickActionsMenu'
 import { TemplateCreationModal } from '../../components/TemplateCreationModal'
 import { useLocalStorage } from '@/hooks/useLocalStorage'
+import { useTaskStore } from '@/store/useTaskStore'
 import type { Task, TaskPriority, TaskStatus, TaskSort, TaskView } from '@/types/task'
 import type { TaskTemplate } from '@/types/taskTemplate'
 import { cn } from '@/utils/cn'
@@ -105,8 +106,21 @@ const SAMPLE_TASKS: Task[] = [
 
 export function Tasks() {
   const navigate = useNavigate()
-  const [tasks, setTasks] = useLocalStorage<Task[]>('tasks', SAMPLE_TASKS)
+  const tasks = useTaskStore((s) => s.tasks)
+  const setTasks = useTaskStore((s) => s.setTasks)
   const [customTemplates, setCustomTemplates] = useLocalStorage<TaskTemplate[]>('taskTemplates', [])
+
+  // Seed sample tasks on first run only when no task persistence exists.
+  useEffect(() => {
+    if (tasks.length > 0) return
+
+    const hasNewStorage = Boolean(localStorage.getItem('task-storage'))
+    const hasLegacyStorage = Boolean(localStorage.getItem('tasks'))
+
+    if (!hasNewStorage && !hasLegacyStorage) {
+      setTasks(SAMPLE_TASKS)
+    }
+  }, [tasks.length, setTasks])
   const [view, setView] = useState<TaskView>('list')
   
   // Migrate broken templates on mount
