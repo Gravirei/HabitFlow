@@ -3,6 +3,16 @@ import { persist } from 'zustand/middleware'
 import type { Category, CategoryId, CategoryStats } from '@/types/category'
 import { DEFAULT_CATEGORIES } from '@/constants/defaultCategories'
 
+type AddCategoryInput = Omit<
+  Category,
+  'id' | 'createdAt' | 'updatedAt' | 'stats' | 'order' | 'isPinned'
+> & {
+  id?: CategoryId
+  order?: number
+  isPinned?: boolean
+  updatedAt?: string
+}
+
 interface CategoryState {
   categories: Category[]
 
@@ -12,9 +22,7 @@ interface CategoryState {
   getAllCategories: () => Category[]
 
   // CRUD
-  addCategory: (
-    category: Omit<Category, 'id' | 'createdAt' | 'stats'> & { id?: CategoryId }
-  ) => Category
+  addCategory: (category: AddCategoryInput) => Category
   updateCategory: (
     id: CategoryId,
     patch: Partial<Omit<Category, 'id' | 'createdAt'>>
@@ -79,6 +87,7 @@ export const useCategoryStore = create<CategoryState>()(
           name: normalizedName,
           id: categoryInput.id ?? Date.now().toString(),
           createdAt: now,
+          updatedAt: categoryInput.updatedAt ?? now,
           order: categoryInput.order ?? maxOrder + 1,
           isPinned: categoryInput.isPinned ?? false,
           stats: createStats(),

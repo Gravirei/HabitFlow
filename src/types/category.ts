@@ -22,6 +22,7 @@ export interface Category {
   isPinned: boolean
   order: number
   createdAt: string
+  updatedAt?: string
 
   // Placeholder stats shape for future computation
   stats: CategoryStats
