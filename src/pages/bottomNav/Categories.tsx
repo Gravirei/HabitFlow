@@ -1,4 +1,4 @@
-import { useEffect, useState, type ElementType, type ReactNode } from 'react'
+import { useEffect, useMemo, useState, type ElementType, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { BottomNav } from '@/components/BottomNav'
 import { SideNav } from '@/components/SideNav'
@@ -56,6 +56,22 @@ interface Category {
 
 const buildCategoryCountLabel = (habitCount: number) =>
   `${habitCount} Habit${habitCount === 1 ? '' : 's'}`
+
+const mapLegacyHabitCategoryToCategoryId = (legacy?: string): string | undefined => {
+  if (!legacy) return undefined
+
+  // Keep in sync with `useHabitStore`'s internal compatibility mapping.
+  switch (legacy) {
+    case 'health':
+      return 'health'
+    case 'work':
+      return 'work'
+    case 'personal':
+      return 'home'
+    default:
+      return undefined
+  }
+}
 
 const getVariantForCategoryId = (id: string): Pick<Category, 'type' | 'height' | 'gradient'> => {
   // Preserve existing masonry/variant look using real category IDs.
@@ -118,28 +134,86 @@ export function Categories() {
 
   const filters = ['All', 'Habits', 'Tasks', 'Favorites']
 
-  const {
-    getPinnedCategories,
-    getAllCategories,
-    togglePinned,
-    deleteCategory,
-    reorderCategories,
-  } = useCategoryStore()
-  const { getHabitsByCategory, isHabitCompletedToday, clearCategoryFromHabits } = useHabitStore()
+  const categories = useCategoryStore((state) => state.categories)
+  const { togglePinned, deleteCategory, reorderCategories } = useCategoryStore()
 
-  const pinnedCategories = getPinnedCategories().map((category) => {
-    const habits = getHabitsByCategory(category.id)
-    const completedToday = habits.filter((h) => isHabitCompletedToday(h.id)).length
-    const progress = habits.length > 0 ? Math.round((completedToday / habits.length) * 100) : 0
+  const habits = useHabitStore((state) => state.habits)
+  const { isHabitCompletedToday, clearCategoryFromHabits } = useHabitStore()
 
-    return toUICategory(category, habits.length, progress)
-  })
+  const orderedCategories = useMemo(() => {
+    return [...categories].sort((a, b) => a.order - b.order)
+  }, [categories])
 
-  const allCollections = getAllCategories()
-    .filter((c) => !c.isPinned)
-    .map((category) => {
-      const habits = getHabitsByCategory(category.id)
-      const ui = toUICategory(category, habits.length)
+  const pinnedStoreCategories = useMemo(
+    () => orderedCategories.filter((category) => category.isPinned),
+    [orderedCategories]
+  )
+
+  const unpinnedStoreCategories = useMemo(
+    () => orderedCategories.filter((category) => !category.isPinned),
+    [orderedCategories]
+  )
+
+  const derivedStatsByCategoryId = useMemo(() => {
+    const map = new Map<
+      string,
+      {
+        habitCount: number
+        completedToday: number
+        completionTodayPct: number
+      }
+    >()
+
+    for (const category of orderedCategories) {
+      map.set(category.id, { habitCount: 0, completedToday: 0, completionTodayPct: 0 })
+    }
+
+    for (const habit of habits) {
+      const categoryId = habit.categoryId ?? mapLegacyHabitCategoryToCategoryId(habit.category)
+
+      if (!categoryId) continue
+      const stats = map.get(categoryId)
+      if (!stats) continue
+
+      stats.habitCount += 1
+      if (isHabitCompletedToday(habit.id)) {
+        stats.completedToday += 1
+      }
+    }
+
+    for (const [categoryId, stats] of map.entries()) {
+      map.set(categoryId, {
+        ...stats,
+        completionTodayPct:
+          stats.habitCount > 0
+            ? Math.round((stats.completedToday / stats.habitCount) * 100)
+            : 0,
+      })
+    }
+
+    return map
+  }, [orderedCategories, habits, isHabitCompletedToday])
+
+  const pinnedCategories = useMemo(() => {
+    return pinnedStoreCategories.map((category) => {
+      const stats = derivedStatsByCategoryId.get(category.id) ?? {
+        habitCount: 0,
+        completedToday: 0,
+        completionTodayPct: 0,
+      }
+
+      return toUICategory(category, stats.habitCount, stats.completionTodayPct)
+    })
+  }, [pinnedStoreCategories, derivedStatsByCategoryId])
+
+  const allCollections = useMemo(() => {
+    return unpinnedStoreCategories.map((category) => {
+      const stats = derivedStatsByCategoryId.get(category.id) ?? {
+        habitCount: 0,
+        completedToday: 0,
+        completionTodayPct: 0,
+      }
+      const ui = toUICategory(category, stats.habitCount)
 
       if (category.id === 'reading') {
         ui.items = ['bg-gray-300', 'bg-gray-400', 'bg-gray-500']
@@ -147,6 +221,7 @@ export function Categories() {
 
       return ui
     })
+  }, [unpinnedStoreCategories, derivedStatsByCategoryId])
 
   useEffect(() => {
     if (!openMenuCategoryId && !isReorderMode) return
@@ -166,9 +241,9 @@ export function Categories() {
     if (!isReorderMode) return
 
     // When entering reorder mode, start from the current store order (including pinned)
-    setReorderIds(getAllCategories().map((c) => c.id))
+    setReorderIds(orderedCategories.map((c) => c.id))
     setOpenMenuCategoryId(null)
-  }, [isReorderMode, getAllCategories])
+  }, [isReorderMode, orderedCategories])
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -345,7 +420,7 @@ export function Categories() {
               <SortableContext items={reorderIds} strategy={rectSortingStrategy}>
                 <div className="grid grid-cols-2 gap-4 px-2">
                   {reorderIds.map((id) => {
-                    const category = getAllCategories().find((c) => c.id === id)
+                    const category = orderedCategories.find((c) => c.id === id)
                     if (!category) return null
 
                     return <SortableCategoryTile key={id} category={category} />
@@ -356,7 +431,7 @@ export function Categories() {
               <DragOverlay>
                 {activeDragId ? (
                   <ReorderOverlayTile
-                    category={getAllCategories().find((c) => c.id === activeDragId)}
+                    category={orderedCategories.find((c) => c.id === activeDragId)}
                   />
                 ) : null}
               </DragOverlay>
