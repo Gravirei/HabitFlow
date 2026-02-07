@@ -25,7 +25,6 @@ describe('useCategoryStore (CRUD semantics)', () => {
     localStorage.clear()
 
     // Reset store to defaults - preserve methods
-    // @ts-expect-error - accessing internal state for testing
     const state = useCategoryStore.getState()
     useCategoryStore.setState({
       categories: cloneDefaults(),
