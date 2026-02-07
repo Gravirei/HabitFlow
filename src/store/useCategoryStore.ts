@@ -55,6 +55,20 @@ export const useCategoryStore = create<CategoryState>()(
 
       addCategory: (categoryInput) => {
         const now = new Date().toISOString()
+
+        const normalizedName = categoryInput.name.trim()
+        if (!normalizedName) {
+          throw new Error('Category name is required.')
+        }
+
+        const normalizedKey = normalizedName.toLocaleLowerCase()
+        const isDuplicate = get().categories.some(
+          (c) => c.name.trim().toLocaleLowerCase() === normalizedKey
+        )
+        if (isDuplicate) {
+          throw new Error('A category with that name already exists.')
+        }
+
         const maxOrder = get().categories.reduce(
           (max, c) => Math.max(max, c.order),
           0
@@ -62,6 +76,7 @@ export const useCategoryStore = create<CategoryState>()(
 
         const created: Category = {
           ...categoryInput,
+          name: normalizedName,
           id: categoryInput.id ?? Date.now().toString(),
           createdAt: now,
           order: categoryInput.order ?? maxOrder + 1,
