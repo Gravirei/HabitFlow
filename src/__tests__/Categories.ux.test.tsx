@@ -285,7 +285,7 @@ describe('Categories (Phase 4 UX)', () => {
     await user.click(screen.getByRole('button', { name: 'Open search' }))
     await user.type(await screen.findByPlaceholderText('Search categories...'), 'zzz')
 
-    expect(screen.getByText('No categories match your search')).toBeInTheDocument()
+    expect(await screen.findByText('No categories match your search')).toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: 'Clear search' }))
 

@@ -21,15 +21,20 @@ interface TaskModalProps {
   onClose: () => void
   onSave: (task: Task) => void
   task?: Task | null
+  /** Prefill fields for create flow (Phase 5). Only `categoryId` association is supported. */
+  prefill?: {
+    categoryId?: string
+  }
 }
 
-export function TaskModal({ isOpen, onClose, onSave, task }: TaskModalProps) {
+export function TaskModal({ isOpen, onClose, onSave, task, prefill }: TaskModalProps) {
   // Form State
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [priority, setPriority] = useState<TaskPriority>('medium')
   const [status, setStatus] = useState<TaskStatus>('todo')
   const [category, setCategory] = useState('')
+  const [categoryId, setCategoryId] = useState<string | undefined>(undefined)
   const [tags, setTags] = useState<string[]>([])
   const [tagInput, setTagInput] = useState('')
   const [isCategoryOpen, setIsCategoryOpen] = useState(false)
@@ -85,16 +90,19 @@ export function TaskModal({ isOpen, onClose, onSave, task }: TaskModalProps) {
       setPriority(task.priority)
       setStatus(task.status)
       setCategory(task.category)
+      setCategoryId(task.categoryId)
       setTags(task.tags)
       setDueDate(task.due ? task.due.split('T')[0] : '')
       setDueTime(task.dueTime || '')
       setRecurring(task.recurring || null)
       setSubtasks(task.subtasks)
       setTimeEstimate(task.timeEstimate)
-    } else {
-      resetForm()
+      return
     }
-  }, [task, isOpen])
+
+    resetForm()
+    setCategoryId(prefill?.categoryId)
+  }, [task, isOpen, prefill?.categoryId])
 
   const resetForm = () => {
     setTitle('')
@@ -102,6 +110,7 @@ export function TaskModal({ isOpen, onClose, onSave, task }: TaskModalProps) {
     setPriority('medium')
     setStatus('todo')
     setCategory('')
+    setCategoryId(undefined)
     setTags([])
     setTagInput('')
     setDueDate('')
@@ -124,6 +133,7 @@ export function TaskModal({ isOpen, onClose, onSave, task }: TaskModalProps) {
       status,
       priority,
       category: category.trim() || 'Uncategorized',
+      categoryId,
       tags,
       due: dueDate ? new Date(dueDate).toISOString() : undefined,
       dueTime: dueTime || undefined,

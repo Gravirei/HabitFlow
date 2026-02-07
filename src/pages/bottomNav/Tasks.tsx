@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { BottomNav } from '@/components/BottomNav'
 import { TaskModal } from '@/components/TaskModal'
 import { KanbanBoard } from '@/components/KanbanBoard'
@@ -106,6 +106,7 @@ const SAMPLE_TASKS: Task[] = [
 
 export function Tasks() {
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
   const tasks = useTaskStore((s) => s.tasks)
   const setTasks = useTaskStore((s) => s.setTasks)
   const [customTemplates, setCustomTemplates] = useLocalStorage<TaskTemplate[]>('taskTemplates', [])
@@ -156,6 +157,24 @@ export function Tasks() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
   const [sort, setSort] = useState<TaskSort>({ field: 'dueDate', direction: 'asc' })
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
+  const prefillCategoryId = searchParams.get('categoryId') ?? undefined
+
+  // Option A: allow deep-link to task creation from CategoryDetail.
+  useEffect(() => {
+    const shouldOpen = searchParams.get('new') === '1'
+    if (!shouldOpen) return
+
+    setEditingTask(null)
+    setIsAddModalOpen(true)
+
+    // Remove `new` param after opening to avoid reopening on refresh/back.
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev)
+      next.delete('new')
+      return next
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [editingTask, setEditingTask] = useState<Task | null>(null)
   const [isQuickActionsOpen, setIsQuickActionsOpen] = useState(false)
@@ -898,6 +917,7 @@ export function Tasks() {
         onClose={handleCloseModal}
         onSave={handleSaveTask}
         task={editingTask}
+        prefill={{ categoryId: prefillCategoryId }}
       />
       
       <QuickActionsMenu
