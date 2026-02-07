@@ -20,6 +20,14 @@ interface HabitState {
   getHabitsByCategory: (categoryId: string) => Habit[]
   moveHabitToCategory: (habitId: string, categoryId: string) => void
   getUncategorizedHabits: () => Habit[]
+
+  /**
+   * When a category is deleted, make affected habits Uncategorized by clearing
+   * their `categoryId`.
+   *
+   * Note: this intentionally does not touch the legacy `category` field.
+   */
+  clearCategoryFromHabits: (categoryId: string) => void
 }
 
 const mapLegacyCategoryToCategoryId = (
@@ -161,6 +169,16 @@ export const useHabitStore = create<HabitState>()(
         return get().habits.filter(
           (habit) => !habit.categoryId && !habit.category
         )
+      },
+
+      clearCategoryFromHabits: (categoryId) => {
+        set((state) => ({
+          habits: state.habits.map((habit) =>
+            habit.categoryId === categoryId
+              ? { ...habit, categoryId: undefined }
+              : habit
+          ),
+        }))
       },
     }),
     {

@@ -36,7 +36,11 @@ describe('useHabitStore', () => {
       isHabitCompletedToday: state.isHabitCompletedToday,
       isHabitCompletedOnDate: state.isHabitCompletedOnDate,
       loadSampleHabits: state.loadSampleHabits,
-      markOnboardingComplete: state.markOnboardingComplete
+      markOnboardingComplete: state.markOnboardingComplete,
+      getHabitsByCategory: state.getHabitsByCategory,
+      moveHabitToCategory: state.moveHabitToCategory,
+      getUncategorizedHabits: state.getUncategorizedHabits,
+      clearCategoryFromHabits: state.clearCategoryFromHabits
     })
   })
 
@@ -368,6 +372,75 @@ describe('useHabitStore', () => {
         result.current.toggleHabitCompletion(habitId)
       })
       expect(result.current.isHabitCompletedToday(habitId)).toBe(false)
+    })
+  })
+
+  describe('clearCategoryFromHabits', () => {
+    it('should clear categoryId from habits that match the deleted category and persist', () => {
+      const { result: result1 } = renderHook(() => useHabitStore())
+
+      act(() => {
+        result1.current.addHabit({
+          name: 'Habit A',
+          icon: 'check_circle',
+          frequency: 'daily',
+          goal: 1,
+          goalPeriod: 'day',
+          reminderEnabled: false,
+          startDate: '2024-01-01',
+          categoryId: 'cat-1',
+        })
+
+        result1.current.addHabit({
+          name: 'Habit B',
+          icon: 'check_circle',
+          frequency: 'daily',
+          goal: 1,
+          goalPeriod: 'day',
+          reminderEnabled: false,
+          startDate: '2024-01-01',
+          categoryId: 'cat-2',
+        })
+
+        // Legacy field should be left untouched by this helper
+        result1.current.addHabit({
+          name: 'Habit C',
+          icon: 'check_circle',
+          frequency: 'daily',
+          goal: 1,
+          goalPeriod: 'day',
+          reminderEnabled: false,
+          startDate: '2024-01-01',
+          category: 'personal',
+        })
+      })
+
+      expect(result1.current.habits.map((h) => h.categoryId)).toEqual([
+        'cat-1',
+        'cat-2',
+        undefined,
+      ])
+
+      act(() => {
+        result1.current.clearCategoryFromHabits('cat-1')
+      })
+
+      expect(result1.current.habits.map((h) => h.categoryId)).toEqual([
+        undefined,
+        'cat-2',
+        undefined,
+      ])
+
+      // Simulate new session
+      const { result: result2 } = renderHook(() => useHabitStore())
+      expect(result2.current.habits.map((h) => h.categoryId)).toEqual([
+        undefined,
+        'cat-2',
+        undefined,
+      ])
+
+      // Ensure legacy `category` field remains
+      expect(result2.current.habits[2].category).toBe('personal')
     })
   })
 
