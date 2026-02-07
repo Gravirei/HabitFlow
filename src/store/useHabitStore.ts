@@ -15,6 +15,30 @@ interface HabitState {
   isHabitCompletedOnDate: (habitId: string, date: string) => boolean
   loadSampleHabits: () => void
   markOnboardingComplete: () => void
+
+  // Category helpers (additive; no behavior change for existing callers)
+  getHabitsByCategory: (categoryId: string) => Habit[]
+  moveHabitToCategory: (habitId: string, categoryId: string) => void
+  getUncategorizedHabits: () => Habit[]
+}
+
+const mapLegacyCategoryToCategoryId = (
+  legacy?: Habit['category']
+): string | undefined => {
+  if (!legacy) return undefined
+
+  // Minimal compatibility mapping during migration.
+  switch (legacy) {
+    case 'health':
+      return 'health'
+    case 'work':
+      return 'work'
+    case 'personal':
+      // Product decision pending; choose a stable default for now.
+      return 'home'
+    default:
+      return undefined
+  }
 }
 
 export const useHabitStore = create<HabitState>()(
@@ -115,6 +139,28 @@ export const useHabitStore = create<HabitState>()(
       
       markOnboardingComplete: () => {
         set({ isFirstVisit: false })
+      },
+
+      getHabitsByCategory: (categoryId) => {
+        return get().habits.filter((habit) => {
+          if (habit.categoryId) return habit.categoryId === categoryId
+          const mapped = mapLegacyCategoryToCategoryId(habit.category)
+          return mapped === categoryId
+        })
+      },
+
+      moveHabitToCategory: (habitId, categoryId) => {
+        set((state) => ({
+          habits: state.habits.map((habit) =>
+            habit.id === habitId ? { ...habit, categoryId } : habit
+          ),
+        }))
+      },
+
+      getUncategorizedHabits: () => {
+        return get().habits.filter(
+          (habit) => !habit.categoryId && !habit.category
+        )
       },
     }),
     {
