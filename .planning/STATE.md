@@ -37,3 +37,25 @@
 
 **Blockers/Issues:**
 - Repo still emits React `act(...)` warnings in tests due to DnD/Framer Motion/Router, but targeted tests pass.
+
+## 2026-02-07 - Phase 5 Plan Complete
+
+**Completed:** Phase 5 - Integrate Tasks into Categories
+
+**Objective:** Integrate Tasks into Categories with shared persistence, task-aware filtering/sorting, CategoryDetail tasks view, and category-scoped task creation.
+
+**Status:** ✓ Complete
+
+**Key outcomes:**
+- Added optional `Task.categoryId` association while preserving legacy `Task.category`.
+- Introduced persisted `useTaskStore` with legacy migration from `localStorage['tasks']` and added helper tests.
+- Enabled Tasks chip and task-aware filtering/sorting on Categories (Most used = habitCount + taskCount).
+- Added CategoryDetail Habits/Tasks/Both toggle with category-scoped tasks list and Add Task CTA.
+- Added deep-link task creation flow: `/tasks?new=1&categoryId=<id>` auto-opens modal and prefills `categoryId` only.
+
+**Decisions made:**
+- "Most used" sort semantics updated to combined usage (Option A).
+- Task creation UX uses query params (Option A).
+
+**Blockers/Issues:**
+- Repo still emits React `act(...)` warnings in some UI tests (pre-existing); targeted Phase 5 tests pass.
