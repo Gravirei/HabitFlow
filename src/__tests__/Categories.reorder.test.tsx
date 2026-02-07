@@ -81,6 +81,19 @@ vi.mock('@/store/useHabitStore', () => ({
   },
 }))
 
+// Phase 5: "All" filter only shows categories that have habits OR tasks.
+// Seed one task so categories render and the kebab menu exists.
+vi.mock('@/store/useTaskStore', () => ({
+  useTaskStore: (selector?: any) => {
+    const state = {
+      tasks: [{ id: 't-work-1', categoryId: 'work' }],
+      clearCategoryFromTasks: vi.fn(),
+    }
+
+    return typeof selector === 'function' ? selector(state) : state
+  },
+}))
+
 describe('Categories (reorder mode)', () => {
   beforeEach(() => {
     navigateMock.mockClear()
@@ -96,7 +109,7 @@ describe('Categories (reorder mode)', () => {
       </MemoryRouter>
     )
 
-    const actionButtons = screen.getAllByLabelText('Category actions')
+    const actionButtons = await screen.findAllByLabelText('Category actions')
     await user.click(actionButtons[0])
 
     await user.click(screen.getByRole('menuitem', { name: 'Reorder' }))

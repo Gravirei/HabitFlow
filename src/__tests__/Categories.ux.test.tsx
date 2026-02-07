@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, within } from '@testing-library/react'
+import { render, screen, within, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { Categories } from '@/pages/bottomNav/Categories'
@@ -161,8 +161,11 @@ describe('Categories (Phase 4 UX)', () => {
     const input = await screen.findByPlaceholderText('Search categories...')
     await user.type(input, 'wor')
 
-    expect(screen.getByText('Work')).toBeInTheDocument()
-    expect(screen.queryByText('Home')).not.toBeInTheDocument()
+    // Categories uses useDeferredValue(searchQuery), so results update async.
+    await waitFor(() => {
+      expect(screen.getByText('Work')).toBeInTheDocument()
+      expect(screen.queryByText('Home')).not.toBeInTheDocument()
+    })
   })
 
   it('Empty filter shows only categories with no habits', async () => {
