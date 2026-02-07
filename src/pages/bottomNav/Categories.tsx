@@ -36,6 +36,7 @@ import { CreateCategoryModal, EditCategoryModal } from '@/components/categories'
 import { ConfirmDialog } from '@/components/timer/settings/ConfirmDialog'
 import { useCategoryStore } from '@/store/useCategoryStore'
 import { useHabitStore } from '@/store/useHabitStore'
+import { useTaskStore } from '@/store/useTaskStore'
 import type { Category as StoreCategory } from '@/types/category'
 
 // UI-only category shape used by the existing card variants
@@ -169,10 +170,10 @@ export function Categories() {
   const [reorderIds, setReorderIds] = useState<string[]>([])
   const [activeDragId, setActiveDragId] = useState<string | null>(null)
 
-  const filters: Array<{ key: CategoryFilter; label: string; disabled?: boolean; hint?: string }> = [
+  const filters: Array<{ key: CategoryFilter; label: string }> = [
     { key: 'All', label: 'All' },
     { key: 'Habits', label: 'Habits' },
-    { key: 'Tasks', label: 'Tasks', disabled: true, hint: 'Coming soon' },
+    { key: 'Tasks', label: 'Tasks' },
     { key: 'Favorites', label: 'Favorites' },
     { key: 'Empty', label: 'Empty' },
   ]
@@ -182,6 +183,9 @@ export function Categories() {
 
   const habits = useHabitStore((state) => state.habits)
   const { isHabitCompletedToday, clearCategoryFromHabits, getHabitsByCategory } = useHabitStore()
+
+  const tasks = useTaskStore((state) => state.tasks)
+  const clearCategoryFromTasks = useTaskStore((state) => state.clearCategoryFromTasks)
 
   const orderedCategories = useMemo(() => {
     return [...categories].sort((a, b) => a.order - b.order)
@@ -202,13 +206,14 @@ export function Categories() {
       string,
       {
         habitCount: number
+        taskCount: number
         completedToday: number
         completionTodayPct: number
       }
     >()
 
     for (const category of orderedCategories) {
-      map.set(category.id, { habitCount: 0, completedToday: 0, completionTodayPct: 0 })
+      map.set(category.id, { habitCount: 0, taskCount: 0, completedToday: 0, completionTodayPct: 0 })
     }
 
     for (const habit of habits) {
@@ -224,6 +229,14 @@ export function Categories() {
       }
     }
 
+    // Scan tasks once to compute taskCount per category.
+    for (const task of tasks) {
+      if (!task.categoryId) continue
+      const stats = map.get(task.categoryId)
+      if (!stats) continue
+      stats.taskCount += 1
+    }
+
     for (const [categoryId, stats] of map.entries()) {
       map.set(categoryId, {
         ...stats,
@@ -235,7 +248,7 @@ export function Categories() {
     }
 
     return map
-  }, [orderedCategories, habits, isHabitCompletedToday])
+  }, [orderedCategories, habits, tasks, isHabitCompletedToday])
 
   const deferredSearchQuery = useDeferredValue(searchQuery)
 
@@ -244,23 +257,28 @@ export function Categories() {
   }, [deferredSearchQuery])
 
   const filterCounts = useMemo(() => {
-    const all = orderedCategories.length
+    let allCount = 0
     let habitsCount = 0
+    let tasksCount = 0
     let favoritesCount = 0
     let emptyCount = 0
 
     for (const category of orderedCategories) {
       const stats = derivedStatsByCategoryId.get(category.id)
       const habitCount = stats?.habitCount ?? 0
+      const taskCount = stats?.taskCount ?? 0
 
+      if (habitCount > 0 || taskCount > 0) allCount += 1
       if (habitCount > 0) habitsCount += 1
+      if (taskCount > 0) tasksCount += 1
       if (category.isPinned) favoritesCount += 1
-      if (habitCount === 0 && category.stats.taskCount === 0) emptyCount += 1
+      if (habitCount === 0 && taskCount === 0) emptyCount += 1
     }
 
     return {
-      All: all,
+      All: allCount,
       Habits: habitsCount,
+      Tasks: tasksCount,
       Favorites: favoritesCount,
       Empty: emptyCount,
     }
@@ -269,16 +287,19 @@ export function Categories() {
   const isCategoryVisibleForFilter = (category: StoreCategory) => {
     const stats = derivedStatsByCategoryId.get(category.id)
     const habitCount = stats?.habitCount ?? 0
+    const taskCount = stats?.taskCount ?? 0
 
     switch (activeFilter) {
+      case 'All':
+        return habitCount > 0 || taskCount > 0
       case 'Habits':
         return habitCount > 0
+      case 'Tasks':
+        return taskCount > 0
       case 'Favorites':
         return category.isPinned
       case 'Empty':
-        return habitCount === 0 && category.stats.taskCount === 0
-      case 'Tasks':
-      case 'All':
+        return habitCount === 0 && taskCount === 0
       default:
         return true
     }
@@ -295,6 +316,7 @@ export function Categories() {
     const statFor = (category: StoreCategory) =>
       derivedStatsByCategoryId.get(category.id) ?? {
         habitCount: 0,
+        taskCount: 0,
         completedToday: 0,
         completionTodayPct: 0,
       }
@@ -306,7 +328,9 @@ export function Categories() {
         case 'name':
           return nameCmp
         case 'mostUsed': {
-          const diff = statFor(b).habitCount - statFor(a).habitCount
+          // Phase 5 decision (Option A): "Most used" reflects combined usage (habits + tasks).
+          const diff =
+            statFor(b).habitCount + statFor(b).taskCount - (statFor(a).habitCount + statFor(a).taskCount)
           return diff !== 0 ? diff : nameCmp
         }
         case 'completionToday': {
@@ -437,6 +461,7 @@ export function Categories() {
   const handleConfirmDelete = () => {
     if (!deleteCategoryId) return
     clearCategoryFromHabits(deleteCategoryId)
+    clearCategoryFromTasks(deleteCategoryId)
     deleteCategory(deleteCategoryId)
     setDeleteCategoryId(null)
   }
@@ -548,47 +573,27 @@ export function Categories() {
               <div className="grid grid-cols-5 gap-2">
                 {filters.map((filter) => {
                   const count = filterCounts[filter.key as keyof typeof filterCounts]
-                  const label =
-                    typeof count === 'number' && filter.key !== 'Tasks'
-                      ? `${filter.label} (${count})`
-                      : filter.label
+                  const label = typeof count === 'number' ? `${filter.label} (${count})` : filter.label
 
                   return (
                     <button
                       key={filter.key}
                       type="button"
                       onClick={() => {
-                        if (filter.disabled) return
                         setActiveFilter(filter.key)
                       }}
-                      disabled={filter.disabled}
                       className={clsx(
                         'whitespace-nowrap rounded-full py-2.5 text-xs font-bold transition-all duration-200 sm:text-sm',
-                        filter.disabled &&
-                          'cursor-not-allowed border border-gray-200 bg-white/60 text-gray-400 dark:border-white/5 dark:bg-surface-dark/60 dark:text-gray-500',
-                        !filter.disabled &&
-                          (activeFilter === filter.key
-                            ? 'bg-primary text-background-dark shadow-[0_4px_12px_rgba(19,236,91,0.3)]'
-                            : 'border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 dark:border-white/5 dark:bg-surface-dark dark:text-gray-300 dark:hover:bg-white/5')
+                        activeFilter === filter.key
+                          ? 'bg-primary text-background-dark shadow-[0_4px_12px_rgba(19,236,91,0.3)]'
+                          : 'border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 dark:border-white/5 dark:bg-surface-dark dark:text-gray-300 dark:hover:bg-white/5'
                       )}
-                      aria-label={
-                        filter.disabled && filter.hint
-                          ? `${filter.label}. ${filter.hint}`
-                          : label
-                      }
-                      title={filter.disabled ? filter.hint : undefined}
+                      aria-label={label}
                     >
                       {label}
-                      {filter.disabled && filter.hint ? (
-                        <span className="sr-only">{filter.hint}</span>
-                      ) : null}
                     </button>
                   )
                 })}
-              </div>
-
-              <div className="mt-2 text-[11px] font-medium text-gray-400 dark:text-gray-500">
-                {filters.find((f) => f.key === 'Tasks')?.hint}
               </div>
             </div>
           </>

@@ -44,10 +44,16 @@ type HabitStoreState = {
   clearCategoryFromHabits: (categoryId: string) => void
 }
 
+type TaskStoreState = {
+  tasks: Array<{ id: string; categoryId?: string }>
+  clearCategoryFromTasks: (categoryId: string) => void
+}
+
 const reorderCategoriesMock = vi.fn()
 
 let mockCategories: Category[] = []
 let mockHabits: Habit[] = []
+let mockTasks: Array<{ id: string; categoryId?: string }> = []
 let completedTodayIds = new Set<string>()
 
 vi.mock('@/store/useCategoryStore', () => ({
@@ -78,6 +84,19 @@ vi.mock('@/store/useHabitStore', () => ({
   },
 }))
 
+const clearCategoryFromTasksMock = vi.fn()
+
+vi.mock('@/store/useTaskStore', () => ({
+  useTaskStore: (selector?: any) => {
+    const state: TaskStoreState = {
+      tasks: mockTasks,
+      clearCategoryFromTasks: clearCategoryFromTasksMock,
+    }
+
+    return typeof selector === 'function' ? selector(state) : state
+  },
+}))
+
 const renderCategories = () => {
   return render(
     <MemoryRouter>
@@ -90,8 +109,10 @@ describe('Categories (Phase 4 UX)', () => {
   beforeEach(() => {
     navigateMock.mockClear()
     reorderCategoriesMock.mockClear()
+    clearCategoryFromTasksMock.mockClear()
     mockCategories = []
     mockHabits = []
+    mockTasks = []
     completedTodayIds = new Set()
 
     try {
@@ -127,12 +148,18 @@ describe('Categories (Phase 4 UX)', () => {
       },
     ]
 
+    // Phase 5: All filter shows categories with habits OR tasks.
+    mockTasks = [
+      { id: 't-work-1', categoryId: 'work' },
+      { id: 't-home-1', categoryId: 'home' },
+    ]
+
     renderCategories()
 
     await user.click(screen.getByRole('button', { name: 'Open search' }))
 
     const input = await screen.findByPlaceholderText('Search categories...')
-    await user.type(input, 'wo')
+    await user.type(input, 'wor')
 
     expect(screen.getByText('Work')).toBeInTheDocument()
     expect(screen.queryByText('Home')).not.toBeInTheDocument()
@@ -219,22 +246,19 @@ describe('Categories (Phase 4 UX)', () => {
       },
     ]
 
+    // Phase 5: All filter shows categories with habits OR tasks.
+    mockTasks = [
+      { id: 't-a', categoryId: 'a' },
+      { id: 't-b', categoryId: 'b' },
+    ]
+
     renderCategories()
 
     await user.selectOptions(screen.getByLabelText('Sort categories'), 'name')
 
-    const cards = screen.getAllByRole('button')
-
-    // Safer: check order within "All Collections" section.
-    const allCollectionsHeading = screen.getByText('All Collections')
-    const section = allCollectionsHeading.closest('div')
-    expect(section).toBeTruthy()
-
-    // Query text nodes in order of appearance
-    const alphaIndex = screen.getByText('Alpha').compareDocumentPosition(screen.getByText('Beta'))
-    expect(alphaIndex & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
-
-    expect(cards.length).toBeGreaterThan(0)
+    // Alpha should appear before Beta in the DOM.
+    const pos = screen.getByText('Alpha').compareDocumentPosition(screen.getByText('Beta'))
+    expect(pos & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
   })
 
   it('no-results empty state appears and Clear search restores results', async () => {
@@ -252,6 +276,9 @@ describe('Categories (Phase 4 UX)', () => {
         stats: { habitCount: 0, taskCount: 0, completionRate: 0 },
       },
     ]
+
+    // Phase 5: All filter shows categories with habits OR tasks.
+    mockTasks = [{ id: 't-home-1', categoryId: 'home' }]
 
     renderCategories()
 
@@ -309,7 +336,7 @@ describe('Categories (Phase 4 UX)', () => {
     expect(screen.queryByText('Home')).not.toBeInTheDocument()
   })
 
-  it('Tasks chip is visible but disabled with coming soon hint', () => {
+  it('Tasks chip is enabled and selectable', async () => {
     mockCategories = [
       {
         id: 'home',
@@ -325,8 +352,13 @@ describe('Categories (Phase 4 UX)', () => {
 
     renderCategories()
 
+    const user = userEvent.setup()
+
     const tasksChip = screen.getByRole('button', { name: /Tasks/i })
-    expect(tasksChip).toBeDisabled()
-    expect(screen.getAllByText('Coming soon').length).toBeGreaterThan(0)
+    expect(tasksChip).toBeEnabled()
+
+    await user.click(tasksChip)
+    // Filter switches to Tasks view
+    expect(screen.getByRole('button', { name: /Tasks \(0\)/i })).toHaveClass('bg-primary')
   })
 })
