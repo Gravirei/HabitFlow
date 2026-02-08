@@ -168,9 +168,7 @@ describe('Categories (Phase 4 UX)', () => {
     })
   })
 
-  it('Empty filter shows only categories with no habits', async () => {
-    const user = userEvent.setup()
-
+  it('default view shows all categories', async () => {
     mockCategories = [
       {
         id: 'work',
@@ -216,11 +214,9 @@ describe('Categories (Phase 4 UX)', () => {
 
     renderCategories()
 
-    const emptyChip = screen.getByRole('button', { name: /Empty/i })
-    await user.click(emptyChip)
-
+    // Both categories should be visible (including empty ones)
     expect(screen.getByText('Home')).toBeInTheDocument()
-    expect(screen.queryByText('Work')).not.toBeInTheDocument()
+    expect(screen.getByText('Work')).toBeInTheDocument()
   })
 
   it('sorting by name orders categories A→Z', async () => {
@@ -303,7 +299,7 @@ describe('Categories (Phase 4 UX)', () => {
     expect(screen.getByRole('button', { name: 'Create category' })).toBeInTheDocument()
   })
 
-  it('Favorites filter shows pinned-only view', async () => {
+  it('Favorites sort shows pinned first, then unpinned', async () => {
     const user = userEvent.setup()
 
     mockCategories = [
@@ -331,15 +327,14 @@ describe('Categories (Phase 4 UX)', () => {
 
     renderCategories()
 
-    await user.click(screen.getByRole('button', { name: /Favorites/i }))
+    await user.selectOptions(screen.getByLabelText('Sort categories'), 'favorites')
 
-    expect(screen.getByText('Favorites')).toBeInTheDocument()
-    expect(screen.getByText('Work')).toBeInTheDocument()
-    expect(screen.queryByText('All Collections')).not.toBeInTheDocument()
-    expect(screen.queryByText('Home')).not.toBeInTheDocument()
+    // Work (pinned) should appear before Home (unpinned)
+    const workPos = screen.getByText('Work').compareDocumentPosition(screen.getByText('Home'))
+    expect(workPos & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
   })
 
-  it('Tasks chip is enabled and selectable', async () => {
+  it('all categories are shown by default', async () => {
     mockCategories = [
       {
         id: 'home',
@@ -351,17 +346,22 @@ describe('Categories (Phase 4 UX)', () => {
         createdAt: '2026-01-01T00:00:00.000Z',
         stats: { habitCount: 0, taskCount: 0, completionRate: 0 },
       },
+      {
+        id: 'work',
+        name: 'Work',
+        icon: 'work',
+        color: 'blue',
+        order: 2,
+        isPinned: false,
+        createdAt: '2026-01-01T00:00:00.000Z',
+        stats: { habitCount: 0, taskCount: 0, completionRate: 0 },
+      },
     ]
 
     renderCategories()
 
-    const user = userEvent.setup()
-
-    const tasksChip = screen.getByRole('button', { name: /Tasks/i })
-    expect(tasksChip).toBeEnabled()
-
-    await user.click(tasksChip)
-    // Filter switches to Tasks view
-    expect(screen.getByRole('button', { name: /Tasks \(0\)/i })).toHaveClass('bg-primary')
+    // Both categories should be visible
+    expect(screen.getByText('Home')).toBeInTheDocument()
+    expect(screen.getByText('Work')).toBeInTheDocument()
   })
 })

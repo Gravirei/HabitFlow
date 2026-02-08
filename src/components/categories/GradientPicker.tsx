@@ -61,14 +61,16 @@ export function GradientPicker({
   return (
     <div className={clsx('w-full', className)}>
       <div className="mb-2 flex items-center justify-between">
-        <label className="text-sm font-semibold text-gray-200">{label}</label>
-        <button
-          type="button"
-          onClick={() => onChange(undefined)}
-          className="rounded text-xs font-semibold text-gray-400 underline-offset-2 hover:text-white hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
-        >
-          Clear
-        </button>
+        <label className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">{label}</label>
+        {value && (
+          <button
+            type="button"
+            onClick={() => onChange(undefined)}
+            className="rounded text-xs font-semibold text-gray-500 underline-offset-2 hover:text-gray-700 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 dark:text-gray-400 dark:hover:text-white"
+          >
+            Clear
+          </button>
+        )}
       </div>
 
       <div className="grid grid-cols-2 gap-2">
@@ -83,12 +85,12 @@ export function GradientPicker({
                 'group flex items-center gap-3 rounded-xl border p-2 text-left transition-colors duration-200 cursor-pointer',
                 'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50',
                 isSelected
-                  ? 'border-primary/50 bg-primary/10'
-                  : 'border-white/10 bg-white/5 hover:bg-white/10'
+                  ? 'border-primary bg-primary/10'
+                  : 'border-gray-200 bg-white hover:bg-gray-50 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10'
               )}
             >
               <span className={clsx('h-8 w-8 rounded-lg bg-gradient-to-br', g.value)} aria-hidden="true" />
-              <span className="text-sm font-semibold text-gray-200">{g.name}</span>
+              <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">{g.name}</span>
             </button>
           )
         })}

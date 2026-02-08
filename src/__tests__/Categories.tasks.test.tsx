@@ -75,9 +75,7 @@ describe('Categories (Phase 5 tasks integration)', () => {
     mockTasks = []
   })
 
-  it('Tasks chip shows only categories with tasks', async () => {
-    const user = userEvent.setup()
-
+  it('shows all categories including those with tasks', async () => {
     mockCategories = [
       {
         id: 'work',
@@ -119,9 +117,8 @@ describe('Categories (Phase 5 tasks integration)', () => {
 
     renderPage()
 
-    await user.click(screen.getByRole('button', { name: /Tasks \(1\)/i }))
-
+    // Both categories should be visible (no filter tabs)
     expect(screen.getByText('Work')).toBeInTheDocument()
-    expect(screen.queryByText('Home')).not.toBeInTheDocument()
+    expect(screen.getByText('Home')).toBeInTheDocument()
   })
 })

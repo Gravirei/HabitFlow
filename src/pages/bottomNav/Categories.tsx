@@ -32,7 +32,12 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 
-import { CreateCategoryModal, EditCategoryModal, CategoryTemplatesModal, CategoryImportExportModal } from '@/components/categories'
+import {
+  CreateCategoryModal,
+  EditCategoryModal,
+  CategoryTemplatesModal,
+  CategoryImportExportModal,
+} from '@/components/categories'
 import { ConfirmDialog } from '@/components/timer/settings/ConfirmDialog'
 import { useCategoryStore } from '@/store/useCategoryStore'
 import { useHabitStore } from '@/store/useHabitStore'
@@ -48,6 +53,7 @@ interface Category {
   icon: string
   color: string
   gradient?: string
+  imagePath?: string
   textColor?: string
   height?: string
   type?:
@@ -110,15 +116,19 @@ const getVariantForCategoryId = (id: string): Pick<Category, 'type' | 'height' |
 const toUICategory = (category: StoreCategory, habitCount: number, progress?: number): Category => {
   const variant = getVariantForCategoryId(category.id)
 
+  // If category has an image, use 'image-card' type, otherwise use variant type
+  const type = category.imagePath ? 'image-card' : variant.type
+
   return {
     id: category.id,
     name: category.name,
     icon: category.icon,
     color: category.color,
     gradient: category.gradient ?? variant.gradient,
+    imagePath: category.imagePath,
     textColor: category.textColor,
     height: category.height ?? variant.height,
-    type: variant.type,
+    type,
     count: buildCategoryCountLabel(habitCount),
     progress,
   }
@@ -132,10 +142,7 @@ export function Categories() {
   const [isImportExportModalOpen, setIsImportExportModalOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
 
-  type CategoryFilter = 'All' | 'Habits' | 'Tasks' | 'Favorites' | 'Empty'
-  const [activeFilter, setActiveFilter] = useState<CategoryFilter>('All')
-
-  type CategorySort = 'order' | 'name' | 'mostUsed' | 'completionToday'
+  type CategorySort = 'order' | 'name' | 'mostUsed' | 'completionToday' | 'favorites'
 
   const [sort, setSort] = useState<CategorySort>(() => {
     try {
@@ -144,7 +151,8 @@ export function Categories() {
         stored === 'order' ||
         stored === 'name' ||
         stored === 'mostUsed' ||
-        stored === 'completionToday'
+        stored === 'completionToday' ||
+        stored === 'favorites'
       ) {
         return stored
       }
@@ -171,14 +179,6 @@ export function Categories() {
   const [isReorderMode, setIsReorderMode] = useState(false)
   const [reorderIds, setReorderIds] = useState<string[]>([])
   const [activeDragId, setActiveDragId] = useState<string | null>(null)
-
-  const filters: Array<{ key: CategoryFilter; label: string }> = [
-    { key: 'All', label: 'All' },
-    { key: 'Habits', label: 'Habits' },
-    { key: 'Tasks', label: 'Tasks' },
-    { key: 'Favorites', label: 'Favorites' },
-    { key: 'Empty', label: 'Empty' },
-  ]
 
   const categories = useCategoryStore((state) => state.categories)
   const { togglePinned, deleteCategory, reorderCategories } = useCategoryStore()
@@ -215,7 +215,12 @@ export function Categories() {
     >()
 
     for (const category of orderedCategories) {
-      map.set(category.id, { habitCount: 0, taskCount: 0, completedToday: 0, completionTodayPct: 0 })
+      map.set(category.id, {
+        habitCount: 0,
+        taskCount: 0,
+        completedToday: 0,
+        completionTodayPct: 0,
+      })
     }
 
     for (const habit of habits) {
@@ -243,9 +248,7 @@ export function Categories() {
       map.set(categoryId, {
         ...stats,
         completionTodayPct:
-          stats.habitCount > 0
-            ? Math.round((stats.completedToday / stats.habitCount) * 100)
-            : 0,
+          stats.habitCount > 0 ? Math.round((stats.completedToday / stats.habitCount) * 100) : 0,
       })
     }
 
@@ -257,55 +260,6 @@ export function Categories() {
   const normalizedSearchQuery = useMemo(() => {
     return deferredSearchQuery.trim().toLocaleLowerCase()
   }, [deferredSearchQuery])
-
-  const filterCounts = useMemo(() => {
-    let allCount = 0
-    let habitsCount = 0
-    let tasksCount = 0
-    let favoritesCount = 0
-    let emptyCount = 0
-
-    for (const category of orderedCategories) {
-      const stats = derivedStatsByCategoryId.get(category.id)
-      const habitCount = stats?.habitCount ?? 0
-      const taskCount = stats?.taskCount ?? 0
-
-      if (habitCount > 0 || taskCount > 0) allCount += 1
-      if (habitCount > 0) habitsCount += 1
-      if (taskCount > 0) tasksCount += 1
-      if (category.isPinned) favoritesCount += 1
-      if (habitCount === 0 && taskCount === 0) emptyCount += 1
-    }
-
-    return {
-      All: allCount,
-      Habits: habitsCount,
-      Tasks: tasksCount,
-      Favorites: favoritesCount,
-      Empty: emptyCount,
-    }
-  }, [orderedCategories, derivedStatsByCategoryId])
-
-  const isCategoryVisibleForFilter = (category: StoreCategory) => {
-    const stats = derivedStatsByCategoryId.get(category.id)
-    const habitCount = stats?.habitCount ?? 0
-    const taskCount = stats?.taskCount ?? 0
-
-    switch (activeFilter) {
-      case 'All':
-        return habitCount > 0 || taskCount > 0
-      case 'Habits':
-        return habitCount > 0
-      case 'Tasks':
-        return taskCount > 0
-      case 'Favorites':
-        return category.isPinned
-      case 'Empty':
-        return habitCount === 0 && taskCount === 0
-      default:
-        return true
-    }
-  }
 
   const matchesSearchQuery = (category: StoreCategory) => {
     if (!normalizedSearchQuery) return true
@@ -332,12 +286,20 @@ export function Categories() {
         case 'mostUsed': {
           // Phase 5 decision (Option A): "Most used" reflects combined usage (habits + tasks).
           const diff =
-            statFor(b).habitCount + statFor(b).taskCount - (statFor(a).habitCount + statFor(a).taskCount)
+            statFor(b).habitCount +
+            statFor(b).taskCount -
+            (statFor(a).habitCount + statFor(a).taskCount)
           return diff !== 0 ? diff : nameCmp
         }
         case 'completionToday': {
           const diff = statFor(b).completionTodayPct - statFor(a).completionTodayPct
           return diff !== 0 ? diff : nameCmp
+        }
+        case 'favorites': {
+          // Sort pinned first, then unpinned, within each group alphabetically
+          if (a.isPinned && !b.isPinned) return -1
+          if (!a.isPinned && b.isPinned) return 1
+          return nameCmp
         }
         case 'order':
         default: {
@@ -353,22 +315,18 @@ export function Categories() {
   const filteredPinnedStoreCategories = useMemo(() => {
     return sortCategories(
       pinnedStoreCategories.filter((category) => {
-        if (!isCategoryVisibleForFilter(category)) return false
         return matchesSearchQuery(category)
       })
     )
-  }, [pinnedStoreCategories, activeFilter, normalizedSearchQuery, sort, derivedStatsByCategoryId])
+  }, [pinnedStoreCategories, normalizedSearchQuery, sort, derivedStatsByCategoryId])
 
   const filteredUnpinnedStoreCategories = useMemo(() => {
-    if (activeFilter === 'Favorites') return []
-
     return sortCategories(
       unpinnedStoreCategories.filter((category) => {
-        if (!isCategoryVisibleForFilter(category)) return false
         return matchesSearchQuery(category)
       })
     )
-  }, [unpinnedStoreCategories, activeFilter, normalizedSearchQuery, sort, derivedStatsByCategoryId])
+  }, [unpinnedStoreCategories, normalizedSearchQuery, sort, derivedStatsByCategoryId])
 
   const pinnedCategories = useMemo(() => {
     return filteredPinnedStoreCategories.map((category) => {
@@ -456,9 +414,7 @@ export function Categories() {
     })
   }
 
-  const habitsInDeleteCategory = deleteCategoryId
-    ? getHabitsByCategory(deleteCategoryId).length
-    : 0
+  const habitsInDeleteCategory = deleteCategoryId ? getHabitsByCategory(deleteCategoryId).length : 0
 
   const handleConfirmDelete = () => {
     if (!deleteCategoryId) return
@@ -471,157 +427,167 @@ export function Categories() {
   return (
     <div
       className="relative flex min-h-screen w-full flex-col bg-background-light font-display text-slate-900 dark:bg-background-dark dark:text-white"
-      onClickCapture={() => setOpenMenuCategoryId(null)}
+      onClickCapture={(e) => {
+        if ((e.target as HTMLElement).closest('[data-prevent-menu-close]')) {
+          return
+        }
+        setOpenMenuCategoryId(null)
+      }}
       data-testid="categories-page"
     >
+      {/* Ambient Background - Decorative */}
+      <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
+        <div className="absolute -left-[10%] -top-[10%] h-[50vh] w-[50vh] rounded-full bg-primary/10 blur-[120px]" />
+        <div className="absolute -right-[10%] top-[20%] h-[40vh] w-[40vh] rounded-full bg-blue-500/10 blur-[100px]" />
+        <div className="absolute bottom-[10%] right-[20%] h-[30vh] w-[30vh] rounded-full bg-purple-500/10 blur-[80px]" />
+      </div>
+
       {/* Header - Consistent with Habits Page */}
-      <header className="sticky top-0 z-20 flex shrink-0 flex-col gap-4 bg-background-light p-4 pb-2 dark:bg-background-dark">
-        <div className="flex h-12 items-center justify-between">
-          <div className="flex size-12 shrink-0 items-center">
-            <button
-              onClick={() => setIsSideNavOpen(true)}
-              className="flex size-10 items-center justify-center rounded-full text-slate-800 transition-colors hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-surface-dark"
-            >
-              <span className="material-symbols-outlined">menu</span>
-            </button>
-          </div>
-
-          {/* Title or Search Input */}
-          <div className="flex-1 overflow-hidden px-2">
-            <AnimatePresence mode="wait">
-              {isSearchOpen ? (
-                <motion.div
-                  key="search"
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="w-full"
-                >
-                  <input
-                    type="text"
-                    placeholder="Search categories..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    autoFocus
-                    className="w-full rounded-full border-none bg-slate-100 px-4 py-1.5 text-sm outline-none focus:ring-2 focus:ring-primary/50 dark:bg-surface-dark"
-                  />
-                </motion.div>
-              ) : (
-                <motion.h2
-                  key="title"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="text-center text-lg font-bold tracking-tight"
-                >
-                  Categories
-                </motion.h2>
-              )}
-            </AnimatePresence>
-          </div>
-
-          <div className="flex shrink-0 items-center justify-end gap-2">
-            {isReorderMode ? (
+      <header className="sticky top-0 z-50 flex shrink-0 flex-col gap-4 border-b border-gray-200/50 bg-background-light/80 p-4 pb-2 backdrop-blur-xl transition-all dark:border-white/5 dark:bg-background-dark/80">
+        <div className="mx-auto flex w-full max-w-7xl flex-col gap-4">
+          <div className="flex h-12 items-center justify-between">
+            <div className="flex shrink-0 items-center gap-2">
               <button
-                type="button"
-                onClick={() => setIsReorderMode(false)}
-                className="rounded-full bg-primary/10 px-4 py-2 text-sm font-bold text-primary transition-colors hover:bg-primary/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+                onClick={() => setIsSideNavOpen(true)}
+                className="flex size-10 items-center justify-center rounded-full text-slate-800 transition-colors hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-surface-dark"
               >
-                Done
+                <span className="material-symbols-outlined">menu</span>
               </button>
-            ) : (
-              <>
-                <button
-                  type="button"
-                  onClick={() => setIsTemplatesModalOpen(true)}
-                  className="rounded-full bg-white/5 px-3 py-1.5 text-xs font-semibold text-gray-200 transition-colors hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
-                  aria-label="Templates"
-                >
-                  Templates
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setIsImportExportModalOpen(true)}
-                  className="rounded-full bg-white/5 px-3 py-1.5 text-xs font-semibold text-gray-200 transition-colors hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
-                  aria-label="Import/Export"
-                >
-                  Import/Export
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsSearchOpen(!isSearchOpen)
-                    if (isSearchOpen) setSearchQuery('')
-                  }}
-                  aria-label={isSearchOpen ? 'Close search' : 'Open search'}
-                  className={`flex size-10 items-center justify-center rounded-full transition-colors ${
-                    isSearchOpen
-                      ? 'bg-primary/10 text-primary'
-                      : 'text-slate-800 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-surface-dark'
-                  }`}
-                >
-                  <span className="material-symbols-outlined" aria-hidden="true">
-                    {isSearchOpen ? 'close' : 'search'}
+
+              {/* Sort Dropdown - Moved to Left */}
+              {!isReorderMode && (
+                <div className="relative">
+                  <select
+                    value={sort}
+                    onChange={(e) => setSort(e.target.value as CategorySort)}
+                    className="appearance-none rounded-full border border-gray-200/50 bg-white/50 py-1.5 pl-3 pr-8 text-xs font-semibold text-gray-700 backdrop-blur-sm transition-all duration-200 hover:border-primary/50 hover:bg-white hover:shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-slate-800/50 dark:text-gray-200 dark:hover:border-primary/50 dark:hover:bg-slate-800"
+                    aria-label="Sort categories"
+                    style={{
+                      colorScheme: 'dark',
+                    }}
+                  >
+                    <option value="order" className="bg-slate-900 text-gray-200">
+                      Order
+                    </option>
+                    <option value="name" className="bg-slate-900 text-gray-200">
+                      Name
+                    </option>
+                    <option value="mostUsed" className="bg-slate-900 text-gray-200">
+                      Most Used
+                    </option>
+                    <option value="completionToday" className="bg-slate-900 text-gray-200">
+                      Completion
+                    </option>
+                    <option value="favorites" className="bg-slate-900 text-gray-200">
+                      Favorites
+                    </option>
+                  </select>
+                  <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 transition-transform duration-200 dark:text-gray-500">
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
                   </span>
+                </div>
+              )}
+            </div>
+
+            {/* Title or Search Input */}
+            <div className="flex-1 overflow-visible px-2">
+              <AnimatePresence mode="wait">
+                {isSearchOpen ? (
+                  <motion.div
+                    key="search"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    className="w-full"
+                  >
+                    <div className="group flex items-center gap-2 rounded-full border border-gray-200 bg-white/50 px-4 py-2 transition-all focus-within:border-primary/50 focus-within:bg-white focus-within:ring-2 focus-within:ring-primary/20 dark:border-white/10 dark:bg-slate-800/50 dark:focus-within:bg-slate-800">
+                      <span className="material-symbols-outlined text-gray-400 group-focus-within:text-primary">
+                        search
+                      </span>
+                      <input
+                        type="text"
+                        placeholder="Search categories..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        autoFocus
+                        className="w-full bg-transparent text-sm outline-none placeholder:text-gray-400 dark:text-white"
+                      />
+                    </div>
+                  </motion.div>
+                ) : (
+                  <motion.h2
+                    key="title"
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -5 }}
+                    className="text-center text-lg font-bold tracking-tight text-slate-900 dark:text-white"
+                  >
+                    Categories
+                  </motion.h2>
+                )}
+              </AnimatePresence>
+            </div>
+
+            <div className="flex shrink-0 items-center justify-end gap-2">
+              {isReorderMode ? (
+                <button
+                  type="button"
+                  onClick={() => setIsReorderMode(false)}
+                  className="rounded-full bg-primary/10 px-4 py-2 text-sm font-bold text-primary transition-colors hover:bg-primary/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+                >
+                  Done
                 </button>
-              </>
-            )}
+              ) : (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => setIsTemplatesModalOpen(true)}
+                    className="rounded-full bg-white/5 px-3 py-1.5 text-xs font-semibold text-gray-200 transition-colors hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+                    aria-label="Templates"
+                  >
+                    Templates
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsImportExportModalOpen(true)}
+                    className="rounded-full bg-white/5 px-3 py-1.5 text-xs font-semibold text-gray-200 transition-colors hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+                    aria-label="Import/Export"
+                  >
+                    Import/Export
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsSearchOpen(!isSearchOpen)
+                      if (isSearchOpen) setSearchQuery('')
+                    }}
+                    aria-label={isSearchOpen ? 'Close search' : 'Open search'}
+                    className={`flex size-10 items-center justify-center rounded-full transition-colors ${
+                      isSearchOpen
+                        ? 'bg-primary/10 text-primary'
+                        : 'text-slate-800 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-surface-dark'
+                    }`}
+                  >
+                    <span className="material-symbols-outlined" aria-hidden="true">
+                      {isSearchOpen ? 'close' : 'search'}
+                    </span>
+                  </button>
+                </>
+              )}
+            </div>
           </div>
         </div>
-
-        {!isReorderMode && (
-          <>
-            <div className="flex items-center justify-end px-4">
-              <label className="flex items-center gap-2 text-xs font-semibold text-gray-500 dark:text-gray-400">
-                <span>Sort</span>
-                <select
-                  value={sort}
-                  onChange={(e) => setSort(e.target.value as CategorySort)}
-                  className="rounded-full border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 dark:border-white/10 dark:bg-surface-dark dark:text-gray-200"
-                  aria-label="Sort categories"
-                >
-                  <option value="order">Order</option>
-                  <option value="name">Name (A→Z)</option>
-                  <option value="mostUsed">Most used</option>
-                  <option value="completionToday">Completion today</option>
-                </select>
-              </label>
-            </div>
-
-            {/* Filter Chips */}
-            <div className="w-full px-4 pb-2">
-              <div className="grid grid-cols-5 gap-2">
-                {filters.map((filter) => {
-                  const count = filterCounts[filter.key as keyof typeof filterCounts]
-                  const label = typeof count === 'number' ? `${filter.label} (${count})` : filter.label
-
-                  return (
-                    <button
-                      key={filter.key}
-                      type="button"
-                      onClick={() => {
-                        setActiveFilter(filter.key)
-                      }}
-                      className={clsx(
-                        'whitespace-nowrap rounded-full py-2.5 text-xs font-bold transition-all duration-200 sm:text-sm',
-                        activeFilter === filter.key
-                          ? 'bg-primary text-background-dark shadow-[0_4px_12px_rgba(19,236,91,0.3)]'
-                          : 'border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 dark:border-white/5 dark:bg-surface-dark dark:text-gray-300 dark:hover:bg-white/5'
-                      )}
-                      aria-label={label}
-                    >
-                      {label}
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-          </>
-        )}
       </header>
 
       {/* Main Content */}
-      <main className="flex-grow space-y-6 overflow-y-auto px-4 pb-32">
+      <main className="mx-auto flex w-full max-w-7xl flex-grow flex-col space-y-8 overflow-visible px-4 pb-32 pt-6">
         {isReorderMode ? (
           <div className="space-y-4">
             <div className="flex items-start justify-between rounded-2xl border border-gray-200 bg-white p-4 dark:border-white/10 dark:bg-surface-dark">
@@ -684,7 +650,7 @@ export function Categories() {
                 <button
                   type="button"
                   onClick={() => setIsCreateModalOpen(true)}
-                  className="rounded-full bg-primary px-6 py-3 text-sm font-bold text-background-dark shadow-[0_8px_24px_rgba(19,236,91,0.35)] transition-transform active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+                  className="rounded-full bg-primary px-6 py-3 text-sm font-bold text-background-dark shadow-[0_8px_24px_rgba(19,236,91,0.35)] transition-transform focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 active:scale-95"
                 >
                   Create category
                 </button>
@@ -713,19 +679,9 @@ export function Categories() {
                       Clear search
                     </button>
                   ) : null}
-                  {activeFilter !== 'All' ? (
-                    <button
-                      type="button"
-                      onClick={() => setActiveFilter('All')}
-                      className="rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-bold text-gray-700 hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 dark:border-white/10 dark:bg-surface-dark dark:text-gray-200 dark:hover:bg-white/5"
-                    >
-                      Reset filters
-                    </button>
-                  ) : null}
                   <button
                     type="button"
                     onClick={() => {
-                      setActiveFilter('All')
                       setIsSearchOpen(false)
                       setSearchQuery('')
                     }}
@@ -737,16 +693,16 @@ export function Categories() {
               </div>
             ) : (
               <>
-                {/* Pinned Section */}
+                {/* Pinned Collection */}
                 {pinnedCategories.length > 0 ? (
-                  <div>
-                    <div className="mb-3 flex items-center justify-between px-2">
-                      <h2 className="text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                        {activeFilter === 'Favorites' ? 'Favorites' : 'Pinned'}
+                  <section>
+                    <div className="mb-4 flex items-center justify-between px-2">
+                      <h2 className="flex items-center gap-2 text-lg font-bold text-slate-900 dark:text-white">
+                        <span className="material-symbols-outlined text-primary">push_pin</span>
+                        Favorites
                       </h2>
-                      <span className="material-symbols-outlined text-sm text-gray-400">more_horiz</span>
                     </div>
-                    <div className="no-scrollbar -mx-2 flex snap-x gap-4 overflow-x-auto px-2 pb-4">
+                    <div className="no-scrollbar -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-8 pt-2 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-6 sm:overflow-visible sm:px-0 lg:grid-cols-3">
                       {pinnedCategories.map((category) => (
                         <div
                           key={category.id}
@@ -760,10 +716,31 @@ export function Categories() {
                             }
                           }}
                           className={clsx(
-                            'group relative h-40 min-w-[280px] cursor-pointer snap-center overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50',
-                            category.gradient
+                            'group relative aspect-[4/3] w-[85vw] min-w-[280px] cursor-pointer snap-center overflow-hidden rounded-[2rem] border border-white/20 bg-white/10 text-left shadow-lg backdrop-blur-md transition-all duration-500 hover:scale-[1.02] hover:shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 dark:border-white/10 dark:bg-slate-900/40 sm:w-auto',
+                            !category.imagePath && category.gradient
                           )}
                         >
+                          {/* Background Image or Gradient */}
+                          {category.imagePath ? (
+                            <img
+                              src={category.imagePath}
+                              alt=""
+                              className="absolute inset-0 h-full w-full object-cover"
+                              loading="lazy"
+                            />
+                          ) : (
+                            <>
+                              {/* Rich Background Effects */}
+                              <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100 dark:from-white/5" />
+                              <div className="absolute -right-12 -top-12 h-40 w-40 rounded-full bg-white/10 blur-3xl transition-transform duration-700 group-hover:scale-150 group-hover:bg-white/20" />
+                            </>
+                          )}
+                          
+                          {/* Dark gradient overlay for image cards */}
+                          {category.imagePath && (
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                          )}
+
                           <CategoryQuickActions
                             categoryId={category.id}
                             isPinned
@@ -778,115 +755,114 @@ export function Categories() {
                             onDelete={() => setDeleteCategoryId(category.id)}
                             onReorder={() => setIsReorderMode(true)}
                           />
-                          {category.color === 'primary' && (
-                            <>
-                              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(19,236,91,0.15),transparent_70%)] opacity-30"></div>
-                              <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-primary/20 blur-3xl"></div>
-                            </>
-                          )}
-                          {category.color === 'blue' && (
-                            <div className="absolute -bottom-8 -left-8 h-32 w-32 rounded-full bg-blue-500/10 blur-3xl"></div>
-                          )}
 
-                          <div className="relative z-10 flex h-full flex-col justify-between p-5">
+                          <div className="relative z-10 flex h-full flex-col justify-between p-6">
                             <div className="flex items-start justify-between">
                               <div
                                 className={clsx(
-                                  'rounded-xl p-2.5 backdrop-blur-sm',
+                                  'rounded-2xl p-3 backdrop-blur-md transition-transform duration-300 group-hover:rotate-6',
                                   category.color === 'primary'
                                     ? 'bg-primary/20 text-primary'
-                                    : 'bg-blue-500/20 text-blue-500'
+                                    : 'bg-white/20 text-white'
                                 )}
                               >
-                                <span className="material-symbols-outlined">{category.icon}</span>
+                                <span className="material-symbols-outlined text-2xl">
+                                  {category.icon}
+                                </span>
                               </div>
-                              <span className="rounded-full bg-white/10 px-2 py-1 text-[10px] font-bold text-black backdrop-blur-sm dark:text-white">
-                                {category.progress}% Done
-                              </span>
+                              <div className="flex items-center gap-1 rounded-full bg-black/20 px-3 py-1 text-xs font-bold text-white backdrop-blur-md">
+                                <span>{category.progress}%</span>
+                              </div>
                             </div>
                             <div>
-                              <h3 className={clsx('mb-1 text-xl font-bold', category.textColor)}>
+                              <h3
+                                className={clsx(
+                                  'mb-1 text-2xl font-bold tracking-tight text-white drop-shadow-md transition-transform duration-300 group-hover:translate-x-1'
+                                )}
+                              >
                                 {category.name}
                               </h3>
-                              <p className="text-xs text-gray-500 dark:text-gray-400">{category.count}</p>
+                              <p className="text-sm font-medium text-white/70">{category.count}</p>
                             </div>
+                          </div>
+
+                          {/* Progress Bar Background */}
+                          <div className="absolute bottom-0 left-0 h-1.5 w-full bg-black/20">
+                            <div
+                              style={{ width: `${category.progress}%` }}
+                              className="h-full bg-primary shadow-[0_0_10px_rgba(19,236,91,0.5)] transition-all duration-1000 ease-out"
+                            />
                           </div>
                         </div>
                       ))}
                     </div>
-                  </div>
+                  </section>
                 ) : null}
 
                 {/* All Collections - Masonry Grid */}
-                {activeFilter !== 'Favorites' ? (
-                  <div>
-                    <div className="mb-3 px-2">
-                      <h2 className="text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                        All Collections
-                      </h2>
-                    </div>
-                    <div className="columns-2 gap-4 space-y-4 px-2">
-                      {allCollections.map((category) => (
-                        <div key={category.id} className="break-inside-avoid">
-                          <CategoryCard
-                            category={category}
-                            onClick={() => navigate(`/category/${category.id}`)}
-                            quickActions={
-                              <CategoryQuickActions
-                                categoryId={category.id}
-                                isPinned={false}
-                                isOpen={openMenuCategoryId === category.id}
-                                onToggle={() =>
-                                  setOpenMenuCategoryId((current) =>
-                                    current === category.id ? null : category.id
-                                  )
-                                }
-                                onEdit={() => setEditCategoryId(category.id)}
-                                onTogglePin={() => togglePinned(category.id)}
-                                onDelete={() => setDeleteCategoryId(category.id)}
-                                onReorder={() => setIsReorderMode(true)}
-                              />
-                            }
-                          />
-                        </div>
-                      ))}
-
-                      {/* New Category Button */}
-                      <div className="break-inside-avoid">
-                        <button
-                          type="button"
-                          onClick={() => setIsCreateModalOpen(true)}
-                          className="flex h-32 w-full flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-gray-300 p-5 transition-colors hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 dark:border-white/10 dark:hover:bg-white/5"
-                          aria-label="Create new category"
-                        >
-                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/20 text-primary">
-                            <span className="material-symbols-outlined">add</span>
-                          </div>
-                          <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                            New Category
-                          </span>
-                        </button>
+                <div>
+                  <div className="mb-4 px-2">
+                    <h2 className="text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                      All Collections
+                    </h2>
+                  </div>
+                  <div className="columns-2 gap-4 space-y-4 md:columns-3 lg:columns-4">
+                    {allCollections.map((category) => (
+                      <div
+                        key={category.id}
+                        className={clsx(
+                          'relative break-inside-avoid',
+                          openMenuCategoryId === category.id && 'z-50'
+                        )}
+                      >
+                        <CategoryCard
+                          category={category}
+                          onClick={() => navigate(`/category/${category.id}`)}
+                          quickActions={
+                            <CategoryQuickActions
+                              categoryId={category.id}
+                              isPinned={false}
+                              isOpen={openMenuCategoryId === category.id}
+                              onToggle={() =>
+                                setOpenMenuCategoryId((current) =>
+                                  current === category.id ? null : category.id
+                                )
+                              }
+                              onEdit={() => setEditCategoryId(category.id)}
+                              onTogglePin={() => togglePinned(category.id)}
+                              onDelete={() => setDeleteCategoryId(category.id)}
+                              onReorder={() => setIsReorderMode(true)}
+                            />
+                          }
+                        />
                       </div>
+                    ))}
+
+                    {/* New Category Button */}
+                    <div className="break-inside-avoid">
+                      <button
+                        type="button"
+                        onClick={() => setIsCreateModalOpen(true)}
+                        className="group flex h-32 w-full flex-col items-center justify-center gap-3 rounded-3xl border-2 border-dashed border-gray-300 bg-transparent p-6 transition-all duration-300 hover:border-primary/50 hover:bg-primary/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 dark:border-white/10 dark:hover:border-primary/50 dark:hover:bg-primary/10"
+                        aria-label="Create new category"
+                      >
+                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 text-gray-400 transition-colors group-hover:bg-primary/20 group-hover:text-primary dark:bg-white/5 dark:text-gray-500 dark:group-hover:bg-primary/20">
+                          <span className="material-symbols-outlined text-2xl transition-transform duration-300 group-hover:rotate-90">
+                            add
+                          </span>
+                        </div>
+                        <span className="text-sm font-bold text-gray-500 transition-colors group-hover:text-primary dark:text-gray-400">
+                          New Category
+                        </span>
+                      </button>
                     </div>
                   </div>
-                ) : null}
+                </div>
               </>
             )}
           </>
         )}
       </main>
-
-      {/* FAB */}
-      <div className="fixed bottom-24 right-4 z-20">
-        <button
-          onClick={() => navigate('/new-habit')}
-          className="group flex h-14 w-14 items-center justify-center rounded-full bg-primary text-background-dark shadow-[0_8px_24px_rgba(19,236,91,0.4)] transition-transform active:scale-95"
-        >
-          <span className="material-symbols-outlined text-3xl transition-transform group-hover:rotate-90">
-            add
-          </span>
-        </button>
-      </div>
 
       <CreateCategoryModal
         isOpen={isCreateModalOpen}
@@ -955,20 +931,20 @@ function SortableCategoryTile({ category }: { category: StoreCategory }) {
       ref={setNodeRef}
       style={style}
       className={clsx(
-        'relative flex items-center justify-between rounded-3xl border border-gray-100 bg-white p-4 shadow-sm transition-colors dark:border-white/5 dark:bg-surface-dark dark:shadow-none',
-        isDragging && 'opacity-50'
+        'relative flex items-center justify-between rounded-3xl border border-white/50 bg-white/60 p-4 shadow-sm backdrop-blur-md transition-all dark:border-white/10 dark:bg-slate-900/60 dark:shadow-none',
+        isDragging && 'opacity-50 ring-2 ring-primary/50'
       )}
       {...attributes}
     >
       <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary transition-colors">
           <span className="material-symbols-outlined">{category.icon}</span>
         </div>
         <div className="min-w-0">
           <div className="truncate text-sm font-bold text-slate-900 dark:text-white">
             {category.name}
           </div>
-          <div className="text-xs text-gray-500 dark:text-gray-400">
+          <div className="text-xs font-medium text-slate-500 dark:text-slate-400">
             {category.isPinned ? 'Pinned' : 'Not pinned'}
           </div>
         </div>
@@ -977,7 +953,7 @@ function SortableCategoryTile({ category }: { category: StoreCategory }) {
       <button
         type="button"
         ref={setActivatorNodeRef}
-        className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-600 transition-colors hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 dark:border-white/10 dark:bg-surface-dark dark:text-gray-300 dark:hover:bg-white/5"
+        className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200/50 bg-white/50 text-gray-500 transition-colors hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 dark:border-white/10 dark:bg-white/5 dark:text-gray-400 dark:hover:bg-white/10"
         aria-label={`Drag handle for ${category.name}`}
         {...listeners}
       >
@@ -991,14 +967,16 @@ function ReorderOverlayTile({ category }: { category?: StoreCategory }) {
   if (!category) return null
 
   return (
-    <div className="pointer-events-none rounded-3xl border border-white/10 bg-gray-900/95 p-4 shadow-2xl backdrop-blur-xl">
+    <div className="pointer-events-none rounded-3xl border border-white/50 bg-white/90 p-4 shadow-2xl backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/90">
       <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/20 text-primary">
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/20 text-primary">
           <span className="material-symbols-outlined">{category.icon}</span>
         </div>
         <div className="min-w-0">
-          <div className="truncate text-sm font-bold text-white">{category.name}</div>
-          <div className="text-xs text-white/70">Release to drop</div>
+          <div className="truncate text-sm font-bold text-slate-900 dark:text-white">
+            {category.name}
+          </div>
+          <div className="text-xs text-slate-500 dark:text-slate-400">Release to drop</div>
         </div>
       </div>
     </div>
@@ -1029,26 +1007,35 @@ function CategoryQuickActions({
   return (
     <div
       className="absolute right-3 top-3 z-20"
+      data-no-propagate="true"
       onClick={(e) => e.stopPropagation()}
       onMouseDown={(e) => e.stopPropagation()}
+      onPointerDown={(e) => e.stopPropagation()}
     >
       <button
         type="button"
         className={clsx(
-          'flex h-9 w-9 items-center justify-center rounded-full bg-black/20 text-white backdrop-blur-sm transition-colors hover:bg-black/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50',
-          !isOpen && 'opacity-0 group-hover:opacity-100 group-focus-within:opacity-100'
+          'flex h-9 w-9 items-center justify-center rounded-full bg-black/20 text-white backdrop-blur-sm transition-colors hover:bg-black/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50',
+          !isOpen &&
+            'mobile-touch:opacity-100 opacity-0 group-focus-within:opacity-100 group-hover:opacity-100'
         )}
+        data-prevent-menu-close
         aria-label="Category actions"
         aria-haspopup="menu"
         aria-expanded={isOpen}
         aria-controls={menuId}
         onClick={(e) => {
           e.stopPropagation()
+          e.preventDefault()
           onToggle()
+        }}
+        onMouseDown={(e) => {
+          e.stopPropagation()
         }}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault()
+            e.stopPropagation()
             onToggle()
           }
         }}
@@ -1062,11 +1049,12 @@ function CategoryQuickActions({
             id={menuId}
             role="menu"
             aria-label="Category actions"
-            initial={{ opacity: 0, scale: 0.98, y: -4 }}
+            data-prevent-menu-close
+            initial={{ opacity: 0, scale: 0.95, y: -4, originX: 1, originY: 0 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.98, y: -4 }}
+            exit={{ opacity: 0, scale: 0.95, y: -4 }}
             transition={{ duration: 0.12 }}
-            className="absolute right-0 mt-2 w-44 overflow-hidden rounded-2xl border border-white/10 bg-gray-900/95 p-1 shadow-2xl backdrop-blur-xl"
+            className="absolute right-0 mt-2 w-48 overflow-hidden rounded-2xl border border-gray-200/50 bg-white/90 p-1.5 shadow-xl backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/95"
             onClick={(e) => e.stopPropagation()}
           >
             <ActionItem
@@ -1078,7 +1066,7 @@ function CategoryQuickActions({
               }}
             />
             <ActionItem
-              label={isPinned ? 'Unpin' : 'Pin'}
+              label={isPinned ? 'Remove from Favorites' : 'Add to Favorites'}
               icon={isPinned ? 'keep_off' : 'keep'}
               onSelect={() => {
                 onToggle()
@@ -1095,7 +1083,7 @@ function CategoryQuickActions({
                 }}
               />
             )}
-            <div className="my-1 h-px bg-white/10" />
+            <div className="my-1 h-px bg-gray-200/50 dark:bg-white/10" />
             <ActionItem
               label="Delete"
               icon="delete"
@@ -1128,10 +1116,10 @@ function ActionItem({
       type="button"
       role="menuitem"
       className={clsx(
-        'flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50',
+        'flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50',
         variant === 'danger'
-          ? 'text-red-200 hover:bg-red-500/10'
-          : 'text-gray-100 hover:bg-white/5'
+          ? 'text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-500/10'
+          : 'text-slate-700 hover:bg-slate-100 dark:text-gray-200 dark:hover:bg-white/10'
       )}
       onClick={(e) => {
         e.stopPropagation()
@@ -1141,13 +1129,15 @@ function ActionItem({
       <span
         className={clsx(
           'material-symbols-outlined text-[18px]',
-          variant === 'danger' ? 'text-red-300' : 'text-gray-300'
+          variant === 'danger'
+            ? 'text-red-500 dark:text-red-400'
+            : 'text-slate-400 dark:text-gray-400'
         )}
         aria-hidden="true"
       >
         {icon}
       </span>
-      <span>{label}</span>
+      <span className="truncate">{label}</span>
     </button>
   )
 }
@@ -1161,13 +1151,19 @@ function CategoryCard({
   onClick?: () => void
   quickActions?: ReactNode
 }) {
-  // Use a div with button semantics so we don't nest <button> elements (quick actions uses a real <button>).
+  // Use a div with button semantics for accessibility while allowing nested interactive elements
   const Wrapper: ElementType = onClick ? 'div' : 'div'
   const wrapperProps = onClick
     ? ({
         role: 'button',
         tabIndex: 0,
-        onClick,
+        onClick: (e: React.MouseEvent) => {
+          // Only trigger if not clicking on interactive elements
+          if ((e.target as HTMLElement).closest('[data-no-propagate]')) {
+            return
+          }
+          onClick()
+        },
         onKeyDown: (e: React.KeyboardEvent) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault()
@@ -1180,51 +1176,51 @@ function CategoryCard({
   const getColorClasses = (color: string) => {
     const map: Record<string, Record<string, string>> = {
       emerald: {
-        bg: 'bg-emerald-100 dark:bg-emerald-500/10',
+        bg: 'bg-emerald-500/10 dark:bg-emerald-500/20',
         text: 'text-emerald-600 dark:text-emerald-400',
-        ring: 'ring-emerald-500/20',
+        ring: 'ring-emerald-500/20 dark:ring-emerald-400/20',
         bar: 'bg-emerald-500',
       },
       purple: {
-        bg: 'bg-purple-100 dark:bg-purple-500/10',
+        bg: 'bg-purple-500/10 dark:bg-purple-500/20',
         text: 'text-purple-600 dark:text-purple-400',
-        ring: 'ring-purple-500/20',
+        ring: 'ring-purple-500/20 dark:ring-purple-400/20',
       },
       yellow: {
-        bg: 'bg-yellow-100 dark:bg-yellow-500/10',
+        bg: 'bg-yellow-500/10 dark:bg-yellow-500/20',
         text: 'text-yellow-600 dark:text-yellow-400',
-        ring: 'ring-yellow-500/20',
+        ring: 'ring-yellow-500/20 dark:ring-yellow-400/20',
       },
       orange: {
-        bg: 'bg-orange-100 dark:bg-orange-500/10',
+        bg: 'bg-orange-500/10 dark:bg-orange-500/20',
         text: 'text-orange-600 dark:text-orange-400',
-        ring: 'ring-orange-500/20',
+        ring: 'ring-orange-500/20 dark:ring-orange-400/20',
       },
       indigo: {
-        bg: 'bg-indigo-100 dark:bg-indigo-500/10',
+        bg: 'bg-indigo-500/10 dark:bg-indigo-500/20',
         text: 'text-indigo-600 dark:text-indigo-400',
-        ring: 'ring-indigo-500/20',
+        ring: 'ring-indigo-500/20 dark:ring-indigo-400/20',
         bar: 'bg-indigo-500',
       },
       pink: {
-        bg: 'bg-pink-100 dark:bg-pink-500/10',
+        bg: 'bg-pink-500/10 dark:bg-pink-500/20',
         text: 'text-pink-600 dark:text-pink-400',
-        ring: 'ring-pink-500/20',
+        ring: 'ring-pink-500/20 dark:ring-pink-400/20',
       },
       red: {
-        bg: 'bg-red-100 dark:bg-red-500/10',
+        bg: 'bg-red-500/10 dark:bg-red-500/20',
         text: 'text-red-600 dark:text-red-400',
-        ring: 'ring-red-500/20',
+        ring: 'ring-red-500/20 dark:ring-red-400/20',
       },
       teal: {
-        bg: 'bg-teal-100 dark:bg-teal-500/10',
+        bg: 'bg-teal-500/10 dark:bg-teal-500/20',
         text: 'text-teal-600 dark:text-teal-400',
-        ring: 'ring-teal-500/20',
+        ring: 'ring-teal-500/20 dark:ring-teal-400/20',
       },
       slate: {
-        bg: 'bg-white dark:bg-white/5',
+        bg: 'bg-slate-500/10 dark:bg-white/10',
         text: 'text-slate-600 dark:text-slate-300',
-        ring: 'ring-white/5',
+        ring: 'ring-slate-500/20 dark:ring-white/10',
       },
     }
     return map[color] || map.slate
@@ -1237,18 +1233,51 @@ function CategoryCard({
       <Wrapper
         {...wrapperProps}
         className={clsx(
-          'relative flex w-full flex-col justify-end overflow-hidden rounded-3xl bg-gradient-to-b p-5 transition-all duration-300 hover:scale-[1.02]',
+          'group relative flex w-full flex-col justify-end overflow-visible rounded-3xl bg-gradient-to-b p-6 shadow-sm transition-all duration-300 hover:scale-[1.02] hover:shadow-lg',
           onClick &&
             'cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50',
-          category.gradient,
+          !category.imagePath && category.gradient,
           category.height
         )}
       >
+        {/* Inner wrapper for overflow control - keeps image contained */}
+        <div className="absolute inset-0 overflow-hidden rounded-3xl">
+          {/* Background Image or Gradient */}
+          {category.imagePath ? (
+            <img
+              src={category.imagePath}
+              alt=""
+              className="absolute inset-0 h-full w-full object-cover"
+              loading="lazy"
+            />
+          ) : (
+            category.gradient && (
+              <div className={`absolute inset-0 bg-gradient-to-br ${category.gradient}`} />
+            )
+          )}
+
+          {/* Dark gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
+        </div>
+
+        {/* Quick actions - rendered after overlay so it appears on top */}
         {quickActions}
-        <div className="absolute inset-0 bg-black/10"></div>
-        <div className="relative z-10">
-          <h3 className="text-lg font-bold text-white">{category.name}</h3>
-          <p className="text-xs text-white/80">{category.count}</p>
+
+        {/* Category icon */}
+        <div className="relative z-10 mb-auto">
+          <div
+            className={clsx(
+              'inline-flex rounded-2xl p-3 backdrop-blur-md transition-transform duration-300 group-hover:rotate-6',
+              category.color === 'primary' ? 'bg-primary/20 text-primary' : 'bg-white/20 text-white'
+            )}
+          >
+            <span className="material-symbols-outlined text-2xl">{category.icon}</span>
+          </div>
+        </div>
+
+        <div className="relative z-10 text-white">
+          <h3 className="text-xl font-bold drop-shadow-md">{category.name}</h3>
+          <p className="text-sm font-medium opacity-90">{category.count}</p>
         </div>
       </Wrapper>
     )
@@ -1258,7 +1287,7 @@ function CategoryCard({
     <Wrapper
       {...wrapperProps}
       className={clsx(
-        'relative flex w-full flex-col overflow-hidden rounded-3xl border border-gray-100 bg-white p-5 shadow-sm transition-all duration-300 hover:scale-[1.02] dark:border-white/5 dark:bg-surface-dark dark:shadow-none',
+        'group relative flex w-full flex-col overflow-visible rounded-3xl border border-white/20 bg-white/60 p-5 shadow-sm backdrop-blur-xl transition-all duration-300 hover:scale-[1.02] hover:bg-white/80 hover:shadow-lg dark:border-white/5 dark:bg-slate-900/40 dark:hover:bg-slate-900/60',
         onClick &&
           'cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50',
         category.height
@@ -1269,7 +1298,7 @@ function CategoryCard({
         <div className="flex flex-col items-center gap-4 text-center">
           <div
             className={clsx(
-              'mb-1 flex h-16 w-16 items-center justify-center rounded-full ring-1',
+              'mb-1 flex h-16 w-16 items-center justify-center rounded-2xl ring-1 transition-transform duration-300 group-hover:scale-110',
               colors.bg,
               colors.text,
               colors.ring
@@ -1278,11 +1307,13 @@ function CategoryCard({
             <span className="material-symbols-outlined text-3xl">{category.icon}</span>
           </div>
           <div className="relative z-10">
-            <h3 className="text-lg font-bold text-black dark:text-white">{category.name}</h3>
-            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{category.count}</p>
+            <h3 className="text-lg font-bold text-slate-800 dark:text-white">{category.name}</h3>
+            <p className="mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">
+              {category.count}
+            </p>
           </div>
-          <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-white/5">
-            <div className={clsx('h-full w-3/4', colors.bar)}></div>
+          <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-white/10">
+            <div className={clsx('h-full w-3/4 rounded-full', colors.bar)}></div>
           </div>
         </div>
       )}
@@ -1292,42 +1323,46 @@ function CategoryCard({
           <div className="absolute right-0 top-0 p-4">
             <div
               className={clsx(
-                'flex h-10 w-10 items-center justify-center rounded-full ring-1',
+                'flex h-12 w-12 items-center justify-center rounded-2xl ring-1 transition-transform duration-300 group-hover:rotate-12',
                 colors.bg,
                 colors.text,
                 colors.ring
               )}
             >
-              <span className="material-symbols-outlined">{category.icon}</span>
+              <span className="material-symbols-outlined text-2xl">{category.icon}</span>
             </div>
           </div>
           <div className="mt-auto">
-            <h3 className="text-lg font-bold text-black dark:text-white">{category.name}</h3>
-            <p className="text-xs text-gray-500 dark:text-gray-400">{category.count}</p>
+            <h3 className="text-xl font-bold text-slate-800 dark:text-white">{category.name}</h3>
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+              {category.count}
+            </p>
           </div>
         </div>
       )}
 
       {category.type === 'icon-bg' && (
         <div className="flex h-full flex-col justify-between">
-          <div className="absolute right-0 top-0 p-4 opacity-50">
-            <span className="material-symbols-outlined pointer-events-none absolute -right-8 -top-8 rotate-12 transform text-[6rem] text-yellow-50 dark:text-yellow-500/5">
+          <div className="absolute right-0 top-0 p-4 opacity-50 transition-opacity duration-300 group-hover:opacity-100">
+            <span className="material-symbols-outlined pointer-events-none absolute -right-8 -top-8 rotate-12 transform text-[7rem] text-slate-900/5 dark:text-white/5">
               {category.icon}
             </span>
           </div>
           <div
             className={clsx(
-              'relative z-10 flex h-10 w-10 items-center justify-center rounded-full ring-1',
+              'relative z-10 flex h-12 w-12 items-center justify-center rounded-2xl ring-1',
               colors.bg,
               colors.text,
               colors.ring
             )}
           >
-            <span className="material-symbols-outlined">{category.icon}</span>
+            <span className="material-symbols-outlined text-2xl">{category.icon}</span>
           </div>
           <div className="relative z-10 mt-auto pt-4">
-            <h3 className="text-lg font-bold text-black dark:text-white">{category.name}</h3>
-            <p className="text-xs text-gray-500 dark:text-gray-400">{category.count}</p>
+            <h3 className="text-lg font-bold text-slate-800 dark:text-white">{category.name}</h3>
+            <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
+              {category.count}
+            </p>
           </div>
         </div>
       )}
@@ -1336,25 +1371,29 @@ function CategoryCard({
         <div className="flex h-full flex-col justify-between">
           <div
             className={clsx(
-              'mb-4 flex h-12 w-12 items-center justify-center rounded-xl ring-1',
+              'mb-4 flex h-12 w-12 items-center justify-center rounded-2xl ring-1',
               colors.bg,
               colors.text,
               colors.ring
             )}
           >
-            <span className="material-symbols-outlined">{category.icon}</span>
+            <span className="material-symbols-outlined text-2xl">{category.icon}</span>
           </div>
           <div>
-            <h3 className="mb-2 text-2xl font-bold leading-tight text-black dark:text-white">
-              Read
-              <br />
-              List
+            <h3 className="mb-2 text-2xl font-bold leading-tight text-slate-800 dark:text-white">
+              {category.name.split(' ').map((word, i) => (
+                <span key={i} className="block">
+                  {word}
+                </span>
+              ))}
             </h3>
-            <p className="mb-4 text-xs text-gray-500 dark:text-gray-400">{category.count}</p>
-            <div className="flex -space-x-2 overflow-hidden">
-              <div className="inline-block h-6 w-6 rounded-full bg-gray-300 ring-2 ring-white dark:ring-surface-dark"></div>
-              <div className="inline-block h-6 w-6 rounded-full bg-gray-400 ring-2 ring-white dark:ring-surface-dark"></div>
-              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-500 text-[8px] text-white ring-2 ring-white dark:ring-surface-dark">
+            <p className="mb-4 text-xs font-medium text-slate-500 dark:text-slate-400">
+              {category.count}
+            </p>
+            <div className="flex -space-x-2 overflow-hidden pl-1">
+              <div className="inline-block h-8 w-8 rounded-full bg-slate-200 ring-2 ring-white dark:bg-slate-700 dark:ring-slate-800"></div>
+              <div className="inline-block h-8 w-8 rounded-full bg-slate-300 ring-2 ring-white dark:bg-slate-600 dark:ring-slate-800"></div>
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-400 text-[10px] font-bold text-white ring-2 ring-white dark:bg-slate-500 dark:ring-slate-800">
                 +2
               </div>
             </div>
@@ -1367,47 +1406,50 @@ function CategoryCard({
           <div className="flex items-center justify-between">
             <div
               className={clsx(
-                'flex h-12 w-12 items-center justify-center rounded-xl ring-1',
+                'flex h-12 w-12 items-center justify-center rounded-2xl ring-1',
                 colors.bg,
                 colors.text,
                 colors.ring
               )}
             >
-              <span className="material-symbols-outlined">{category.icon}</span>
+              <span className="material-symbols-outlined text-2xl">{category.icon}</span>
             </div>
-            <span className="rounded-full bg-indigo-50 px-2 py-1 text-[10px] font-bold text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-300">
+            <span className="rounded-full bg-indigo-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-300">
               Daily
             </span>
           </div>
           <div>
-            <h3 className="text-lg font-bold text-black dark:text-white">{category.name}</h3>
-            <p className="text-xs text-gray-500 dark:text-gray-400">{category.count}</p>
-            <div className="mt-3 h-1 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-white/5">
-              <div className={clsx('h-full w-1/2', colors.bar)}></div>
+            <h3 className="text-lg font-bold text-slate-800 dark:text-white">{category.name}</h3>
+            <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
+              {category.count}
+            </p>
+            <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-white/10">
+              <div className={clsx('h-full w-1/2 rounded-full', colors.bar)}></div>
             </div>
           </div>
         </div>
       )}
 
       {category.type === 'simple-card' && (
-        <div className="flex flex-col gap-2">
-          <div className="mb-2 flex items-start justify-between">
+        <div className="flex flex-col gap-3">
+          <div className="mb-1 flex items-start justify-between">
             <div
               className={clsx(
-                'flex h-10 w-10 items-center justify-center rounded-full ring-1',
+                'flex h-12 w-12 items-center justify-center rounded-2xl ring-1 transition-all duration-300 group-hover:scale-110',
                 colors.bg,
                 colors.text,
                 colors.ring
               )}
             >
-              <span className="material-symbols-outlined">{category.icon}</span>
+              <span className="material-symbols-outlined text-2xl">{category.icon}</span>
             </div>
-            {category.name === 'Home' && (
-              <span className="font-mono text-xs text-gray-400">06</span>
-            )}
           </div>
-          <h3 className="text-lg font-bold text-black dark:text-white">{category.name}</h3>
-          <p className="text-xs text-gray-500 dark:text-gray-400">{category.count}</p>
+          <div>
+            <h3 className="text-lg font-bold text-slate-800 dark:text-white">{category.name}</h3>
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+              {category.count}
+            </p>
+          </div>
         </div>
       )}
 
@@ -1416,22 +1458,24 @@ function CategoryCard({
           <div className="flex items-start justify-between">
             <div
               className={clsx(
-                'flex h-10 w-10 items-center justify-center rounded-full ring-1',
+                'flex h-12 w-12 items-center justify-center rounded-2xl ring-1',
                 colors.bg,
                 colors.text,
                 colors.ring
               )}
             >
-              <span className="material-symbols-outlined">{category.icon}</span>
+              <span className="material-symbols-outlined text-2xl">{category.icon}</span>
             </div>
             <div className="flex -space-x-2">
-              <div className="dark:border-surface-card h-5 w-5 rounded-full border border-white bg-gray-200 dark:bg-gray-600"></div>
-              <div className="dark:border-surface-card h-5 w-5 rounded-full border border-white bg-gray-300 dark:bg-gray-500"></div>
+              <div className="h-6 w-6 rounded-full border-2 border-white bg-slate-200 dark:border-slate-800 dark:bg-slate-600"></div>
+              <div className="h-6 w-6 rounded-full border-2 border-white bg-slate-300 dark:border-slate-800 dark:bg-slate-500"></div>
             </div>
           </div>
           <div>
-            <h3 className="text-lg font-bold text-black dark:text-white">{category.name}</h3>
-            <p className="text-xs text-gray-500 dark:text-gray-400">{category.count}</p>
+            <h3 className="text-lg font-bold text-slate-800 dark:text-white">{category.name}</h3>
+            <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
+              {category.count}
+            </p>
           </div>
         </div>
       )}
