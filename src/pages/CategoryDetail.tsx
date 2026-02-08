@@ -117,7 +117,7 @@ export function CategoryDetail() {
   }
 
   return (
-    <div className="relative mx-auto flex min-h-screen w-full max-w-md flex-col bg-background-light dark:bg-background-dark overflow-hidden">
+    <div className="relative mx-auto flex min-h-screen w-full max-w-[1440px] flex-col bg-background-light dark:bg-background-dark overflow-hidden">
       {/* Animated Hero Header */}
       <motion.header
         initial={{ y: -20, opacity: 0 }}
@@ -203,7 +203,7 @@ export function CategoryDetail() {
             </div>
 
             {/* Stats Cards */}
-            <div className="mt-6 grid grid-cols-3 gap-3">
+            <div className="mt-6 grid grid-cols-3 gap-3 lg:hidden">
               <StatCard label="Total" value={habits.length.toString()} icon="playlist_add_check" delay={0.3} />
               <StatCard label="Done Today" value={completedToday.toString()} icon="check_circle" delay={0.35} />
               <StatCard label="Rate" value={`${completionRate}%`} icon="trending_up" delay={0.4} />
@@ -230,140 +230,226 @@ export function CategoryDetail() {
       </motion.header>
 
       {/* Main Content */}
-      <main className="flex-1 px-4 py-6 pb-28">
-        {/* Content Tabs */}
-        <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.3 }}
-          className="mb-6 flex justify-center"
-        >
-          <div className="inline-flex gap-2 rounded-2xl border border-slate-200 bg-white/80 backdrop-blur-xl p-1.5 shadow-lg dark:border-white/5 dark:bg-slate-900/80">
-            {([
-              { key: 'both', label: 'Both', icon: 'view_agenda' },
-              { key: 'habits', label: 'Habits', icon: 'track_changes' },
-              { key: 'tasks', label: 'Tasks', icon: 'task_alt' },
-            ] as const).map((opt) => (
-              <motion.button
-                key={opt.key}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                type="button"
-                onClick={() => setContentView(opt.key)}
-                className={clsx(
-                  'relative inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50',
-                  contentView === opt.key
-                    ? 'bg-gradient-to-r from-primary to-emerald-400 text-slate-900 shadow-lg shadow-primary/20'
-                    : 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/10'
-                )}
-                aria-pressed={contentView === opt.key}
-              >
-                <span className="material-symbols-outlined text-[18px]">{opt.icon}</span>
-                {opt.label}
-              </motion.button>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* Habits Section */}
-        <AnimatePresence mode="wait">
-          {(contentView === 'both' || contentView === 'habits') && (
-            <motion.section
-              key="habits"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-            >
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                  <span className="material-symbols-outlined text-lg">track_changes</span>
-                  Habits
-                </h2>
-                <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
-                  {habits.length}
-                </span>
-              </div>
-
-              {habits.length === 0 ? (
-                <EmptyState
-                  icon="playlist_add"
-                  title="No habits yet"
-                  description="Start building momentum by adding your first habit."
-                  actionLabel="Add a habit"
-                  onAction={() => navigate(`/new-habit?categoryId=${category.id}`)}
-                />
-              ) : (
-                <div className="space-y-3">
-                  {habits.map((habit, index) => (
-                    <HabitCard
-                      key={habit.id}
-                      habit={habit}
-                      completed={isHabitCompletedToday(habit.id)}
-                      onToggle={() => toggleHabitCompletion(habit.id)}
-                      index={index}
-                    />
-                  ))}
-                </div>
-              )}
-            </motion.section>
-          )}
-        </AnimatePresence>
-
-        {/* Tasks Section */}
-        <AnimatePresence mode="wait">
-          {(contentView === 'both' || contentView === 'tasks') && (
-            <motion.section
-              key="tasks"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-              className={contentView === 'both' ? 'mt-8' : ''}
-            >
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                  <span className="material-symbols-outlined text-lg">task_alt</span>
-                  Tasks
-                </h2>
+      <main className="flex-1 px-4 py-6 pb-28 lg:flex lg:gap-6 lg:px-6 xl:px-8">
+        {/* Left/Center Content Area */}
+        <div className="flex-1 lg:min-w-0">
+          {/* Content Tabs - Hidden on desktop when sidebar is visible */}
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="mb-6 flex justify-center lg:hidden"
+          >
+            <div className="inline-flex gap-2 rounded-2xl border border-slate-200 bg-white/80 backdrop-blur-xl p-1.5 shadow-lg dark:border-white/5 dark:bg-slate-900/80">
+              {([
+                { key: 'both', label: 'Both', icon: 'view_agenda' },
+                { key: 'habits', label: 'Habits', icon: 'track_changes' },
+                { key: 'tasks', label: 'Tasks', icon: 'task_alt' },
+              ] as const).map((opt) => (
                 <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+                  key={opt.key}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  type="button"
+                  onClick={() => setContentView(opt.key)}
+                  className={clsx(
+                    'relative inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50',
+                    contentView === opt.key
+                      ? 'bg-gradient-to-r from-primary to-emerald-400 text-slate-900 shadow-lg shadow-primary/20'
+                      : 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/10'
+                  )}
+                  aria-pressed={contentView === opt.key}
+                >
+                  <span className="material-symbols-outlined text-[18px]">{opt.icon}</span>
+                  {opt.label}
+                </motion.button>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Habits Section */}
+          <AnimatePresence mode="wait">
+            {(contentView === 'both' || contentView === 'habits') && (
+              <motion.section
+                key="habits"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                <div className="mb-4 flex items-center justify-between">
+                  <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                    <span className="material-symbols-outlined text-lg">track_changes</span>
+                    Habits
+                  </h2>
+                  <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
+                    {habits.length}
+                  </span>
+                </div>
+
+                {habits.length === 0 ? (
+                  <EmptyState
+                    icon="playlist_add"
+                    title="No habits yet"
+                    description="Start building momentum by adding your first habit."
+                    actionLabel="Add a habit"
+                    onAction={() => navigate(`/new-habit?categoryId=${category.id}`)}
+                  />
+                ) : (
+                  <div className="space-y-3 md:grid md:grid-cols-2 md:gap-4 md:space-y-0 lg:grid-cols-1 xl:grid-cols-2">
+                    {habits.map((habit, index) => (
+                      <HabitCard
+                        key={habit.id}
+                        habit={habit}
+                        completed={isHabitCompletedToday(habit.id)}
+                        onToggle={() => toggleHabitCompletion(habit.id)}
+                        index={index}
+                      />
+                    ))}
+                  </div>
+                )}
+              </motion.section>
+            )}
+          </AnimatePresence>
+
+          {/* Tasks Section */}
+          <AnimatePresence mode="wait">
+            {(contentView === 'both' || contentView === 'tasks') && (
+              <motion.section
+                key="tasks"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+                className={contentView === 'both' ? 'mt-8' : ''}
+              >
+                <div className="mb-4 flex items-center justify-between">
+                  <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                    <span className="material-symbols-outlined text-lg">task_alt</span>
+                    Tasks
+                  </h2>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    type="button"
+                    onClick={() => navigate(`/tasks?new=1&categoryId=${category.id}`)}
+                    className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-4 py-2 text-xs font-bold text-primary hover:bg-primary/15 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+                  >
+                    <span className="material-symbols-outlined text-sm">add</span>
+                    Add Task
+                  </motion.button>
+                </div>
+
+                {categoryTasks.length === 0 ? (
+                  <EmptyState
+                    icon="task_alt"
+                    title="No tasks yet"
+                    description="Add a task to keep this category moving forward."
+                    actionLabel="Add a task"
+                    onAction={() => navigate(`/tasks?new=1&categoryId=${category.id}`)}
+                  />
+                ) : (
+                  <div className="space-y-3 md:grid md:grid-cols-2 md:gap-4 md:space-y-0 lg:grid-cols-1 xl:grid-cols-2">
+                    {categoryTasks.map((task, index) => (
+                      <TaskCard key={task.id} task={task} index={index} />
+                    ))}
+                  </div>
+                )}
+              </motion.section>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Desktop Sidebar - Right */}
+        <motion.aside
+          initial={{ x: 20, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ delay: 0.4 }}
+          className="hidden lg:block lg:w-80 xl:w-96 shrink-0"
+        >
+          <div className="sticky top-6 space-y-6">
+            {/* Quick Stats Card */}
+            <div className="rounded-3xl border border-slate-200 bg-white/80 backdrop-blur-xl p-6 shadow-lg dark:border-white/5 dark:bg-slate-900/80">
+              <h3 className="mb-4 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                <span className="material-symbols-outlined text-lg">analytics</span>
+                Quick Stats
+              </h3>
+              <div className="space-y-4">
+                <SidebarStatItem label="Total Habits" value={habits.length.toString()} icon="playlist_add_check" />
+                <SidebarStatItem label="Completed Today" value={completedToday.toString()} icon="check_circle" />
+                <SidebarStatItem label="Completion Rate" value={`${completionRate}%`} icon="trending_up" />
+                <SidebarStatItem label="Tasks" value={categoryTasks.length.toString()} icon="task_alt" />
+              </div>
+            </div>
+
+            {/* Progress Overview */}
+            <div className="rounded-3xl border border-slate-200 bg-white/80 backdrop-blur-xl p-6 shadow-lg dark:border-white/5 dark:bg-slate-900/80">
+              <h3 className="mb-4 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                <span className="material-symbols-outlined text-lg">show_chart</span>
+                Progress
+              </h3>
+              <div className="space-y-4">
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">Today</span>
+                    <span className="text-sm font-bold text-primary">{completionRate}%</span>
+                  </div>
+                  <div className="h-3 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-white/5">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${completionRate}%` }}
+                      transition={{ delay: 0.6, duration: 0.8, ease: 'easeOut' }}
+                      className="h-full rounded-full bg-gradient-to-r from-primary to-emerald-400 shadow-[0_0_10px_rgba(19,236,91,0.3)]"
+                    />
+                  </div>
+                </div>
+                <div className="pt-4 border-t border-slate-200 dark:border-white/5">
+                  <p className="text-xs text-slate-600 dark:text-slate-400">
+                    {completedToday} of {habits.length} habits completed
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Actions */}
+            <div className="rounded-3xl border border-slate-200 bg-white/80 backdrop-blur-xl p-6 shadow-lg dark:border-white/5 dark:bg-slate-900/80">
+              <h3 className="mb-4 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                <span className="material-symbols-outlined text-lg">bolt</span>
+                Quick Actions
+              </h3>
+              <div className="space-y-3">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  type="button"
+                  onClick={() => navigate(`/new-habit?categoryId=${category.id}`)}
+                  className="flex w-full items-center gap-3 rounded-2xl bg-gradient-to-r from-primary to-emerald-400 p-4 text-left text-slate-900 shadow-lg shadow-primary/20 transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+                >
+                  <span className="material-symbols-outlined text-2xl">add_circle</span>
+                  <span className="text-sm font-bold">Add New Habit</span>
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                   type="button"
                   onClick={() => navigate(`/tasks?new=1&categoryId=${category.id}`)}
-                  className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-4 py-2 text-xs font-bold text-primary hover:bg-primary/15 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+                  className="flex w-full items-center gap-3 rounded-2xl bg-slate-100 p-4 text-left text-slate-700 transition-all hover:bg-slate-200 cursor-pointer dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
                 >
-                  <span className="material-symbols-outlined text-sm">add</span>
-                  Add Task
+                  <span className="material-symbols-outlined text-2xl">add_task</span>
+                  <span className="text-sm font-bold">Add New Task</span>
                 </motion.button>
               </div>
-
-              {categoryTasks.length === 0 ? (
-                <EmptyState
-                  icon="task_alt"
-                  title="No tasks yet"
-                  description="Add a task to keep this category moving forward."
-                  actionLabel="Add a task"
-                  onAction={() => navigate(`/tasks?new=1&categoryId=${category.id}`)}
-                />
-              ) : (
-                <div className="space-y-3">
-                  {categoryTasks.map((task, index) => (
-                    <TaskCard key={task.id} task={task} index={index} />
-                  ))}
-                </div>
-              )}
-            </motion.section>
-          )}
-        </AnimatePresence>
+            </div>
+          </div>
+        </motion.aside>
       </main>
 
-      {/* Floating Action Button */}
+      {/* Floating Action Button - Only on mobile/tablet */}
       <motion.div
         initial={{ scale: 0, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ delay: 0.8, type: 'spring', stiffness: 260, damping: 20 }}
-        className="fixed bottom-20 right-6 z-20"
+        className="fixed bottom-20 right-6 z-20 lg:hidden"
       >
         <motion.button
           whileHover={{ scale: 1.1, rotate: 90 }}
@@ -376,6 +462,21 @@ export function CategoryDetail() {
           <span className="material-symbols-outlined text-4xl font-bold">add</span>
         </motion.button>
       </motion.div>
+    </div>
+  )
+}
+
+// Sidebar Stat Item Component
+function SidebarStatItem({ label, value, icon }: { label: string; value: string; icon: string }) {
+  return (
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary/10 to-emerald-400/10">
+          <span className="material-symbols-outlined text-lg text-primary">{icon}</span>
+        </div>
+        <span className="text-sm font-medium text-slate-600 dark:text-slate-300">{label}</span>
+      </div>
+      <span className="text-lg font-bold text-slate-900 dark:text-white">{value}</span>
     </div>
   )
 }
