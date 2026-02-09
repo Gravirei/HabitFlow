@@ -282,60 +282,44 @@ export function CategoryDetail() {
               >
                 <h3 className="mb-4 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                   <span className="material-symbols-outlined text-lg">insights</span>
-                  Habit Statistics
+                  Insights
                 </h3>
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {/* Total Tasks */}
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500/10 to-blue-600/10">
-                        <span className="material-symbols-outlined text-lg text-blue-600 dark:text-blue-400">task</span>
-                      </div>
-                      <span className="text-sm font-medium text-slate-600 dark:text-slate-300">Total Tasks</span>
-                    </div>
+                  <div className="flex items-center justify-between py-2">
+                    <span className="text-sm text-slate-600 dark:text-slate-400">Total Tasks</span>
                     <span className="text-lg font-bold text-slate-900 dark:text-white">{habitStats.totalTasks}</span>
                   </div>
 
                   {/* Average Tasks */}
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500/10 to-purple-600/10">
-                        <span className="material-symbols-outlined text-lg text-purple-600 dark:text-purple-400">average</span>
-                      </div>
-                      <span className="text-sm font-medium text-slate-600 dark:text-slate-300">Avg per Habit</span>
-                    </div>
+                  <div className="flex items-center justify-between py-2 border-t border-slate-200 dark:border-white/5">
+                    <span className="text-sm text-slate-600 dark:text-slate-400">Average per Habit</span>
                     <span className="text-lg font-bold text-slate-900 dark:text-white">{habitStats.averageTasks}</span>
                   </div>
 
                   {/* Most Active Habit */}
                   {habitStats.mostActiveHabit && (
-                    <div className="rounded-2xl border border-green-200 bg-gradient-to-br from-green-50 to-emerald-50 p-4 dark:border-green-500/20 dark:from-green-500/10 dark:to-emerald-500/10">
+                    <div className="pt-3 border-t border-slate-200 dark:border-white/5">
                       <div className="flex items-center gap-2 mb-2">
-                        <span className="material-symbols-outlined text-sm text-green-600 dark:text-green-400">trending_up</span>
-                        <span className="text-xs font-bold uppercase tracking-wider text-green-600 dark:text-green-400">Most Active</span>
+                        <span className="material-symbols-outlined text-sm text-primary">star</span>
+                        <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Most Active</span>
                       </div>
-                      <p className="font-bold text-slate-900 dark:text-white truncate">{habitStats.mostActiveHabit.name}</p>
-                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
+                      <p className="font-semibold text-slate-900 dark:text-white truncate">{habitStats.mostActiveHabit.name}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                         {habitStats.mostActiveHabit.taskCount} {habitStats.mostActiveHabit.taskCount === 1 ? 'task' : 'tasks'}
                       </p>
                     </div>
                   )}
 
                   {/* Least Active Habit */}
-                  {habitStats.leastActiveHabit && habits.length > 1 && (
-                    <div className="rounded-2xl border border-amber-200 bg-gradient-to-br from-amber-50 to-yellow-50 p-4 dark:border-amber-500/20 dark:from-amber-500/10 dark:to-yellow-500/10">
+                  {habitStats.leastActiveHabit && habits.length > 1 && habitStats.leastActiveHabit.taskCount === 0 && (
+                    <div className="pt-3 border-t border-slate-200 dark:border-white/5">
                       <div className="flex items-center gap-2 mb-2">
-                        <span className="material-symbols-outlined text-sm text-amber-600 dark:text-amber-400">
-                          {habitStats.leastActiveHabit.taskCount === 0 ? 'priority_high' : 'trending_down'}
-                        </span>
-                        <span className="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
-                          {habitStats.leastActiveHabit.taskCount === 0 ? 'Needs Attention' : 'Least Active'}
-                        </span>
+                        <span className="material-symbols-outlined text-sm text-amber-500">notifications</span>
+                        <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Needs Attention</span>
                       </div>
-                      <p className="font-bold text-slate-900 dark:text-white truncate">{habitStats.leastActiveHabit.name}</p>
-                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
-                        {habitStats.leastActiveHabit.taskCount} {habitStats.leastActiveHabit.taskCount === 1 ? 'task' : 'tasks'}
-                      </p>
+                      <p className="font-semibold text-slate-900 dark:text-white truncate">{habitStats.leastActiveHabit.name}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">No tasks yet</p>
                     </div>
                   )}
                 </div>
