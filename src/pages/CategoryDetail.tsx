@@ -7,7 +7,7 @@ import { useCategoryStore } from '@/store/useCategoryStore'
 import { useHabitStore } from '@/store/useHabitStore'
 import { useTaskStore } from '@/store/useTaskStore'
 import { useHabitTaskStore } from '@/store/useHabitTaskStore'
-import { HabitTasksModal } from '@/components/HabitTasksModal'
+import { HabitTasksModal } from '@/components/categories/HabitTasksModal'
 
 const fallbackGradientByColor: Record<string, string> = {
   primary: 'from-gray-900 to-black',
