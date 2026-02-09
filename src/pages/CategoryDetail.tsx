@@ -6,6 +6,8 @@ import clsx from 'clsx'
 import { useCategoryStore } from '@/store/useCategoryStore'
 import { useHabitStore } from '@/store/useHabitStore'
 import { useTaskStore } from '@/store/useTaskStore'
+import { useHabitTaskStore } from '@/store/useHabitTaskStore'
+import { HabitTasksModal } from '@/components/HabitTasksModal'
 
 const fallbackGradientByColor: Record<string, string> = {
   primary: 'from-gray-900 to-black',
@@ -30,9 +32,13 @@ export function CategoryDetail() {
 
   const { getCategoryById } = useCategoryStore()
   const { getHabitsByCategory, isHabitCompletedToday, toggleHabitCompletion } = useHabitStore()
+  const { getTaskCount } = useHabitTaskStore()
 
   type ContentView = 'both' | 'habits' | 'tasks'
   const [contentView, setContentView] = useState<ContentView>('both')
+  
+  const [selectedHabitId, setSelectedHabitId] = useState<string | null>(null)
+  const [selectedHabitName, setSelectedHabitName] = useState<string>('')
 
   const tasks = useTaskStore((state) => state.tasks)
 
@@ -290,9 +296,12 @@ export function CategoryDetail() {
                       <HabitCard
                         key={habit.id}
                         habit={habit}
-                        completed={isHabitCompletedToday(habit.id)}
-                        onToggle={() => toggleHabitCompletion(habit.id)}
                         index={index}
+                        taskCount={getTaskCount(habit.id)}
+                        onClick={() => {
+                          setSelectedHabitId(habit.id)
+                          setSelectedHabitName(habit.name)
+                        }}
                       />
                     ))}
                   </div>
@@ -451,6 +460,19 @@ export function CategoryDetail() {
           <span className="material-symbols-outlined text-4xl font-bold">add</span>
         </motion.button>
       </motion.div>
+
+      {/* Habit Tasks Modal */}
+      {selectedHabitId && (
+        <HabitTasksModal
+          isOpen={!!selectedHabitId}
+          onClose={() => {
+            setSelectedHabitId(null)
+            setSelectedHabitName('')
+          }}
+          habitId={selectedHabitId}
+          habitName={selectedHabitName}
+        />
+      )}
     </div>
   )
 }
@@ -492,32 +514,29 @@ function StatCard({ label, value, icon, delay }: { label: string; value: string;
 
 interface HabitCardProps {
   habit: any
-  completed: boolean
-  onToggle: () => void
   index: number
+  taskCount: number
+  onClick: () => void
 }
 
-function HabitCard({ habit, completed, onToggle, index }: HabitCardProps) {
+function HabitCard({ habit, index, taskCount, onClick }: HabitCardProps) {
   return (
     <motion.div
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.05 }}
       whileHover={{ scale: 1.02, y: -2 }}
-      className="group relative overflow-hidden rounded-3xl border border-slate-200 bg-white/80 backdrop-blur-xl shadow-lg transition-all dark:border-white/5 dark:bg-slate-900/80"
+      onClick={onClick}
+      className="group relative overflow-hidden rounded-3xl border border-slate-200 bg-white/80 backdrop-blur-xl shadow-lg transition-all cursor-pointer dark:border-white/5 dark:bg-slate-900/80"
     >
       {/* Background Gradient on Hover */}
       <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-emerald-400/5 opacity-0 transition-opacity group-hover:opacity-100" />
 
       <div className="relative flex items-center gap-4 p-4">
         {/* Icon */}
-        <motion.div
-          whileHover={{ rotate: 360 }}
-          transition={{ duration: 0.6 }}
-          className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200 text-slate-700 shadow-md dark:from-white/10 dark:to-white/5 dark:text-slate-200"
-        >
+        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200 text-slate-700 shadow-md dark:from-white/10 dark:to-white/5 dark:text-slate-200">
           <span className="material-symbols-outlined text-2xl">{habit.icon}</span>
-        </motion.div>
+        </div>
 
         {/* Content */}
         <div className="min-w-0 flex-1">
@@ -533,31 +552,20 @@ function HabitCard({ habit, completed, onToggle, index }: HabitCardProps) {
               {habit.goal} per {habit.goalPeriod}
             </p>
           )}
+          
+          {/* Task Count */}
+          <div className="mt-2 flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+            <span className="material-symbols-outlined text-base">task</span>
+            <span className="font-semibold">{taskCount} {taskCount === 1 ? 'task' : 'tasks'}</span>
+          </div>
         </div>
 
-        {/* Completion Button */}
-        <motion.button
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          type="button"
-          onClick={onToggle}
-          className={clsx(
-            'flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl transition-all duration-300 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50',
-            completed
-              ? 'bg-gradient-to-r from-primary to-emerald-400 text-slate-900 shadow-lg shadow-primary/30'
-              : 'bg-slate-100 text-slate-400 hover:bg-slate-200 dark:bg-white/5 dark:text-slate-400 dark:hover:bg-white/10'
-          )}
-          aria-label={completed ? 'Mark as incomplete' : 'Mark as complete'}
+        {/* Chevron Icon */}
+        <motion.div
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-400 transition-colors group-hover:bg-slate-200 dark:bg-white/5 dark:text-slate-400 dark:group-hover:bg-white/10"
         >
-          <motion.span
-            initial={false}
-            animate={{ scale: completed ? [1, 1.3, 1] : 1 }}
-            transition={{ duration: 0.3 }}
-            className="material-symbols-outlined text-2xl"
-          >
-            {completed ? 'check_circle' : 'radio_button_unchecked'}
-          </motion.span>
-        </motion.button>
+          <span className="material-symbols-outlined">chevron_right</span>
+        </motion.div>
       </div>
     </motion.div>
   )
