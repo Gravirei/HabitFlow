@@ -412,12 +412,9 @@ function HabitCard({ habit, index, taskCount, onClick }: HabitCardProps) {
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.05 }}
-      whileHover={{ scale: 1.02, y: -2 }}
       onClick={onClick}
-      className="group relative overflow-hidden rounded-3xl border border-slate-200 bg-white/80 backdrop-blur-xl shadow-lg transition-all cursor-pointer dark:border-white/5 dark:bg-slate-900/80"
+      className="group relative overflow-hidden rounded-3xl border border-slate-200 bg-white/80 backdrop-blur-xl shadow-lg transition-all hover:shadow-xl hover:border-slate-300 cursor-pointer dark:border-white/5 dark:bg-slate-900/80 dark:hover:border-white/10"
     >
-      {/* Background Gradient on Hover */}
-      <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-emerald-400/5 opacity-0 transition-opacity group-hover:opacity-100" />
 
       <div className="relative flex items-center gap-4 p-4">
         {/* Icon */}
