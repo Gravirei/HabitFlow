@@ -109,101 +109,64 @@ export function CreateNewHabit({ isOpen, onClose, categoryId, categoryName }: Cr
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-[100] flex items-center justify-center">
+      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
         {/* Backdrop */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
-          className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+          className="absolute inset-0 bg-gradient-to-br from-black/80 via-black/70 to-black/80 backdrop-blur-md"
         />
 
-        {/* Modal Container */}
+        {/* Modal Container - Single Column, Centered */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 20 }}
+          initial={{ opacity: 0, scale: 0.9, y: 40 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-          className="relative z-10 flex h-[90vh] w-[95vw] max-w-5xl flex-col overflow-hidden rounded-[2.5rem] border border-white/20 bg-white/95 shadow-2xl ring-1 ring-black/5 backdrop-blur-3xl dark:border-white/5 dark:bg-gray-950/90 md:flex-row"
+          exit={{ opacity: 0, scale: 0.9, y: 40 }}
+          transition={{ type: 'spring', stiffness: 260, damping: 25 }}
+          className="relative z-10 w-full max-w-2xl"
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Left Panel - Preview */}
-          <div className="hidden w-64 flex-shrink-0 border-r border-gray-200/50 bg-gray-50/80 p-6 backdrop-blur-xl dark:border-white/5 dark:bg-white/5 md:block">
-            <div className="mb-6 flex items-center gap-3">
-              <motion.div
-                className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary shadow-lg shadow-primary/20"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <span className="material-symbols-outlined text-3xl text-white">add_circle</span>
-              </motion.div>
-              <div>
-                <h3 className="text-base font-bold text-white">New Habit</h3>
-                <p className="text-sm text-gray-400">{categoryName}</p>
-              </div>
-            </div>
-
-            {/* Live Preview Card */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-sm text-gray-500">visibility</span>
-                <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Preview</p>
-              </div>
-
-              <motion.div
-                layout
-                className="relative overflow-hidden rounded-2xl border border-white/10 bg-slate-800/50 p-4"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/10 shadow-sm backdrop-blur-sm">
-                    <span className="material-symbols-outlined text-xl text-white">{icon}</span>
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <h3 className="truncate text-sm font-bold text-white">
-                      {name || 'Habit Name'}
-                    </h3>
-                    {description && (
-                      <p className="mt-0.5 truncate text-xs text-white/70">{description}</p>
-                    )}
-                    <p className="mt-1 text-xs text-white/60">
-                      {goal} {goal === '1' ? 'time' : 'times'} {goalPeriodOptions.find(p => p.value === goalPeriod)?.label}
-                    </p>
-                  </div>
+          {/* Floating Header Card */}
+          <motion.div
+            initial={{ y: -20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.1 }}
+            className="mb-4 overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-800/95 p-6 shadow-2xl backdrop-blur-2xl"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-emerald-400 shadow-lg shadow-primary/30">
+                  <span className="material-symbols-outlined text-3xl text-slate-900 font-bold">add_circle</span>
                 </div>
-              </motion.div>
-
-              {/* Frequency Badge */}
-              <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-sm text-gray-500">
-                  {frequencyOptions.find(f => f.value === frequency)?.icon}
-                </span>
-                <span className="text-xs text-gray-400 capitalize">{frequency}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Panel - Form */}
-          <div className="flex flex-1 flex-col">
-            {/* Header */}
-            <div className="flex items-center justify-between border-b border-white/10 px-6 py-4">
-              <div>
-                <h2 className="text-lg font-bold text-white">Create New Habit</h2>
-                <p className="text-sm text-gray-400">for {categoryName}</p>
+                <div>
+                  <h2 className="text-2xl font-black text-white">New Habit</h2>
+                  <p className="text-sm text-slate-400">in <span className="text-primary font-semibold">{categoryName}</span></p>
+                </div>
               </div>
               <button
                 type="button"
                 onClick={onClose}
                 disabled={isSubmitting}
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-white/5 hover:text-white disabled:opacity-50"
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-white/5 text-slate-400 transition-all hover:bg-white/10 hover:text-white disabled:opacity-50"
               >
                 <span className="material-symbols-outlined text-xl">close</span>
               </button>
             </div>
+          </motion.div>
+
+          {/* Main Form Card */}
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.15 }}
+            className="overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-800/95 shadow-2xl backdrop-blur-2xl"
+          >
 
             {/* Form Content */}
-            <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 custom-scrollbar">
-              <div className="space-y-6">
+            <form onSubmit={handleSubmit} className="max-h-[65vh] overflow-y-auto p-6 custom-scrollbar">
+              <div className="space-y-5">
                 {/* Name Input */}
                 <div>
                   <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-gray-400">
@@ -263,79 +226,79 @@ export function CreateNewHabit({ isOpen, onClose, categoryId, categoryName }: Cr
                   </span>
                 </div>
 
-                {/* Icon and Frequency Row */}
-                <div className="grid grid-cols-2 gap-6">
-                  {/* Icon */}
-                  <div>
-                    <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-gray-400">
-                      Icon
-                    </label>
-                    <div className="rounded-xl border border-white/10 bg-slate-800/50 p-3">
-                      <div className="mb-2 flex items-center gap-2">
-                        <span className="material-symbols-outlined text-lg text-primary">{icon}</span>
-                        <span className="text-sm text-gray-300">{icon}</span>
+                {/* Icon Picker */}
+                <div>
+                  <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-gray-400">
+                    Icon
+                  </label>
+                  <div className="rounded-2xl border border-white/10 bg-slate-800/30 p-4">
+                    <div className="mb-3 flex items-center gap-3">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-emerald-400/20">
+                        <span className="material-symbols-outlined text-2xl text-primary">{icon}</span>
                       </div>
-                      <IconPicker value={icon} onChange={setIcon} />
+                      <span className="text-sm font-semibold text-gray-300">{icon}</span>
                     </div>
-                  </div>
-
-                  {/* Frequency */}
-                  <div>
-                    <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-gray-400">
-                      Frequency *
-                    </label>
-                    <div className="space-y-2">
-                      {frequencyOptions.map((opt) => (
-                        <motion.button
-                          key={opt.value}
-                          type="button"
-                          onClick={() => setFrequency(opt.value)}
-                          disabled={isSubmitting}
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
-                          className={clsx(
-                            'flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left transition-all disabled:opacity-50',
-                            frequency === opt.value
-                              ? 'border-primary bg-primary/10 text-white shadow-lg shadow-primary/20'
-                              : 'border-white/10 bg-slate-800/50 text-gray-300 hover:border-white/20 hover:bg-slate-800/70'
-                          )}
-                        >
-                          <span className="material-symbols-outlined text-xl">{opt.icon}</span>
-                          <span className="text-sm font-semibold">{opt.label}</span>
-                        </motion.button>
-                      ))}
-                    </div>
+                    <IconPicker value={icon} onChange={setIcon} />
                   </div>
                 </div>
 
-                {/* Goal and Goal Period */}
-                <div className="grid grid-cols-2 gap-6">
-                  {/* Goal */}
-                  <div>
-                    <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-gray-400">
-                      Goal *
-                    </label>
-                    <input
-                      type="number"
-                      value={goal}
-                      onChange={(e) => setGoal(e.target.value)}
-                      min="1"
-                      max="100"
-                      disabled={isSubmitting}
-                      className="w-full rounded-xl border border-white/10 bg-slate-800/50 px-4 py-3 text-sm text-white transition-all focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50"
-                    />
+                {/* Frequency Selector - Modern Pills */}
+                <div>
+                  <label className="mb-3 block text-xs font-semibold uppercase tracking-wider text-gray-400">
+                    Frequency *
+                  </label>
+                  <div className="flex gap-3">
+                    {frequencyOptions.map((opt) => (
+                      <motion.button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => setFrequency(opt.value)}
+                        disabled={isSubmitting}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className={clsx(
+                          'flex flex-1 flex-col items-center gap-2 rounded-2xl border p-4 transition-all disabled:opacity-50',
+                          frequency === opt.value
+                            ? 'border-primary bg-gradient-to-br from-primary/20 to-emerald-400/20 shadow-lg shadow-primary/10'
+                            : 'border-white/10 bg-slate-800/30 hover:border-white/20 hover:bg-slate-800/50'
+                        )}
+                      >
+                        <span className={clsx(
+                          'material-symbols-outlined text-3xl transition-colors',
+                          frequency === opt.value ? 'text-primary' : 'text-gray-400'
+                        )}>{opt.icon}</span>
+                        <span className={clsx(
+                          'text-xs font-bold transition-colors',
+                          frequency === opt.value ? 'text-white' : 'text-gray-400'
+                        )}>{opt.label}</span>
+                      </motion.button>
+                    ))}
                   </div>
+                </div>
 
-                  {/* Goal Period */}
-                  <div>
-                    <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-gray-400">
-                      Goal Period *
-                    </label>
+                {/* Goal Section - Inline */}
+                <div>
+                  <label className="mb-3 block text-xs font-semibold uppercase tracking-wider text-gray-400">
+                    Goal *
+                  </label>
+                  <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-800/30 p-4">
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="number"
+                        value={goal}
+                        onChange={(e) => setGoal(e.target.value)}
+                        min="1"
+                        max="100"
+                        disabled={isSubmitting}
+                        className="w-20 rounded-xl border border-white/10 bg-slate-700/50 px-4 py-2 text-center text-lg font-bold text-white transition-all focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50"
+                      />
+                      <span className="text-sm text-gray-400">{goal === '1' ? 'time' : 'times'}</span>
+                    </div>
                     <select
                       value={goalPeriod}
                       onChange={(e) => setGoalPeriod(e.target.value as GoalPeriodType)}
                       disabled={isSubmitting}
-                      className="w-full rounded-xl border border-white/10 bg-slate-800/50 px-4 py-3 text-sm text-white transition-all focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50"
+                      className="flex-1 rounded-xl border border-white/10 bg-slate-700/50 px-4 py-2 text-sm text-white transition-all focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50"
                     >
                       {goalPeriodOptions.map((opt) => (
                         <option key={opt.value} value={opt.value}>
@@ -348,41 +311,47 @@ export function CreateNewHabit({ isOpen, onClose, categoryId, categoryName }: Cr
               </div>
             </form>
 
-            {/* Footer */}
-            <div className="flex items-center justify-between border-t border-white/10 px-6 py-4">
-              <button
-                type="button"
-                onClick={onClose}
-                disabled={isSubmitting}
-                className="rounded-xl bg-white/5 px-5 py-2.5 text-sm font-semibold text-gray-300 transition-colors hover:bg-white/10 disabled:opacity-50"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                onClick={handleSubmit}
-                disabled={!name.trim() || isSubmitting}
-                className={clsx(
-                  'flex items-center gap-2 rounded-xl px-6 py-2.5 text-sm font-bold transition-all duration-200',
-                  name.trim() && !isSubmitting
-                    ? 'bg-gradient-to-r from-primary to-emerald-400 text-slate-900 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 active:scale-95'
-                    : 'cursor-not-allowed bg-white/10 text-gray-500'
-                )}
-              >
-                {isSubmitting ? (
-                  <>
-                    <span className="material-symbols-outlined animate-spin text-lg">progress_activity</span>
-                    Creating...
-                  </>
-                ) : (
-                  <>
-                    <span className="material-symbols-outlined text-lg">check</span>
-                    Create Habit
-                  </>
-                )}
-              </button>
+            {/* Footer - Sticky Buttons */}
+            <div className="sticky bottom-0 border-t border-white/10 bg-gradient-to-t from-slate-900 to-slate-900/95 p-6 backdrop-blur-xl">
+              <div className="flex gap-3">
+                <motion.button
+                  type="button"
+                  onClick={onClose}
+                  disabled={isSubmitting}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="flex-1 rounded-2xl border border-white/10 bg-slate-800/50 px-6 py-3.5 text-sm font-bold text-gray-300 transition-all hover:bg-slate-800/70 disabled:opacity-50"
+                >
+                  Cancel
+                </motion.button>
+                <motion.button
+                  type="submit"
+                  onClick={handleSubmit}
+                  disabled={!name.trim() || isSubmitting}
+                  whileHover={{ scale: name.trim() && !isSubmitting ? 1.02 : 1 }}
+                  whileTap={{ scale: name.trim() && !isSubmitting ? 0.98 : 1 }}
+                  className={clsx(
+                    'flex flex-[2] items-center justify-center gap-2 rounded-2xl px-6 py-3.5 text-sm font-bold transition-all duration-200',
+                    name.trim() && !isSubmitting
+                      ? 'bg-gradient-to-r from-primary to-emerald-400 text-slate-900 shadow-[0_8px_30px_rgba(19,236,91,0.4)] hover:shadow-[0_12px_40px_rgba(19,236,91,0.5)]'
+                      : 'cursor-not-allowed bg-slate-700/50 text-gray-500'
+                  )}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <span className="material-symbols-outlined animate-spin text-xl">progress_activity</span>
+                      Creating...
+                    </>
+                  ) : (
+                    <>
+                      <span className="material-symbols-outlined text-xl">rocket_launch</span>
+                      Create Habit
+                    </>
+                  )}
+                </motion.button>
+              </div>
             </div>
-          </div>
+          </motion.div>
         </motion.div>
       </div>
     </AnimatePresence>
