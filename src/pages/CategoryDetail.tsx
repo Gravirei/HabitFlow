@@ -159,17 +159,6 @@ export function CategoryDetail() {
             >
               <span className="material-symbols-outlined text-white">arrow_back</span>
             </motion.button>
-
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              type="button"
-              onClick={() => navigate(`/new-habit?categoryId=${category.id}`)}
-              className="inline-flex items-center gap-2 rounded-2xl bg-primary px-5 py-2.5 text-sm font-bold text-slate-900 shadow-[0_8px_24px_rgba(19,236,91,0.3)] transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
-            >
-              <span className="material-symbols-outlined text-[18px]">add</span>
-              Add Habit
-            </motion.button>
           </div>
 
           {/* Category Info */}
