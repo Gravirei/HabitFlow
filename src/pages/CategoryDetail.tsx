@@ -31,7 +31,7 @@ export function CategoryDetail() {
   const { categoryId } = useParams<{ categoryId: string }>()
 
   const { getCategoryById } = useCategoryStore()
-  const { getHabitsByCategory } = useHabitStore()
+  const allHabits = useHabitStore((state) => state.habits)
   const { getTaskCount } = useHabitTaskStore()
   
   const [selectedHabitId, setSelectedHabitId] = useState<string | null>(null)
@@ -42,8 +42,8 @@ export function CategoryDetail() {
 
   const habits = useMemo(() => {
     if (!categoryId) return []
-    return getHabitsByCategory(categoryId)
-  }, [categoryId, getHabitsByCategory])
+    return allHabits.filter((habit) => habit.categoryId === categoryId)
+  }, [categoryId, allHabits])
 
   // Calculate habit statistics
   const habitStats = useMemo(() => {
