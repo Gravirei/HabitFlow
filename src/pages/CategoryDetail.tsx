@@ -43,6 +43,36 @@ export function CategoryDetail() {
     return getHabitsByCategory(categoryId)
   }, [categoryId, getHabitsByCategory])
 
+  // Calculate habit statistics
+  const habitStats = useMemo(() => {
+    if (habits.length === 0) {
+      return {
+        totalTasks: 0,
+        averageTasks: 0,
+        mostActiveHabit: null,
+        leastActiveHabit: null,
+      }
+    }
+
+    const habitsWithTaskCounts = habits.map((habit) => ({
+      ...habit,
+      taskCount: getTaskCount(habit.id),
+    }))
+
+    const totalTasks = habitsWithTaskCounts.reduce((sum, h) => sum + h.taskCount, 0)
+    const averageTasks = totalTasks / habits.length
+
+    // Sort by task count
+    const sortedByTasks = [...habitsWithTaskCounts].sort((a, b) => b.taskCount - a.taskCount)
+    
+    return {
+      totalTasks,
+      averageTasks: Math.round(averageTasks * 10) / 10, // Round to 1 decimal
+      mostActiveHabit: sortedByTasks[0].taskCount > 0 ? sortedByTasks[0] : null,
+      leastActiveHabit: sortedByTasks[sortedByTasks.length - 1],
+    }
+  }, [habits, getTaskCount])
+
   const headerGradient =
     category?.gradient ??
     (category?.color ? fallbackGradientByColor[category.color] : undefined) ??
@@ -241,6 +271,76 @@ export function CategoryDetail() {
                 <SidebarStatItem label="Total Habits" value={habits.length.toString()} icon="playlist_add_check" />
               </div>
             </div>
+
+            {/* Habit Statistics Card */}
+            {habits.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                className="rounded-3xl border border-slate-200 bg-white/80 backdrop-blur-xl p-6 shadow-lg dark:border-white/5 dark:bg-slate-900/80"
+              >
+                <h3 className="mb-4 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                  <span className="material-symbols-outlined text-lg">insights</span>
+                  Habit Statistics
+                </h3>
+                <div className="space-y-4">
+                  {/* Total Tasks */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500/10 to-blue-600/10">
+                        <span className="material-symbols-outlined text-lg text-blue-600 dark:text-blue-400">task</span>
+                      </div>
+                      <span className="text-sm font-medium text-slate-600 dark:text-slate-300">Total Tasks</span>
+                    </div>
+                    <span className="text-lg font-bold text-slate-900 dark:text-white">{habitStats.totalTasks}</span>
+                  </div>
+
+                  {/* Average Tasks */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500/10 to-purple-600/10">
+                        <span className="material-symbols-outlined text-lg text-purple-600 dark:text-purple-400">average</span>
+                      </div>
+                      <span className="text-sm font-medium text-slate-600 dark:text-slate-300">Avg per Habit</span>
+                    </div>
+                    <span className="text-lg font-bold text-slate-900 dark:text-white">{habitStats.averageTasks}</span>
+                  </div>
+
+                  {/* Most Active Habit */}
+                  {habitStats.mostActiveHabit && (
+                    <div className="rounded-2xl border border-green-200 bg-gradient-to-br from-green-50 to-emerald-50 p-4 dark:border-green-500/20 dark:from-green-500/10 dark:to-emerald-500/10">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="material-symbols-outlined text-sm text-green-600 dark:text-green-400">trending_up</span>
+                        <span className="text-xs font-bold uppercase tracking-wider text-green-600 dark:text-green-400">Most Active</span>
+                      </div>
+                      <p className="font-bold text-slate-900 dark:text-white truncate">{habitStats.mostActiveHabit.name}</p>
+                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
+                        {habitStats.mostActiveHabit.taskCount} {habitStats.mostActiveHabit.taskCount === 1 ? 'task' : 'tasks'}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Least Active Habit */}
+                  {habitStats.leastActiveHabit && habits.length > 1 && (
+                    <div className="rounded-2xl border border-amber-200 bg-gradient-to-br from-amber-50 to-yellow-50 p-4 dark:border-amber-500/20 dark:from-amber-500/10 dark:to-yellow-500/10">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="material-symbols-outlined text-sm text-amber-600 dark:text-amber-400">
+                          {habitStats.leastActiveHabit.taskCount === 0 ? 'priority_high' : 'trending_down'}
+                        </span>
+                        <span className="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
+                          {habitStats.leastActiveHabit.taskCount === 0 ? 'Needs Attention' : 'Least Active'}
+                        </span>
+                      </div>
+                      <p className="font-bold text-slate-900 dark:text-white truncate">{habitStats.leastActiveHabit.name}</p>
+                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
+                        {habitStats.leastActiveHabit.taskCount} {habitStats.leastActiveHabit.taskCount === 1 ? 'task' : 'tasks'}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            )}
 
             {/* Quick Actions */}
             <div className="rounded-3xl border border-slate-200 bg-white/80 backdrop-blur-xl p-6 shadow-lg dark:border-white/5 dark:bg-slate-900/80">
