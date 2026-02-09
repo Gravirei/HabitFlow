@@ -7,6 +7,7 @@ import { useCategoryStore } from '@/store/useCategoryStore'
 import { useHabitStore } from '@/store/useHabitStore'
 import { useHabitTaskStore } from '@/store/useHabitTaskStore'
 import { HabitTasksModal } from '@/components/categories/HabitTasksModal'
+import { CreateNewHabit } from '@/components/categories/CreateNewHabit'
 
 const fallbackGradientByColor: Record<string, string> = {
   primary: 'from-gray-900 to-black',
@@ -35,6 +36,7 @@ export function CategoryDetail() {
   
   const [selectedHabitId, setSelectedHabitId] = useState<string | null>(null)
   const [selectedHabitName, setSelectedHabitName] = useState<string>('')
+  const [isCreateHabitOpen, setIsCreateHabitOpen] = useState(false)
 
   const category = categoryId ? getCategoryById(categoryId) : undefined
 
@@ -336,7 +338,7 @@ export function CategoryDetail() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 type="button"
-                onClick={() => navigate(`/new-habit?categoryId=${category.id}`)}
+                onClick={() => setIsCreateHabitOpen(true)}
                 className="flex w-full items-center gap-3 rounded-2xl bg-gradient-to-r from-primary to-emerald-400 p-4 text-left text-slate-900 shadow-lg shadow-primary/20 transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
               >
                 <span className="material-symbols-outlined text-2xl">add_circle</span>
@@ -358,7 +360,7 @@ export function CategoryDetail() {
           whileHover={{ scale: 1.1, rotate: 90 }}
           whileTap={{ scale: 0.9 }}
           type="button"
-          onClick={() => navigate(`/new-habit?categoryId=${category.id}`)}
+          onClick={() => setIsCreateHabitOpen(true)}
           className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-r from-primary to-emerald-400 text-slate-900 shadow-[0_12px_40px_rgba(19,236,91,0.4)] transition-shadow hover:shadow-[0_16px_48px_rgba(19,236,91,0.5)] cursor-pointer focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/30"
           aria-label="Add a habit"
         >
@@ -378,6 +380,14 @@ export function CategoryDetail() {
           habitName={selectedHabitName}
         />
       )}
+
+      {/* Create New Habit Modal */}
+      <CreateNewHabit
+        isOpen={isCreateHabitOpen}
+        onClose={() => setIsCreateHabitOpen(false)}
+        categoryId={category.id}
+        categoryName={category.name}
+      />
     </div>
   )
 }
