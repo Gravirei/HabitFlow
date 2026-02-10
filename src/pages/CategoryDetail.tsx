@@ -228,21 +228,57 @@ export function CategoryDetail() {
                 </p>
               </div>
               
-              {/* Activation Button - Right Side */}
+              {/* Activation Toggle - Right Side */}
               {habits.length > 0 && (
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={handleToggleCategoryActivation}
-                  className={clsx(
-                    'flex items-center gap-2 rounded-2xl px-5 py-2.5 text-sm font-bold shadow-lg transition-all backdrop-blur-xl',
-                    allHabitsActive
-                      ? 'bg-white/20 text-white border border-white/30'
-                      : 'bg-white/10 text-white/80 border border-white/20 hover:bg-white/15'
-                  )}
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  className="flex items-center gap-3 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 px-4 py-2.5 shadow-lg"
                 >
-                  {allHabitsActive ? 'Active' : 'Activate'}
-                </motion.button>
+                  {/* Status Light with Blinking Animation */}
+                  <div className="relative flex items-center">
+                    <motion.div
+                      animate={{
+                        opacity: [1, 0.3, 1],
+                        scale: [1, 0.9, 1],
+                      }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                      }}
+                      className={clsx(
+                        'h-2 w-2 rounded-full',
+                        allHabitsActive ? 'bg-green-400 shadow-[0_0_8px_rgba(74,222,128,0.8)]' : 'bg-red-400 shadow-[0_0_8px_rgba(248,113,113,0.8)]'
+                      )}
+                    />
+                  </div>
+                  
+                  {/* Toggle Switch */}
+                  <button
+                    onClick={handleToggleCategoryActivation}
+                    className={clsx(
+                      'relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300',
+                      allHabitsActive ? 'bg-green-400' : 'bg-slate-600'
+                    )}
+                    role="switch"
+                    aria-checked={allHabitsActive}
+                    aria-label="Toggle category activation"
+                  >
+                    <motion.span
+                      layout
+                      transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                      className={clsx(
+                        'inline-block h-4 w-4 transform rounded-full bg-white shadow-lg transition-transform',
+                        allHabitsActive ? 'translate-x-6' : 'translate-x-1'
+                      )}
+                    />
+                  </button>
+                  
+                  {/* Label */}
+                  <span className="text-sm font-semibold text-white">
+                    {allHabitsActive ? 'Active' : 'Inactive'}
+                  </span>
+                </motion.div>
               )}
             </div>
           </motion.div>
