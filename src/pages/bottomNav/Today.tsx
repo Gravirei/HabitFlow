@@ -1,7 +1,9 @@
 import { useNavigate } from 'react-router-dom'
 import { useHabitStore } from '@/store/useHabitStore'
+import { useHabitTaskStore } from '@/store/useHabitTaskStore'
 import { BottomNav } from '@/components/BottomNav'
 import { SideNav } from '@/components/SideNav'
+import { HabitTasksModal } from '@/components/categories/HabitTasksModal'
 import { useState, useRef, useEffect } from 'react'
 import { format, isToday, isBefore } from 'date-fns'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -34,15 +36,34 @@ export function Today() {
   const navigate = useNavigate()
   const [isSideNavOpen, setIsSideNavOpen] = useState(false)
   const { habits, toggleHabitCompletion, isHabitCompletedOnDate } = useHabitStore()
+  const { getTaskCount } = useHabitTaskStore()
   const [selectedDate, setSelectedDate] = useState(new Date())
   const [direction, setDirection] = useState(0)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const scrollRef = useRef<HTMLDivElement>(null)
   const [waterCount, setWaterCount] = useState(0) // Track hydration progress
+  
+  // For HabitTasksModal
+  const [selectedHabitId, setSelectedHabitId] = useState<string | null>(null)
+  const [selectedHabitName, setSelectedHabitName] = useState('')
 
   // Format selected date for store operations
   const formattedDate = format(selectedDate, 'yyyy-MM-dd')
+
+  // Hybrid habit click handler
+  const handleHabitClick = (habit: any) => {
+    const taskCount = getTaskCount(habit.id)
+    
+    if (taskCount > 0) {
+      // Has tasks - open modal
+      setSelectedHabitId(habit.id)
+      setSelectedHabitName(habit.name)
+    } else {
+      // No tasks - direct toggle
+      toggleHabitCompletion(habit.id, formattedDate)
+    }
+  }
 
   // Filter habits and tasks based on search query
   const filteredHabits = habits
@@ -408,7 +429,7 @@ export function Today() {
                           className="cursor-pointer relative h-11 w-11"
                           onClick={(e) => {
                             e.stopPropagation()
-                            toggleHabitCompletion(habit.id, formattedDate)
+                            handleHabitClick(habit)
                           }}
                           role="checkbox"
                           aria-checked={isCompleted}
@@ -487,6 +508,19 @@ export function Today() {
 
       <SideNav isOpen={isSideNavOpen} onClose={() => setIsSideNavOpen(false)} />
       <BottomNav />
+      
+      {/* Habit Tasks Modal */}
+      {selectedHabitId && (
+        <HabitTasksModal
+          isOpen={!!selectedHabitId}
+          onClose={() => {
+            setSelectedHabitId(null)
+            setSelectedHabitName('')
+          }}
+          habitId={selectedHabitId}
+          habitName={selectedHabitName}
+        />
+      )}
     </div>
   )
 }
