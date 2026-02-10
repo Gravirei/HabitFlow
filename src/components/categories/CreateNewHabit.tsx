@@ -88,6 +88,7 @@ export function CreateNewHabit({ isOpen, onClose, categoryId, categoryName }: Cr
         reminderTime: undefined,
         startDate: format(new Date(), 'yyyy-MM-dd'),
         categoryId,
+        isActive: false, // Habits are inactive by default
       })
 
       toast.success('🎉 Habit created!')

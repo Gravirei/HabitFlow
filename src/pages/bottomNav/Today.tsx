@@ -45,8 +45,9 @@ export function Today() {
   const formattedDate = format(selectedDate, 'yyyy-MM-dd')
 
   // Filter habits and tasks based on search query
-  const filteredHabits = habits.filter(habit => 
-    habit.name.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredHabits = habits
+    .filter(habit => habit.isActive === true) // Only show active habits
+    .filter(habit => habit.name.toLowerCase().includes(searchQuery.toLowerCase())
   )
   
   const filteredTasks = tasks.filter(task => 
@@ -54,8 +55,9 @@ export function Today() {
   )
 
   // Calculate progress for selected date
-  const completedHabits = habits.filter(h => isHabitCompletedOnDate(h.id, formattedDate)).length
-  const totalHabits = habits.length
+  const activeHabits = habits.filter(h => h.isActive === true)
+  const completedHabits = activeHabits.filter(h => isHabitCompletedOnDate(h.id, formattedDate)).length
+  const totalHabits = activeHabits.length
   const progressPercentage = totalHabits > 0 ? (completedHabits / totalHabits) * 100 : 0
 
   // Generate days for the current month

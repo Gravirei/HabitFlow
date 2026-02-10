@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import clsx from 'clsx'
+import toast from 'react-hot-toast'
 
 import { useCategoryStore } from '@/store/useCategoryStore'
 import { useHabitStore } from '@/store/useHabitStore'
@@ -32,6 +33,7 @@ export function CategoryDetail() {
 
   const { getCategoryById } = useCategoryStore()
   const allHabits = useHabitStore((state) => state.habits)
+  const updateHabit = useHabitStore((state) => state.updateHabit)
   const { getTaskCount } = useHabitTaskStore()
   
   const [selectedHabitId, setSelectedHabitId] = useState<string | null>(null)
@@ -45,14 +47,34 @@ export function CategoryDetail() {
     return allHabits.filter((habit) => habit.categoryId === categoryId)
   }, [categoryId, allHabits])
 
+  // Check if all habits in this category are active
+  const allHabitsActive = useMemo(() => {
+    if (habits.length === 0) return false
+    return habits.every((habit) => habit.isActive === true)
+  }, [habits])
+
+  // Toggle activation for all habits in this category
+  const handleToggleCategoryActivation = () => {
+    const newActiveState = !allHabitsActive
+    habits.forEach((habit) => {
+      updateHabit(habit.id, { isActive: newActiveState })
+    })
+    toast.success(newActiveState ? '✅ Category activated!' : '⏸️ Category deactivated!')
+  }
+
   // Calculate habit statistics
   const habitStats = useMemo(() => {
+    const activeHabitsCount = habits.filter(h => h.isActive === true).length
+    const inactiveHabitsCount = habits.length - activeHabitsCount
+
     if (habits.length === 0) {
       return {
         totalTasks: 0,
         averageTasks: 0,
         mostActiveHabit: null,
         leastActiveHabit: null,
+        activeHabitsCount: 0,
+        inactiveHabitsCount: 0,
       }
     }
 
@@ -72,6 +94,8 @@ export function CategoryDetail() {
       averageTasks: Math.round(averageTasks * 10) / 10, // Round to 1 decimal
       mostActiveHabit: sortedByTasks[0].taskCount > 0 ? sortedByTasks[0] : null,
       leastActiveHabit: sortedByTasks[sortedByTasks.length - 1],
+      activeHabitsCount,
+      inactiveHabitsCount,
     }
   }, [habits, getTaskCount])
 
@@ -196,9 +220,29 @@ export function CategoryDetail() {
                 </span>
               </motion.div>
               <div className="min-w-0 flex-1">
-                <h1 className="text-3xl font-black tracking-tight text-white drop-shadow-lg">
-                  {category.name}
-                </h1>
+                <div className="flex items-center gap-3">
+                  <h1 className="text-3xl font-black tracking-tight text-white drop-shadow-lg">
+                    {category.name}
+                  </h1>
+                  {habits.length > 0 && (
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={handleToggleCategoryActivation}
+                      className={clsx(
+                        'flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold transition-all',
+                        allHabitsActive
+                          ? 'bg-primary/20 text-primary backdrop-blur-xl border border-primary/30'
+                          : 'bg-white/10 text-white/70 backdrop-blur-xl border border-white/20 hover:bg-white/20'
+                      )}
+                    >
+                      <span className="material-symbols-outlined text-lg">
+                        {allHabitsActive ? 'check_circle' : 'radio_button_unchecked'}
+                      </span>
+                      {allHabitsActive ? 'Active' : 'Activate'}
+                    </motion.button>
+                  )}
+                </div>
                 <p className="mt-1 text-sm font-medium text-white/90 drop-shadow">
                   {habits.length} {habits.length === 1 ? 'Habit' : 'Habits'}
                 </p>
@@ -271,6 +315,8 @@ export function CategoryDetail() {
               </h3>
               <div className="space-y-4">
                 <SidebarStatItem label="Total Habits" value={habits.length.toString()} icon="playlist_add_check" />
+                <SidebarStatItem label="Active Habits" value={habitStats.activeHabitsCount.toString()} icon="check_circle" />
+                <SidebarStatItem label="Inactive Habits" value={habitStats.inactiveHabitsCount.toString()} icon="radio_button_unchecked" />
               </div>
             </div>
 

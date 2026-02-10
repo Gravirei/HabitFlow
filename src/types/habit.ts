@@ -24,6 +24,13 @@ export interface Habit {
    * Legacy category enum kept for migration/backward compatibility.
    */
   category?: 'health' | 'work' | 'personal'
+
+  /**
+   * Whether this habit is active and should appear in Today/Habits pages.
+   * Inactive habits only show in CategoryDetail page.
+   * Default: false
+   */
+  isActive?: boolean
 }
 
 export interface HabitCompletion {

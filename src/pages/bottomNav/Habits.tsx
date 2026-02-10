@@ -17,6 +17,7 @@ export function Habits() {
   const [searchQuery, setSearchQuery] = useState('')
 
   const filteredHabits = habits
+    .filter(h => h.isActive === true) // Only show active habits
     .filter(h => h.frequency === activeTab)
     .filter(h => h.name.toLowerCase().includes(searchQuery.toLowerCase()))
 
