@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useState, useRef, useEffect, useCallback } from 'react'
+import { motion, AnimatePresence, Variants, Easing } from 'framer-motion'
 import clsx from 'clsx'
 import { format } from 'date-fns'
 import toast from 'react-hot-toast'
@@ -29,6 +29,42 @@ const goalPeriodOptions: { value: GoalPeriodType; label: string }[] = [
   { value: 'month', label: 'per month' },
 ]
 
+const backdropVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { duration: 0.2 } },
+  exit: { opacity: 0, transition: { duration: 0.15 } },
+}
+
+const modalVariants: Variants = {
+  hidden: { opacity: 0, scale: 0.95, y: 10 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    y: 0,
+    transition: { type: 'spring', stiffness: 300, damping: 25 },
+  },
+  exit: {
+    opacity: 0,
+    scale: 0.95,
+    y: 10,
+    transition: { duration: 0.15 },
+  },
+}
+
+const contentVariants: Variants = {
+  hidden: { opacity: 0, y: 10 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.2, ease: 'easeOut' as Easing },
+  },
+  exit: {
+    opacity: 0,
+    y: -10,
+    transition: { duration: 0.15, ease: 'easeIn' as Easing },
+  },
+}
+
 export function CreateNewHabit({ isOpen, onClose, categoryId, categoryName }: CreateNewHabitProps) {
   const { addHabit } = useHabitStore()
 
@@ -43,8 +79,11 @@ export function CreateNewHabit({ isOpen, onClose, categoryId, categoryName }: Cr
   const [isSubmitting, setIsSubmitting] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  useEffect(() => {
-    if (!isOpen) return
+  const isFormValid = useCallback(() => {
+    return name.trim().length > 0 && parseInt(goal, 10) >= 1
+  }, [name, goal])
+
+  const resetForm = useCallback(() => {
     setName('')
     setDescription('')
     setIcon('check_circle')
@@ -53,8 +92,14 @@ export function CreateNewHabit({ isOpen, onClose, categoryId, categoryName }: Cr
     setGoalPeriod('day')
     setError(undefined)
     setIsSubmitting(false)
-    setTimeout(() => inputRef.current?.focus(), 100)
-  }, [isOpen])
+  }, [])
+
+  useEffect(() => {
+    if (!isOpen) return
+    resetForm()
+    const timer = setTimeout(() => inputRef.current?.focus(), 50)
+    return () => clearTimeout(timer)
+  }, [isOpen, resetForm])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -63,6 +108,7 @@ export function CreateNewHabit({ isOpen, onClose, categoryId, categoryName }: Cr
     const trimmedName = name.trim()
     if (!trimmedName) {
       setError('Habit name is required')
+      inputRef.current?.focus()
       return
     }
 
@@ -75,8 +121,7 @@ export function CreateNewHabit({ isOpen, onClose, categoryId, categoryName }: Cr
     setIsSubmitting(true)
 
     try {
-      // Simulate async operation for smooth animation
-      await new Promise((resolve) => setTimeout(resolve, 400))
+      await new Promise((resolve) => setTimeout(resolve, 500))
 
       addHabit({
         name: trimmedName,
@@ -91,7 +136,13 @@ export function CreateNewHabit({ isOpen, onClose, categoryId, categoryName }: Cr
         categoryId,
       })
 
-      toast.success('🎉 Habit created successfully!')
+      toast.success('Habit created successfully!', {
+        icon: '✓',
+        style: {
+          background: '#134E4A',
+          color: '#F0FDFA',
+        },
+      })
       onClose()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create habit')
@@ -99,261 +150,333 @@ export function CreateNewHabit({ isOpen, onClose, categoryId, categoryName }: Cr
     }
   }
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && e.metaKey && !isSubmitting && name.trim()) {
-      handleSubmit(e as any)
-    }
-  }
-
   if (!isOpen) return null
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-        {/* Backdrop */}
+      <motion.div
+        className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+        initial="hidden"
+        animate="visible"
+        exit="hidden"
+      >
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
+          variants={backdropVariants}
           onClick={onClose}
-          className="absolute inset-0 bg-gradient-to-br from-black/80 via-black/70 to-black/80 backdrop-blur-md"
+          className="absolute inset-0 bg-teal-950/60 backdrop-blur-sm"
+          aria-hidden="true"
         />
 
-        {/* Modal Container - Single Column, Centered */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.9, y: 40 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.9, y: 40 }}
-          transition={{ type: 'spring', stiffness: 260, damping: 25 }}
-          className="relative z-10 w-full max-w-2xl"
+          variants={modalVariants}
+          className="relative z-10 w-full max-w-lg overflow-hidden rounded-2xl border border-teal-700/30 bg-gradient-to-b from-teal-900 to-teal-950 shadow-2xl"
           onClick={(e) => e.stopPropagation()}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="modal-title"
         >
-          {/* Floating Header Card */}
-          <motion.div
-            initial={{ y: -20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.1 }}
-            className="mb-4 overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-800/95 p-6 shadow-2xl backdrop-blur-2xl"
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-emerald-400 shadow-lg shadow-primary/30">
-                  <span className="material-symbols-outlined text-3xl text-slate-900 font-bold">add_circle</span>
-                </div>
-                <div>
-                  <h2 className="text-2xl font-black text-white">New Habit</h2>
-                  <p className="text-sm text-slate-400">in <span className="text-primary font-semibold">{categoryName}</span></p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={onClose}
-                disabled={isSubmitting}
-                className="flex h-10 w-10 items-center justify-center rounded-full bg-white/5 text-slate-400 transition-all hover:bg-white/10 hover:text-white disabled:opacity-50"
+          <div className="flex items-center justify-between border-b border-teal-700/30 px-6 py-4">
+            <div className="flex items-center gap-3">
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: 'spring', stiffness: 400, delay: 0.1 }}
+                className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-500 shadow-lg shadow-teal-500/25"
               >
-                <span className="material-symbols-outlined text-xl">close</span>
-              </button>
+                <span className="material-symbols-outlined text-xl text-teal-950">add</span>
+              </motion.div>
+              <div>
+                <h2 id="modal-title" className="text-lg font-semibold text-teal-50">
+                  New Habit
+                </h2>
+                <p className="text-xs text-teal-400">
+                  in <span className="text-teal-300">{categoryName}</span>
+                </p>
+              </div>
             </div>
-          </motion.div>
+            <motion.button
+              type="button"
+              onClick={onClose}
+              disabled={isSubmitting}
+              whileHover={{ scale: 1.05, backgroundColor: 'rgba(255,255,255,0.1)' }}
+              whileTap={{ scale: 0.95 }}
+              className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg text-teal-400 transition-colors"
+              aria-label="Close modal"
+            >
+              <span className="material-symbols-outlined text-xl">close</span>
+            </motion.button>
+          </div>
 
-          {/* Main Form Card */}
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.15 }}
-            className="overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-800/95 shadow-2xl backdrop-blur-2xl"
-          >
-
-            {/* Form Content */}
-            <form onSubmit={handleSubmit} className="max-h-[65vh] overflow-y-auto p-6 custom-scrollbar">
-              <div className="space-y-5">
-                {/* Name Input */}
-                <div>
-                  <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-gray-400">
-                    Habit Name *
-                  </label>
-                  <input
-                    ref={inputRef}
-                    type="text"
-                    value={name}
-                    onChange={(e) => {
-                      setName(e.target.value)
-                      setError(undefined)
-                    }}
-                    onKeyDown={handleKeyDown}
-                    placeholder="e.g., Morning Meditation"
-                    maxLength={100}
-                    disabled={isSubmitting}
+          <div className="max-h-[calc(90vh-200px)] overflow-y-auto custom-scrollbar">
+            <form onSubmit={handleSubmit} className="space-y-5 p-6">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key="name-field"
+                variants={contentVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+              >
+                <label
+                  htmlFor="habit-name"
+                  className="mb-2 flex items-center gap-1 text-sm font-medium text-teal-200"
+                >
+                  Habit Name
+                  <span className="text-teal-400">*</span>
+                </label>
+                <input
+                  ref={inputRef}
+                  id="habit-name"
+                  type="text"
+                  value={name}
+                  onChange={(e) => {
+                    setName(e.target.value)
+                    if (error) setError(undefined)
+                  }}
+                  placeholder="e.g., Morning Meditation"
+                  maxLength={60}
+                  disabled={isSubmitting}
+                  aria-required="true"
+                  aria-invalid={!!error}
+                  aria-describedby={error ? 'name-error' : undefined}
+                  className={clsx(
+                    'w-full rounded-xl border bg-teal-800/30 px-4 py-3 text-teal-50 placeholder-teal-500/50 transition-all',
+                    'focus:border-transparent focus:outline-none focus:ring-2 focus:ring-teal-500/50',
+                    'disabled:cursor-not-allowed disabled:opacity-50',
+                    error
+                      ? 'border-red-500/50 focus:ring-red-500/30'
+                      : 'border-teal-700/50 hover:border-teal-600/50'
+                  )}
+                />
+                <div className="mt-2 flex items-center justify-between">
+                  {error && (
+                    <motion.p
+                      id="name-error"
+                      initial={{ opacity: 0, y: -5 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="text-sm text-red-400"
+                      role="alert"
+                    >
+                      {error}
+                    </motion.p>
+                  )}
+                  <span
                     className={clsx(
-                      'w-full rounded-xl border bg-slate-800/50 px-4 py-3 text-sm text-white placeholder-gray-500 transition-all focus:outline-none focus:ring-2 disabled:opacity-50',
-                      error
-                        ? 'border-red-500/50 focus:border-red-500 focus:ring-red-500/20'
-                        : 'border-white/10 focus:border-primary focus:ring-primary/20'
+                      'ml-auto text-xs',
+                      name.length > 50 ? 'text-amber-400' : 'text-teal-500'
                     )}
-                  />
-                  <div className="mt-2 flex items-center justify-between">
-                    {error && (
-                      <motion.p
-                        initial={{ opacity: 0, y: -5 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="text-xs text-red-400"
-                      >
-                        {error}
-                      </motion.p>
-                    )}
-                    <span className="ml-auto text-xs text-gray-500">
-                      {name.length}/100
-                    </span>
-                  </div>
-                </div>
-
-                {/* Description */}
-                <div>
-                  <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-gray-400">
-                    Description (Optional)
-                  </label>
-                  <textarea
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Why is this habit important to you?"
-                    rows={3}
-                    maxLength={200}
-                    disabled={isSubmitting}
-                    className="w-full rounded-xl border border-white/10 bg-slate-800/50 px-4 py-3 text-sm text-white placeholder-gray-500 transition-all focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50"
-                  />
-                  <span className="mt-1 block text-xs text-gray-500 text-right">
-                    {description.length}/200
+                  >
+                    {name.length}/60
                   </span>
                 </div>
+              </motion.div>
+            </AnimatePresence>
 
-                {/* Icon Picker */}
-                <div>
-                  <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-gray-400">
-                    Icon
-                  </label>
-                  <div className="rounded-2xl border border-white/10 bg-slate-800/30 p-4">
-                    <div className="mb-3 flex items-center gap-3">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-emerald-400/20">
-                        <span className="material-symbols-outlined text-2xl text-primary">{icon}</span>
-                      </div>
-                      <span className="text-sm font-semibold text-gray-300">{icon}</span>
-                    </div>
-                    <IconPicker value={icon} onChange={setIcon} />
+            <AnimatePresence mode="wait">
+              <motion.div
+                key="description-field"
+                variants={contentVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                transition={{ delay: 0.05 }}
+              >
+                <label
+                  htmlFor="habit-description"
+                  className="mb-2 block text-sm font-medium text-teal-200"
+                >
+                  Description
+                  <span className="ml-1 font-normal text-teal-400">(optional)</span>
+                </label>
+                <textarea
+                  id="habit-description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Why is this habit important?"
+                  rows={2}
+                  maxLength={120}
+                  disabled={isSubmitting}
+                  className="w-full rounded-xl border border-teal-700/50 bg-teal-800/30 px-4 py-3 text-teal-50 placeholder-teal-500/50 transition-all focus:border-transparent focus:outline-none focus:ring-2 focus:ring-teal-500/50 disabled:cursor-not-allowed disabled:opacity-50"
+                />
+                <span className="mt-1 block text-right text-xs text-teal-500">
+                  {description.length}/120
+                </span>
+              </motion.div>
+            </AnimatePresence>
+
+            <AnimatePresence mode="wait">
+              <motion.div
+                key="icon-field"
+                variants={contentVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                transition={{ delay: 0.1 }}
+              >
+                <label className="mb-3 block text-sm font-medium text-teal-200">Icon</label>
+                <div className="rounded-xl border border-teal-700/50 bg-teal-800/20 p-4">
+                  <div className="mb-3 flex items-center gap-3">
+                    <motion.div
+                      whileHover={{ scale: 1.05, rotate: 5 }}
+                      className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500/30 to-emerald-500/30"
+                    >
+                      <span className="material-symbols-outlined text-2xl text-teal-400">
+                        {icon}
+                      </span>
+                    </motion.div>
+                    <span className="text-sm capitalize text-teal-300">
+                      {icon.replace(/_/g, ' ')}
+                    </span>
                   </div>
+                  <IconPicker value={icon} onChange={setIcon} />
                 </div>
+              </motion.div>
+            </AnimatePresence>
 
-                {/* Frequency Selector - Modern Pills */}
-                <div>
-                  <label className="mb-3 block text-xs font-semibold uppercase tracking-wider text-gray-400">
-                    Frequency *
-                  </label>
-                  <div className="flex gap-3">
-                    {frequencyOptions.map((opt) => (
-                      <motion.button
-                        key={opt.value}
-                        type="button"
-                        onClick={() => setFrequency(opt.value)}
-                        disabled={isSubmitting}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key="frequency-field"
+                variants={contentVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                transition={{ delay: 0.15 }}
+              >
+                <label className="mb-3 block text-sm font-medium text-teal-200">
+                  Frequency <span className="text-teal-400">*</span>
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {frequencyOptions.map((option, index) => (
+                    <motion.button
+                      key={option.value}
+                      type="button"
+                      onClick={() => setFrequency(option.value)}
+                      disabled={isSubmitting}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.2 + index * 0.05 }}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className={clsx(
+                        'flex cursor-pointer flex-col items-center gap-1.5 rounded-xl border p-3 transition-all',
+                        frequency === option.value
+                          ? 'border-teal-500 bg-teal-500/20 shadow-lg shadow-teal-500/10'
+                          : 'border-teal-700/50 bg-teal-800/20 hover:border-teal-600/50 hover:bg-teal-800/40'
+                      )}
+                      aria-pressed={frequency === option.value}
+                    >
+                      <span
                         className={clsx(
-                          'flex flex-1 flex-col items-center gap-2 rounded-2xl border p-4 transition-all disabled:opacity-50',
-                          frequency === opt.value
-                            ? 'border-primary bg-gradient-to-br from-primary/20 to-emerald-400/20 shadow-lg shadow-primary/10'
-                            : 'border-white/10 bg-slate-800/30 hover:border-white/20 hover:bg-slate-800/50'
+                          'material-symbols-outlined text-2xl transition-colors',
+                          frequency === option.value ? 'text-teal-400' : 'text-teal-500'
                         )}
                       >
-                        <span className={clsx(
-                          'material-symbols-outlined text-3xl transition-colors',
-                          frequency === opt.value ? 'text-primary' : 'text-gray-400'
-                        )}>{opt.icon}</span>
-                        <span className={clsx(
-                          'text-xs font-bold transition-colors',
-                          frequency === opt.value ? 'text-white' : 'text-gray-400'
-                        )}>{opt.label}</span>
-                      </motion.button>
-                    ))}
-                  </div>
+                        {option.icon}
+                      </span>
+                      <span
+                        className={clsx(
+                          'text-xs font-medium transition-colors',
+                          frequency === option.value ? 'text-teal-100' : 'text-teal-400'
+                        )}
+                      >
+                        {option.label}
+                      </span>
+                    </motion.button>
+                  ))}
                 </div>
+              </motion.div>
+            </AnimatePresence>
 
-                {/* Goal Section - Inline */}
-                <div>
-                  <label className="mb-3 block text-xs font-semibold uppercase tracking-wider text-gray-400">
-                    Goal *
-                  </label>
-                  <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-800/30 p-4">
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="number"
-                        value={goal}
-                        onChange={(e) => setGoal(e.target.value)}
-                        min="1"
-                        max="100"
-                        disabled={isSubmitting}
-                        className="w-20 rounded-xl border border-white/10 bg-slate-700/50 px-4 py-2 text-center text-lg font-bold text-white transition-all focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50"
-                      />
-                      <span className="text-sm text-gray-400">{goal === '1' ? 'time' : 'times'}</span>
-                    </div>
-                    <select
-                      value={goalPeriod}
-                      onChange={(e) => setGoalPeriod(e.target.value as GoalPeriodType)}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key="goal-field"
+                variants={contentVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                transition={{ delay: 0.2 }}
+              >
+                <label className="mb-3 block text-sm font-medium text-teal-200">
+                  Goal <span className="text-teal-400">*</span>
+                </label>
+                <div className="flex items-center gap-3 rounded-xl border border-teal-700/50 bg-teal-800/20 p-3">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="number"
+                      value={goal}
+                      onChange={(e) => setGoal(e.target.value)}
+                      min="1"
+                      max="100"
                       disabled={isSubmitting}
-                      className="flex-1 rounded-xl border border-white/10 bg-slate-700/50 px-4 py-2 text-sm text-white transition-all focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50"
-                    >
-                      {goalPeriodOptions.map((opt) => (
-                        <option key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </option>
-                      ))}
-                    </select>
+                      className="w-16 rounded-lg border border-teal-700/50 bg-teal-800/50 px-2 py-2 text-center text-lg font-semibold text-teal-100 transition-all focus:outline-none focus:ring-2 focus:ring-teal-500/50 disabled:cursor-not-allowed disabled:opacity-50"
+                      aria-label="Goal number"
+                    />
+                    <span className="text-sm text-teal-400">time{goal !== '1' ? 's' : ''}</span>
                   </div>
+                  <select
+                    value={goalPeriod}
+                    onChange={(e) => setGoalPeriod(e.target.value as GoalPeriodType)}
+                    disabled={isSubmitting}
+                    className="flex-1 rounded-lg border border-teal-700/50 bg-teal-800/50 px-3 py-2 text-sm text-teal-100 transition-all focus:outline-none focus:ring-2 focus:ring-teal-500/50 disabled:cursor-not-allowed disabled:opacity-50"
+                    aria-label="Goal period"
+                  >
+                    {goalPeriodOptions.map((option) => (
+                      <option key={option.value} value={option.value} className="bg-teal-900">
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
                 </div>
-              </div>
-            </form>
+              </motion.div>
+            </AnimatePresence>
+          </form>
 
-            {/* Footer - Sticky Buttons */}
-            <div className="sticky bottom-0 border-t border-white/10 bg-gradient-to-t from-slate-900 to-slate-900/95 p-6 backdrop-blur-xl">
-              <div className="flex gap-3">
-                <motion.button
-                  type="button"
-                  onClick={onClose}
-                  disabled={isSubmitting}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="flex-1 rounded-2xl border border-white/10 bg-slate-800/50 px-6 py-3.5 text-sm font-bold text-gray-300 transition-all hover:bg-slate-800/70 disabled:opacity-50"
-                >
-                  Cancel
-                </motion.button>
-                <motion.button
-                  type="submit"
-                  onClick={handleSubmit}
-                  disabled={!name.trim() || isSubmitting}
-                  whileHover={{ scale: name.trim() && !isSubmitting ? 1.02 : 1 }}
-                  whileTap={{ scale: name.trim() && !isSubmitting ? 0.98 : 1 }}
-                  className={clsx(
-                    'flex flex-[2] items-center justify-center gap-2 rounded-2xl px-6 py-3.5 text-sm font-bold transition-all duration-200',
-                    name.trim() && !isSubmitting
-                      ? 'bg-gradient-to-r from-primary to-emerald-400 text-slate-900 shadow-[0_8px_30px_rgba(19,236,91,0.4)] hover:shadow-[0_12px_40px_rgba(19,236,91,0.5)]'
-                      : 'cursor-not-allowed bg-slate-700/50 text-gray-500'
-                  )}
-                >
-                  {isSubmitting ? (
-                    <>
-                      <span className="material-symbols-outlined animate-spin text-xl">progress_activity</span>
-                      Creating...
-                    </>
-                  ) : (
-                    <>
-                      <span className="material-symbols-outlined text-xl">rocket_launch</span>
-                      Create Habit
-                    </>
-                  )}
-                </motion.button>
-              </div>
-            </div>
-          </motion.div>
+          <div className="flex gap-3 border-t border-teal-700/30 bg-teal-900/50 px-6 py-4">
+            <motion.button
+              type="button"
+              onClick={onClose}
+              disabled={isSubmitting}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="flex-1 cursor-pointer rounded-xl border border-teal-700/50 bg-teal-800/30 px-4 py-3 text-sm font-medium text-teal-300 transition-all hover:bg-teal-800/50 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Cancel
+            </motion.button>
+            <motion.button
+              type="button"
+              onClick={handleSubmit}
+              disabled={!isFormValid() || isSubmitting}
+              whileHover={{ scale: isFormValid() && !isSubmitting ? 1.02 : 1 }}
+              whileTap={{ scale: isFormValid() && !isSubmitting ? 0.98 : 1 }}
+              className={clsx(
+                'flex flex-[2] items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold transition-all',
+                isFormValid() && !isSubmitting
+                  ? 'cursor-pointer bg-gradient-to-r from-teal-500 to-emerald-500 text-teal-950 shadow-lg shadow-teal-500/25'
+                  : 'cursor-not-allowed bg-teal-800/50 text-teal-500'
+              )}
+            >
+              {isSubmitting ? (
+                <>
+                  <motion.span
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                    className="material-symbols-outlined text-lg"
+                  >
+                    progress_activity
+                  </motion.span>
+                  Creating...
+                </>
+              ) : (
+                <>
+                  <span className="material-symbols-outlined text-lg">check_circle</span>
+                  Create Habit
+                </>
+              )}
+            </motion.button>
+          </div>
+          </div>
         </motion.div>
-      </div>
+      </motion.div>
     </AnimatePresence>
   )
 }
