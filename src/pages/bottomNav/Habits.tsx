@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useHabitStore } from '@/store/useHabitStore'
+import { useHabitTaskStore } from '@/store/useHabitTaskStore'
+import { HabitTasksModal } from '@/components/categories/HabitTasksModal'
 import { BottomNav } from '@/components/BottomNav'
 import { SideNav } from '@/components/SideNav'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -9,12 +11,31 @@ import clsx from 'clsx'
 
 export function Habits() {
   const navigate = useNavigate()
-  const { habits } = useHabitStore()
+  const { habits, toggleHabitCompletion } = useHabitStore()
+  const { getTaskCount } = useHabitTaskStore()
   const [isFabOpen, setIsFabOpen] = useState(false)
   const [activeTab, setActiveTab] = useState<'daily' | 'weekly' | 'monthly'>('daily')
   const [isSideNavOpen, setIsSideNavOpen] = useState(false)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  
+  // For HabitTasksModal
+  const [selectedHabitId, setSelectedHabitId] = useState<string | null>(null)
+  const [selectedHabitName, setSelectedHabitName] = useState('')
+  
+  // Hybrid habit click handler
+  const handleHabitClick = (habit: any) => {
+    const taskCount = getTaskCount(habit.id)
+    
+    if (taskCount > 0) {
+      // Has tasks - open modal
+      setSelectedHabitId(habit.id)
+      setSelectedHabitName(habit.name)
+    } else {
+      // No tasks - direct toggle
+      toggleHabitCompletion(habit.id)
+    }
+  }
 
   const filteredHabits = habits
     .filter(h => h.isActive === true) // Only show active habits
@@ -267,6 +288,19 @@ export function Habits() {
 
       <SideNav isOpen={isSideNavOpen} onClose={() => setIsSideNavOpen(false)} />
       <BottomNav />
+      
+      {/* Habit Tasks Modal */}
+      {selectedHabitId && (
+        <HabitTasksModal
+          isOpen={!!selectedHabitId}
+          onClose={() => {
+            setSelectedHabitId(null)
+            setSelectedHabitName('')
+          }}
+          habitId={selectedHabitId}
+          habitName={selectedHabitName}
+        />
+      )}
     </div>
   )
 }
@@ -380,7 +414,7 @@ function HabitCard({ habit }: { habit: Habit }) {
         </div>
 
         <button
-          onClick={() => toggleHabitCompletion(habit.id)}
+          onClick={() => handleHabitClick(habit)}
           className={clsx(
             'shrink-0 w-10 h-10 rounded-full flex items-center justify-center active:scale-90 transition-all duration-300',
             getButtonStyle()
