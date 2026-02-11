@@ -11,6 +11,7 @@ import { BottomNav } from '@/components/BottomNav'
 import { SideNav } from '@/components/SideNav'
 import { motion, AnimatePresence } from 'framer-motion'
 import clsx from 'clsx'
+import toast from 'react-hot-toast'
 import {
   DndContext,
   DragOverlay,
@@ -35,9 +36,10 @@ import { CSS } from '@dnd-kit/utilities'
 import {
   CreateCategoryModal,
   EditCategoryModal,
-  CategoryTemplatesModal,
+  CategoryTemplateLibraryModal,
   CategoryImportExportModal,
 } from '@/components/categories'
+import type { CategoryTemplatePack } from '@/types/categoryTemplate'
 import { ConfirmDialog } from '@/components/timer/settings/ConfirmDialog'
 import { useCategoryStore } from '@/store/useCategoryStore'
 import { useHabitStore } from '@/store/useHabitStore'
@@ -181,13 +183,69 @@ export function Categories() {
   const [activeDragId, setActiveDragId] = useState<string | null>(null)
 
   const categories = useCategoryStore((state) => state.categories)
-  const { togglePinned, deleteCategory, reorderCategories } = useCategoryStore()
+  const { togglePinned, deleteCategory, reorderCategories, addCategory } = useCategoryStore()
 
   const habits = useHabitStore((state) => state.habits)
-  const { isHabitCompletedToday, clearCategoryFromHabits, getHabitsByCategory } = useHabitStore()
+  const { isHabitCompletedToday, clearCategoryFromHabits, getHabitsByCategory, addHabit } = useHabitStore()
 
   const tasks = useTaskStore((state) => state.tasks)
   const clearCategoryFromTasks = useTaskStore((state) => state.clearCategoryFromTasks)
+
+  // Handle importing category template pack
+  const handleImportTemplatePack = (
+    pack: CategoryTemplatePack,
+    selectedCategories: string[],
+    selectedHabits: { [categoryName: string]: string[] }
+  ) => {
+    let importedCount = 0
+    const categoryIdMap: { [categoryName: string]: string } = {}
+
+    // Import selected categories
+    selectedCategories.forEach((categoryName) => {
+      const categoryTemplate = pack.categories.find((c) => c.name === categoryName)
+      if (!categoryTemplate) return
+
+      // Create category
+      const newCategory = addCategory({
+        name: categoryTemplate.name,
+        icon: categoryTemplate.icon,
+        color: categoryTemplate.color,
+        gradient: categoryTemplate.gradient,
+        textColor: categoryTemplate.textColor,
+        isPinned: false,
+      })
+
+      categoryIdMap[categoryName] = newCategory.id
+      importedCount++
+
+      // Import selected habits for this category
+      const habitsToImport = selectedHabits[categoryName] || []
+      habitsToImport.forEach((habitName) => {
+        const habitTemplate = categoryTemplate.habits.find((h) => h.name === habitName)
+        if (!habitTemplate) return
+
+        addHabit({
+          name: habitTemplate.name,
+          description: habitTemplate.description,
+          icon: habitTemplate.icon,
+          categoryId: newCategory.id,
+          frequency: habitTemplate.frequency,
+          goal: habitTemplate.goal,
+          goalPeriod: habitTemplate.goalPeriod,
+          isActive: true,
+          reminderEnabled: false,
+          startDate: new Date().toISOString().split('T')[0],
+        })
+      })
+    })
+
+    if (importedCount > 0) {
+      const totalHabits = Object.values(selectedHabits).reduce((sum, habits) => sum + habits.length, 0)
+      toast.success(
+        `✅ Imported ${importedCount} ${importedCount === 1 ? 'category' : 'categories'} with ${totalHabits} ${totalHabits === 1 ? 'habit' : 'habits'}!`
+      )
+    }
+  }
 
   const orderedCategories = useMemo(() => {
     return [...categories].sort((a, b) => a.order - b.order)
@@ -894,9 +952,10 @@ export function Categories() {
         icon="delete"
       />
 
-      <CategoryTemplatesModal
+      <CategoryTemplateLibraryModal
         isOpen={isTemplatesModalOpen}
         onClose={() => setIsTemplatesModalOpen(false)}
+        onImportPack={handleImportTemplatePack}
       />
 
       <CategoryImportExportModal

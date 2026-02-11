@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import clsx from 'clsx'
@@ -9,7 +9,9 @@ import { useHabitStore } from '@/store/useHabitStore'
 import { useHabitTaskStore } from '@/store/useHabitTaskStore'
 import { HabitTasksModal } from '@/components/categories/HabitTasksModal'
 import { CreateNewHabit } from '@/components/categories/CreateNewHabit'
+import { EditHabit } from '@/components/categories/EditHabit'
 import { ToggleSwitch } from '@/components/timer/settings/ToggleSwitch'
+import { ConfirmDialog } from '@/components/timer/settings/ConfirmDialog'
 
 const fallbackGradientByColor: Record<string, string> = {
   primary: 'from-gray-900 to-black',
@@ -35,11 +37,14 @@ export function CategoryDetail() {
   const { getCategoryById } = useCategoryStore()
   const allHabits = useHabitStore((state) => state.habits)
   const updateHabit = useHabitStore((state) => state.updateHabit)
+  const deleteHabit = useHabitStore((state) => state.deleteHabit)
   const { getTaskCount } = useHabitTaskStore()
   
   const [selectedHabitId, setSelectedHabitId] = useState<string | null>(null)
   const [selectedHabitName, setSelectedHabitName] = useState<string>('')
   const [isCreateHabitOpen, setIsCreateHabitOpen] = useState(false)
+  const [habitToDelete, setHabitToDelete] = useState<string | null>(null)
+  const [habitToEdit, setHabitToEdit] = useState<string | null>(null)
 
   const category = categoryId ? getCategoryById(categoryId) : undefined
 
@@ -61,6 +66,14 @@ export function CategoryDetail() {
       updateHabit(habit.id, { isActive: newActiveState })
     })
     toast.success(newActiveState ? '✅ Category activated!' : '⏸️ Category deactivated!')
+  }
+
+  // Handle habit deletion
+  const handleDeleteHabit = () => {
+    if (!habitToDelete) return
+    deleteHabit(habitToDelete)
+    setHabitToDelete(null)
+    toast.success('🗑️ Habit deleted successfully!')
   }
 
   // Calculate habit statistics
@@ -319,6 +332,8 @@ export function CategoryDetail() {
                       setSelectedHabitId(habit.id)
                       setSelectedHabitName(habit.name)
                     }}
+                    onDelete={(habitId) => setHabitToDelete(habitId)}
+                    onEdit={(habitId) => setHabitToEdit(habitId)}
                   />
                 ))}
               </div>
@@ -461,6 +476,28 @@ export function CategoryDetail() {
         categoryId={category.id}
         categoryName={category.name}
       />
+
+      {/* Edit Habit Modal */}
+      {habitToEdit && (
+        <EditHabit
+          isOpen={!!habitToEdit}
+          onClose={() => setHabitToEdit(null)}
+          habitId={habitToEdit}
+        />
+      )}
+
+      {/* Delete Habit Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={!!habitToDelete}
+        onClose={() => setHabitToDelete(null)}
+        onConfirm={handleDeleteHabit}
+        title="Delete habit?"
+        message="This will permanently delete this habit and all its data. This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+        icon="delete"
+      />
     </div>
   )
 }
@@ -487,18 +524,48 @@ interface HabitCardProps {
   index: number
   taskCount: number
   onClick: () => void
+  onDelete: (habitId: string) => void
+  onEdit: (habitId: string) => void
 }
 
-function HabitCard({ habit, index, taskCount, onClick }: HabitCardProps) {
+function HabitCard({ habit, index, taskCount, onClick, onDelete, onEdit }: HabitCardProps) {
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const menuId = `habit-menu-${habit.id}`
+  const menuRef = useRef<HTMLDivElement>(null)
+  const navigate = useNavigate()
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    if (!isMenuOpen) return
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false)
+      }
+    }
+
+    // Add listener on next tick to avoid closing immediately
+    const timeoutId = setTimeout(() => {
+      document.addEventListener('mousedown', handleClickOutside)
+    }, 0)
+
+    return () => {
+      clearTimeout(timeoutId)
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isMenuOpen])
+
   return (
     <motion.div
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.05 }}
       onClick={onClick}
-      className="group relative overflow-hidden rounded-3xl border border-slate-200 bg-white/80 backdrop-blur-xl shadow-lg transition-all hover:shadow-xl hover:border-slate-300 cursor-pointer dark:border-white/5 dark:bg-slate-900/80 dark:hover:border-white/10"
+      className={clsx(
+        "group relative overflow-visible rounded-3xl border border-slate-200 bg-white/80 backdrop-blur-xl shadow-lg transition-all hover:shadow-xl hover:border-slate-300 cursor-pointer dark:border-white/5 dark:bg-slate-900/80 dark:hover:border-white/10",
+        isMenuOpen && "z-50"
+      )}
     >
-
       <div className="relative flex items-center gap-4 p-4">
         {/* Icon */}
         <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200 text-slate-700 shadow-md dark:from-white/10 dark:to-white/5 dark:text-slate-200">
@@ -527,12 +594,87 @@ function HabitCard({ habit, index, taskCount, onClick }: HabitCardProps) {
           </div>
         </div>
 
-        {/* Chevron Icon */}
-        <motion.div
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-400 transition-colors group-hover:bg-slate-200 dark:bg-white/5 dark:text-slate-400 dark:group-hover:bg-white/10"
+        {/* 3-Dot Menu */}
+        <div 
+          ref={menuRef}
+          className="absolute right-3 top-1/2 -translate-y-1/2 z-20"
+          data-no-propagate="true"
+          onClick={(e) => e.stopPropagation()}
+          onMouseDown={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
         >
-          <span className="material-symbols-outlined">chevron_right</span>
-        </motion.div>
+          <button
+            type="button"
+            className={clsx(
+              'flex h-9 w-9 items-center justify-center rounded-full bg-black/20 text-white backdrop-blur-sm transition-colors hover:bg-black/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50',
+              !isMenuOpen && 'opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 mobile-touch:opacity-100'
+            )}
+            aria-label="Habit actions"
+            aria-haspopup="menu"
+            aria-expanded={isMenuOpen}
+            aria-controls={menuId}
+            onClick={(e) => {
+              e.stopPropagation()
+              e.preventDefault()
+              setIsMenuOpen(!isMenuOpen)
+            }}
+            onMouseDown={(e) => e.stopPropagation()}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                e.stopPropagation()
+                setIsMenuOpen(!isMenuOpen)
+              }
+            }}
+          >
+            <span className="material-symbols-outlined text-[20px]">more_vert</span>
+          </button>
+
+          {/* Dropdown Menu */}
+          <AnimatePresence>
+            {isMenuOpen && (
+              <motion.div
+                id={menuId}
+                role="menu"
+                initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                transition={{ duration: 0.15 }}
+                className="absolute right-0 top-full mt-2 w-48 rounded-2xl border border-slate-200 bg-white shadow-xl dark:border-white/10 dark:bg-slate-800"
+                onMouseDown={(e) => e.stopPropagation()}
+              >
+                <div className="p-2">
+                  <button
+                    type="button"
+                    role="menuitem"
+                    className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-700"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setIsMenuOpen(false)
+                      onEdit(habit.id)
+                    }}
+                  >
+                    <span className="material-symbols-outlined text-xl">edit</span>
+                    Edit
+                  </button>
+                  <button
+                    type="button"
+                    role="menuitem"
+                    className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-medium text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-500/10"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setIsMenuOpen(false)
+                      onDelete(habit.id)
+                    }}
+                  >
+                    <span className="material-symbols-outlined text-xl">delete</span>
+                    Delete
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
     </motion.div>
   )
