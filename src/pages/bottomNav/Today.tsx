@@ -67,7 +67,7 @@ export function Today() {
 
   // Filter habits and tasks based on search query
   const filteredHabits = habits
-    .filter(habit => habit.isActive === true) // Only show active habits
+    .filter(habit => habit.isActive === true && habit.categoryId !== undefined) // Only show active habits with valid category
     .filter(habit => habit.name.toLowerCase().includes(searchQuery.toLowerCase())
   )
   
@@ -76,7 +76,7 @@ export function Today() {
   )
 
   // Calculate progress for selected date
-  const activeHabits = habits.filter(h => h.isActive === true)
+  const activeHabits = habits.filter(h => h.isActive === true && h.categoryId !== undefined)
   const completedHabits = activeHabits.filter(h => isHabitCompletedOnDate(h.id, formattedDate)).length
   const totalHabits = activeHabits.length
   const progressPercentage = totalHabits > 0 ? (completedHabits / totalHabits) * 100 : 0

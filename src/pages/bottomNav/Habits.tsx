@@ -74,7 +74,7 @@ export function Habits() {
   }
 
   const filteredHabits = habits
-    .filter((h) => h.isActive === true)
+    .filter((h) => h.isActive === true && h.categoryId !== undefined)
     .filter((h) => h.frequency === activeTab)
     .filter((h) => h.name.toLowerCase().includes(searchQuery.toLowerCase()))
 
