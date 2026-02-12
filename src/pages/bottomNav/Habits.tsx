@@ -84,19 +84,20 @@ export function Habits() {
     { id: 'monthly' as const, label: 'Monthly', icon: 'calendar_month' },
   ]
 
-  // Stats
+  // Stats - Tab-based progress (contextual to active tab)
   const completedToday = habits.filter((h) =>
     h.completedDates.includes(today()) &&
+    h.frequency === activeTab &&
     h.isActive === true &&
     h.categoryId !== undefined
   ).length
-  const totalDailyHabits = habits.filter((h) => 
-    h.frequency === 'daily' && 
+  const totalActiveTabHabits = habits.filter((h) => 
+    h.frequency === activeTab && 
     h.isActive === true &&
     h.categoryId !== undefined
   ).length
   const bestStreak = Math.max(...habits.map((h) => h.bestStreak), 0)
-  const completionPct = totalDailyHabits > 0 ? Math.round((completedToday / totalDailyHabits) * 100) : 0
+  const completionPct = totalActiveTabHabits > 0 ? Math.round((completedToday / totalActiveTabHabits) * 100) : 0
 
   // 7-day heatmap
   const last7 = useMemo(() => getLast7Days(), [])
@@ -216,7 +217,7 @@ export function Habits() {
 
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-semibold text-white">
-                  {completedToday}/{totalDailyHabits} completed
+                  {completedToday}/{totalActiveTabHabits} completed
                 </p>
                 <p className="mt-0.5 text-xs text-white/60">
                   {bestStreak > 0 ? `Best streak: ${bestStreak} days` : 'Start building your streak!'}
