@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Custom font families for template preview */
+.font-lora {
+  font-family: 'Lora', serif;
+}
+
+.font-raleway {
+  font-family: 'Raleway', sans-serif;
+}
+
 @layer utilities {
   .bg-size-200 {
     background-size: 200%;

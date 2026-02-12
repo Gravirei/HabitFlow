@@ -26,7 +26,7 @@ interface CategoryTemplatePreviewModalProps {
   ) => void
 }
 
-// Category Template Preview Modal with Selective Import
+// Category Template Preview Modal with Selective Import - REDESIGNED
 function CategoryTemplatePreviewModal({
   isOpen,
   onClose,
@@ -37,22 +37,39 @@ function CategoryTemplatePreviewModal({
   const [selectedHabits, setSelectedHabits] = useState<{ [categoryName: string]: Set<string> }>(
     {} as any
   )
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set())
+  const [prevTotalSelected, setPrevTotalSelected] = useState(0)
 
   useEffect(() => {
     if (isOpen && template) {
       // Select all categories and habits by default
       const allCategories = new Set(template.categories.map((c) => c.name))
       setSelectedCategories(allCategories)
+      // Expand all categories by default
+      setExpandedCategories(allCategories)
 
       const allHabits: { [categoryName: string]: Set<string> } = {}
       template.categories.forEach((cat) => {
         allHabits[cat.name] = new Set(cat.habits.map((h) => h.name))
       })
       setSelectedHabits(allHabits)
+      
+      const totalHabits = Object.values(allHabits).reduce((sum, habits) => sum + habits.size, 0)
+      setPrevTotalSelected(totalHabits)
     }
   }, [isOpen, template])
 
   if (!template) return null
+
+  const toggleCategoryExpanded = (categoryName: string) => {
+    const newExpanded = new Set(expandedCategories)
+    if (newExpanded.has(categoryName)) {
+      newExpanded.delete(categoryName)
+    } else {
+      newExpanded.add(categoryName)
+    }
+    setExpandedCategories(newExpanded)
+  }
 
   const toggleCategory = (categoryName: string) => {
     const newSelected = new Set(selectedCategories)
@@ -117,112 +134,135 @@ function CategoryTemplatePreviewModal({
     0
   )
 
+  // Animated counter effect
+  useEffect(() => {
+    setPrevTotalSelected(totalHabitsSelected)
+  }, [totalHabitsSelected])
+
   return (
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop */}
+          {/* Backdrop with stronger blur */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 z-[110] bg-black/70 backdrop-blur-sm"
+            className="fixed inset-0 z-[110] bg-black/80 backdrop-blur-md"
           />
 
           {/* Preview Modal */}
           <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
             <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              className="relative max-h-[85vh] w-full max-w-4xl overflow-hidden rounded-3xl bg-white shadow-2xl dark:bg-gray-900"
+              initial={{ scale: 0.92, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.92, opacity: 0, y: 20 }}
+              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+              className="relative max-h-[90vh] w-full max-w-5xl overflow-hidden rounded-3xl bg-gradient-to-br from-white to-gray-50/50 shadow-2xl shadow-black/20 ring-1 ring-black/5 dark:from-gray-900 dark:to-gray-950/50 dark:shadow-black/40"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Header */}
-              <div className="sticky top-0 z-10 border-b border-gray-200 bg-white/95 px-6 py-5 backdrop-blur-xl dark:border-gray-800 dark:bg-gray-900/95">
+              {/* Header - Glassmorphism */}
+              <div className="sticky top-0 z-10 border-b border-gray-200/50 bg-white/80 px-6 py-5 backdrop-blur-2xl dark:border-white/5 dark:bg-gray-900/80">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-center gap-4">
-                    <div
+                    <motion.div
+                      initial={{ scale: 0, rotate: -180 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      transition={{ type: 'spring', damping: 15, stiffness: 200 }}
                       className={clsx(
-                        'flex h-14 w-14 items-center justify-center rounded-2xl shadow-lg ring-1 ring-black/5',
+                        'flex h-16 w-16 items-center justify-center rounded-2xl shadow-lg shadow-teal-500/20 ring-1 ring-black/5',
                         template.color
                       )}
                     >
-                      <span className="material-symbols-outlined text-3xl text-white">
+                      <span className="material-symbols-outlined text-4xl text-white">
                         {template.icon}
                       </span>
-                    </div>
+                    </motion.div>
                     <div>
-                      <h3 className="mb-1 text-2xl font-bold text-gray-900 dark:text-white">
+                      <h3 className="mb-1.5 font-lora text-2xl font-bold text-gray-900 dark:text-white">
                         {template.name}
                       </h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                      <p className="font-raleway text-sm font-medium text-gray-600 dark:text-gray-400">
                         {template.description}
                       </p>
                     </div>
                   </div>
                   <button
                     onClick={onClose}
-                    className="flex h-10 w-10 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
+                    className="flex h-10 w-10 items-center justify-center rounded-full text-gray-500 transition-all duration-150 hover:bg-gray-100 hover:text-gray-700 active:scale-95 dark:hover:bg-gray-800 dark:hover:text-gray-300"
                   >
                     <span className="material-symbols-outlined">close</span>
                   </button>
                 </div>
 
-                {/* Selection Summary */}
-                <div className="mt-4 flex items-center gap-4 text-sm">
-                  <div className="flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1.5 font-medium text-blue-700 dark:bg-blue-500/10 dark:text-blue-400">
+                {/* Selection Summary - Animated */}
+                <div className="mt-5 flex items-center gap-3 text-sm">
+                  <motion.div
+                    key={totalSelected}
+                    initial={{ scale: 1.2, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+                    className="flex items-center gap-2 rounded-full bg-gradient-to-r from-teal-50 to-teal-100/50 px-4 py-2 font-raleway font-semibold text-teal-700 ring-1 ring-teal-200/50 dark:from-teal-500/10 dark:to-teal-500/5 dark:text-teal-400 dark:ring-teal-500/20"
+                  >
                     <span className="material-symbols-outlined text-base">folder</span>
-                    {totalSelected} {totalSelected === 1 ? 'category' : 'categories'}
-                  </div>
-                  <div className="flex items-center gap-2 rounded-full bg-green-50 px-3 py-1.5 font-medium text-green-700 dark:bg-green-500/10 dark:text-green-400">
+                    <span>{totalSelected}</span>
+                    <span className="text-xs font-medium opacity-75">
+                      {totalSelected === 1 ? 'category' : 'categories'}
+                    </span>
+                  </motion.div>
+                  <motion.div
+                    key={totalHabitsSelected}
+                    initial={{ scale: 1.2, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+                    className="flex items-center gap-2 rounded-full bg-gradient-to-r from-orange-50 to-orange-100/50 px-4 py-2 font-raleway font-semibold text-orange-700 ring-1 ring-orange-200/50 dark:from-orange-500/10 dark:to-orange-500/5 dark:text-orange-400 dark:ring-orange-500/20"
+                  >
                     <span className="material-symbols-outlined text-base">check_circle</span>
-                    {totalHabitsSelected} {totalHabitsSelected === 1 ? 'habit' : 'habits'}
-                  </div>
+                    <span>{totalHabitsSelected}</span>
+                    <span className="text-xs font-medium opacity-75">
+                      {totalHabitsSelected === 1 ? 'habit' : 'habits'}
+                    </span>
+                  </motion.div>
                 </div>
               </div>
 
               {/* Content - Scrollable */}
-              <div className="max-h-[calc(85vh-220px)] overflow-y-auto p-6">
-                <div className="space-y-4">
-                  {template.categories.map((category) => {
+              <div className="max-h-[calc(90vh-260px)] overflow-y-auto p-6">
+                <div className="space-y-3">
+                  {template.categories.map((category, index) => {
                     const isCategorySelected = selectedCategories.has(category.name)
+                    const isExpanded = expandedCategories.has(category.name)
                     const categoryHabits = selectedHabits[category.name] || new Set()
+                    const selectedCount = categoryHabits.size
+                    const totalCount = category.habits.length
 
                     return (
-                      <div
+                      <motion.div
                         key={category.name}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.05, type: 'spring', stiffness: 300, damping: 25 }}
                         className={clsx(
-                          'overflow-hidden rounded-2xl border-2 transition-all',
+                          'overflow-hidden rounded-2xl transition-all duration-200',
                           isCategorySelected
-                            ? 'border-blue-500 bg-blue-50/50 dark:bg-blue-500/5'
-                            : 'border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-800/50'
+                            ? 'bg-gradient-to-br shadow-lg ring-2 ring-teal-500/30'
+                            : 'bg-white/60 shadow-sm ring-1 ring-gray-200/50 dark:bg-gray-800/40 dark:ring-white/5',
+                          category.gradient
                         )}
                       >
-                        {/* Category Header */}
-                        <div className="flex items-center gap-4 p-4">
-                          <button
-                            onClick={() => toggleCategory(category.name)}
+                        {/* Category Header - Horizontal Layout */}
+                        <div
+                          className="flex cursor-pointer items-center gap-4 p-4 transition-all duration-150 hover:bg-white/30 active:scale-[0.99] dark:hover:bg-white/5"
+                          onClick={() => toggleCategoryExpanded(category.name)}
+                        >
+                          {/* Icon */}
+                          <motion.div
+                            whileHover={{ rotate: 5, scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
                             className={clsx(
-                              'flex h-6 w-6 items-center justify-center rounded-md border-2 transition-all',
-                              isCategorySelected
-                                ? 'border-blue-500 bg-blue-500'
-                                : 'border-gray-300 dark:border-gray-600'
-                            )}
-                          >
-                            {isCategorySelected && (
-                              <span className="material-symbols-outlined text-base text-white">
-                                check
-                              </span>
-                            )}
-                          </button>
-
-                          <div
-                            className={clsx(
-                              'flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br',
-                              category.gradient
+                              'flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-xl shadow-md',
+                              isCategorySelected ? 'bg-white/90 dark:bg-gray-900/90' : 'bg-white/50 dark:bg-gray-800/50'
                             )}
                           >
                             <span
@@ -233,101 +273,199 @@ function CategoryTemplatePreviewModal({
                             >
                               {category.icon}
                             </span>
-                          </div>
+                          </motion.div>
 
-                          <div className="flex-1">
-                            <h4 className="font-semibold text-gray-900 dark:text-white">
+                          {/* Info */}
+                          <div className="min-w-0 flex-1">
+                            <h4 className="mb-1 font-lora text-lg font-bold text-gray-900 dark:text-white">
                               {category.name}
                             </h4>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">
-                              {category.habits.length}{' '}
-                              {category.habits.length === 1 ? 'habit' : 'habits'}
+                            <p className="font-raleway text-xs font-medium text-gray-600 dark:text-gray-400">
+                              {isCategorySelected ? (
+                                <span className="text-teal-700 dark:text-teal-400">
+                                  {selectedCount} of {totalCount} selected
+                                </span>
+                              ) : (
+                                <span>{totalCount} {totalCount === 1 ? 'habit' : 'habits'}</span>
+                              )}
                             </p>
                           </div>
+
+                          {/* iOS Toggle Switch */}
+                          <motion.button
+                            whileTap={{ scale: 0.95 }}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              toggleCategory(category.name)
+                            }}
+                            className={clsx(
+                              'relative h-8 w-14 flex-shrink-0 rounded-full transition-all duration-200',
+                              isCategorySelected
+                                ? 'bg-teal-500 shadow-inner shadow-teal-600/50'
+                                : 'bg-gray-300 dark:bg-gray-600'
+                            )}
+                          >
+                            <motion.div
+                              layout
+                              transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                              className={clsx(
+                                'absolute top-1 h-6 w-6 rounded-full bg-white shadow-md',
+                                isCategorySelected ? 'left-7' : 'left-1'
+                              )}
+                            />
+                          </motion.button>
+
+                          {/* Expand/Collapse Icon */}
+                          <motion.div
+                            animate={{ rotate: isExpanded ? 180 : 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="flex-shrink-0"
+                          >
+                            <span className="material-symbols-outlined text-xl text-gray-500 dark:text-gray-400">
+                              expand_more
+                            </span>
+                          </motion.div>
                         </div>
 
-                        {/* Habits List */}
-                        {isCategorySelected && (
-                          <div className="space-y-2 px-4 pb-4">
-                            {category.habits.map((habit) => {
-                              const isHabitSelected = categoryHabits.has(habit.name)
+                        {/* Habits Cards - Progressive Disclosure */}
+                        <AnimatePresence>
+                          {isExpanded && isCategorySelected && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: 'auto', opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              transition={{ duration: 0.3, ease: 'easeOut' }}
+                              className="overflow-hidden"
+                            >
+                              <div className="space-y-2 px-4 pb-4">
+                                {category.habits.map((habit, habitIndex) => {
+                                  const isHabitSelected = categoryHabits.has(habit.name)
 
-                              return (
-                                <button
-                                  key={habit.name}
-                                  onClick={() => toggleHabit(category.name, habit.name)}
-                                  className={clsx(
-                                    'flex w-full items-center gap-3 rounded-xl p-3 text-left transition-all',
-                                    isHabitSelected
-                                      ? 'bg-blue-100 dark:bg-blue-500/20'
-                                      : 'bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700'
-                                  )}
-                                >
-                                  <div
-                                    className={clsx(
-                                      'flex h-5 w-5 flex-shrink-0 items-center justify-center rounded border-2 transition-all',
-                                      isHabitSelected
-                                        ? 'border-blue-500 bg-blue-500'
-                                        : 'border-gray-300 dark:border-gray-600'
-                                    )}
-                                  >
-                                    {isHabitSelected && (
-                                      <span className="material-symbols-outlined text-sm text-white">
-                                        check
-                                      </span>
-                                    )}
-                                  </div>
-
-                                  <span className="material-symbols-outlined text-xl text-gray-700 dark:text-gray-300">
-                                    {habit.icon}
-                                  </span>
-
-                                  <div className="min-w-0 flex-1">
-                                    <div className="font-medium text-gray-900 dark:text-white">
-                                      {habit.name}
-                                    </div>
-                                    {habit.description && (
-                                      <div className="text-xs text-gray-600 dark:text-gray-400">
-                                        {habit.description}
+                                  return (
+                                    <motion.button
+                                      key={habit.name}
+                                      initial={{ opacity: 0, x: -20 }}
+                                      animate={{ opacity: 1, x: 0 }}
+                                      transition={{ delay: habitIndex * 0.05 }}
+                                      onClick={() => toggleHabit(category.name, habit.name)}
+                                      whileHover={{ scale: 1.02, x: 4 }}
+                                      whileTap={{ scale: 0.98 }}
+                                      className={clsx(
+                                        'group flex w-full items-center gap-3 rounded-xl p-3 text-left shadow-sm transition-all duration-150',
+                                        isHabitSelected
+                                          ? 'bg-gradient-to-r from-white to-teal-50/50 ring-2 ring-teal-500/30 dark:from-gray-800 dark:to-teal-500/10'
+                                          : 'bg-white/80 ring-1 ring-gray-200/50 hover:bg-white hover:shadow-md dark:bg-gray-800/60 dark:ring-white/5 dark:hover:bg-gray-800'
+                                      )}
+                                    >
+                                      {/* Habit Icon */}
+                                      <div
+                                        className={clsx(
+                                          'flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg transition-all duration-150',
+                                          isHabitSelected
+                                            ? 'bg-teal-100 text-teal-700 dark:bg-teal-500/20 dark:text-teal-400'
+                                            : 'bg-gray-100 text-gray-600 group-hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-400'
+                                        )}
+                                      >
+                                        <span className="material-symbols-outlined text-xl">
+                                          {habit.icon}
+                                        </span>
                                       </div>
-                                    )}
-                                  </div>
 
-                                  <div className="flex-shrink-0 text-xs font-medium text-gray-500 dark:text-gray-400">
-                                    {habit.goal}× {habit.goalPeriod}
-                                  </div>
-                                </button>
-                              )
-                            })}
-                          </div>
-                        )}
-                      </div>
+                                      {/* Habit Info */}
+                                      <div className="min-w-0 flex-1">
+                                        <div className="mb-0.5 font-raleway font-semibold text-gray-900 dark:text-white">
+                                          {habit.name}
+                                        </div>
+                                        {habit.description && (
+                                          <div className="font-raleway text-xs text-gray-600 dark:text-gray-400">
+                                            {habit.description}
+                                          </div>
+                                        )}
+                                      </div>
+
+                                      {/* Goal Badge */}
+                                      <div
+                                        className={clsx(
+                                          'flex-shrink-0 rounded-full px-2.5 py-1 font-raleway text-xs font-semibold transition-all duration-150',
+                                          isHabitSelected
+                                            ? 'bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-400'
+                                            : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
+                                        )}
+                                      >
+                                        {habit.goal}× {habit.goalPeriod}
+                                      </div>
+
+                                      {/* Checkmark Indicator */}
+                                      <motion.div
+                                        initial={false}
+                                        animate={{
+                                          scale: isHabitSelected ? 1 : 0,
+                                          opacity: isHabitSelected ? 1 : 0,
+                                        }}
+                                        transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                                        className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-teal-500"
+                                      >
+                                        <span className="material-symbols-outlined text-sm text-white">
+                                          check
+                                        </span>
+                                      </motion.div>
+                                    </motion.button>
+                                  )
+                                })}
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </motion.div>
                     )
                   })}
                 </div>
               </div>
 
-              {/* Footer */}
-              <div className="sticky bottom-0 border-t border-gray-200 bg-white/95 px-6 py-4 backdrop-blur-xl dark:border-gray-800 dark:bg-gray-900/95">
+              {/* Footer - Glassmorphism */}
+              <div className="sticky bottom-0 border-t border-gray-200/50 bg-white/80 px-6 py-4 backdrop-blur-2xl dark:border-white/5 dark:bg-gray-900/80">
                 <div className="flex items-center gap-3">
                   <button
                     onClick={onClose}
-                    className="flex-1 rounded-xl border border-gray-300 px-6 py-3 font-semibold text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
+                    className="flex-1 rounded-xl border border-gray-300 bg-white/50 px-6 py-3 font-raleway font-semibold text-gray-700 transition-all duration-150 hover:bg-gray-50 hover:shadow-md active:scale-95 dark:border-gray-700 dark:bg-gray-800/50 dark:text-gray-300 dark:hover:bg-gray-800"
                   >
                     Cancel
                   </button>
-                  <button
+                  <motion.button
                     onClick={handleImport}
                     disabled={totalSelected === 0}
+                    whileHover={totalSelected > 0 ? { scale: 1.02 } : {}}
+                    whileTap={totalSelected > 0 ? { scale: 0.98 } : {}}
                     className={clsx(
-                      'flex-1 rounded-xl px-6 py-3 font-semibold transition-all',
+                      'relative flex-[2] overflow-hidden rounded-xl px-6 py-3 font-raleway font-bold transition-all duration-150',
                       totalSelected === 0
                         ? 'cursor-not-allowed bg-gray-300 text-gray-500 dark:bg-gray-700 dark:text-gray-500'
-                        : 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:shadow-lg hover:shadow-blue-500/30'
+                        : 'bg-gradient-to-r from-teal-500 to-teal-600 text-white shadow-lg shadow-teal-500/30 hover:shadow-xl hover:shadow-teal-500/40'
                     )}
                   >
-                    Import Selected
-                  </button>
+                    {totalSelected === 0 ? (
+                      <span>Select at least one category</span>
+                    ) : (
+                      <span className="flex items-center justify-center gap-2">
+                        <span>Import Selected</span>
+                        <motion.span
+                          animate={{ x: [0, 4, 0] }}
+                          transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+                          className="material-symbols-outlined text-lg"
+                        >
+                          arrow_forward
+                        </motion.span>
+                      </span>
+                    )}
+                    {/* Shimmer effect */}
+                    {totalSelected > 0 && (
+                      <motion.div
+                        className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                        animate={{ translateX: ['100%', '100%'] }}
+                        transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+                      />
+                    )}
+                  </motion.button>
                 </div>
               </div>
             </motion.div>
