@@ -1289,16 +1289,21 @@ function CategoryCard({
 
   if (category.type === 'image-card') {
     return (
-      <Wrapper
-        {...wrapperProps}
-        className={clsx(
-          'group relative flex w-full flex-col justify-end overflow-visible rounded-3xl bg-gradient-to-b p-6 shadow-sm transition-all duration-300 hover:scale-[1.02] hover:shadow-lg',
-          onClick &&
-            'cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50',
-          !category.imagePath && category.gradient,
-          category.height
-        )}
+      <motion.div
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        transition={{ type: 'spring', stiffness: 200 }}
       >
+        <Wrapper
+          {...wrapperProps}
+          className={clsx(
+            'group relative flex w-full flex-col justify-end overflow-visible rounded-3xl bg-gradient-to-b p-6 shadow-sm transition-all duration-300 hover:scale-[1.02] hover:shadow-lg',
+            onClick &&
+              'cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50',
+            !category.imagePath && category.gradient,
+            category.height
+          )}
+        >
         {/* Inner wrapper for overflow control - keeps image contained */}
         <div className="absolute inset-0 overflow-hidden rounded-3xl">
           {/* Background Image or Gradient */}
@@ -1324,44 +1329,44 @@ function CategoryCard({
 
         {/* Category icon */}
         <div className="relative z-10 mb-auto">
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.1, type: 'spring', stiffness: 200 }}
+          <div
             className={clsx(
               'inline-flex rounded-2xl p-3 backdrop-blur-md transition-transform duration-300 group-hover:rotate-6',
               category.color === 'primary' ? 'bg-primary/20 text-primary' : 'bg-white/20 text-white'
             )}
           >
             <span className="material-symbols-outlined text-2xl">{category.icon}</span>
-          </motion.div>
+          </div>
         </div>
 
         <div className="relative z-10 text-white">
           <h3 className="text-xl font-bold drop-shadow-md">{category.name}</h3>
           <p className="text-sm font-medium opacity-90">{category.count}</p>
         </div>
-      </Wrapper>
+        </Wrapper>
+      </motion.div>
     )
   }
 
   return (
-    <Wrapper
-      {...wrapperProps}
-      className={clsx(
-        'group relative flex w-full flex-col overflow-visible rounded-3xl border border-white/20 bg-white/60 p-5 shadow-sm backdrop-blur-xl transition-all duration-300 hover:scale-[1.02] hover:bg-white/80 hover:shadow-lg dark:border-white/5 dark:bg-slate-900/40 dark:hover:bg-slate-900/60',
-        onClick &&
-          'cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50',
-        category.height
-      )}
+    <motion.div
+      initial={{ scale: 0 }}
+      animate={{ scale: 1 }}
+      transition={{ type: 'spring', stiffness: 200 }}
     >
+      <Wrapper
+        {...wrapperProps}
+        className={clsx(
+          'group relative flex w-full flex-col overflow-visible rounded-3xl border border-white/20 bg-white/60 p-5 shadow-sm backdrop-blur-xl transition-all duration-300 hover:scale-[1.02] hover:bg-white/80 hover:shadow-lg dark:border-white/5 dark:bg-slate-900/40 dark:hover:bg-slate-900/60',
+          onClick &&
+            'cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50',
+          category.height
+        )}
+      >
       {quickActions}
       {category.type === 'progress' && (
         <div className="flex flex-col items-center gap-4 text-center">
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.1, type: 'spring', stiffness: 200 }}
+          <div
             className={clsx(
               'mb-1 flex h-16 w-16 items-center justify-center rounded-2xl ring-1 transition-transform duration-300 group-hover:scale-110',
               colors.bg,
@@ -1370,7 +1375,7 @@ function CategoryCard({
             )}
           >
             <span className="material-symbols-outlined text-3xl">{category.icon}</span>
-          </motion.div>
+          </div>
           <div className="relative z-10">
             <h3 className="text-lg font-bold text-slate-800 dark:text-white">{category.name}</h3>
             <p className="mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">
@@ -1386,10 +1391,7 @@ function CategoryCard({
       {category.type === 'simple' && (
         <div className="flex h-full flex-col justify-between">
           <div className="absolute right-0 top-0 p-4">
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.1, type: 'spring', stiffness: 200 }}
+            <div
               className={clsx(
                 'flex h-12 w-12 items-center justify-center rounded-2xl ring-1 transition-transform duration-300 group-hover:rotate-12',
                 colors.bg,
@@ -1398,7 +1400,7 @@ function CategoryCard({
               )}
             >
               <span className="material-symbols-outlined text-2xl">{category.icon}</span>
-            </motion.div>
+            </div>
           </div>
           <div className="mt-auto">
             <h3 className="text-xl font-bold text-slate-800 dark:text-white">{category.name}</h3>
@@ -1416,10 +1418,7 @@ function CategoryCard({
               {category.icon}
             </span>
           </div>
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.1, type: 'spring', stiffness: 200 }}
+          <div
             className={clsx(
               'relative z-10 flex h-12 w-12 items-center justify-center rounded-2xl ring-1',
               colors.bg,
@@ -1428,7 +1427,7 @@ function CategoryCard({
             )}
           >
             <span className="material-symbols-outlined text-2xl">{category.icon}</span>
-          </motion.div>
+          </div>
           <div className="relative z-10 mt-auto pt-4">
             <h3 className="text-lg font-bold text-slate-800 dark:text-white">{category.name}</h3>
             <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
@@ -1440,10 +1439,7 @@ function CategoryCard({
 
       {category.type === 'list' && (
         <div className="flex h-full flex-col justify-between">
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.1, type: 'spring', stiffness: 200 }}
+          <div
             className={clsx(
               'mb-4 flex h-12 w-12 items-center justify-center rounded-2xl ring-1',
               colors.bg,
@@ -1452,7 +1448,7 @@ function CategoryCard({
             )}
           >
             <span className="material-symbols-outlined text-2xl">{category.icon}</span>
-          </motion.div>
+          </div>
           <div>
             <h3 className="mb-2 text-2xl font-bold leading-tight text-slate-800 dark:text-white">
               {category.name.split(' ').map((word, i) => (
@@ -1478,10 +1474,7 @@ function CategoryCard({
       {category.type === 'progress-card' && (
         <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between">
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.1, type: 'spring', stiffness: 200 }}
+            <div
               className={clsx(
                 'flex h-12 w-12 items-center justify-center rounded-2xl ring-1',
                 colors.bg,
@@ -1490,7 +1483,7 @@ function CategoryCard({
               )}
             >
               <span className="material-symbols-outlined text-2xl">{category.icon}</span>
-            </motion.div>
+            </div>
             <span className="rounded-full bg-indigo-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-300">
               Daily
             </span>
@@ -1510,10 +1503,7 @@ function CategoryCard({
       {category.type === 'simple-card' && (
         <div className="flex flex-col gap-3">
           <div className="mb-1 flex items-start justify-between">
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.1, type: 'spring', stiffness: 200 }}
+            <div
               className={clsx(
                 'flex h-12 w-12 items-center justify-center rounded-2xl ring-1 transition-all duration-300 group-hover:scale-110',
                 colors.bg,
@@ -1522,7 +1512,7 @@ function CategoryCard({
               )}
             >
               <span className="material-symbols-outlined text-2xl">{category.icon}</span>
-            </motion.div>
+            </div>
           </div>
           <div>
             <h3 className="text-lg font-bold text-slate-800 dark:text-white">{category.name}</h3>
@@ -1536,10 +1526,7 @@ function CategoryCard({
       {category.type === 'avatars' && (
         <div className="flex h-full flex-col justify-between">
           <div className="flex items-start justify-between">
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.1, type: 'spring', stiffness: 200 }}
+            <div
               className={clsx(
                 'flex h-12 w-12 items-center justify-center rounded-2xl ring-1',
                 colors.bg,
@@ -1548,7 +1535,7 @@ function CategoryCard({
               )}
             >
               <span className="material-symbols-outlined text-2xl">{category.icon}</span>
-            </motion.div>
+            </div>
             <div className="flex -space-x-2">
               <div className="h-6 w-6 rounded-full border-2 border-white bg-slate-200 dark:border-slate-800 dark:bg-slate-600"></div>
               <div className="h-6 w-6 rounded-full border-2 border-white bg-slate-300 dark:border-slate-800 dark:bg-slate-500"></div>
@@ -1562,6 +1549,7 @@ function CategoryCard({
           </div>
         </div>
       )}
-    </Wrapper>
+      </Wrapper>
+    </motion.div>
   )
 }
