@@ -59,6 +59,17 @@ function CategoryTemplatePreviewModal({
     }
   }, [isOpen, template])
 
+  const totalSelected = selectedCategories.size
+  const totalHabitsSelected = Object.values(selectedHabits).reduce(
+    (sum, habits) => sum + habits.size,
+    0
+  )
+
+  // Animated counter effect
+  useEffect(() => {
+    setPrevTotalSelected(totalHabitsSelected)
+  }, [totalHabitsSelected])
+
   if (!template) return null
 
   const toggleCategoryExpanded = (categoryName: string) => {
@@ -127,17 +138,6 @@ function CategoryTemplatePreviewModal({
 
     onImport(selectedCategoriesArray, selectedHabitsObject)
   }
-
-  const totalSelected = selectedCategories.size
-  const totalHabitsSelected = Object.values(selectedHabits).reduce(
-    (sum, habits) => sum + habits.size,
-    0
-  )
-
-  // Animated counter effect
-  useEffect(() => {
-    setPrevTotalSelected(totalHabitsSelected)
-  }, [totalHabitsSelected])
 
   return (
     <AnimatePresence>
