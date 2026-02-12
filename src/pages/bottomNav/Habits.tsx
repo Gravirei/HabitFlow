@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useHabitStore } from '@/store/useHabitStore'
 import { useHabitTaskStore } from '@/store/useHabitTaskStore'
@@ -18,6 +18,8 @@ export function Habits() {
   const [isSideNavOpen, setIsSideNavOpen] = useState(false)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set(['health', 'work', 'personal', 'other']))
+  const [prevCompletedToday, setPrevCompletedToday] = useState(0)
   
   // For HabitTasksModal
   const [selectedHabitId, setSelectedHabitId] = useState<string | null>(null)
@@ -54,30 +56,35 @@ export function Habits() {
   const completedToday = habits.filter(h => h.completedDates.includes(new Date().toISOString().split('T')[0])).length
   const totalDailyHabits = habits.filter(h => h.frequency === 'daily').length
   const bestStreak = Math.max(...habits.map(h => h.bestStreak), 0)
+  
+  // Animated counter effect
+  useEffect(() => {
+    setPrevCompletedToday(completedToday)
+  }, [completedToday])
 
   return (
-    <div className="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display">
-      {/* Header */}
-      <header className="shrink-0 flex flex-col gap-4 p-4 pb-2 bg-background-light dark:bg-background-dark z-20">
-        <div className="flex h-12 items-center justify-between">
-          <div className="flex size-12 shrink-0 items-center">
-            <button 
-              onClick={() => setIsSideNavOpen(true)}
-              className="flex size-10 items-center justify-center rounded-full text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-surface-dark transition-colors"
-            >
-              <span className="material-symbols-outlined">menu</span>
-            </button>
-          </div>
+    <div className="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden bg-gradient-to-br from-teal-50/30 to-orange-50/20 dark:from-gray-950 dark:to-gray-900 text-slate-900 dark:text-white font-display">
+      {/* Header - Glassmorphism */}
+      <header className="sticky top-0 z-30 shrink-0 border-b border-gray-200/50 bg-white/80 backdrop-blur-2xl dark:border-white/5 dark:bg-gray-900/80">
+        <div className="flex h-16 items-center justify-between px-4">
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setIsSideNavOpen(true)}
+            className="flex size-10 items-center justify-center rounded-full text-slate-800 transition-all duration-150 hover:bg-gray-100 active:scale-95 dark:text-slate-200 dark:hover:bg-gray-800"
+          >
+            <span className="material-symbols-outlined">menu</span>
+          </motion.button>
           
           {/* Title or Search Input */}
-          <div className="flex-1 overflow-hidden px-2">
+          <div className="flex-1 overflow-hidden px-4">
             <AnimatePresence mode="wait">
               {isSearchOpen ? (
                 <motion.div
                   key="search"
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.2 }}
                   className="w-full"
                 >
                   <input
@@ -86,16 +93,17 @@ export function Habits() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     autoFocus
-                    className="w-full rounded-full border-none bg-slate-100 dark:bg-surface-dark px-4 py-1.5 text-sm outline-none focus:ring-2 focus:ring-primary/50"
+                    className="w-full rounded-full border border-gray-200 bg-gray-100 px-4 py-2 font-raleway text-sm outline-none transition-all focus:border-teal-500 focus:ring-2 focus:ring-teal-500/30 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
                   />
                 </motion.div>
               ) : (
                 <motion.h2
                   key="title"
-                  initial={{ opacity: 0, y: 10 }}
+                  initial={{ opacity: 0, y: 5 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="text-lg font-bold text-center tracking-tight"
+                  exit={{ opacity: 0, y: -5 }}
+                  transition={{ duration: 0.2 }}
+                  className="font-lora text-xl font-bold text-center tracking-tight"
                 >
                   My Habits
                 </motion.h2>
@@ -103,86 +111,128 @@ export function Habits() {
             </AnimatePresence>
           </div>
 
-          <div className="flex items-center justify-end gap-2 size-12 shrink-0">
-            <button 
-              onClick={() => {
-                setIsSearchOpen(!isSearchOpen)
-                if (isSearchOpen) setSearchQuery('')
-              }}
-              className={`flex size-10 items-center justify-center rounded-full transition-colors ${
-                isSearchOpen 
-                  ? 'bg-primary/10 text-primary' 
-                  : 'text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-surface-dark'
-              }`}
-            >
-              <span className="material-symbols-outlined">
-                {isSearchOpen ? 'close' : 'search'}
-              </span>
-            </button>
-          </div>
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            onClick={() => {
+              setIsSearchOpen(!isSearchOpen)
+              if (isSearchOpen) setSearchQuery('')
+            }}
+            className={clsx(
+              'flex size-10 items-center justify-center rounded-full transition-all duration-150',
+              isSearchOpen 
+                ? 'bg-teal-100 text-teal-700 dark:bg-teal-500/20 dark:text-teal-400' 
+                : 'text-slate-800 hover:bg-gray-100 dark:text-slate-200 dark:hover:bg-gray-800'
+            )}
+          >
+            <span className="material-symbols-outlined">
+              {isSearchOpen ? 'close' : 'search'}
+            </span>
+          </motion.button>
         </div>
       </header>
 
-      {/* Tabs */}
+      {/* Tabs - Redesigned with Sliding Indicator */}
       <div className="shrink-0 px-6 py-6 z-20">
-        <div className="flex p-1.5 rounded-3xl bg-white dark:bg-surface-dark border border-gray-200 dark:border-white/5 relative shadow-lg">
+        <div className="relative flex gap-2 rounded-3xl bg-white/60 p-2 backdrop-blur-xl dark:bg-gray-800/60 border border-gray-200/50 dark:border-white/5 shadow-lg">
           {tabs.map((tab) => (
-            <label key={tab.id} className="flex-1 relative cursor-pointer group">
-              <input
-                checked={activeTab === tab.id}
-                onChange={() => setActiveTab(tab.id)}
-                className="peer sr-only"
-                name="view"
-                type="radio"
-                value={tab.id}
-              />
-              <div className="absolute inset-0 rounded-2xl bg-black dark:bg-primary shadow-glow opacity-0 peer-checked:opacity-100 transition-all duration-300 transform peer-checked:scale-100 scale-95 origin-center" />
-              <div className="relative w-full py-3 flex items-center justify-center gap-2 text-xs sm:text-sm font-bold text-gray-500 dark:text-gray-400 peer-checked:text-white dark:peer-checked:text-black transition-colors z-10">
-                <span>{tab.label}</span>
-              </div>
-            </label>
+            <motion.button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={clsx(
+                'relative z-10 flex-1 rounded-2xl px-4 py-3 font-raleway text-sm font-bold transition-colors duration-200',
+                activeTab === tab.id
+                  ? 'text-white dark:text-gray-900'
+                  : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200'
+              )}
+              whileTap={{ scale: 0.97 }}
+            >
+              {activeTab === tab.id && (
+                <motion.div
+                  layoutId="activeTab"
+                  className="absolute inset-0 rounded-2xl bg-gradient-to-r from-teal-500 to-teal-600 shadow-lg shadow-teal-500/30"
+                  transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                />
+              )}
+              <span className="relative z-10">{tab.label}</span>
+            </motion.button>
           ))}
         </div>
       </div>
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto no-scrollbar px-6 pb-28 space-y-8">
-        {/* Stats Cards */}
+        {/* Stats Cards - Redesigned */}
         <div className="grid grid-cols-2 gap-4">
-          <div className="bg-surface-light dark:bg-surface-dark border border-gray-200 dark:border-white/5 p-5 rounded-3xl relative overflow-hidden group">
-            <div className="absolute -right-4 -top-4 w-20 h-20 bg-primary/10 rounded-full blur-xl group-hover:bg-primary/20 transition-colors" />
-            <div className="flex items-start justify-between mb-2">
-              <span className="text-text-secondary-dark text-xs font-bold uppercase tracking-wider">Completed</span>
-              <span className="material-symbols-outlined text-primary text-xl icon-filled">check_circle</span>
+          <motion.div
+            whileHover={{ scale: 1.02, y: -2 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+            className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-white to-teal-50/50 p-5 shadow-lg ring-1 ring-gray-200/50 backdrop-blur-xl dark:from-gray-800 dark:to-teal-500/5 dark:ring-white/5"
+          >
+            <div className="absolute -right-4 -top-4 h-20 w-20 rounded-full bg-teal-500/20 blur-2xl" />
+            <div className="relative z-10">
+              <div className="mb-3 flex items-start justify-between">
+                <span className="font-raleway text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-400">
+                  Completed
+                </span>
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-teal-100 dark:bg-teal-500/20">
+                  <span className="material-symbols-outlined text-lg text-teal-600 dark:text-teal-400 icon-filled">
+                    check_circle
+                  </span>
+                </div>
+              </div>
+              <motion.div
+                key={completedToday}
+                initial={{ scale: 1.2, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+                className="flex items-baseline gap-1"
+              >
+                <h3 className="font-lora text-4xl font-bold text-slate-900 dark:text-white">
+                  {completedToday}
+                </h3>
+                <span className="font-raleway text-lg font-medium text-gray-600 dark:text-gray-400">
+                  /{totalDailyHabits}
+                </span>
+              </motion.div>
+              <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-gray-700/50">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ 
+                    width: `${totalDailyHabits > 0 ? (completedToday / totalDailyHabits) * 100 : 0}%` 
+                  }}
+                  transition={{ duration: 0.8, ease: 'easeOut' }}
+                  className="h-full rounded-full bg-gradient-to-r from-teal-500 to-teal-600 shadow-lg shadow-teal-500/50"
+                />
+              </div>
             </div>
-            <div className="flex items-baseline gap-1">
-              <h3 className="text-3xl font-display font-bold text-slate-900 dark:text-white">
-                {completedToday}
-                <span className="text-lg text-text-secondary-dark font-medium">/{totalDailyHabits}</span>
-              </h3>
-            </div>
-            <div className="mt-3 h-1.5 w-full bg-gray-100 dark:bg-black/40 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-primary w-[66%] rounded-full shadow-[0_0_10px_rgba(19,236,91,0.5)]"
-                style={{ width: `${totalDailyHabits > 0 ? (completedToday / totalDailyHabits) * 100 : 0}%` }}
-              />
-            </div>
-          </div>
+          </motion.div>
 
-          <div className="bg-surface-light dark:bg-surface-dark border border-gray-200 dark:border-white/5 p-5 rounded-3xl relative overflow-hidden group">
-            <div className="absolute -right-4 -top-4 w-20 h-20 bg-orange-500/10 rounded-full blur-xl group-hover:bg-orange-500/20 transition-colors" />
-            <div className="flex items-start justify-between mb-2">
-              <span className="text-text-secondary-dark text-xs font-bold uppercase tracking-wider">Best Streak</span>
-              <span className="material-symbols-outlined text-orange-500 text-xl icon-filled">local_fire_department</span>
+          <motion.div
+            whileHover={{ scale: 1.02, y: -2 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+            className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-white to-orange-50/50 p-5 shadow-lg ring-1 ring-gray-200/50 backdrop-blur-xl dark:from-gray-800 dark:to-orange-500/5 dark:ring-white/5"
+          >
+            <div className="absolute -right-4 -top-4 h-20 w-20 rounded-full bg-orange-500/20 blur-2xl" />
+            <div className="relative z-10">
+              <div className="mb-3 flex items-start justify-between">
+                <span className="font-raleway text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-400">
+                  Best Streak
+                </span>
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-500/20">
+                  <span className="material-symbols-outlined text-lg text-orange-600 dark:text-orange-400 icon-filled">
+                    local_fire_department
+                  </span>
+                </div>
+              </div>
+              <div className="flex items-baseline gap-2">
+                <h3 className="font-lora text-4xl font-bold text-slate-900 dark:text-white">{bestStreak}</h3>
+                <span className="font-raleway text-sm font-medium text-gray-600 dark:text-gray-400">days</span>
+              </div>
+              <div className="mt-3 font-raleway text-xs font-semibold text-orange-600 dark:text-orange-400">
+                Keep it burning! 🔥
+              </div>
             </div>
-            <div className="flex items-baseline gap-1">
-              <h3 className="text-3xl font-display font-bold text-slate-900 dark:text-white">{bestStreak}</h3>
-              <span className="text-sm text-text-secondary-dark font-medium">days</span>
-            </div>
-            <div className="mt-3 text-xs text-orange-400 font-medium">
-              On fire! 🔥
-            </div>
-          </div>
+          </motion.div>
         </div>
 
         {/* Habits List */}
@@ -196,25 +246,38 @@ export function Habits() {
             className="space-y-6"
           >
             {filteredHabits.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-20 text-center">
-                <div className="mb-6 rounded-full bg-slate-100 p-6 dark:bg-surface-dark">
-                  <span className="material-symbols-outlined text-4xl text-slate-400">checklist</span>
-                </div>
-                <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
-                  {searchQuery ? 'No matching habits' : `No ${activeTab} habits`}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex flex-col items-center justify-center py-20 text-center"
+              >
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
+                  className="mb-6 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 p-8 dark:from-gray-800 dark:to-gray-700"
+                >
+                  <span className="material-symbols-outlined text-5xl text-gray-400">
+                    checklist
+                  </span>
+                </motion.div>
+                <h3 className="font-lora text-xl font-bold text-slate-900 dark:text-white mb-2">
+                  {searchQuery ? 'No matching habits' : `No ${activeTab} habits yet`}
                 </h3>
-                <p className="text-slate-500 dark:text-slate-400 max-w-[200px]">
-                  {searchQuery ? 'Try a different search term' : `You haven't created any ${activeTab} habits yet. Start building your routine!`}
+                <p className="font-raleway text-slate-600 dark:text-slate-400 max-w-[250px] mb-6">
+                  {searchQuery ? 'Try a different search term' : `Start building your ${activeTab} routine!`}
                 </p>
                 {!searchQuery && (
-                  <button
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                     onClick={() => navigate(`/new-habit?frequency=${activeTab}`)}
-                    className="mt-6 px-6 py-2.5 bg-primary text-black font-semibold rounded-full hover:opacity-90 transition-opacity"
+                    className="rounded-full bg-gradient-to-r from-teal-500 to-teal-600 px-6 py-3 font-raleway font-bold text-white shadow-lg shadow-teal-500/30 transition-shadow hover:shadow-xl"
                   >
                     Create {activeTab} habit
-                  </button>
+                  </motion.button>
                 )}
-              </div>
+              </motion.div>
             ) : (
               <div className="space-y-4">
                 {/* Group habits by category or just display them */}
@@ -274,16 +337,21 @@ export function Habits() {
           )}
         </AnimatePresence>
 
-        <button
+        <motion.button
           onClick={toggleFab}
-          className={`flex size-14 items-center justify-center rounded-full shadow-xl transition-all duration-300 active:scale-95 ${
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          animate={{ rotate: isFabOpen ? 45 : 0 }}
+          transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+          className={clsx(
+            'flex size-16 items-center justify-center rounded-full shadow-xl transition-all duration-200',
             isFabOpen
-              ? 'bg-slate-200 dark:bg-surface-dark text-slate-900 dark:text-white rotate-45'
-              : 'bg-primary text-black hover:brightness-110'
-          }`}
+              ? 'bg-white/90 text-slate-900 ring-2 ring-gray-200 dark:bg-gray-800/90 dark:text-white dark:ring-gray-700'
+              : 'bg-gradient-to-r from-teal-500 to-teal-600 text-white shadow-teal-500/30'
+          )}
         >
           <span className="material-symbols-outlined text-3xl">add</span>
-        </button>
+        </motion.button>
       </div>
 
       <SideNav isOpen={isSideNavOpen} onClose={() => setIsSideNavOpen(false)} />
@@ -307,6 +375,9 @@ export function Habits() {
 
 function HabitList({ habits }: { habits: Habit[] }) {
   const { isHabitCompletedToday } = useHabitStore()
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
+    new Set(['health', 'work', 'personal', 'other'])
+  )
 
   // Group habits by category
   const habitsByCategory = habits.reduce((acc, habit) => {
@@ -321,37 +392,94 @@ function HabitList({ habits }: { habits: Habit[] }) {
   const getCategoryInfo = (category: string) => {
     switch (category) {
       case 'health':
-        return { name: 'Health & Wellness', icon: 'self_improvement', color: 'teal' }
+        return { name: 'Health & Wellness', icon: 'favorite', gradient: 'from-teal-400 to-teal-600' }
       case 'work':
-        return { name: 'Work', icon: 'work', color: 'blue' }
+        return { name: 'Work & Productivity', icon: 'work', gradient: 'from-blue-400 to-blue-600' }
       case 'personal':
-        return { name: 'Personal', icon: 'person', color: 'purple' }
+        return { name: 'Personal Growth', icon: 'emoji_events', gradient: 'from-purple-400 to-purple-600' }
       default:
-        return { name: 'Other', icon: 'star', color: 'gray' }
+        return { name: 'Other Habits', icon: 'star', gradient: 'from-gray-400 to-gray-600' }
     }
   }
 
+  const toggleCategory = (category: string) => {
+    const newExpanded = new Set(expandedCategories)
+    if (newExpanded.has(category)) {
+      newExpanded.delete(category)
+    } else {
+      newExpanded.add(category)
+    }
+    setExpandedCategories(newExpanded)
+  }
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {Object.entries(habitsByCategory).map(([category, categoryHabits]) => {
         const categoryInfo = getCategoryInfo(category)
         const completedCount = categoryHabits.filter(h => isHabitCompletedToday(h.id)).length
+        const isExpanded = expandedCategories.has(category)
 
         return (
-          <div key={category} className="space-y-4">
-            <div className="flex items-center justify-between px-1">
-              <h4 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary">wb_sunny</span>
-                {categoryInfo.name}
-              </h4>
-              <span className="text-xs font-bold bg-surface-dark border border-white/10 text-text-secondary-dark px-2 py-1 rounded-lg">
-                {completedCount}/{categoryHabits.length} Done
-              </span>
-            </div>
+          <div key={category} className="space-y-3">
+            {/* Category Header - Collapsible */}
+            <motion.button
+              onClick={() => toggleCategory(category)}
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
+              className="flex w-full items-center justify-between rounded-2xl bg-white/60 p-4 backdrop-blur-xl ring-1 ring-gray-200/50 transition-all hover:shadow-md dark:bg-gray-800/40 dark:ring-white/5"
+            >
+              <div className="flex items-center gap-3">
+                <div className={clsx(
+                  'flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br shadow-md',
+                  categoryInfo.gradient
+                )}>
+                  <span className="material-symbols-outlined text-lg text-white">
+                    {categoryInfo.icon}
+                  </span>
+                </div>
+                <h4 className="font-lora text-lg font-bold text-slate-900 dark:text-white">
+                  {categoryInfo.name}
+                </h4>
+              </div>
 
-            {categoryHabits.map((habit) => (
-              <HabitCard key={habit.id} habit={habit} />
-            ))}
+              <div className="flex items-center gap-3">
+                <span className="rounded-full bg-teal-100 px-3 py-1 font-raleway text-xs font-bold text-teal-700 dark:bg-teal-500/20 dark:text-teal-400">
+                  {completedCount}/{categoryHabits.length} Done
+                </span>
+                <motion.div
+                  animate={{ rotate: isExpanded ? 180 : 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <span className="material-symbols-outlined text-xl text-gray-500 dark:text-gray-400">
+                    expand_more
+                  </span>
+                </motion.div>
+              </div>
+            </motion.button>
+
+            {/* Habits - Collapsible */}
+            <AnimatePresence>
+              {isExpanded && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.3, ease: 'easeOut' }}
+                  className="space-y-3 overflow-hidden"
+                >
+                  {categoryHabits.map((habit, index) => (
+                    <motion.div
+                      key={habit.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.05 }}
+                    >
+                      <HabitCard habit={habit} />
+                    </motion.div>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         )
       })}
@@ -361,68 +489,103 @@ function HabitList({ habits }: { habits: Habit[] }) {
 
 function HabitCard({ habit }: { habit: Habit }) {
   const { toggleHabitCompletion, isHabitCompletedToday } = useHabitStore()
+  const { getTaskCount } = useHabitTaskStore()
   const completed = isHabitCompletedToday(habit.id)
+  const taskCount = getTaskCount(habit.id)
 
-  const getIconColor = (iconName: string) => {
-    const colorMap: Record<string, string> = {
-      self_improvement: 'bg-teal-500/10 text-teal-400',
-      water_drop: 'bg-blue-500/10 text-blue-400',
-      book_2: 'bg-purple-500/10 text-purple-400',
-      menu_book: 'bg-purple-500/10 text-purple-400',
-      edit_note: 'bg-pink-500/10 text-pink-400',
-      directions_walk: 'bg-green-500/10 text-green-400',
+  const handleHabitClick = (habit: Habit) => {
+    if (taskCount > 0) {
+      // Has tasks - this will be handled by parent
+      return
+    } else {
+      // No tasks - direct toggle
+      toggleHabitCompletion(habit.id)
     }
-    return colorMap[iconName] || 'bg-gray-500/10 text-gray-400'
   }
 
-  const getButtonStyle = () => {
-    if (completed) {
-      return 'bg-primary text-primary-content shadow-glow hover:scale-110 active:scale-90'
+  const getIconGradient = (iconName: string) => {
+    const gradientMap: Record<string, string> = {
+      self_improvement: 'from-teal-400 to-teal-600',
+      water_drop: 'from-blue-400 to-blue-600',
+      book_2: 'from-purple-400 to-purple-600',
+      menu_book: 'from-purple-400 to-purple-600',
+      edit_note: 'from-pink-400 to-pink-600',
+      directions_walk: 'from-green-400 to-green-600',
     }
-    const colorMap: Record<string, string> = {
-      self_improvement: 'border-2 border-gray-200 dark:border-gray-700 hover:border-teal-500 hover:bg-teal-500/10 text-transparent hover:text-teal-500',
-      water_drop: 'border-2 border-blue-500/20 bg-blue-500/10 text-blue-400 hover:bg-blue-500 hover:text-white hover:border-blue-500',
-      book_2: 'border-2 border-gray-200 dark:border-gray-700 hover:border-purple-500 hover:bg-purple-500/10 text-transparent hover:text-purple-500',
-      menu_book: 'border-2 border-gray-200 dark:border-gray-700 hover:border-purple-500 hover:bg-purple-500/10 text-transparent hover:text-purple-500',
-      edit_note: 'border-2 border-gray-200 dark:border-gray-700 hover:border-pink-500 hover:bg-pink-500/10 text-transparent hover:text-pink-500',
-      directions_walk: 'border-2 border-gray-200 dark:border-gray-700 hover:border-green-500 hover:bg-green-500/10 text-transparent hover:text-green-500',
-    }
-    return colorMap[habit.icon] || 'border-2 border-gray-200 dark:border-gray-700 hover:border-primary hover:bg-primary/10 text-transparent hover:text-primary'
+    return gradientMap[iconName] || 'from-gray-400 to-gray-600'
   }
 
   return (
-    <div className="group relative bg-white dark:bg-[#121814] p-5 rounded-3xl border border-gray-100 dark:border-white/5 shadow-sm hover:border-primary/30 transition-all duration-300">
-      <div className="flex items-center gap-4">
-        <div className={clsx(
-          'w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300',
-          getIconColor(habit.icon)
-        )}>
-          <span className="material-symbols-outlined text-2xl">{habit.icon}</span>
-        </div>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+      whileHover={{ scale: 1.02, y: -2 }}
+      className={clsx(
+        'group relative overflow-hidden rounded-3xl p-5 shadow-lg ring-1 transition-all duration-200',
+        completed
+          ? 'bg-gradient-to-br from-white to-teal-50/50 ring-teal-200/50 dark:from-gray-800 dark:to-teal-500/5 dark:ring-teal-500/20'
+          : 'bg-white/60 ring-gray-200/50 backdrop-blur-xl dark:bg-gray-800/40 dark:ring-white/5'
+      )}
+    >
+      {/* Gradient background effect */}
+      <div className={clsx(
+        'absolute -right-8 -top-8 h-24 w-24 rounded-full blur-2xl transition-opacity duration-300',
+        completed ? 'bg-teal-500/20 opacity-100' : 'bg-gray-500/10 opacity-0 group-hover:opacity-100'
+      )} />
 
-        <div className="flex-1 min-w-0">
-          <div className="flex justify-between items-start">
-            <h5 className="font-bold text-slate-900 dark:text-white text-base truncate pr-2">{habit.name}</h5>
-            <div className="flex items-center gap-1 text-[10px] font-bold text-orange-400 bg-orange-400/10 px-2 py-0.5 rounded-full border border-orange-400/10">
+      <div className="relative z-10 flex items-center gap-4">
+        {/* Icon */}
+        <motion.div
+          whileHover={{ rotate: 5, scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className={clsx(
+            'flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br shadow-md',
+            getIconGradient(habit.icon)
+          )}
+        >
+          <span className="material-symbols-outlined text-2xl text-white">
+            {habit.icon}
+          </span>
+        </motion.div>
+
+        {/* Info */}
+        <div className="min-w-0 flex-1">
+          <div className="mb-1 flex items-start justify-between gap-2">
+            <h5 className="font-lora text-base font-bold text-slate-900 dark:text-white">
+              {habit.name}
+            </h5>
+            <div className="flex items-center gap-1 rounded-full bg-orange-100 px-2 py-0.5 text-[10px] font-bold text-orange-700 dark:bg-orange-500/20 dark:text-orange-400">
               <span className="material-symbols-outlined icon-filled text-[12px]">local_fire_department</span>
               {habit.currentStreak}
             </div>
           </div>
-          <p className="text-text-secondary-dark text-sm mt-0.5">
+          <p className="font-raleway text-sm text-gray-600 dark:text-gray-400">
             {habit.goal > 1 ? `${habit.goal} ${habit.goalPeriod}` : habit.description || habit.goalPeriod}
           </p>
         </div>
 
-        <button
+        {/* iOS Toggle Switch */}
+        <motion.button
+          whileTap={{ scale: 0.95 }}
           onClick={() => handleHabitClick(habit)}
           className={clsx(
-            'shrink-0 w-10 h-10 rounded-full flex items-center justify-center active:scale-90 transition-all duration-300',
-            getButtonStyle()
+            'relative h-10 w-16 flex-shrink-0 rounded-full transition-all duration-200',
+            completed
+              ? 'bg-teal-500 shadow-inner shadow-teal-600/50'
+              : 'bg-gray-300 dark:bg-gray-600'
           )}
         >
-          <span className="material-symbols-outlined icon-bold">{completed ? 'check' : 'check'}</span>
-        </button>
+          <motion.div
+            layout
+            transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+            className={clsx(
+              'absolute top-1 h-8 w-8 rounded-full bg-white shadow-md',
+              completed ? 'left-7' : 'left-1'
+            )}
+          />
+        </motion.button>
       </div>
-    </div>
+    </motion.div>
   )
 }
