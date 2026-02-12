@@ -86,9 +86,15 @@ export function Habits() {
 
   // Stats
   const completedToday = habits.filter((h) =>
-    h.completedDates.includes(today())
+    h.completedDates.includes(today()) &&
+    h.isActive === true &&
+    h.categoryId !== undefined
   ).length
-  const totalDailyHabits = habits.filter((h) => h.frequency === 'daily' && h.isActive).length
+  const totalDailyHabits = habits.filter((h) => 
+    h.frequency === 'daily' && 
+    h.isActive === true &&
+    h.categoryId !== undefined
+  ).length
   const bestStreak = Math.max(...habits.map((h) => h.bestStreak), 0)
   const completionPct = totalDailyHabits > 0 ? Math.round((completedToday / totalDailyHabits) * 100) : 0
 
