@@ -208,7 +208,7 @@ export function Habits() {
                     fill="none"
                     strokeLinecap="round"
                     initial={{ strokeDasharray: '150.8', strokeDashoffset: '150.8' }}
-                    animate={{ strokeDashoffset: 150.8 - (150.8 * completionPct) / 100 }}
+                    animate={{ strokeDashoffset: 150.8 * (1 - completionPct / 100) }}
                     transition={{ duration: 0.8, ease: 'easeOut' }}
                   />
                 </svg>
