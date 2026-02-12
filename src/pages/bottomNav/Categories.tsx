@@ -473,6 +473,12 @@ export function Categories() {
   }
 
   const habitsInDeleteCategory = deleteCategoryId ? getHabitsByCategory(deleteCategoryId).length : 0
+  const tasksInDeleteCategory = deleteCategoryId
+    ? tasks.filter((t) => t.categoryId === deleteCategoryId).length
+    : 0
+  const deleteCategoryName = deleteCategoryId
+    ? categories.find((c) => c.id === deleteCategoryId)?.name
+    : ''
 
   const handleConfirmDelete = () => {
     if (!deleteCategoryId) return
@@ -942,14 +948,24 @@ export function Categories() {
         isOpen={Boolean(deleteCategoryId)}
         onClose={() => setDeleteCategoryId(null)}
         onConfirm={handleConfirmDelete}
-        title="Delete category?"
-        message={`This will remove the category and set ${habitsInDeleteCategory} habit${
-          habitsInDeleteCategory === 1 ? '' : 's'
-        } to Uncategorized. This action can't be undone.`}
-        confirmText="Delete"
+        title={`Delete "${deleteCategoryName}"?`}
+        message={
+          habitsInDeleteCategory > 0 || tasksInDeleteCategory > 0
+            ? `This will permanently delete:\n\n` +
+              (habitsInDeleteCategory > 0
+                ? `• ${habitsInDeleteCategory} habit${habitsInDeleteCategory === 1 ? '' : 's'}\n`
+                : '') +
+              (tasksInDeleteCategory > 0
+                ? `• ${tasksInDeleteCategory} task${tasksInDeleteCategory === 1 ? '' : 's'}\n`
+                : '') +
+              `• All completion history\n\n` +
+              `This action cannot be undone.`
+            : 'This action cannot be undone.'
+        }
+        confirmText="Delete Permanently"
         cancelText="Cancel"
         variant="danger"
-        icon="delete"
+        icon="warning"
       />
 
       <CategoryTemplateLibraryModal

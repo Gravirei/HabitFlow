@@ -173,11 +173,7 @@ export const useHabitStore = create<HabitState>()(
 
       clearCategoryFromHabits: (categoryId) => {
         set((state) => ({
-          habits: state.habits.map((habit) =>
-            habit.categoryId === categoryId
-              ? { ...habit, categoryId: undefined }
-              : habit
-          ),
+          habits: state.habits.filter((habit) => habit.categoryId !== categoryId),
         }))
       },
     }),

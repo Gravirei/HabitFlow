@@ -68,9 +68,7 @@ export const useTaskStore = create<TaskState>()(
 
       clearCategoryFromTasks: (categoryId) => {
         set((state) => ({
-          tasks: state.tasks.map((task) =>
-            task.categoryId === categoryId ? { ...task, categoryId: undefined } : task
-          ),
+          tasks: state.tasks.filter((task) => task.categoryId !== categoryId),
         }))
       },
     }),
