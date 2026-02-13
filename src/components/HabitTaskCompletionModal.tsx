@@ -25,6 +25,21 @@ export function HabitTaskCompletionModal({
   const completedCount = habitTasks.filter((t) => t.completed).length
   const totalCount = habitTasks.length
   const progress = totalCount > 0 ? (completedCount / totalCount) * 100 : 0
+  
+  // DEBUG - Log everything
+  console.log('📋 HabitTaskCompletionModal Debug:', {
+    isOpen,
+    habitId,
+    habitName,
+    allTasks: tasks,
+    allTasksCount: tasks.length,
+    habitTasks,
+    habitTasksCount: habitTasks.length,
+    completedCount,
+    totalCount,
+    progress,
+    firstTask: habitTasks[0]
+  })
 
   // Auto-complete habit when all tasks are done
   useEffect(() => {

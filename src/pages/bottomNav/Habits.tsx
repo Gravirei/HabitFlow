@@ -54,7 +54,7 @@ function formatDate(): string {
 export function Habits() {
   const navigate = useNavigate()
   const { habits, toggleHabitCompletion } = useHabitStore()
-  const { getTaskCount } = useHabitTaskStore()
+  const { getTaskCount, tasks: habitTasks, toggleTaskCompletion } = useHabitTaskStore()
 
   const [isFabOpen, setIsFabOpen] = useState(false)
   const [activeTab, setActiveTab] = useState<'daily' | 'weekly' | 'monthly'>('daily')
@@ -480,10 +480,10 @@ export function Habits() {
       {/* ── Task Completion Modal ── */}
       {taskCompletionHabitId && (
         <HabitTaskCompletionModal
-          isOpen={!!taskCompletionHabitId}
+          isOpen={true}
           onClose={() => setTaskCompletionHabitId(null)}
           habitId={taskCompletionHabitId}
-          habitName={habits.find(h => h.id === taskCompletionHabitId)?.name || ''}
+          habitName={habits.find(h => h.id === taskCompletionHabitId)?.name || 'Habit Tasks'}
           onTaskToggle={handleTaskToggle}
           onAllTasksComplete={handleAllTasksComplete}
         />
