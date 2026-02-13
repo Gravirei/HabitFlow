@@ -26,16 +26,7 @@ export function HabitTaskCompletionModal({
   const totalCount = habitTasks.length
   const progress = totalCount > 0 ? (completedCount / totalCount) * 100 : 0
 
-  // Auto-complete habit when all tasks are done
-  useEffect(() => {
-    if (isOpen && totalCount > 0 && completedCount === totalCount) {
-      // Small delay for animation feedback
-      const timeout = setTimeout(() => {
-        onAllTasksComplete(habitId)
-      }, 500)
-      return () => clearTimeout(timeout)
-    }
-  }, [isOpen, completedCount, totalCount, habitId, onAllTasksComplete])
+  // Removed auto-complete - user must click Done button manually
 
   if (!isOpen) return null
 
