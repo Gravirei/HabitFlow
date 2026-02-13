@@ -53,7 +53,10 @@ export function HabitTaskCompletionModal({
           />
 
           {/* Modal */}
-          <div className="fixed inset-0 z-[101] flex items-end justify-center sm:items-center">
+          <div 
+            className="fixed inset-0 z-[101] flex items-end justify-center sm:items-center"
+            onClick={onClose}
+          >
             <motion.div
               initial={{ opacity: 0, y: 100, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
