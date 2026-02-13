@@ -169,7 +169,7 @@ export function HabitTaskCompletionModal({
                                   : 'text-gray-700 dark:text-gray-200'
                               )}
                             >
-                              {task.name}
+                              {task.title}
                             </span>
 
                             {/* Check icon */}
