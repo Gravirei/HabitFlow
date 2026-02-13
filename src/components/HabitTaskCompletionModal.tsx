@@ -30,6 +30,7 @@ export function HabitTaskCompletionModal({
   // Draft mode: Store original task states and local changes
   const originalTaskStates = useRef<Map<string, boolean>>(new Map())
   const [draftTaskStates, setDraftTaskStates] = useState<Map<string, boolean>>(new Map())
+  const isSavingRef = useRef(false) // Flag to prevent revert when saving
   const { tasks } = useHabitTaskStore()
   const habitTasks = tasks.filter((t) => t.habitId === habitId)
   
@@ -54,6 +55,7 @@ export function HabitTaskCompletionModal({
       
       originalTaskStates.current = originalStates
       setDraftTaskStates(draftStates)
+      isSavingRef.current = false // Reset flag when opening
     }
   }, [isOpen, habitId])
 
@@ -69,11 +71,20 @@ export function HabitTaskCompletionModal({
   
   // Revert changes and close modal
   const handleCancelClose = () => {
+    // If we're saving, don't revert
+    if (isSavingRef.current) {
+      console.log('⏭️  Skipping revert (saving mode)')
+      onClose()
+      return
+    }
+    
+    console.log('🚫 Cancel close - reverting changes')
     // Revert all tasks to original states
     originalTaskStates.current.forEach((originalState, taskId) => {
       const currentState = draftTaskStates.get(taskId)
+      console.log(`Task ${taskId.slice(0,8)}: original=${originalState}, current=${currentState}`)
       if (currentState !== originalState) {
-        // Revert the task
+        console.log(`  ↩️  Reverting task ${taskId.slice(0,8)}`)
         onTaskToggle(taskId)
       }
     })
@@ -82,11 +93,15 @@ export function HabitTaskCompletionModal({
   
   // Save changes and close modal
   const handleDoneClick = () => {
+    console.log('✅ Done clicked - persisting changes')
+    isSavingRef.current = true // Set flag to prevent revert
+    
     // Persist all draft changes
     draftTaskStates.forEach((draftState, taskId) => {
       const originalState = originalTaskStates.current.get(taskId)
+      console.log(`Task ${taskId.slice(0,8)}: original=${originalState}, draft=${draftState}`)
       if (draftState !== originalState) {
-        // Apply the change
+        console.log(`  💾 Persisting task ${taskId.slice(0,8)}`)
         onTaskToggle(taskId)
       }
     })
@@ -98,7 +113,8 @@ export function HabitTaskCompletionModal({
       if (completedCount === totalCount && totalCount > 0) {
         onAllTasksComplete(habitId)
       }
-      onClose()
+      // Close without reverting (flag is set)
+      handleCancelClose()
     }
   }
 
@@ -287,9 +303,18 @@ export function HabitTaskCompletionModal({
         isOpen={showUnmarkWarning}
         onClose={() => setShowUnmarkWarning(false)}
       onConfirm={() => {
+        isSavingRef.current = true // Set flag
+        // Persist the draft changes first
+        draftTaskStates.forEach((draftState, taskId) => {
+          const originalState = originalTaskStates.current.get(taskId)
+          if (draftState !== originalState) {
+            onTaskToggle(taskId)
+          }
+        })
+        // Then unmark the habit
         onTasksIncomplete(habitId)
         setShowUnmarkWarning(false)
-        onClose()
+        handleCancelClose()
       }}
       title="Unmark Habit as Complete?"
       message="This habit is already complete. Marking tasks as incomplete will unmark the habit. Do you want to continue?"
