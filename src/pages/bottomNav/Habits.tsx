@@ -1,10 +1,13 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useHabitStore } from '@/store/useHabitStore'
 import { useHabitTaskStore } from '@/store/useHabitTaskStore'
+import { useTaskStore } from '@/store/useTaskStore'
 import { HabitTasksModal } from '@/components/categories/HabitTasksModal'
+import { HabitTaskCompletionModal } from '@/components/HabitTaskCompletionModal'
 import { BottomNav } from '@/components/BottomNav'
 import { SideNav } from '@/components/SideNav'
+import { ConfirmDialog } from '@/components/timer/settings/ConfirmDialog'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Habit } from '@/types/habit'
 import clsx from 'clsx'
@@ -59,18 +62,100 @@ export function Habits() {
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
 
-  // Habit Tasks Modal
+  // Habit Tasks Modal (for creating tasks)
   const [selectedHabitId, setSelectedHabitId] = useState<string | null>(null)
   const [selectedHabitName, setSelectedHabitName] = useState('')
+  
+  // Task Completion Modal (for completing tasks)
+  const [taskCompletionHabitId, setTaskCompletionHabitId] = useState<string | null>(null)
+  
+  // Confirmation dialogs
+  const [confirmDialogState, setConfirmDialogState] = useState<{
+    isOpen: boolean
+    type: 'incomplete-tasks' | 'start-fresh' | null
+    habitId: string | null
+    habitName?: string
+    incompleteTasks?: number
+  }>({ isOpen: false, type: null, habitId: null })
 
   const handleHabitClick = (habit: Habit) => {
     const taskCount = getTaskCount(habit.id)
     if (taskCount > 0) {
-      setSelectedHabitId(habit.id)
-      setSelectedHabitName(habit.name)
-    } else {
-      toggleHabitCompletion(habit.id)
+      // Open task completion modal
+      setTaskCompletionHabitId(habit.id)
     }
+    // If no tasks, do nothing (only completion button toggles)
+  }
+
+  const handleCompletionButtonClick = (e: React.MouseEvent, habit: Habit) => {
+    e.stopPropagation() // Prevent card click
+    
+    const isCompleted = habit.completedDates.includes(today())
+    
+    if (isCompleted) {
+      // Scenario C: Already completed - warn before resetting
+      setConfirmDialogState({
+        isOpen: true,
+        type: 'start-fresh',
+        habitId: habit.id,
+        habitName: habit.name
+      })
+    } else {
+      // Check if has incomplete tasks
+      const habitTasksForHabit = habitTasks.filter(ht => ht.habitId === habit.id)
+      const incompleteTasks = habitTasksForHabit.filter(ht => !ht.completed).length
+      
+      if (incompleteTasks > 0) {
+        // Scenario A: Has incomplete tasks - warn
+        setConfirmDialogState({
+          isOpen: true,
+          type: 'incomplete-tasks',
+          habitId: habit.id,
+          habitName: habit.name,
+          incompleteTasks
+        })
+      } else {
+        // Scenario B: No incomplete tasks - normal toggle
+        toggleHabitCompletion(habit.id)
+      }
+    }
+  }
+
+  const handleConfirmComplete = () => {
+    if (confirmDialogState.habitId) {
+      toggleHabitCompletion(confirmDialogState.habitId)
+    }
+    setConfirmDialogState({ isOpen: false, type: null, habitId: null })
+  }
+
+  const handleConfirmStartFresh = () => {
+    if (confirmDialogState.habitId) {
+      // Unmark habit
+      toggleHabitCompletion(confirmDialogState.habitId)
+      
+      // Unmark all tasks for this habit
+      const habitTasksForHabit = habitTasks.filter(ht => ht.habitId === confirmDialogState.habitId)
+      habitTasksForHabit.forEach(ht => {
+        if (ht.completed) {
+          toggleTaskCompletion(ht.id)
+        }
+      })
+    }
+    setConfirmDialogState({ isOpen: false, type: null, habitId: null })
+  }
+
+  const handleTaskToggle = (taskId: string) => {
+    toggleTaskCompletion(taskId)
+  }
+
+  const handleAllTasksComplete = (habitId: string) => {
+    // Auto-complete the habit when all tasks are done
+    const isCompleted = habits.find(h => h.id === habitId)?.completedDates.includes(today())
+    if (!isCompleted) {
+      toggleHabitCompletion(habitId)
+    }
+    // Close the modal
+    setTaskCompletionHabitId(null)
   }
 
   const filteredHabits = habits
@@ -316,6 +401,7 @@ export function Habits() {
               <HabitList
                 habits={filteredHabits}
                 onHabitClick={handleHabitClick}
+                onCompletionClick={handleCompletionButtonClick}
               />
             )}
           </motion.div>
@@ -378,7 +464,7 @@ export function Habits() {
       {/* ── Bottom Nav ── */}
       <BottomNav />
 
-      {/* ── Habit Tasks Modal ── */}
+      {/* ── Habit Tasks Modal (for creating tasks) ── */}
       {selectedHabitId && (
         <HabitTasksModal
           isOpen={!!selectedHabitId}
@@ -390,6 +476,45 @@ export function Habits() {
           habitName={selectedHabitName}
         />
       )}
+
+      {/* ── Task Completion Modal ── */}
+      {taskCompletionHabitId && (
+        <HabitTaskCompletionModal
+          isOpen={!!taskCompletionHabitId}
+          onClose={() => setTaskCompletionHabitId(null)}
+          habitId={taskCompletionHabitId}
+          habitName={habits.find(h => h.id === taskCompletionHabitId)?.name || ''}
+          onTaskToggle={handleTaskToggle}
+          onAllTasksComplete={handleAllTasksComplete}
+        />
+      )}
+
+      {/* ── Confirmation Dialogs ── */}
+      {/* Incomplete Tasks Warning */}
+      <ConfirmDialog
+        isOpen={confirmDialogState.isOpen && confirmDialogState.type === 'incomplete-tasks'}
+        onClose={() => setConfirmDialogState({ isOpen: false, type: null, habitId: null })}
+        onConfirm={handleConfirmComplete}
+        title="Incomplete Tasks"
+        message={`"${confirmDialogState.habitName}" has ${confirmDialogState.incompleteTasks} task${confirmDialogState.incompleteTasks === 1 ? '' : 's'} remaining. Mark habit as complete anyway?`}
+        confirmText="Complete Anyway"
+        cancelText="Cancel"
+        variant="warning"
+        icon="warning"
+      />
+
+      {/* Start Fresh Warning */}
+      <ConfirmDialog
+        isOpen={confirmDialogState.isOpen && confirmDialogState.type === 'start-fresh'}
+        onClose={() => setConfirmDialogState({ isOpen: false, type: null, habitId: null })}
+        onConfirm={handleConfirmStartFresh}
+        title="Start Fresh?"
+        message={`"${confirmDialogState.habitName}" is already complete. Starting fresh will unmark the habit and reset all tasks. Continue?`}
+        confirmText="Start Fresh"
+        cancelText="Cancel"
+        variant="warning"
+        icon="restart_alt"
+      />
     </div>
   )
 }
@@ -452,9 +577,11 @@ function EmptyState({
 function HabitList({
   habits,
   onHabitClick,
+  onCompletionClick,
 }: {
   habits: Habit[]
   onHabitClick: (habit: Habit) => void
+  onCompletionClick: (e: React.MouseEvent, habit: Habit) => void
 }) {
   const { isHabitCompletedToday } = useHabitStore()
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
@@ -559,7 +686,11 @@ function HabitList({
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.04 }}
                     >
-                      <HabitCard habit={habit} onHabitClick={onHabitClick} />
+                      <HabitCard 
+                        habit={habit} 
+                        onHabitClick={onHabitClick}
+                        onCompletionClick={onCompletionClick}
+                      />
                     </motion.div>
                   ))}
                 </motion.div>
@@ -579,9 +710,11 @@ function HabitList({
 function HabitCard({
   habit,
   onHabitClick,
+  onCompletionClick,
 }: {
   habit: Habit
   onHabitClick: (habit: Habit) => void
+  onCompletionClick: (e: React.MouseEvent, habit: Habit) => void
 }) {
   const { isHabitCompletedToday } = useHabitStore()
   const { getTaskCount } = useHabitTaskStore()
@@ -678,7 +811,10 @@ function HabitCard({
         </div>
 
         {/* Progress ring / check */}
-        <div className="relative flex shrink-0 items-center justify-center">
+        <button
+          onClick={(e) => onCompletionClick(e, habit)}
+          className="relative flex shrink-0 items-center justify-center cursor-pointer transition-transform hover:scale-105 active:scale-95"
+        >
           <svg
             width={ringSize}
             height={ringSize}
@@ -741,7 +877,7 @@ function HabitCard({
               )}
             </AnimatePresence>
           </div>
-        </div>
+        </button>
       </div>
     </motion.div>
   )
