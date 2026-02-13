@@ -91,25 +91,18 @@ export function HabitTaskCompletionModal({
     })
   }
   
-  // Revert changes and close modal
+  // Close modal without saving changes
   const handleCancelClose = () => {
     // If we're saving, don't revert
     if (isSavingRef.current) {
-      console.log('⏭️  Skipping revert (saving mode)')
+      console.log('⏭️  Closing after save')
       onClose()
       return
     }
     
-    console.log('🚫 Cancel close - reverting changes')
-    // Revert all tasks to original states
-    originalTaskStates.current.forEach((originalState, taskId) => {
-      const currentState = draftTaskStates.get(taskId)
-      console.log(`Task ${taskId.slice(0,8)}: original=${originalState}, current=${currentState}`)
-      if (currentState !== originalState) {
-        console.log(`  ↩️  Reverting task ${taskId.slice(0,8)}`)
-        onTaskToggle(taskId)
-      }
-    })
+    console.log('🚫 Cancel close - discarding draft changes (will reload fresh on reopen)')
+    // Don't revert here - just close
+    // Next time modal opens, it will initialize from fresh database state
     onClose()
   }
   
