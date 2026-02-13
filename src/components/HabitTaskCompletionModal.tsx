@@ -10,6 +10,7 @@ interface HabitTaskCompletionModalProps {
   habitName: string
   onTaskToggle: (taskId: string) => void
   onAllTasksComplete: (habitId: string) => void
+  onTasksIncomplete: (habitId: string) => void
 }
 
 export function HabitTaskCompletionModal({
@@ -19,6 +20,7 @@ export function HabitTaskCompletionModal({
   habitName,
   onTaskToggle,
   onAllTasksComplete,
+  onTasksIncomplete,
 }: HabitTaskCompletionModalProps) {
   const { tasks } = useHabitTaskStore()
   const habitTasks = tasks.filter((t) => t.habitId === habitId)
@@ -191,7 +193,16 @@ export function HabitTaskCompletionModal({
               {/* Footer */}
               <div className="border-t border-gray-200 p-4 dark:border-gray-700">
                 <button
-                  onClick={onClose}
+                  onClick={() => {
+                    // If all tasks complete, mark habit as complete
+                    if (completedCount === totalCount && totalCount > 0) {
+                      onAllTasksComplete(habitId)
+                    } else if (completedCount < totalCount) {
+                      // Some tasks incomplete, unmark habit if it was complete
+                      onTasksIncomplete(habitId)
+                    }
+                    onClose()
+                  }}
                   className="w-full rounded-xl bg-gradient-to-r from-teal-500 to-teal-600 py-3 text-sm font-bold text-white shadow-lg shadow-teal-500/25 transition-all hover:shadow-xl active:scale-[0.98]"
                 >
                   Done

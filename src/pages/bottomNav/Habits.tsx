@@ -152,13 +152,19 @@ export function Habits() {
   }
 
   const handleAllTasksComplete = (habitId: string) => {
-    // Auto-complete the habit when all tasks are done
+    // Mark habit as complete when all tasks are done
     const isCompleted = habits.find(h => h.id === habitId)?.completedDates.includes(today())
     if (!isCompleted) {
       toggleHabitCompletion(habitId)
     }
-    // Close the modal
-    setTaskCompletionHabitId(null)
+  }
+  
+  const handleTasksIncomplete = (habitId: string) => {
+    // Unmark habit if tasks are incomplete
+    const isCompleted = habits.find(h => h.id === habitId)?.completedDates.includes(today())
+    if (isCompleted) {
+      toggleHabitCompletion(habitId)
+    }
   }
 
   const filteredHabits = habits
@@ -489,6 +495,7 @@ export function Habits() {
           habitName={habits.find(h => h.id === taskCompletionHabitId)?.name || 'Habit Tasks'}
           onTaskToggle={handleTaskToggle}
           onAllTasksComplete={handleAllTasksComplete}
+          onTasksIncomplete={handleTasksIncomplete}
         />
       )}
 
