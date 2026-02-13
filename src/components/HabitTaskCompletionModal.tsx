@@ -224,10 +224,11 @@ export function HabitTaskCompletionModal({
       )}
     </AnimatePresence>
 
-    {/* Warning Dialog */}
-    <ConfirmDialog
-      isOpen={showUnmarkWarning}
-      onClose={() => setShowUnmarkWarning(false)}
+    {/* Warning Dialog - Higher z-index than modal */}
+    <div style={{ zIndex: 9999 }}>
+      <ConfirmDialog
+        isOpen={showUnmarkWarning}
+        onClose={() => setShowUnmarkWarning(false)}
       onConfirm={() => {
         onTasksIncomplete(habitId)
         setShowUnmarkWarning(false)
@@ -239,7 +240,8 @@ export function HabitTaskCompletionModal({
       cancelText="Cancel"
       variant="warning"
       icon="warning"
-    />
+      />
+    </div>
   </>
   )
 }
