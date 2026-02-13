@@ -201,15 +201,15 @@ export function HabitTaskCompletionModal({
                   onClick={() => {
                     // Check if habit is complete but tasks are incomplete
                     if (isHabitCompleted && completedCount < totalCount) {
-                      // Show warning
+                      // Show warning before unmarking
                       setShowUnmarkWarning(true)
                     } else {
-                      // No warning needed
+                      // No warning needed - handle based on task completion
                       if (completedCount === totalCount && totalCount > 0) {
+                        // All tasks complete - mark habit as complete
                         onAllTasksComplete(habitId)
-                      } else if (completedCount < totalCount) {
-                        onTasksIncomplete(habitId)
                       }
+                      // Always close modal
                       onClose()
                     }
                   }}
