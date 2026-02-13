@@ -31,6 +31,7 @@ export function HabitTaskCompletionModal({
   const originalTaskStates = useRef<Map<string, boolean>>(new Map())
   const [draftTaskStates, setDraftTaskStates] = useState<Map<string, boolean>>(new Map())
   const isSavingRef = useRef(false) // Flag to prevent revert when saving
+  const prevIsOpenRef = useRef(false) // Track previous isOpen state
   const { tasks } = useHabitTaskStore()
   const habitTasks = useMemo(() => tasks.filter((t) => t.habitId === habitId), [tasks, habitId])
   
@@ -42,12 +43,16 @@ export function HabitTaskCompletionModal({
   const totalCount = habitTasks.length
   const progress = totalCount > 0 ? (completedCount / totalCount) * 100 : 0
 
-  // Initialize draft states when modal opens
+  // Initialize draft states when modal opens (only on open transition)
   useEffect(() => {
-    if (isOpen) {
-      // Small delay to ensure Zustand store has updated
+    const wasOpen = prevIsOpenRef.current
+    const isNowOpen = isOpen
+    
+    // Only initialize when transitioning from closed to open
+    if (!wasOpen && isNowOpen) {
+      // Delay to ensure Zustand store has updated
       const timeoutId = setTimeout(() => {
-        console.log('🔄 Initializing draft states from database')
+        console.log('🔄 Initializing draft states from database (fresh open)')
         const originalStates = new Map<string, boolean>()
         const draftStates = new Map<string, boolean>()
         
@@ -60,14 +65,19 @@ export function HabitTaskCompletionModal({
         originalTaskStates.current = originalStates
         setDraftTaskStates(draftStates)
         isSavingRef.current = false // Reset flag when opening
-      }, 50) // 50ms delay for store to update
+      }, 100) // 100ms delay for store to update
       
       return () => clearTimeout(timeoutId)
-    } else {
-      // Clear draft states when closing
+    }
+    
+    // Update prev ref
+    prevIsOpenRef.current = isOpen
+    
+    // Clear draft states when closing
+    if (!isNowOpen && wasOpen) {
       setDraftTaskStates(new Map())
     }
-  }, [isOpen, habitId, tasks])
+  }, [isOpen, habitId, tasks, habitTasks])
 
   // Handle task toggle in draft mode
   const handleTaskToggleDraft = (taskId: string) => {
