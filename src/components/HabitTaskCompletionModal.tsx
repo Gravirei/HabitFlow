@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useHabitTaskStore } from '@/store/useHabitTaskStore'
 import { ConfirmDialog } from '@/components/timer/settings/ConfirmDialog'
@@ -32,7 +32,7 @@ export function HabitTaskCompletionModal({
   const [draftTaskStates, setDraftTaskStates] = useState<Map<string, boolean>>(new Map())
   const isSavingRef = useRef(false) // Flag to prevent revert when saving
   const { tasks } = useHabitTaskStore()
-  const habitTasks = tasks.filter((t) => t.habitId === habitId)
+  const habitTasks = useMemo(() => tasks.filter((t) => t.habitId === habitId), [tasks, habitId])
   
   // Use draft states for display, fallback to actual task states
   const completedCount = habitTasks.filter((t) => {
@@ -45,10 +45,12 @@ export function HabitTaskCompletionModal({
   // Initialize draft states when modal opens
   useEffect(() => {
     if (isOpen) {
+      console.log('🔄 Initializing draft states from database')
       const originalStates = new Map<string, boolean>()
       const draftStates = new Map<string, boolean>()
       
       habitTasks.forEach(task => {
+        console.log(`  Task ${task.id.slice(0,8)}: ${task.completed}`)
         originalStates.set(task.id, task.completed)
         draftStates.set(task.id, task.completed)
       })
@@ -56,14 +58,19 @@ export function HabitTaskCompletionModal({
       originalTaskStates.current = originalStates
       setDraftTaskStates(draftStates)
       isSavingRef.current = false // Reset flag when opening
+    } else {
+      // Clear draft states when closing
+      setDraftTaskStates(new Map())
     }
   }, [isOpen, habitId])
 
   // Handle task toggle in draft mode
   const handleTaskToggleDraft = (taskId: string) => {
+    console.log(`🔘 Toggle task ${taskId.slice(0,8)}`)
     setDraftTaskStates(prev => {
       const newMap = new Map(prev)
       const currentState = newMap.get(taskId)
+      console.log(`  Current: ${currentState}, New: ${!currentState}`)
       newMap.set(taskId, !currentState)
       return newMap
     })
