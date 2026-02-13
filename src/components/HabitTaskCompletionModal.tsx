@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useHabitTaskStore } from '@/store/useHabitTaskStore'
 import { ConfirmDialog } from '@/components/timer/settings/ConfirmDialog'
@@ -26,13 +26,81 @@ export function HabitTaskCompletionModal({
   onTasksIncomplete,
 }: HabitTaskCompletionModalProps) {
   const [showUnmarkWarning, setShowUnmarkWarning] = useState(false)
+  
+  // Draft mode: Store original task states and local changes
+  const originalTaskStates = useRef<Map<string, boolean>>(new Map())
+  const [draftTaskStates, setDraftTaskStates] = useState<Map<string, boolean>>(new Map())
   const { tasks } = useHabitTaskStore()
   const habitTasks = tasks.filter((t) => t.habitId === habitId)
-  const completedCount = habitTasks.filter((t) => t.completed).length
+  
+  // Use draft states for display, fallback to actual task states
+  const completedCount = habitTasks.filter((t) => {
+    const draftState = draftTaskStates.get(t.id)
+    return draftState !== undefined ? draftState : t.completed
+  }).length
   const totalCount = habitTasks.length
   const progress = totalCount > 0 ? (completedCount / totalCount) * 100 : 0
 
-  // Removed auto-complete - user must click Done button manually
+  // Initialize draft states when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      const originalStates = new Map<string, boolean>()
+      const draftStates = new Map<string, boolean>()
+      
+      habitTasks.forEach(task => {
+        originalStates.set(task.id, task.completed)
+        draftStates.set(task.id, task.completed)
+      })
+      
+      originalTaskStates.current = originalStates
+      setDraftTaskStates(draftStates)
+    }
+  }, [isOpen, habitId])
+
+  // Handle task toggle in draft mode
+  const handleTaskToggleDraft = (taskId: string) => {
+    setDraftTaskStates(prev => {
+      const newMap = new Map(prev)
+      const currentState = newMap.get(taskId)
+      newMap.set(taskId, !currentState)
+      return newMap
+    })
+  }
+  
+  // Revert changes and close modal
+  const handleCancelClose = () => {
+    // Revert all tasks to original states
+    originalTaskStates.current.forEach((originalState, taskId) => {
+      const currentState = draftTaskStates.get(taskId)
+      if (currentState !== originalState) {
+        // Revert the task
+        onTaskToggle(taskId)
+      }
+    })
+    onClose()
+  }
+  
+  // Save changes and close modal
+  const handleDoneClick = () => {
+    // Persist all draft changes
+    draftTaskStates.forEach((draftState, taskId) => {
+      const originalState = originalTaskStates.current.get(taskId)
+      if (draftState !== originalState) {
+        // Apply the change
+        onTaskToggle(taskId)
+      }
+    })
+    
+    // Then handle habit completion logic
+    if (isHabitCompleted && completedCount < totalCount) {
+      setShowUnmarkWarning(true)
+    } else {
+      if (completedCount === totalCount && totalCount > 0) {
+        onAllTasksComplete(habitId)
+      }
+      onClose()
+    }
+  }
 
   if (!isOpen) return null
 
@@ -46,14 +114,14 @@ export function HabitTaskCompletionModal({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={onClose}
+            onClick={handleCancelClose}
             className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm"
           />
 
           {/* Modal */}
           <div 
             className="fixed inset-0 z-[101] flex items-end justify-center sm:items-center"
-            onClick={onClose}
+            onClick={handleCancelClose}
           >
             <motion.div
               initial={{ opacity: 0, y: 100, scale: 0.95 }}
@@ -71,7 +139,7 @@ export function HabitTaskCompletionModal({
                 <div className="relative z-10">
                   {/* Close button */}
                   <button
-                    onClick={onClose}
+                    onClick={handleCancelClose}
                     className="absolute right-0 top-0 flex size-8 items-center justify-center rounded-full text-white/80 transition-colors hover:bg-white/10 hover:text-white"
                   >
                     <span className="material-symbols-outlined text-xl">close</span>
@@ -124,7 +192,9 @@ export function HabitTaskCompletionModal({
                   </div>
                 ) : (
                   <div className="space-y-2">
-                    {habitTasks.map((task, index) => (
+                    {habitTasks.map((task, index) => {
+                      const isCompleted = draftTaskStates.get(task.id) ?? task.completed
+                      return (
                       <motion.div
                         key={task.id}
                         initial={{ opacity: 0, x: -20 }}
@@ -132,15 +202,15 @@ export function HabitTaskCompletionModal({
                         transition={{ delay: index * 0.05 }}
                       >
                         <button
-                          onClick={() => onTaskToggle(task.id)}
+                          onClick={() => handleTaskToggleDraft(task.id)}
                           className={clsx(
                             'group relative w-full overflow-hidden rounded-2xl p-4 text-left shadow-sm ring-1 transition-all duration-200',
-                            task.completed
+                            isCompleted
                               ? 'bg-teal-50 ring-teal-200/60 dark:bg-teal-950/20 dark:ring-teal-500/20'
                               : 'bg-gray-50 ring-gray-200/60 hover:bg-gray-100 dark:bg-gray-800/50 dark:ring-white/5 dark:hover:bg-gray-800'
                           )}
                         >
-                          {task.completed && (
+                          {isCompleted && (
                             <div className="pointer-events-none absolute -right-4 -top-4 h-16 w-16 rounded-full bg-teal-400/10 blur-xl" />
                           )}
 
@@ -149,13 +219,13 @@ export function HabitTaskCompletionModal({
                             <div
                               className={clsx(
                                 'relative h-6 w-11 shrink-0 rounded-full transition-colors duration-200',
-                                task.completed
+                                isCompleted
                                   ? 'bg-teal-500'
                                   : 'bg-gray-300 dark:bg-gray-600'
                               )}
                             >
                               <motion.div
-                                animate={{ x: task.completed ? 20 : 2 }}
+                                animate={{ x: isCompleted ? 20 : 2 }}
                                 transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                                 className="absolute top-1 h-4 w-4 rounded-full bg-white shadow-md"
                               />
@@ -165,7 +235,7 @@ export function HabitTaskCompletionModal({
                             <span
                               className={clsx(
                                 'flex-1 text-sm font-medium transition-colors',
-                                task.completed
+                                isCompleted
                                   ? 'text-teal-800 dark:text-teal-300'
                                   : 'text-gray-700 dark:text-gray-200'
                               )}
@@ -175,7 +245,7 @@ export function HabitTaskCompletionModal({
 
                             {/* Check icon */}
                             <AnimatePresence>
-                              {task.completed && (
+                              {isCompleted && (
                                 <motion.span
                                   initial={{ scale: 0 }}
                                   animate={{ scale: 1 }}
@@ -190,7 +260,8 @@ export function HabitTaskCompletionModal({
                           </div>
                         </button>
                       </motion.div>
-                    ))}
+                      )}
+                    )}
                   </div>
                 )}
               </div>
@@ -198,21 +269,7 @@ export function HabitTaskCompletionModal({
               {/* Footer */}
               <div className="border-t border-gray-200 p-4 dark:border-gray-700">
                 <button
-                  onClick={() => {
-                    // Check if habit is complete but tasks are incomplete
-                    if (isHabitCompleted && completedCount < totalCount) {
-                      // Show warning before unmarking
-                      setShowUnmarkWarning(true)
-                    } else {
-                      // No warning needed - handle based on task completion
-                      if (completedCount === totalCount && totalCount > 0) {
-                        // All tasks complete - mark habit as complete
-                        onAllTasksComplete(habitId)
-                      }
-                      // Always close modal
-                      onClose()
-                    }
-                  }}
+                  onClick={handleDoneClick}
                   className="w-full rounded-xl bg-gradient-to-r from-teal-500 to-teal-600 py-3 text-sm font-bold text-white shadow-lg shadow-teal-500/25 transition-all hover:shadow-xl active:scale-[0.98]"
                 >
                   Done
