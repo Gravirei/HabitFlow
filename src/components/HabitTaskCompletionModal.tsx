@@ -52,12 +52,10 @@ export function HabitTaskCompletionModal({
     if (!wasOpen && isNowOpen) {
       // Delay to ensure Zustand store has updated
       const timeoutId = setTimeout(() => {
-        console.log('🔄 Initializing draft states from database (fresh open)')
         const originalStates = new Map<string, boolean>()
         const draftStates = new Map<string, boolean>()
         
         habitTasks.forEach(task => {
-          console.log(`  Task ${task.id.slice(0,8)}: ${task.completed}`)
           originalStates.set(task.id, task.completed)
           draftStates.set(task.id, task.completed)
         })
@@ -81,11 +79,9 @@ export function HabitTaskCompletionModal({
 
   // Handle task toggle in draft mode
   const handleTaskToggleDraft = (taskId: string) => {
-    console.log(`🔘 Toggle task ${taskId.slice(0,8)}`)
     setDraftTaskStates(prev => {
       const newMap = new Map(prev)
       const currentState = newMap.get(taskId)
-      console.log(`  Current: ${currentState}, New: ${!currentState}`)
       newMap.set(taskId, !currentState)
       return newMap
     })
@@ -93,14 +89,12 @@ export function HabitTaskCompletionModal({
   
   // Close modal without saving changes
   const handleCancelClose = () => {
-    // If we're saving, don't revert
+    // If we're saving, skip revert logic
     if (isSavingRef.current) {
-      console.log('⏭️  Closing after save')
       onClose()
       return
     }
     
-    console.log('🚫 Cancel close - discarding draft changes (will reload fresh on reopen)')
     // Don't revert here - just close
     // Next time modal opens, it will initialize from fresh database state
     onClose()
@@ -108,14 +102,10 @@ export function HabitTaskCompletionModal({
   
   // Save changes and close modal
   const handleDoneClick = () => {
-    console.log('✅ Done clicked - persisting changes')
-    
     // Persist all draft changes
     draftTaskStates.forEach((draftState, taskId) => {
       const originalState = originalTaskStates.current.get(taskId)
-      console.log(`Task ${taskId.slice(0,8)}: original=${originalState}, draft=${draftState}`)
       if (draftState !== originalState) {
-        console.log(`  💾 Persisting task ${taskId.slice(0,8)}`)
         onTaskToggle(taskId)
       }
     })
