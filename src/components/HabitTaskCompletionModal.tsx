@@ -94,7 +94,6 @@ export function HabitTaskCompletionModal({
   // Save changes and close modal
   const handleDoneClick = () => {
     console.log('✅ Done clicked - persisting changes')
-    isSavingRef.current = true // Set flag to prevent revert
     
     // Persist all draft changes
     draftTaskStates.forEach((draftState, taskId) => {
@@ -113,8 +112,9 @@ export function HabitTaskCompletionModal({
       if (completedCount === totalCount && totalCount > 0) {
         onAllTasksComplete(habitId)
       }
-      // Close without reverting (flag is set)
-      handleCancelClose()
+      // Close directly - bypass cancel logic
+      isSavingRef.current = true
+      onClose()
     }
   }
 
@@ -303,7 +303,6 @@ export function HabitTaskCompletionModal({
         isOpen={showUnmarkWarning}
         onClose={() => setShowUnmarkWarning(false)}
       onConfirm={() => {
-        isSavingRef.current = true // Set flag
         // Persist the draft changes first
         draftTaskStates.forEach((draftState, taskId) => {
           const originalState = originalTaskStates.current.get(taskId)
@@ -314,7 +313,8 @@ export function HabitTaskCompletionModal({
         // Then unmark the habit
         onTasksIncomplete(habitId)
         setShowUnmarkWarning(false)
-        handleCancelClose()
+        isSavingRef.current = true
+        onClose()
       }}
       title="Unmark Habit as Complete?"
       message="This habit is already complete. Marking tasks as incomplete will unmark the habit. Do you want to continue?"
