@@ -54,7 +54,7 @@ function formatDate(): string {
 export function Habits() {
   const navigate = useNavigate()
   const { habits, toggleHabitCompletion } = useHabitStore()
-  const { getTaskCount, tasks: habitTasks, toggleTaskCompletion } = useHabitTaskStore()
+  const { getTaskCount, tasks: habitTasks, updateTask } = useHabitTaskStore()
 
   const [isFabOpen, setIsFabOpen] = useState(false)
   const [activeTab, setActiveTab] = useState<'daily' | 'weekly' | 'monthly'>('daily')
@@ -137,7 +137,7 @@ export function Habits() {
       const habitTasksForHabit = habitTasks.filter(ht => ht.habitId === confirmDialogState.habitId)
       habitTasksForHabit.forEach(ht => {
         if (ht.completed) {
-          toggleTaskCompletion(ht.id)
+          updateTask(ht.id, { completed: false })
         }
       })
     }
@@ -145,7 +145,10 @@ export function Habits() {
   }
 
   const handleTaskToggle = (taskId: string) => {
-    toggleTaskCompletion(taskId)
+    const task = habitTasks.find(t => t.id === taskId)
+    if (task) {
+      updateTask(taskId, { completed: !task.completed })
+    }
   }
 
   const handleAllTasksComplete = (habitId: string) => {
