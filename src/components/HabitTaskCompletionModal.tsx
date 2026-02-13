@@ -45,24 +45,29 @@ export function HabitTaskCompletionModal({
   // Initialize draft states when modal opens
   useEffect(() => {
     if (isOpen) {
-      console.log('🔄 Initializing draft states from database')
-      const originalStates = new Map<string, boolean>()
-      const draftStates = new Map<string, boolean>()
+      // Small delay to ensure Zustand store has updated
+      const timeoutId = setTimeout(() => {
+        console.log('🔄 Initializing draft states from database')
+        const originalStates = new Map<string, boolean>()
+        const draftStates = new Map<string, boolean>()
+        
+        habitTasks.forEach(task => {
+          console.log(`  Task ${task.id.slice(0,8)}: ${task.completed}`)
+          originalStates.set(task.id, task.completed)
+          draftStates.set(task.id, task.completed)
+        })
+        
+        originalTaskStates.current = originalStates
+        setDraftTaskStates(draftStates)
+        isSavingRef.current = false // Reset flag when opening
+      }, 50) // 50ms delay for store to update
       
-      habitTasks.forEach(task => {
-        console.log(`  Task ${task.id.slice(0,8)}: ${task.completed}`)
-        originalStates.set(task.id, task.completed)
-        draftStates.set(task.id, task.completed)
-      })
-      
-      originalTaskStates.current = originalStates
-      setDraftTaskStates(draftStates)
-      isSavingRef.current = false // Reset flag when opening
+      return () => clearTimeout(timeoutId)
     } else {
       // Clear draft states when closing
       setDraftTaskStates(new Map())
     }
-  }, [isOpen, habitId])
+  }, [isOpen, habitId, tasks])
 
   // Handle task toggle in draft mode
   const handleTaskToggleDraft = (taskId: string) => {
