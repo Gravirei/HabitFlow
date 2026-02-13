@@ -489,6 +489,7 @@ export function Habits() {
       {/* ── Task Completion Modal ── */}
       {taskCompletionHabitId && (
         <HabitTaskCompletionModal
+          key={`task-modal-${taskCompletionHabitId}-${Date.now()}`}
           isOpen={true}
           onClose={() => setTaskCompletionHabitId(null)}
           habitId={taskCompletionHabitId}
