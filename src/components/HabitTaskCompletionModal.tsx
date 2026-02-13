@@ -1,6 +1,7 @@
+import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useHabitTaskStore } from '@/store/useHabitTaskStore'
-import { useEffect } from 'react'
+import { ConfirmDialog } from '@/components/timer/settings/ConfirmDialog'
 import clsx from 'clsx'
 
 interface HabitTaskCompletionModalProps {
@@ -8,6 +9,7 @@ interface HabitTaskCompletionModalProps {
   onClose: () => void
   habitId: string
   habitName: string
+  isHabitCompleted: boolean
   onTaskToggle: (taskId: string) => void
   onAllTasksComplete: (habitId: string) => void
   onTasksIncomplete: (habitId: string) => void
@@ -18,10 +20,12 @@ export function HabitTaskCompletionModal({
   onClose,
   habitId,
   habitName,
+  isHabitCompleted,
   onTaskToggle,
   onAllTasksComplete,
   onTasksIncomplete,
 }: HabitTaskCompletionModalProps) {
+  const [showUnmarkWarning, setShowUnmarkWarning] = useState(false)
   const { tasks } = useHabitTaskStore()
   const habitTasks = tasks.filter((t) => t.habitId === habitId)
   const completedCount = habitTasks.filter((t) => t.completed).length
@@ -33,7 +37,8 @@ export function HabitTaskCompletionModal({
   if (!isOpen) return null
 
   return (
-    <AnimatePresence>
+    <>
+      <AnimatePresence>
       {isOpen && (
         <>
           {/* Backdrop */}
@@ -194,14 +199,19 @@ export function HabitTaskCompletionModal({
               <div className="border-t border-gray-200 p-4 dark:border-gray-700">
                 <button
                   onClick={() => {
-                    // If all tasks complete, mark habit as complete
-                    if (completedCount === totalCount && totalCount > 0) {
-                      onAllTasksComplete(habitId)
-                    } else if (completedCount < totalCount) {
-                      // Some tasks incomplete, unmark habit if it was complete
-                      onTasksIncomplete(habitId)
+                    // Check if habit is complete but tasks are incomplete
+                    if (isHabitCompleted && completedCount < totalCount) {
+                      // Show warning
+                      setShowUnmarkWarning(true)
+                    } else {
+                      // No warning needed
+                      if (completedCount === totalCount && totalCount > 0) {
+                        onAllTasksComplete(habitId)
+                      } else if (completedCount < totalCount) {
+                        onTasksIncomplete(habitId)
+                      }
+                      onClose()
                     }
-                    onClose()
                   }}
                   className="w-full rounded-xl bg-gradient-to-r from-teal-500 to-teal-600 py-3 text-sm font-bold text-white shadow-lg shadow-teal-500/25 transition-all hover:shadow-xl active:scale-[0.98]"
                 >
@@ -213,5 +223,23 @@ export function HabitTaskCompletionModal({
         </>
       )}
     </AnimatePresence>
+
+    {/* Warning Dialog */}
+    <ConfirmDialog
+      isOpen={showUnmarkWarning}
+      onClose={() => setShowUnmarkWarning(false)}
+      onConfirm={() => {
+        onTasksIncomplete(habitId)
+        setShowUnmarkWarning(false)
+        onClose()
+      }}
+      title="Unmark Habit as Complete?"
+      message="This habit is already complete. Marking tasks as incomplete will unmark the habit. Do you want to continue?"
+      confirmText="Yes, Unmark"
+      cancelText="Cancel"
+      variant="warning"
+      icon="warning"
+    />
+  </>
   )
 }

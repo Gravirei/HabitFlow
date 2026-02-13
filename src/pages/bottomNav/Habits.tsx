@@ -493,6 +493,7 @@ export function Habits() {
           onClose={() => setTaskCompletionHabitId(null)}
           habitId={taskCompletionHabitId}
           habitName={habits.find(h => h.id === taskCompletionHabitId)?.name || 'Habit Tasks'}
+          isHabitCompleted={habits.find(h => h.id === taskCompletionHabitId)?.completedDates.includes(today()) || false}
           onTaskToggle={handleTaskToggle}
           onAllTasksComplete={handleAllTasksComplete}
           onTasksIncomplete={handleTasksIncomplete}
