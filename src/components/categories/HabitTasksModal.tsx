@@ -158,7 +158,7 @@ export function HabitTasksModal({ isOpen, onClose, habitId, habitName, habitIcon
 
 
           {/* Content Area */}
-          <div className="relative flex-1 overflow-y-auto bg-slate-50 p-6 pb-24 dark:bg-slate-900/30">
+          <div className="flex-1 overflow-y-auto bg-slate-50 p-6 pb-24 dark:bg-slate-900/30">
             {/* Task List */}
             {tasks.length === 0 && !isAddingTask ? (
               <EmptyState onAddTask={() => setIsAddingTask(true)} />
@@ -197,46 +197,46 @@ export function HabitTasksModal({ isOpen, onClose, habitId, habitName, habitIcon
                 />
               )}
             </AnimatePresence>
-
-            {/* Floating Pill Button */}
-            <AnimatePresence>
-              {!isAddingTask && tasks.length > 0 && (
-                <motion.button
-                  type="button"
-                  onClick={() => setIsAddingTask(true)}
-                  initial={{ opacity: 0, y: 20, scale: 0.8 }}
-                  animate={{ 
-                    opacity: 1, 
-                    y: 0, 
-                    scale: 1,
-                  }}
-                  exit={{ opacity: 0, y: 20, scale: 0.8 }}
-                  transition={{
-                    type: 'spring',
-                    stiffness: 400,
-                    damping: 17,
-                    delay: 0.1
-                  }}
-                  whileHover={{ scale: 1.05, y: -2 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="group absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2 rounded-full bg-gradient-to-r from-teal-500 via-teal-600 to-emerald-600 px-6 py-3 text-sm font-semibold text-white shadow-xl shadow-teal-500/30 transition-shadow hover:shadow-2xl hover:shadow-teal-500/40"
-                >
-                  <motion.span 
-                    className="material-symbols-outlined text-lg"
-                    animate={{ rotate: [0, 90, 0] }}
-                    transition={{ 
-                      duration: 0.6,
-                      repeat: Infinity,
-                      repeatDelay: 3
-                    }}
-                  >
-                    add_circle
-                  </motion.span>
-                  <span>Add Task</span>
-                </motion.button>
-              )}
-            </AnimatePresence>
           </div>
+
+          {/* Floating Pill Button - Outside scrollable area */}
+          <AnimatePresence>
+            {!isAddingTask && tasks.length > 0 && (
+              <motion.button
+                type="button"
+                onClick={() => setIsAddingTask(true)}
+                initial={{ opacity: 0, y: 20, scale: 0.8 }}
+                animate={{ 
+                  opacity: 1, 
+                  y: 0, 
+                  scale: 1,
+                }}
+                exit={{ opacity: 0, y: 20, scale: 0.8 }}
+                transition={{
+                  type: 'spring',
+                  stiffness: 400,
+                  damping: 17,
+                  delay: 0.1
+                }}
+                whileHover={{ scale: 1.05, y: -2 }}
+                whileTap={{ scale: 0.95 }}
+                className="group absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2 rounded-full bg-gradient-to-r from-teal-500 via-teal-600 to-emerald-600 px-6 py-3 text-sm font-semibold text-white shadow-xl shadow-teal-500/30 transition-shadow hover:shadow-2xl hover:shadow-teal-500/40"
+              >
+                <motion.span 
+                  className="material-symbols-outlined text-lg"
+                  animate={{ rotate: [0, 90, 0] }}
+                  transition={{ 
+                    duration: 0.6,
+                    repeat: Infinity,
+                    repeatDelay: 3
+                  }}
+                >
+                  add_circle
+                </motion.span>
+                <span>Add Task</span>
+              </motion.button>
+            )}
+          </AnimatePresence>
         </motion.div>
       </div>
     </AnimatePresence>
