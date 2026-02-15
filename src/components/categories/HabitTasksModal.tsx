@@ -20,6 +20,7 @@ export function HabitTasksModal({ isOpen, onClose, habitId, habitName, habitIcon
   const [isAddingTask, setIsAddingTask] = useState(false)
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null)
   const [deletingTaskId, setDeletingTaskId] = useState<string | null>(null)
+  const [showDuplicateConfirm, setShowDuplicateConfirm] = useState(false)
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -70,6 +71,16 @@ export function HabitTasksModal({ isOpen, onClose, habitId, habitName, habitIcon
     
     if (!formData.title.trim()) return
 
+    // Check for duplicate when adding new task (not editing)
+    if (!editingTaskId && hasDuplicateName) {
+      setShowDuplicateConfirm(true)
+      return
+    }
+
+    proceedWithSubmit()
+  }
+
+  const proceedWithSubmit = () => {
     if (editingTaskId) {
       updateTask(editingTaskId, {
         title: formData.title.trim(),
@@ -92,6 +103,7 @@ export function HabitTasksModal({ isOpen, onClose, habitId, habitName, habitIcon
     
     resetForm()
     setIsAddingTask(false)
+    setShowDuplicateConfirm(false)
   }
 
   const handleEdit = (task: HabitTask) => {
@@ -270,6 +282,62 @@ export function HabitTasksModal({ isOpen, onClose, habitId, habitName, habitIcon
                 </motion.span>
                 <span>Add Task</span>
               </motion.button>
+            )}
+          </AnimatePresence>
+
+          {/* Duplicate Name Confirmation Modal */}
+          <AnimatePresence>
+            {showDuplicateConfirm && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 z-20 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+                onClick={() => setShowDuplicateConfirm(false)}
+              >
+                <motion.div
+                  initial={{ scale: 0.9, y: 20 }}
+                  animate={{ scale: 1, y: 0 }}
+                  exit={{ scale: 0.9, y: 20 }}
+                  onClick={(e) => e.stopPropagation()}
+                  className="mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl dark:bg-slate-800"
+                >
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-500/20">
+                      <span className="material-symbols-outlined text-2xl text-amber-600 dark:text-amber-400">
+                        warning
+                      </span>
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+                        Duplicate Task Name
+                      </h3>
+                      <p className="text-sm text-slate-500 dark:text-slate-400">
+                        This name is already in use
+                      </p>
+                    </div>
+                  </div>
+
+                  <p className="mb-4 text-sm text-slate-600 dark:text-slate-400">
+                    A task with the name "<span className="font-medium text-slate-900 dark:text-white">{formData.title}</span>" already exists. Are you sure you want to create another task with the same name?
+                  </p>
+
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => setShowDuplicateConfirm(false)}
+                      className="flex-1 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={proceedWithSubmit}
+                      className="flex-1 rounded-lg bg-amber-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-amber-700"
+                    >
+                      Create Anyway
+                    </button>
+                  </div>
+                </motion.div>
+              </motion.div>
             )}
           </AnimatePresence>
 
