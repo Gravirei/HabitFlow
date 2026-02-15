@@ -33,6 +33,19 @@ export function HabitTasksModal({ isOpen, onClose, habitId, habitName, habitIcon
   // Total task count
   const totalTasks = tasks.length
 
+  // Check for duplicate task name
+  const hasDuplicateName = useMemo(() => {
+    if (!formData.title.trim()) return false
+    
+    return tasks.some(task => {
+      // If editing, exclude current task from duplicate check
+      if (editingTaskId && task.id === editingTaskId) return false
+      
+      // Case-insensitive comparison
+      return task.title.toLowerCase().trim() === formData.title.toLowerCase().trim()
+    })
+  }, [formData.title, tasks, editingTaskId])
+
   useEffect(() => {
     if (!isOpen) {
       setIsAddingTask(false)
@@ -212,6 +225,7 @@ export function HabitTasksModal({ isOpen, onClose, habitId, habitName, habitIcon
                       onAddTag={handleAddTag}
                       onRemoveTag={handleRemoveTag}
                       hasExistingTasks={tasks.length > 0}
+                      hasDuplicateName={hasDuplicateName}
                     />
                     </motion.div>
                   )}
@@ -471,6 +485,7 @@ interface TaskFormProps {
   onAddTag: () => void
   onRemoveTag: (tag: string) => void
   hasExistingTasks: boolean
+  hasDuplicateName: boolean
 }
 
 function TaskForm({
@@ -484,6 +499,7 @@ function TaskForm({
   onAddTag,
   onRemoveTag,
   hasExistingTasks,
+  hasDuplicateName,
 }: TaskFormProps) {
   return (
     <motion.form
@@ -512,9 +528,34 @@ function TaskForm({
           value={formData.title}
           onChange={(e) => setFormData({ ...formData, title: e.target.value })}
           placeholder="e.g., Read 10 pages"
-          className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 transition-colors focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 dark:border-slate-600 dark:bg-slate-700 dark:text-white dark:placeholder-slate-500 dark:focus:border-teal-400"
+          className={clsx(
+            "w-full rounded-lg border bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 transition-colors focus:outline-none focus:ring-2 dark:bg-slate-700 dark:text-white dark:placeholder-slate-500",
+            hasDuplicateName
+              ? "border-amber-300 focus:border-amber-500 focus:ring-amber-500/20 dark:border-amber-500/50 dark:focus:border-amber-400"
+              : "border-slate-300 focus:border-teal-500 focus:ring-teal-500/20 dark:border-slate-600 dark:focus:border-teal-400"
+          )}
           autoFocus
         />
+        
+        {/* Duplicate Name Warning */}
+        <AnimatePresence>
+          {hasDuplicateName && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+              className="mt-2 flex items-start gap-2 rounded-lg bg-amber-50 px-3 py-2 dark:bg-amber-500/10"
+            >
+              <span className="material-symbols-outlined text-base text-amber-600 dark:text-amber-400">
+                warning
+              </span>
+              <p className="text-xs text-amber-700 dark:text-amber-300">
+                A task with this name already exists. Consider using a different name.
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Description */}
