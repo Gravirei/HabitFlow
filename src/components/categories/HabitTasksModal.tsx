@@ -220,7 +220,7 @@ export function HabitTasksModal({ isOpen, onClose, habitId, habitName, habitIcon
                 }}
                 whileHover={{ scale: 1.05, y: -2 }}
                 whileTap={{ scale: 0.95 }}
-                className="group absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2 rounded-full bg-gradient-to-r from-teal-500 via-teal-600 to-emerald-600 px-6 py-3 text-sm font-semibold text-white shadow-xl shadow-teal-500/30 transition-shadow hover:shadow-2xl hover:shadow-teal-500/40"
+                className="group absolute bottom-6 left-0 right-0 z-10 mx-auto w-fit flex items-center gap-2 rounded-full bg-gradient-to-r from-teal-500 via-teal-600 to-emerald-600 px-6 py-3 text-sm font-semibold text-white shadow-xl shadow-teal-500/30 transition-shadow hover:shadow-2xl hover:shadow-teal-500/40"
               >
                 <motion.span 
                   className="material-symbols-outlined text-lg"
