@@ -199,18 +199,25 @@ export function HabitTasksModal({ isOpen, onClose, habitId, habitName, habitIcon
             </AnimatePresence>
           </div>
 
-          {/* Footer - Fixed Add Button */}
+          {/* Footer - Floating Add Button */}
           {!isAddingTask && (
-            <div className="border-t border-slate-200 bg-white px-6 py-4 dark:border-slate-700 dark:bg-slate-900">
+            <div className="relative border-t border-slate-200/50 bg-gradient-to-b from-white/80 to-white px-6 py-5 backdrop-blur-sm dark:border-slate-700/50 dark:from-slate-900/80 dark:to-slate-900">
               <motion.button
                 type="button"
                 onClick={() => setIsAddingTask(true)}
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.99 }}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teal-500 to-teal-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition-shadow hover:shadow-md"
+                whileHover={{ scale: 1.02, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+                className="group flex w-full items-center justify-center gap-2.5 rounded-xl bg-gradient-to-r from-teal-500 via-teal-600 to-emerald-600 px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-teal-500/25 transition-all hover:shadow-xl hover:shadow-teal-500/40 dark:shadow-teal-500/20 dark:hover:shadow-teal-500/30"
               >
-                <span className="material-symbols-outlined text-lg">add</span>
-                Add Task
+                <motion.span 
+                  className="material-symbols-outlined text-xl"
+                  whileHover={{ rotate: 90 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  add_circle
+                </motion.span>
+                <span className="tracking-wide">Add New Task</span>
+                <span className="ml-1 opacity-0 transition-opacity group-hover:opacity-100">→</span>
               </motion.button>
             </div>
           )}
