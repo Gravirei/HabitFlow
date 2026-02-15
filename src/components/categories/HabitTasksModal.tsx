@@ -164,15 +164,17 @@ export function HabitTasksModal({ isOpen, onClose, habitId, habitName, habitIcon
               <EmptyState onAddTask={() => setIsAddingTask(true)} />
             ) : (
               <div className="space-y-2">
-                {tasks.map((task, index) => (
-                  <TaskCard
-                    key={task.id}
-                    task={task}
-                    index={index}
-                    onEdit={() => handleEdit(task)}
-                    onDelete={() => handleDelete(task.id)}
-                  />
-                ))}
+                <AnimatePresence mode="popLayout">
+                  {tasks.map((task, index) => (
+                    <TaskCard
+                      key={task.id}
+                      task={task}
+                      index={index}
+                      onEdit={() => handleEdit(task)}
+                      onDelete={() => handleDelete(task.id)}
+                    />
+                  ))}
+                </AnimatePresence>
               </div>
             )}
 
@@ -306,7 +308,12 @@ function TaskCard({ task, index, onEdit, onDelete }: TaskCardProps) {
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.03 }}
+      exit={{ opacity: 0, x: -20, height: 0, marginBottom: 0 }}
+      transition={{ 
+        duration: 0.3,
+        ease: "easeInOut"
+      }}
+      layout
       className="group relative overflow-hidden rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-slate-700 dark:bg-slate-800"
     >
       {/* Priority Indicator */}
