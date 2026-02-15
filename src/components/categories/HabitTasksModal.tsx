@@ -165,17 +165,8 @@ export function HabitTasksModal({ isOpen, onClose, habitId, habitName, habitIcon
                 <EmptyState onAddTask={() => setIsAddingTask(true)} />
               </div>
             ) : (
-              /* Single Animated Container - slides up when form opens */
-              <motion.div
-                animate={isAddingTask ? { y: -100 } : { y: 0 }}
-                transition={{ 
-                  type: 'spring', 
-                  stiffness: 200, 
-                  damping: 25,
-                  mass: 1
-                }}
-                className="p-6 pb-24"
-              >
+              /* Container without slide animation */
+              <div className="p-6 pb-24">
                 {/* Task List */}
                 <div className="space-y-2 mb-6">
                   <AnimatePresence mode="popLayout">
@@ -219,7 +210,7 @@ export function HabitTasksModal({ isOpen, onClose, habitId, habitName, habitIcon
                     </motion.div>
                   )}
                 </AnimatePresence>
-              </motion.div>
+              </div>
             )}
           </div>
 
