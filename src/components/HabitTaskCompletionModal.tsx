@@ -102,18 +102,19 @@ export function HabitTaskCompletionModal({
   
   // Save changes and close modal
   const handleDoneClick = () => {
-    // Persist all draft changes
-    draftTaskStates.forEach((draftState, taskId) => {
-      const originalState = originalTaskStates.current.get(taskId)
-      if (draftState !== originalState) {
-        onTaskToggle(taskId)
-      }
-    })
-    
-    // Then handle habit completion logic
+    // Check if we need to show warning BEFORE persisting changes
     if (isHabitCompleted && completedCount < totalCount) {
+      // Show warning without persisting yet
       setShowUnmarkWarning(true)
     } else {
+      // No warning needed - persist changes and close
+      draftTaskStates.forEach((draftState, taskId) => {
+        const originalState = originalTaskStates.current.get(taskId)
+        if (draftState !== originalState) {
+          onTaskToggle(taskId)
+        }
+      })
+      
       if (completedCount === totalCount && totalCount > 0) {
         onAllTasksComplete(habitId)
       }

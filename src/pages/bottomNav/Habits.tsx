@@ -1,4 +1,5 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
 import { useHabitStore } from '@/store/useHabitStore'
 import { useHabitTaskStore } from '@/store/useHabitTaskStore'
@@ -65,10 +66,10 @@ export function Habits() {
   // Habit Tasks Modal (for creating tasks)
   const [selectedHabitId, setSelectedHabitId] = useState<string | null>(null)
   const [selectedHabitName, setSelectedHabitName] = useState('')
-  
+
   // Task Completion Modal (for completing tasks)
   const [taskCompletionHabitId, setTaskCompletionHabitId] = useState<string | null>(null)
-  
+
   // Confirmation dialogs
   const [confirmDialogState, setConfirmDialogState] = useState<{
     isOpen: boolean
@@ -89,22 +90,22 @@ export function Habits() {
 
   const handleCompletionButtonClick = (e: React.MouseEvent, habit: Habit) => {
     e.stopPropagation() // Prevent card click
-    
+
     const isCompleted = habit.completedDates.includes(today())
-    
+
     if (isCompleted) {
       // Scenario C: Already completed - warn before resetting
       setConfirmDialogState({
         isOpen: true,
         type: 'start-fresh',
         habitId: habit.id,
-        habitName: habit.name
+        habitName: habit.name,
       })
     } else {
       // Check if has incomplete tasks
-      const habitTasksForHabit = habitTasks.filter(ht => ht.habitId === habit.id)
-      const incompleteTasks = habitTasksForHabit.filter(ht => !ht.completed).length
-      
+      const habitTasksForHabit = habitTasks.filter((ht) => ht.habitId === habit.id)
+      const incompleteTasks = habitTasksForHabit.filter((ht) => !ht.completed).length
+
       if (incompleteTasks > 0) {
         // Scenario A: Has incomplete tasks - warn
         setConfirmDialogState({
@@ -112,7 +113,7 @@ export function Habits() {
           type: 'incomplete-tasks',
           habitId: habit.id,
           habitName: habit.name,
-          incompleteTasks
+          incompleteTasks,
         })
       } else {
         // Scenario B: No incomplete tasks - normal toggle
@@ -132,10 +133,12 @@ export function Habits() {
     if (confirmDialogState.habitId) {
       // Unmark habit
       toggleHabitCompletion(confirmDialogState.habitId)
-      
+
       // Unmark all tasks for this habit
-      const habitTasksForHabit = habitTasks.filter(ht => ht.habitId === confirmDialogState.habitId)
-      habitTasksForHabit.forEach(ht => {
+      const habitTasksForHabit = habitTasks.filter(
+        (ht) => ht.habitId === confirmDialogState.habitId
+      )
+      habitTasksForHabit.forEach((ht) => {
         if (ht.completed) {
           updateTask(ht.id, { completed: false })
         }
@@ -145,7 +148,7 @@ export function Habits() {
   }
 
   const handleTaskToggle = (taskId: string) => {
-    const task = habitTasks.find(t => t.id === taskId)
+    const task = habitTasks.find((t) => t.id === taskId)
     if (task) {
       updateTask(taskId, { completed: !task.completed })
     }
@@ -153,15 +156,15 @@ export function Habits() {
 
   const handleAllTasksComplete = (habitId: string) => {
     // Mark habit as complete when all tasks are done
-    const isCompleted = habits.find(h => h.id === habitId)?.completedDates.includes(today())
+    const isCompleted = habits.find((h) => h.id === habitId)?.completedDates.includes(today())
     if (!isCompleted) {
       toggleHabitCompletion(habitId)
     }
   }
-  
+
   const handleTasksIncomplete = (habitId: string) => {
     // Unmark habit if tasks are incomplete
-    const isCompleted = habits.find(h => h.id === habitId)?.completedDates.includes(today())
+    const isCompleted = habits.find((h) => h.id === habitId)?.completedDates.includes(today())
     if (isCompleted) {
       toggleHabitCompletion(habitId)
     }
@@ -179,19 +182,19 @@ export function Habits() {
   ]
 
   // Stats - Tab-based progress (contextual to active tab)
-  const completedToday = habits.filter((h) =>
-    h.completedDates.includes(today()) &&
-    h.frequency === activeTab &&
-    h.isActive === true &&
-    h.categoryId !== undefined
+  const completedToday = habits.filter(
+    (h) =>
+      h.completedDates.includes(today()) &&
+      h.frequency === activeTab &&
+      h.isActive === true &&
+      h.categoryId !== undefined
   ).length
-  const totalActiveTabHabits = habits.filter((h) => 
-    h.frequency === activeTab && 
-    h.isActive === true &&
-    h.categoryId !== undefined
+  const totalActiveTabHabits = habits.filter(
+    (h) => h.frequency === activeTab && h.isActive === true && h.categoryId !== undefined
   ).length
   const bestStreak = Math.max(...habits.map((h) => h.bestStreak), 0)
-  const completionPct = totalActiveTabHabits > 0 ? Math.round((completedToday / totalActiveTabHabits) * 100) : 0
+  const completionPct =
+    totalActiveTabHabits > 0 ? Math.round((completedToday / totalActiveTabHabits) * 100) : 0
 
   // 7-day heatmap
   const last7 = useMemo(() => getLast7Days(), [])
@@ -203,7 +206,7 @@ export function Habits() {
   }, [last7, habits])
 
   return (
-    <div className="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden bg-gray-50 dark:bg-gray-950 font-display">
+    <div className="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden bg-gray-50 font-display dark:bg-gray-950">
       {/* ── Header ── */}
       <header className="sticky top-0 z-30 shrink-0">
         {/* Gradient backdrop */}
@@ -280,9 +283,7 @@ export function Habits() {
             <p className="text-xs font-medium uppercase tracking-widest text-white/50">
               {formatDate()}
             </p>
-            <h1 className="mt-1 text-2xl font-bold tracking-tight text-white">
-              {getGreeting()}
-            </h1>
+            <h1 className="mt-1 text-2xl font-bold tracking-tight text-white">{getGreeting()}</h1>
 
             {/* Progress capsule */}
             <div className="mt-4 flex items-center gap-4">
@@ -290,13 +291,17 @@ export function Habits() {
               <div className="relative flex size-14 shrink-0 items-center justify-center">
                 <svg className="absolute inset-0 -rotate-90" viewBox="0 0 56 56">
                   <circle
-                    cx="28" cy="28" r="24"
+                    cx="28"
+                    cy="28"
+                    r="24"
                     stroke="rgba(255,255,255,0.15)"
                     strokeWidth="4"
                     fill="none"
                   />
                   <motion.circle
-                    cx="28" cy="28" r="24"
+                    cx="28"
+                    cy="28"
+                    r="24"
                     stroke="white"
                     strokeWidth="4"
                     fill="none"
@@ -314,7 +319,9 @@ export function Habits() {
                   {completedToday}/{totalActiveTabHabits} completed
                 </p>
                 <p className="mt-0.5 text-xs text-white/60">
-                  {bestStreak > 0 ? `Best streak: ${bestStreak} days` : 'Start building your streak!'}
+                  {bestStreak > 0
+                    ? `Best streak: ${bestStreak} days`
+                    : 'Start building your streak!'}
                 </p>
               </div>
 
@@ -342,14 +349,13 @@ export function Habits() {
                     className={clsx(
                       'flex size-8 items-center justify-center rounded-lg text-[10px] font-semibold transition-all',
                       isToday && 'ring-2 ring-white/40',
-                      day.count > 0
-                        ? 'text-white'
-                        : 'text-white/30'
+                      day.count > 0 ? 'text-white' : 'text-white/30'
                     )}
                     style={{
-                      backgroundColor: day.count > 0
-                        ? `rgba(255,255,255,${0.1 + intensity * 0.25})`
-                        : 'rgba(255,255,255,0.05)',
+                      backgroundColor:
+                        day.count > 0
+                          ? `rgba(255,255,255,${0.1 + intensity * 0.25})`
+                          : 'rgba(255,255,255,0.05)',
                     }}
                   >
                     {day.count > 0 ? day.count : '·'}
@@ -391,7 +397,7 @@ export function Habits() {
       </div>
 
       {/* ── Main Content ── */}
-      <main className="flex-1 overflow-y-auto no-scrollbar px-5 pb-32">
+      <main className="no-scrollbar mx-auto w-full max-w-7xl flex-1 overflow-y-auto px-4 pb-32">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
@@ -423,9 +429,27 @@ export function Habits() {
           {isFabOpen && (
             <>
               {[
-                { label: 'Monthly', icon: 'calendar_month', freq: 'monthly', color: 'from-blue-500 to-blue-600', delay: 0.1 },
-                { label: 'Weekly', icon: 'date_range', freq: 'weekly', color: 'from-purple-500 to-purple-600', delay: 0.05 },
-                { label: 'Daily', icon: 'today', freq: 'daily', color: 'from-teal-500 to-teal-600', delay: 0 },
+                {
+                  label: 'Monthly',
+                  icon: 'calendar_month',
+                  freq: 'monthly',
+                  color: 'from-blue-500 to-blue-600',
+                  delay: 0.1,
+                },
+                {
+                  label: 'Weekly',
+                  icon: 'date_range',
+                  freq: 'weekly',
+                  color: 'from-purple-500 to-purple-600',
+                  delay: 0.05,
+                },
+                {
+                  label: 'Daily',
+                  icon: 'today',
+                  freq: 'daily',
+                  color: 'from-teal-500 to-teal-600',
+                  delay: 0,
+                },
               ].map((item) => (
                 <motion.button
                   key={item.freq}
@@ -436,10 +460,12 @@ export function Habits() {
                   onClick={() => navigate(`/new-habit?frequency=${item.freq}`)}
                   className="flex cursor-pointer items-center gap-3 rounded-2xl border border-gray-100 bg-white py-2.5 pl-3 pr-5 shadow-xl dark:border-white/10 dark:bg-gray-800"
                 >
-                  <div className={clsx(
-                    'flex size-9 items-center justify-center rounded-xl bg-gradient-to-br text-white shadow-md',
-                    item.color
-                  )}>
+                  <div
+                    className={clsx(
+                      'flex size-9 items-center justify-center rounded-xl bg-gradient-to-br text-white shadow-md',
+                      item.color
+                    )}
+                  >
                     <span className="material-symbols-outlined text-lg">{item.icon}</span>
                   </div>
                   <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">
@@ -489,12 +515,15 @@ export function Habits() {
       {/* ── Task Completion Modal ── */}
       {taskCompletionHabitId && (
         <HabitTaskCompletionModal
-          key={`task-modal-${taskCompletionHabitId}-${Date.now()}`}
+          key={`task-modal-${taskCompletionHabitId}`}
           isOpen={true}
           onClose={() => setTaskCompletionHabitId(null)}
           habitId={taskCompletionHabitId}
-          habitName={habits.find(h => h.id === taskCompletionHabitId)?.name || 'Habit Tasks'}
-          isHabitCompleted={habits.find(h => h.id === taskCompletionHabitId)?.completedDates.includes(today()) || false}
+          habitName={habits.find((h) => h.id === taskCompletionHabitId)?.name || 'Habit Tasks'}
+          isHabitCompleted={
+            habits.find((h) => h.id === taskCompletionHabitId)?.completedDates.includes(today()) ||
+            false
+          }
           onTaskToggle={handleTaskToggle}
           onAllTasksComplete={handleAllTasksComplete}
           onTasksIncomplete={handleTasksIncomplete}
@@ -599,22 +628,62 @@ function HabitList({
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
     new Set(['health', 'work', 'personal', 'other'])
   )
+  const [categorySettingsOpen, setCategorySettingsOpen] = useState<string | null>(null)
+  const [universalEditEnabled, setUniversalEditEnabled] = useState(() => {
+    const saved = localStorage.getItem('universalEditEnabled')
+    return saved ? JSON.parse(saved) : false
+  })
+  const [individualEditEnabled, setIndividualEditEnabled] = useState(() => {
+    const saved = localStorage.getItem('individualEditEnabled')
+    return saved ? JSON.parse(saved) : false
+  })
+  const settingsButtonRef = useRef<HTMLButtonElement>(null)
+  const [settingsMenuPosition, setSettingsMenuPosition] = useState({
+    top: 0,
+    left: 0,
+    right: 'auto' as string | number,
+  })
 
-  const habitsByCategory = habits.reduce((acc, habit) => {
-    const category = habit.category || 'other'
-    if (!acc[category]) acc[category] = []
-    acc[category].push(habit)
-    return acc
-  }, {} as Record<string, Habit[]>)
+  // Persist universal edit state
+  useEffect(() => {
+    localStorage.setItem('universalEditEnabled', JSON.stringify(universalEditEnabled))
+  }, [universalEditEnabled])
+
+  // Persist individual edit state
+  useEffect(() => {
+    localStorage.setItem('individualEditEnabled', JSON.stringify(individualEditEnabled))
+  }, [individualEditEnabled])
+
+  const habitsByCategory = habits.reduce(
+    (acc, habit) => {
+      const category = habit.category || 'other'
+      if (!acc[category]) acc[category] = []
+      acc[category].push(habit)
+      return acc
+    },
+    {} as Record<string, Habit[]>
+  )
 
   const getCategoryInfo = (category: string) => {
     switch (category) {
       case 'health':
-        return { name: 'Health & Wellness', icon: 'favorite', gradient: 'from-teal-500 to-emerald-600' }
+        return {
+          name: 'Health & Wellness',
+          icon: 'favorite',
+          gradient: 'from-teal-500 to-emerald-600',
+        }
       case 'work':
-        return { name: 'Work & Productivity', icon: 'work', gradient: 'from-blue-500 to-indigo-600' }
+        return {
+          name: 'Work & Productivity',
+          icon: 'work',
+          gradient: 'from-blue-500 to-indigo-600',
+        }
       case 'personal':
-        return { name: 'Personal Growth', icon: 'emoji_events', gradient: 'from-purple-500 to-violet-600' }
+        return {
+          name: 'Personal Growth',
+          icon: 'emoji_events',
+          gradient: 'from-purple-500 to-violet-600',
+        }
       default:
         return { name: 'Other Habits', icon: 'star', gradient: 'from-gray-500 to-gray-600' }
     }
@@ -625,6 +694,42 @@ function HabitList({
     if (next.has(category)) next.delete(category)
     else next.add(category)
     setExpandedCategories(next)
+  }
+
+  const calculateSettingsMenuPosition = () => {
+    if (!settingsButtonRef.current) return
+
+    const buttonRect = settingsButtonRef.current.getBoundingClientRect()
+    const menuWidth = 300 // Wider for toggle switches
+    const menuHeight = 150 // Approximate height
+    const spacing = 4
+
+    const viewportWidth = window.innerWidth
+    const viewportHeight = window.innerHeight
+
+    let top = buttonRect.bottom + spacing
+    let left: number | 'auto' = buttonRect.right - menuWidth // Align menu's right edge to button's right edge
+    let right: number | 'auto' = 'auto'
+
+    // Vertical positioning
+    if (top + menuHeight > viewportHeight) {
+      top = buttonRect.top - spacing - menuHeight
+      if (top < spacing) {
+        top = spacing
+      }
+    }
+
+    // Horizontal positioning - Check if menu overflows left edge
+    if (left < spacing) {
+      left = spacing
+    }
+
+    // Check if menu overflows right edge
+    if (left + menuWidth > viewportWidth - spacing) {
+      left = viewportWidth - menuWidth - spacing
+    }
+
+    setSettingsMenuPosition({ top, left, right })
   }
 
   return (
@@ -658,25 +763,64 @@ function HabitList({
                 </p>
               </div>
 
-              {/* Mini progress dots */}
-              <div className="flex items-center gap-1 pr-1">
-                {categoryHabits.map((h) => (
-                  <div
-                    key={h.id}
-                    className={clsx(
-                      'size-2 rounded-full transition-colors',
-                      isHabitCompletedToday(h.id)
-                        ? 'bg-teal-500'
-                        : 'bg-gray-300 dark:bg-gray-600'
-                    )}
-                  />
-                ))}
+              {/* Right side icons - Simple approach: all icons together */}
+              <div className="flex items-center gap-2">
+                {/* Mini progress dots */}
+                <div className="flex items-center gap-1 pr-1">
+                  {categoryHabits.map((h) => (
+                    <div
+                      key={h.id}
+                      className={clsx(
+                        'size-2 rounded-full transition-colors',
+                        isHabitCompletedToday(h.id) ? 'bg-teal-500' : 'bg-gray-300 dark:bg-gray-600'
+                      )}
+                    />
+                  ))}
+                </div>
+
+                {/* Settings icon */}
+                <motion.button
+                  ref={settingsButtonRef}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    if (categorySettingsOpen !== category) {
+                      calculateSettingsMenuPosition()
+                      setCategorySettingsOpen(category)
+                    } else {
+                      setCategorySettingsOpen(null)
+                    }
+                  }}
+                  whileHover={{ rotate: 90, scale: 1.1 }}
+                  whileTap={{ rotate: 180, scale: 0.95 }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                  className="flex size-8 shrink-0 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-300"
+                >
+                  <span className="material-symbols-outlined text-[18px]">settings</span>
+                </motion.button>
+
+                {/* 3-dot menu - Always in DOM, width/opacity animated */}
+                <motion.button
+                  animate={{
+                    width: universalEditEnabled ? 32 : 0,
+                    opacity: universalEditEnabled ? 1 : 0,
+                    scale: universalEditEnabled ? 1 : 0.8,
+                  }}
+                  transition={{ duration: 0.3, ease: 'easeInOut' }}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    if (universalEditEnabled) {
+                      // TODO: Category menu functionality
+                    }
+                  }}
+                  className="flex size-8 shrink-0 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-300 overflow-hidden"
+                  style={{ pointerEvents: universalEditEnabled ? 'auto' : 'none' }}
+                >
+                  <span className="material-symbols-outlined text-[18px] whitespace-nowrap">more_vert</span>
+                </motion.button>
               </div>
 
-              <motion.div
-                animate={{ rotate: isExpanded ? 180 : 0 }}
-                transition={{ duration: 0.2 }}
-              >
+              {/* Expand arrow */}
+              <motion.div animate={{ rotate: isExpanded ? 180 : 0 }} transition={{ duration: 0.2 }}>
                 <span className="material-symbols-outlined text-xl text-gray-400">expand_more</span>
               </motion.div>
             </motion.button>
@@ -698,10 +842,11 @@ function HabitList({
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.04 }}
                     >
-                      <HabitCard 
-                        habit={habit} 
+                      <HabitCard
+                        habit={habit}
                         onHabitClick={onHabitClick}
                         onCompletionClick={onCompletionClick}
+                        showEditIcon={individualEditEnabled}
                       />
                     </motion.div>
                   ))}
@@ -711,6 +856,102 @@ function HabitList({
           </div>
         )
       })}
+
+      {/* Category Settings Menu Portal */}
+      {categorySettingsOpen &&
+        createPortal(
+          <>
+            {/* Backdrop */}
+            <div
+              className="fixed inset-0 z-[9998]"
+              onClick={(e) => {
+                e.stopPropagation()
+                setCategorySettingsOpen(null)
+              }}
+            />
+
+            {/* Settings Menu */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: -10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: -10 }}
+              transition={{ duration: 0.15 }}
+              style={{
+                position: 'fixed',
+                top: `${settingsMenuPosition.top}px`,
+                left:
+                  settingsMenuPosition.left === 'auto' ? 'auto' : `${settingsMenuPosition.left}px`,
+                right:
+                  settingsMenuPosition.right === 'auto'
+                    ? 'auto'
+                    : `${settingsMenuPosition.right}px`,
+                zIndex: 9999,
+              }}
+              className="w-[300px] overflow-hidden rounded-2xl bg-white shadow-xl ring-1 ring-gray-200/60 dark:bg-gray-800 dark:ring-white/10"
+            >
+              <div className="space-y-4 p-5">
+                {/* Universal Edit Toggle */}
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                      Universal Edit
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      Edit all habits at once
+                    </p>
+                  </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setUniversalEditEnabled(!universalEditEnabled)
+                    }}
+                    className={clsx(
+                      'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none',
+                      universalEditEnabled ? 'bg-teal-500' : 'bg-gray-200 dark:bg-gray-600'
+                    )}
+                  >
+                    <span
+                      className={clsx(
+                        'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out',
+                        universalEditEnabled ? 'translate-x-5' : 'translate-x-0'
+                      )}
+                    />
+                  </button>
+                </div>
+
+                {/* Individual Edit Toggle */}
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                      Individual Edit
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      Edit habits separately
+                    </p>
+                  </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setIndividualEditEnabled(!individualEditEnabled)
+                    }}
+                    className={clsx(
+                      'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none',
+                      individualEditEnabled ? 'bg-teal-500' : 'bg-gray-200 dark:bg-gray-600'
+                    )}
+                  >
+                    <span
+                      className={clsx(
+                        'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out',
+                        individualEditEnabled ? 'translate-x-5' : 'translate-x-0'
+                      )}
+                    />
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </>,
+          document.body
+        )}
     </div>
   )
 }
@@ -723,15 +964,78 @@ function HabitCard({
   habit,
   onHabitClick,
   onCompletionClick,
+  showEditIcon = false,
 }: {
   habit: Habit
   onHabitClick: (habit: Habit) => void
   onCompletionClick: (e: React.MouseEvent, habit: Habit) => void
+  showEditIcon?: boolean
 }) {
   const { isHabitCompletedToday } = useHabitStore()
-  const { getTaskCount } = useHabitTaskStore()
+  const { getTaskCount, getTasksByHabitId } = useHabitTaskStore()
   const completed = isHabitCompletedToday(habit.id)
   const taskCount = getTaskCount(habit.id)
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const menuButtonRef = useRef<HTMLButtonElement>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
+  const [menuPosition, setMenuPosition] = useState({
+    top: 0,
+    left: 0,
+    right: 'auto' as string | number,
+  })
+
+  // Smart menu positioning to avoid viewport overflow
+  const calculateMenuPosition = () => {
+    if (!menuButtonRef.current) return
+
+    const buttonRect = menuButtonRef.current.getBoundingClientRect()
+    const menuWidth = 192 // w-48 = 12rem = 192px
+    // Calculate actual menu height more accurately
+    // py-2 container = 0.5rem top + 0.5rem bottom = 8px top + 8px bottom = 16px
+    // Each item: py-2.5 (0.625rem = 10px top + 10px bottom) + text/icon ≈ 22px content = 42px total
+    // Dividers: my-2 = 0.5rem top + 0.5rem bottom = 8px, border = 1px, total ≈ 17px each
+    const containerPadding = 16 // py-2
+    const itemHeight = 42 // Each menu item
+    const numItems = taskCount > 0 ? 7 : 6 // 7 items if has tasks, 6 otherwise
+    const dividerHeight = 17 // Each divider with margins
+    const numDividers = 2
+    const menuHeight = containerPadding + itemHeight * numItems + dividerHeight * numDividers
+    const spacing = 4 // Gap between button and menu
+
+    const viewportWidth = window.innerWidth
+    const viewportHeight = window.innerHeight
+
+    let top = buttonRect.bottom + spacing
+    let left: number | 'auto' = 'auto'
+    let right: number | 'auto' = viewportWidth - buttonRect.right
+
+    // Vertical positioning: Check if menu overflows bottom
+    if (top + menuHeight > viewportHeight) {
+      // Position above button - bottom of menu should be 4px above top of button
+      // Menu top = button top - gap - menu height
+      top = buttonRect.top - spacing - menuHeight
+
+      // If still overflows top, align to viewport top with margin
+      if (top < spacing) {
+        top = spacing
+      }
+    }
+
+    // Horizontal positioning: Check if menu overflows right edge
+    const rightEdge = viewportWidth - (typeof right === 'number' ? right : 0)
+    if (rightEdge + menuWidth > viewportWidth) {
+      // Switch to left-aligned
+      left = buttonRect.left
+      right = 'auto'
+
+      // If still overflows left, clamp to left edge
+      if (left < spacing) {
+        left = spacing
+      }
+    }
+
+    setMenuPosition({ top, left, right })
+  }
 
   const getIconGradient = (iconName: string) => {
     const map: Record<string, string> = {
@@ -748,34 +1052,47 @@ function HabitCard({
     return map[iconName] || 'from-gray-400 to-gray-500'
   }
 
+  // Calculate progress based on tasks or habit completion
+  const calculateProgress = () => {
+    if (taskCount === 0) {
+      // No tasks: binary completion (0 or 1)
+      return completed ? 1 : 0
+    } else {
+      // Has tasks: show task completion progress
+      const tasks = getTasksByHabitId(habit.id)
+      const completedTasks = tasks.filter((t) => t.completed).length
+      const taskProgress = completedTasks / taskCount
+
+      // If habit is completed, also factor that in (give it full credit)
+      return completed ? 1 : taskProgress
+    }
+  }
+
   // Progress ring values
   const ringSize = 44
   const strokeWidth = 3.5
   const radius = (ringSize - strokeWidth) / 2
   const circumference = 2 * Math.PI * radius
-  const progress = completed ? 1 : 0
+  const progress = calculateProgress()
 
   return (
     <motion.div
       whileTap={{ scale: 0.98 }}
       className={clsx(
-        'group relative overflow-hidden rounded-2xl p-4 shadow-sm ring-1 transition-all duration-200 cursor-pointer',
+        'group relative cursor-pointer rounded-2xl p-4 transition-all duration-200',
         completed
-          ? 'bg-gradient-to-r from-teal-50 to-emerald-50/50 ring-teal-200/60 dark:from-teal-950/30 dark:to-emerald-950/20 dark:ring-teal-500/20'
-          : 'bg-white ring-gray-200/60 hover:shadow-md dark:bg-gray-800/60 dark:ring-white/5'
+          ? 'bg-gradient-to-r from-teal-50 to-emerald-50/50 dark:from-teal-950/30 dark:to-emerald-950/20'
+          : 'bg-white dark:bg-gray-800/60'
       )}
       onClick={() => onHabitClick(habit)}
     >
-      {/* Completed shimmer */}
-      {completed && (
-        <div className="pointer-events-none absolute -right-6 -top-6 h-20 w-20 rounded-full bg-teal-400/10 blur-2xl" />
-      )}
+      {/* Completed shimmer - removed to prevent visual artifacts */}
 
-      <div className="relative z-10 flex items-center gap-3.5">
+      <div className="relative z-0 flex items-center gap-3.5">
         {/* Icon badge */}
         <div
           className={clsx(
-            'flex size-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br shadow-md transition-transform group-hover:scale-105',
+            'flex size-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br transition-transform group-hover:scale-105',
             getIconGradient(habit.icon)
           )}
         >
@@ -788,9 +1105,7 @@ function HabitCard({
             <h5
               className={clsx(
                 'truncate text-sm font-bold transition-colors',
-                completed
-                  ? 'text-teal-800 dark:text-teal-300'
-                  : 'text-gray-800 dark:text-white'
+                completed ? 'text-teal-800 dark:text-teal-300' : 'text-gray-800 dark:text-white'
               )}
             >
               {habit.name}
@@ -811,7 +1126,9 @@ function HabitCard({
 
           <div className="mt-0.5 flex items-center gap-2">
             <p className="truncate text-xs text-gray-500 dark:text-gray-400">
-              {habit.goal > 1 ? `${habit.goal} ${habit.goalPeriod}` : habit.description || habit.goalPeriod}
+              {habit.goal > 1
+                ? `${habit.goal} ${habit.goalPeriod}`
+                : habit.description || habit.goalPeriod}
             </p>
             {taskCount > 0 && (
               <span className="flex shrink-0 items-center gap-0.5 text-[10px] font-medium text-gray-400 dark:text-gray-500">
@@ -823,9 +1140,13 @@ function HabitCard({
         </div>
 
         {/* Progress ring / check */}
-        <button
+        <motion.button
           onClick={(e) => onCompletionClick(e, habit)}
-          className="relative flex shrink-0 items-center justify-center cursor-pointer transition-transform hover:scale-105 active:scale-95"
+          className="relative flex shrink-0 cursor-pointer items-center justify-center transition-transform hover:scale-105 active:scale-95"
+          animate={{
+            marginRight: showEditIcon ? 8 : 0,
+            transition: { duration: 0.35, ease: [0.4, 0, 0.2, 1] },
+          }}
         >
           <svg
             width={ringSize}
@@ -889,8 +1210,169 @@ function HabitCard({
               )}
             </AnimatePresence>
           </div>
-        </button>
+        </motion.button>
+
+        {/* 3-dot menu - Always in DOM, width/opacity animated */}
+        <motion.button
+          ref={menuButtonRef}
+          animate={{
+            width: showEditIcon ? 32 : 0,
+            opacity: showEditIcon ? 1 : 0,
+            scale: showEditIcon ? 1 : 0.8,
+          }}
+          transition={{ duration: 0.3, ease: 'easeInOut' }}
+          onClick={(e) => {
+            e.stopPropagation()
+            if (showEditIcon && !isMenuOpen) {
+              calculateMenuPosition()
+            }
+            if (showEditIcon) {
+              setIsMenuOpen(!isMenuOpen)
+            }
+          }}
+          className="flex size-8 shrink-0 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-300 overflow-hidden"
+          style={{ pointerEvents: showEditIcon ? 'auto' : 'none' }}
+        >
+          <span className="material-symbols-outlined text-[18px] whitespace-nowrap">more_vert</span>
+        </motion.button>
       </div>
+
+      {/* Dropdown menu - rendered via Portal */}
+      {isMenuOpen &&
+        createPortal(
+          <>
+            {/* Backdrop to close menu */}
+            <div
+              className="fixed inset-0 z-[9998]"
+              onClick={(e) => {
+                e.stopPropagation()
+                setIsMenuOpen(false)
+              }}
+            />
+
+            {/* Menu dropdown */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: -10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: -10 }}
+              transition={{ duration: 0.15 }}
+              style={{
+                position: 'fixed',
+                top: `${menuPosition.top}px`,
+                left: menuPosition.left === 'auto' ? 'auto' : `${menuPosition.left}px`,
+                right: menuPosition.right === 'auto' ? 'auto' : `${menuPosition.right}px`,
+                zIndex: 9999,
+              }}
+              className="w-48 overflow-hidden rounded-2xl bg-white shadow-xl ring-1 ring-gray-200/60 dark:bg-gray-800 dark:ring-white/10"
+            >
+              {/* Menu items */}
+              <div className="py-2">
+                {/* View Details */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    // TODO: Navigate to habit details
+                  }}
+                  className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm text-gray-700 transition-colors hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700/50"
+                >
+                  <span className="material-symbols-outlined text-[18px] text-blue-500">
+                    visibility
+                  </span>
+                  <span>View Details</span>
+                </button>
+
+                {/* Edit */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    // TODO: Navigate to edit habit
+                  }}
+                  className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm text-gray-700 transition-colors hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700/50"
+                >
+                  <span className="material-symbols-outlined text-[18px] text-teal-500">edit</span>
+                  <span>Edit Habit</span>
+                </button>
+
+                {/* Manage Tasks */}
+                {taskCount > 0 && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      // TODO: Open manage tasks modal
+                    }}
+                    className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm text-gray-700 transition-colors hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700/50"
+                  >
+                    <span className="material-symbols-outlined text-[18px] text-purple-500">
+                      task_alt
+                    </span>
+                    <span>Manage Tasks</span>
+                  </button>
+                )}
+
+                {/* Add Note */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    // TODO: Add note functionality
+                  }}
+                  className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm text-gray-700 transition-colors hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700/50"
+                >
+                  <span className="material-symbols-outlined text-[18px] text-amber-500">
+                    note_add
+                  </span>
+                  <span>Add Note</span>
+                </button>
+
+                {/* Divider */}
+                <div className="my-2 border-t border-gray-200 dark:border-gray-700" />
+
+                {/* Pin/Unpin */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    // TODO: Pin/unpin habit
+                  }}
+                  className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm text-gray-700 transition-colors hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700/50"
+                >
+                  <span className="material-symbols-outlined text-[18px] text-orange-500">
+                    push_pin
+                  </span>
+                  <span>Pin Habit</span>
+                </button>
+
+                {/* Archive */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    // TODO: Archive habit
+                  }}
+                  className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm text-gray-700 transition-colors hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700/50"
+                >
+                  <span className="material-symbols-outlined text-[18px] text-gray-500">
+                    archive
+                  </span>
+                  <span>Archive</span>
+                </button>
+
+                {/* Divider */}
+                <div className="my-2 border-t border-gray-200 dark:border-gray-700" />
+
+                {/* Delete */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    // TODO: Delete habit with confirmation
+                  }}
+                  className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-500/10"
+                >
+                  <span className="material-symbols-outlined text-[18px]">delete</span>
+                  <span>Delete Habit</span>
+                </button>
+              </div>
+            </motion.div>
+          </>,
+          document.body
+        )}
     </motion.div>
   )
 }
