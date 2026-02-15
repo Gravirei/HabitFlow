@@ -19,6 +19,7 @@ export function HabitTasksModal({ isOpen, onClose, habitId, habitName, habitIcon
 
   const [isAddingTask, setIsAddingTask] = useState(false)
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null)
+  const [deletingTaskId, setDeletingTaskId] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -93,8 +94,12 @@ export function HabitTasksModal({ isOpen, onClose, habitId, habitName, habitIcon
   }
 
   const handleDelete = (taskId: string) => {
-    if (confirm('Are you sure you want to delete this task?')) {
-      deleteTask(taskId)
+    deleteTask(taskId)
+  }
+
+  const confirmDelete = () => {
+    if (deletingTaskId) {
+      handleDelete(deletingTaskId)
     }
   }
 
@@ -176,7 +181,7 @@ export function HabitTasksModal({ isOpen, onClose, habitId, habitName, habitIcon
                         task={task}
                         index={index}
                         onEdit={() => handleEdit(task)}
-                        onDelete={() => handleDelete(task.id)}
+                        onDelete={() => setDeletingTaskId(task.id)}
                       />
                     ))}
                   </AnimatePresence>
@@ -250,6 +255,58 @@ export function HabitTasksModal({ isOpen, onClose, habitId, habitName, habitIcon
                 </motion.span>
                 <span>Add Task</span>
               </motion.button>
+            )}
+          </AnimatePresence>
+
+          {/* Delete Confirmation Modal */}
+          <AnimatePresence>
+            {deletingTaskId && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 z-20 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+                onClick={() => setDeletingTaskId(null)}
+              >
+                <motion.div
+                  initial={{ scale: 0.9, y: 20 }}
+                  animate={{ scale: 1, y: 0 }}
+                  exit={{ scale: 0.9, y: 20 }}
+                  onClick={(e) => e.stopPropagation()}
+                  className="mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl dark:bg-slate-800"
+                >
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-100 dark:bg-red-500/20">
+                      <span className="material-symbols-outlined text-2xl text-red-600 dark:text-red-400">
+                        warning
+                      </span>
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+                        Delete Task?
+                      </h3>
+                      <p className="text-sm text-slate-500 dark:text-slate-400">
+                        This action cannot be undone
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => setDeletingTaskId(null)}
+                      className="flex-1 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={confirmDelete}
+                      className="flex-1 rounded-lg bg-red-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-red-700"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </motion.div>
+              </motion.div>
             )}
           </AnimatePresence>
         </motion.div>
