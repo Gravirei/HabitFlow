@@ -195,10 +195,10 @@ export function HabitTasksModal({ isOpen, onClose, habitId, habitName, habitIcon
                 <AnimatePresence mode="wait">
                   {isAddingTask && (
                     <motion.div
-                      initial={{ opacity: 0, y: 20 }}
+                      initial={{ opacity: 0, y: 30 }}
                       animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 20 }}
-                      transition={{ duration: 0.4, ease: "easeInOut" }}
+                      exit={{ opacity: 0, y: 30 }}
+                      transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
                     >
                       <TaskForm
                       formData={formData}
