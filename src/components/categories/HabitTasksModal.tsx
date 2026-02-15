@@ -170,9 +170,9 @@ export function HabitTasksModal({ isOpen, onClose, habitId, habitName, habitIcon
                 animate={isAddingTask ? { y: -100 } : { y: 0 }}
                 transition={{ 
                   type: 'spring', 
-                  stiffness: 300, 
-                  damping: 30,
-                  mass: 0.8
+                  stiffness: 200, 
+                  damping: 25,
+                  mass: 1
                 }}
                 className="p-6 pb-24"
               >
@@ -192,9 +192,15 @@ export function HabitTasksModal({ isOpen, onClose, habitId, habitName, habitIcon
                 </div>
 
                 {/* Add/Edit Task Form */}
-                <AnimatePresence>
+                <AnimatePresence mode="wait">
                   {isAddingTask && (
-                    <TaskForm
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 20 }}
+                      transition={{ duration: 0.4, ease: "easeInOut" }}
+                    >
+                      <TaskForm
                       formData={formData}
                       setFormData={setFormData}
                       tagInput={tagInput}
@@ -210,6 +216,7 @@ export function HabitTasksModal({ isOpen, onClose, habitId, habitName, habitIcon
                       onRemoveTag={handleRemoveTag}
                       hasExistingTasks={tasks.length > 0}
                     />
+                    </motion.div>
                   )}
                 </AnimatePresence>
               </motion.div>
