@@ -200,7 +200,7 @@ export function HabitTasksModal({ isOpen, onClose, habitId, habitName, habitIcon
           </div>
 
           {/* Footer - Floating Add Button */}
-          {!isAddingTask && (
+          {!isAddingTask && tasks.length > 0 && (
             <div className="relative border-t border-slate-200/50 bg-gradient-to-b from-white/80 to-white px-6 py-5 backdrop-blur-sm dark:border-slate-700/50 dark:from-slate-900/80 dark:to-slate-900">
               <motion.button
                 type="button"
