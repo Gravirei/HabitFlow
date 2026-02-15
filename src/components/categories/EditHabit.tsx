@@ -6,6 +6,16 @@ import toast from 'react-hot-toast'
 import { useHabitStore } from '@/store/useHabitStore'
 import { IconPicker } from './IconPicker'
 
+// Predefined icon colors with gradients
+const iconColorOptions = [
+  { name: 'Blue', gradient: 'from-blue-500 to-cyan-500', textColor: 'text-blue-500' },
+  { name: 'Purple', gradient: 'from-purple-500 to-pink-500', textColor: 'text-purple-500' },
+  { name: 'Green', gradient: 'from-emerald-500 to-teal-500', textColor: 'text-emerald-500' },
+  { name: 'Orange', gradient: 'from-orange-500 to-amber-500', textColor: 'text-orange-500' },
+  { name: 'Red', gradient: 'from-red-500 to-rose-500', textColor: 'text-red-500' },
+  { name: 'Teal', gradient: 'from-teal-500 to-cyan-500', textColor: 'text-teal-500' },
+]
+
 interface EditHabitProps {
   isOpen: boolean
   onClose: () => void
@@ -34,9 +44,11 @@ export function EditHabit({ isOpen, onClose, habitId }: EditHabitProps) {
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [icon, setIcon] = useState('check_circle')
+  const [iconColorIndex, setIconColorIndex] = useState(0)
   const [frequency, setFrequency] = useState<FrequencyType>('daily')
   const [goal, setGoal] = useState('1')
   const [goalPeriod, setGoalPeriod] = useState<GoalPeriodType>('day')
+  const [showIconPicker, setShowIconPicker] = useState(false)
 
   const [error, setError] = useState<string | undefined>(undefined)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -49,9 +61,11 @@ export function EditHabit({ isOpen, onClose, habitId }: EditHabitProps) {
     setName(habit.name)
     setDescription(habit.description || '')
     setIcon(habit.icon)
+    setIconColorIndex(habit.iconColor ?? 0)
     setFrequency(habit.frequency)
     setGoal(habit.goal.toString())
     setGoalPeriod(habit.goalPeriod)
+    setShowIconPicker(false)
     setError(undefined)
     setIsSubmitting(false)
     
@@ -83,6 +97,7 @@ export function EditHabit({ isOpen, onClose, habitId }: EditHabitProps) {
         name: trimmedName,
         description: description.trim() || undefined,
         icon,
+        iconColor: iconColorIndex,
         frequency,
         goal: goalNumber,
         goalPeriod,
@@ -137,113 +152,239 @@ export function EditHabit({ isOpen, onClose, habitId }: EditHabitProps) {
               </div>
 
               {/* Form */}
-              <form onSubmit={handleSubmit} className="max-h-[70vh] overflow-y-auto p-6 sm:max-h-[80vh]">
-                <div className="space-y-6">
-                  {/* Habit Name */}
-                  <div>
-                    <label htmlFor="habit-name" className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
-                      Habit Name <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      ref={inputRef}
-                      id="habit-name"
-                      type="text"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder="e.g., Morning workout"
-                      className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder-slate-400 transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-500"
-                      maxLength={50}
-                    />
-                  </div>
-
-                  {/* Description */}
-                  <div>
-                    <label htmlFor="habit-description" className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
-                      Description <span className="text-slate-400">(Optional)</span>
-                    </label>
-                    <textarea
-                      id="habit-description"
-                      value={description}
-                      onChange={(e) => setDescription(e.target.value)}
-                      placeholder="Add details about your habit..."
-                      rows={3}
-                      className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder-slate-400 transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-500"
-                      maxLength={200}
-                    />
-                  </div>
-
-                  {/* Icon Picker */}
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
-                      Icon
-                    </label>
-                    <IconPicker selectedIcon={icon} onSelectIcon={setIcon} />
-                  </div>
-
-                  {/* Frequency */}
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
-                      Frequency
-                    </label>
-                    <div className="grid grid-cols-3 gap-3">
-                      {frequencyOptions.map((option) => (
-                        <button
-                          key={option.value}
-                          type="button"
-                          onClick={() => setFrequency(option.value)}
-                          className={clsx(
-                            'flex flex-col items-center gap-2 rounded-xl border-2 p-3 transition-all',
-                            frequency === option.value
-                              ? 'border-primary bg-primary/5 text-primary dark:bg-primary/10'
-                              : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:border-slate-600'
-                          )}
-                        >
-                          <span className="material-symbols-outlined text-2xl">{option.icon}</span>
-                          <span className="text-xs font-semibold">{option.label}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Goal */}
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
-                      Goal
-                    </label>
-                    <div className="flex items-center gap-3">
-                      <input
-                        type="number"
-                        value={goal}
-                        onChange={(e) => setGoal(e.target.value)}
-                        min="1"
-                        max="999"
-                        className="w-24 rounded-xl border border-slate-300 bg-white px-4 py-3 text-center text-slate-900 transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-slate-600 dark:bg-slate-800 dark:text-white"
-                      />
-                      <span className="text-slate-600 dark:text-slate-400">times</span>
-                      <select
-                        value={goalPeriod}
-                        onChange={(e) => setGoalPeriod(e.target.value as GoalPeriodType)}
-                        className="flex-1 rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-slate-600 dark:bg-slate-800 dark:text-white"
-                      >
-                        {goalPeriodOptions.map((option) => (
-                          <option key={option.value} value={option.value}>
-                            {option.label}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-
-                  {/* Error Message */}
-                  {error && (
+              <form onSubmit={handleSubmit} className="max-h-[70vh] overflow-y-auto p-6 space-y-5 sm:max-h-[80vh] custom-scrollbar">
+                {/* Icon Preview Section */}
+                <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100/50 p-6 dark:from-slate-800/50 dark:to-slate-900/50">
+                  <div className="flex items-center gap-4">
+                    {/* Large Icon Preview */}
                     <motion.div
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="rounded-xl bg-red-50 p-4 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400"
+                      key={`${icon}-${iconColorIndex}`}
+                      initial={{ scale: 0.8, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                      className={clsx(
+                        'flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br shadow-lg',
+                        iconColorOptions[iconColorIndex].gradient
+                      )}
                     >
-                      {error}
+                      <span className="material-symbols-outlined text-3xl text-white">{icon}</span>
                     </motion.div>
-                  )}
+
+                    {/* Preview Info */}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Preview</p>
+                      <h3 className="truncate text-lg font-bold text-slate-900 dark:text-white">
+                        {name || 'Your Habit Name'}
+                      </h3>
+                      <p className="truncate text-xs text-slate-600 dark:text-slate-400">
+                        {description || 'Add a description...'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Habit Name */}
+                <div>
+                  <label htmlFor="habit-name" className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                    Habit Name *
+                  </label>
+                  <input
+                    ref={inputRef}
+                    id="habit-name"
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="e.g., Morning Exercise"
+                    maxLength={100}
+                    disabled={isSubmitting}
+                    className={clsx(
+                      'w-full rounded-xl border bg-white px-4 py-3 text-sm transition-all focus:outline-none focus:ring-2 dark:bg-slate-800 dark:text-white',
+                      error
+                        ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20'
+                        : 'border-slate-200 focus:border-primary focus:ring-primary/20 dark:border-white/10'
+                    )}
+                  />
+                  {error && <p className="mt-1.5 text-xs text-red-500">{error}</p>}
+                </div>
+
+                {/* Description */}
+                <div>
+                  <label htmlFor="habit-description" className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                    Description (Optional)
+                  </label>
+                  <textarea
+                    id="habit-description"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder="Why is this important to you?"
+                    rows={2}
+                    maxLength={200}
+                    disabled={isSubmitting}
+                    className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm transition-all focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-slate-800 dark:text-white resize-none"
+                  />
+                  <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
+                    {description.length}/200 characters
+                  </p>
+                </div>
+
+                {/* Icon Selection */}
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                    Icon & Color
+                  </label>
+                  
+                  {/* Icon & Color Grid */}
+                  <div className="space-y-3">
+                    {/* Icon Selector Button */}
+                    <button
+                      type="button"
+                      onClick={() => setShowIconPicker(!showIconPicker)}
+                      className="group w-full rounded-xl border-2 border-dashed border-slate-200 bg-white p-4 transition-all hover:border-primary hover:bg-primary/5 dark:border-white/10 dark:bg-slate-800 dark:hover:border-primary dark:hover:bg-primary/10"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className={clsx(
+                            'flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br',
+                            iconColorOptions[iconColorIndex].gradient
+                          )}>
+                            <span className="material-symbols-outlined text-xl text-white">{icon}</span>
+                          </div>
+                          <div className="text-left">
+                            <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                              {icon.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
+                            </p>
+                            <p className="text-xs text-slate-500 dark:text-slate-400">
+                              Click to change icon
+                            </p>
+                          </div>
+                        </div>
+                        <span className={clsx(
+                          'material-symbols-outlined text-slate-400 transition-transform group-hover:text-primary',
+                          showIconPicker && 'rotate-180'
+                        )}>
+                          expand_more
+                        </span>
+                      </div>
+                    </button>
+
+                    {/* Icon Picker Dropdown */}
+                    <AnimatePresence>
+                      {showIconPicker && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="overflow-hidden"
+                        >
+                          <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-slate-800/50">
+                            <IconPicker 
+                              value={icon} 
+                              onChange={(newIcon) => {
+                                setIcon(newIcon)
+                                setShowIconPicker(false)
+                              }} 
+                            />
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+
+                    {/* Color Selector */}
+                    <div>
+                      <p className="mb-2 text-xs font-medium text-slate-600 dark:text-slate-400">
+                        Choose Color
+                      </p>
+                      <div className="grid grid-cols-6 gap-2">
+                        {iconColorOptions.map((color, index) => (
+                          <button
+                            key={color.name}
+                            type="button"
+                            onClick={() => setIconColorIndex(index)}
+                            className={clsx(
+                              'group relative h-10 rounded-lg bg-gradient-to-br transition-all',
+                              color.gradient,
+                              iconColorIndex === index
+                                ? 'ring-2 ring-offset-2 ring-slate-900 dark:ring-white dark:ring-offset-slate-900 scale-110'
+                                : 'hover:scale-105'
+                            )}
+                          >
+                            {iconColorIndex === index && (
+                              <motion.div
+                                layoutId="selected-color-edit"
+                                className="absolute inset-0 flex items-center justify-center"
+                              >
+                                <span className="material-symbols-outlined text-lg text-white drop-shadow">
+                                  check
+                                </span>
+                              </motion.div>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Frequency */}
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                    Frequency *
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {frequencyOptions.map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => setFrequency(opt.value)}
+                        disabled={isSubmitting}
+                        className={clsx(
+                          'flex flex-col items-center gap-1.5 rounded-xl border p-3 text-center transition-all',
+                          frequency === opt.value
+                            ? 'border-primary bg-primary/10 shadow-sm'
+                            : 'border-slate-200 hover:border-slate-300 dark:border-white/10 dark:hover:border-white/20'
+                        )}
+                      >
+                        <span className={clsx(
+                          'material-symbols-outlined text-2xl',
+                          frequency === opt.value ? 'text-primary' : 'text-slate-400'
+                        )}>{opt.icon}</span>
+                        <span className={clsx(
+                          'text-xs font-medium',
+                          frequency === opt.value ? 'text-slate-900 dark:text-white' : 'text-slate-600 dark:text-slate-400'
+                        )}>{opt.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Goal */}
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                    Goal *
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="number"
+                      value={goal}
+                      onChange={(e) => setGoal(e.target.value)}
+                      min="1"
+                      max="100"
+                      disabled={isSubmitting}
+                      className="w-20 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-center text-sm font-semibold focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-slate-800 dark:text-white"
+                    />
+                    <span className="text-sm text-slate-500">×</span>
+                    <select
+                      value={goalPeriod}
+                      onChange={(e) => setGoalPeriod(e.target.value as GoalPeriodType)}
+                      disabled={isSubmitting}
+                      className="flex-1 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-slate-800 dark:text-white"
+                    >
+                      {goalPeriodOptions.map((opt) => (
+                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
 
                 {/* Footer Buttons */}

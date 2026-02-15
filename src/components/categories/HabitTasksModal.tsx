@@ -131,20 +131,27 @@ export function HabitTasksModal({ isOpen, onClose, habitId, habitName }: HabitTa
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4 dark:border-white/10">
-            <div>
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white">{habitName}</h2>
-              <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-                {tasks.length} {tasks.length === 1 ? 'task' : 'tasks'}
-              </p>
+          <div className="relative border-b border-slate-200 bg-gradient-to-r from-primary/5 to-emerald-400/5 px-6 py-5 dark:border-white/10 dark:from-primary/10 dark:to-emerald-400/10">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-emerald-400 shadow-lg">
+                  <span className="material-symbols-outlined text-2xl text-white">task</span>
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-slate-900 dark:text-white">{habitName}</h2>
+                  <p className="mt-0.5 text-sm text-slate-600 dark:text-slate-400">
+                    {tasks.length} {tasks.length === 1 ? 'task' : 'tasks'}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/80 text-slate-600 backdrop-blur-sm transition-all hover:bg-white hover:scale-105 dark:bg-slate-800/80 dark:text-slate-300 dark:hover:bg-slate-800"
+              >
+                <span className="material-symbols-outlined">close</span>
+              </button>
             </div>
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-600 transition-colors hover:bg-slate-200 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10"
-            >
-              <span className="material-symbols-outlined">close</span>
-            </button>
           </div>
 
           {/* Content */}
@@ -156,13 +163,20 @@ export function HabitTasksModal({ isOpen, onClose, habitId, habitName }: HabitTa
                 animate={{ opacity: 1, y: 0 }}
                 className="flex h-full flex-col items-center justify-center text-center"
               >
-                <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-primary/10 to-emerald-400/10">
-                  <span className="material-symbols-outlined text-5xl text-primary">task</span>
+                <div className="relative">
+                  <div className="absolute inset-0 animate-pulse rounded-full bg-gradient-to-br from-primary/20 to-emerald-400/20 blur-2xl" />
+                  <div className="relative mx-auto flex h-24 w-24 items-center justify-center rounded-3xl bg-gradient-to-br from-primary/10 to-emerald-400/10 ring-1 ring-primary/20">
+                    <span className="material-symbols-outlined text-6xl text-primary">task_alt</span>
+                  </div>
                 </div>
-                <h3 className="mt-6 text-xl font-bold text-slate-900 dark:text-white">No tasks yet</h3>
-                <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-                  Break down this habit into smaller, actionable tasks.
+                <h3 className="mt-8 text-2xl font-bold text-slate-900 dark:text-white">No tasks yet</h3>
+                <p className="mt-2 max-w-sm text-sm text-slate-600 dark:text-slate-400">
+                  Break down this habit into smaller, actionable tasks to track your progress better.
                 </p>
+                <div className="mt-6 flex items-center gap-2 rounded-xl bg-primary/5 px-4 py-2 dark:bg-primary/10">
+                  <span className="material-symbols-outlined text-sm text-primary">lightbulb</span>
+                  <p className="text-xs font-medium text-primary">Tip: Start with 2-3 simple tasks</p>
+                </div>
               </motion.div>
             ) : (
               <div className="space-y-3">
@@ -331,16 +345,16 @@ export function HabitTasksModal({ isOpen, onClose, habitId, habitName }: HabitTa
 
           {/* Footer */}
           {!isAddingTask && (
-            <div className="border-t border-slate-200 px-6 py-4 dark:border-white/10">
+            <div className="border-t border-slate-200 bg-gradient-to-b from-transparent to-slate-50/50 px-6 py-4 dark:border-white/10 dark:to-slate-900/50">
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 type="button"
                 onClick={() => setIsAddingTask(true)}
-                className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-primary to-emerald-400 px-6 py-3 text-sm font-bold text-slate-900 shadow-lg shadow-primary/25 transition-all hover:shadow-xl hover:shadow-primary/30"
+                className="group flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-primary to-emerald-400 px-6 py-3.5 text-sm font-bold text-slate-900 shadow-lg shadow-primary/25 transition-all hover:shadow-xl hover:shadow-primary/30"
               >
-                <span className="material-symbols-outlined">add</span>
-                Add Task
+                <span className="material-symbols-outlined transition-transform group-hover:rotate-90">add_circle</span>
+                Add New Task
               </motion.button>
             </div>
           )}
@@ -359,42 +373,71 @@ interface TaskItemProps {
 }
 
 function TaskItem({ task, index, onEdit, onDelete }: TaskItemProps) {
-  const priorityColors = {
-    low: 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400',
-    medium: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-400',
-    high: 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400',
+  const priorityConfig = {
+    low: { 
+      bg: 'bg-blue-50 dark:bg-blue-500/10',
+      text: 'text-blue-700 dark:text-blue-400',
+      icon: 'arrow_downward',
+      ring: 'ring-blue-200/50 dark:ring-blue-500/20'
+    },
+    medium: { 
+      bg: 'bg-amber-50 dark:bg-amber-500/10',
+      text: 'text-amber-700 dark:text-amber-400',
+      icon: 'remove',
+      ring: 'ring-amber-200/50 dark:ring-amber-500/20'
+    },
+    high: { 
+      bg: 'bg-red-50 dark:bg-red-500/10',
+      text: 'text-red-700 dark:text-red-400',
+      icon: 'priority_high',
+      ring: 'ring-red-200/50 dark:ring-red-500/20'
+    },
   }
+
+  const priority = task.priority || 'medium'
+  const config = priorityConfig[priority]
 
   return (
     <motion.div
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: index * 0.05 }}
-      className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white/80 p-4 backdrop-blur-xl transition-all hover:shadow-lg dark:border-white/5 dark:bg-slate-800/80"
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.05, type: 'spring', stiffness: 300, damping: 25 }}
+      className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 transition-all hover:border-primary/30 hover:shadow-md dark:border-white/10 dark:bg-slate-800/50 dark:hover:border-primary/30"
     >
-      <div className="flex items-start gap-4">
+      {/* Left accent bar */}
+      <div className={clsx('absolute left-0 top-0 bottom-0 w-1', config.bg)} />
+
+      <div className="flex items-start gap-4 pl-3">
         <div className="flex-1 min-w-0">
-          <h4 className="font-bold text-slate-900 dark:text-white">{task.title}</h4>
-          {task.description && (
-            <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">{task.description}</p>
-          )}
-          <div className="mt-3 flex flex-wrap items-center gap-2">
+          <div className="flex items-start gap-2">
+            <h4 className="flex-1 font-bold text-slate-900 dark:text-white">{task.title}</h4>
             {task.priority && (
-              <span className={clsx('rounded-full px-3 py-1 text-xs font-bold', priorityColors[task.priority])}>
-                {task.priority}
-              </span>
+              <div className={clsx('flex items-center gap-1 rounded-lg px-2 py-1 ring-1', config.bg, config.text, config.ring)}>
+                <span className="material-symbols-outlined text-xs">{config.icon}</span>
+                <span className="text-xs font-bold uppercase">{priority}</span>
+              </div>
             )}
+          </div>
+          
+          {task.description && (
+            <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400">{task.description}</p>
+          )}
+          
+          <div className="mt-3 flex flex-wrap items-center gap-2">
             {task.dueDate && (
-              <span className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400">
-                <span className="material-symbols-outlined text-sm">event</span>
-                {new Date(task.dueDate).toLocaleDateString()}
-              </span>
+              <div className="flex items-center gap-1.5 rounded-lg bg-slate-100 px-2.5 py-1 dark:bg-white/5">
+                <span className="material-symbols-outlined text-sm text-slate-500 dark:text-slate-400">event</span>
+                <span className="text-xs font-medium text-slate-600 dark:text-slate-400">
+                  {new Date(task.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                </span>
+              </div>
             )}
             {task.tags && task.tags.length > 0 && (
-              <div className="flex flex-wrap gap-1">
+              <div className="flex flex-wrap gap-1.5">
                 {task.tags.map((tag) => (
-                  <span key={tag} className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600 dark:bg-white/10 dark:text-slate-400">
-                    #{tag}
+                  <span key={tag} className="inline-flex items-center gap-1 rounded-lg bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">
+                    <span className="material-symbols-outlined text-xs">tag</span>
+                    {tag}
                   </span>
                 ))}
               </div>
@@ -403,21 +446,25 @@ function TaskItem({ task, index, onEdit, onDelete }: TaskItemProps) {
         </div>
 
         {/* Actions */}
-        <div className="flex gap-2 opacity-0 transition-opacity group-hover:opacity-100">
-          <button
+        <div className="flex gap-1.5 opacity-0 transition-opacity group-hover:opacity-100">
+          <motion.button
             type="button"
             onClick={onEdit}
-            className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-600 transition-colors hover:bg-slate-200 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-600 transition-colors hover:bg-primary/10 hover:text-primary dark:bg-white/5 dark:text-slate-400 dark:hover:bg-primary/20 dark:hover:text-primary"
           >
             <span className="material-symbols-outlined text-lg">edit</span>
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             type="button"
             onClick={onDelete}
-            className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-100 text-red-600 transition-colors hover:bg-red-200 dark:bg-red-500/20 dark:text-red-400 dark:hover:bg-red-500/30"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="flex h-9 w-9 items-center justify-center rounded-xl bg-red-50 text-red-600 transition-colors hover:bg-red-100 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20"
           >
             <span className="material-symbols-outlined text-lg">delete</span>
-          </button>
+          </motion.button>
         </div>
       </div>
     </motion.div>
