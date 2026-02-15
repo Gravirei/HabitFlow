@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { motion, AnimatePresence, LayoutGroup } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import clsx from 'clsx'
 
 import { useHabitTaskStore } from '@/store/useHabitTaskStore'
@@ -158,13 +158,26 @@ export function HabitTasksModal({ isOpen, onClose, habitId, habitName, habitIcon
 
 
           {/* Content Area */}
-          <div className="flex-1 overflow-y-auto bg-slate-50 p-6 pb-24 dark:bg-slate-900/30">
-            <LayoutGroup>
-              {/* Task List */}
-              {tasks.length === 0 && !isAddingTask ? (
+          <div className="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-900/30">
+            {/* Empty State (no animation container needed) */}
+            {tasks.length === 0 && !isAddingTask ? (
+              <div className="p-6 pb-24">
                 <EmptyState onAddTask={() => setIsAddingTask(true)} />
-              ) : (
-                <div className="space-y-2">
+              </div>
+            ) : (
+              /* Single Animated Container - slides up when form opens */
+              <motion.div
+                animate={isAddingTask ? { y: -100 } : { y: 0 }}
+                transition={{ 
+                  type: 'spring', 
+                  stiffness: 300, 
+                  damping: 30,
+                  mass: 0.8
+                }}
+                className="p-6 pb-24"
+              >
+                {/* Task List */}
+                <div className="space-y-2 mb-6">
                   <AnimatePresence mode="popLayout">
                     {tasks.map((task, index) => (
                       <TaskCard
@@ -177,30 +190,30 @@ export function HabitTasksModal({ isOpen, onClose, habitId, habitName, habitIcon
                     ))}
                   </AnimatePresence>
                 </div>
-              )}
 
-              {/* Add/Edit Task Form */}
-              <AnimatePresence mode="wait">
-                {isAddingTask && (
-                  <TaskForm
-                    formData={formData}
-                    setFormData={setFormData}
-                    tagInput={tagInput}
-                    setTagInput={setTagInput}
-                    isEditing={!!editingTaskId}
-                    onSubmit={handleSubmit}
-                    onCancel={() => {
-                      setIsAddingTask(false)
-                      setEditingTaskId(null)
-                      resetForm()
-                    }}
-                    onAddTag={handleAddTag}
-                    onRemoveTag={handleRemoveTag}
-                    hasExistingTasks={tasks.length > 0}
-                  />
-                )}
-              </AnimatePresence>
-            </LayoutGroup>
+                {/* Add/Edit Task Form */}
+                <AnimatePresence>
+                  {isAddingTask && (
+                    <TaskForm
+                      formData={formData}
+                      setFormData={setFormData}
+                      tagInput={tagInput}
+                      setTagInput={setTagInput}
+                      isEditing={!!editingTaskId}
+                      onSubmit={handleSubmit}
+                      onCancel={() => {
+                        setIsAddingTask(false)
+                        setEditingTaskId(null)
+                        resetForm()
+                      }}
+                      onAddTag={handleAddTag}
+                      onRemoveTag={handleRemoveTag}
+                      hasExistingTasks={tasks.length > 0}
+                    />
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            )}
           </div>
 
           {/* Floating Pill Button - Outside scrollable area */}
