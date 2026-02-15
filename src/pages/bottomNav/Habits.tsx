@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
 import { useHabitStore } from '@/store/useHabitStore'
 import { useHabitTaskStore } from '@/store/useHabitTaskStore'
-import { useTaskStore } from '@/store/useTaskStore'
+
 import { HabitTasksModal } from '@/components/categories/HabitTasksModal'
 import { HabitTaskCompletionModal } from '@/components/HabitTaskCompletionModal'
 import { BottomNav } from '@/components/BottomNav'
@@ -638,10 +638,14 @@ function HabitList({
     return saved ? JSON.parse(saved) : false
   })
   const settingsButtonRef = useRef<HTMLButtonElement>(null)
-  const [settingsMenuPosition, setSettingsMenuPosition] = useState({
+  const [settingsMenuPosition, setSettingsMenuPosition] = useState<{
+    top: number
+    left: number | 'auto'
+    right: number | 'auto'
+  }>({
     top: 0,
     left: 0,
-    right: 'auto' as string | number,
+    right: 'auto',
   })
 
   // Persist universal edit state
@@ -709,7 +713,7 @@ function HabitList({
 
     let top = buttonRect.bottom + spacing
     let left: number | 'auto' = buttonRect.right - menuWidth // Align menu's right edge to button's right edge
-    let right: number | 'auto' = 'auto'
+    const right: number | 'auto' = 'auto'
 
     // Vertical positioning
     if (top + menuHeight > viewportHeight) {
@@ -977,11 +981,14 @@ function HabitCard({
   const taskCount = getTaskCount(habit.id)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const menuButtonRef = useRef<HTMLButtonElement>(null)
-  const menuRef = useRef<HTMLDivElement>(null)
-  const [menuPosition, setMenuPosition] = useState({
+  const [menuPosition, setMenuPosition] = useState<{
+    top: number
+    left: number | 'auto'
+    right: number | 'auto'
+  }>({
     top: 0,
     left: 0,
-    right: 'auto' as string | number,
+    right: 'auto',
   })
 
   // Smart menu positioning to avoid viewport overflow

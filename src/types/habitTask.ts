@@ -8,6 +8,7 @@ export interface HabitTask {
   priority?: HabitTaskPriority
   dueDate?: string
   tags?: string[]
+  completed: boolean
   createdAt: string
   updatedAt: string
 }

@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
-import type { HabitTask, HabitTaskPriority } from '@/types/habitTask'
+import type { HabitTask } from '@/types/habitTask'
 
 interface HabitTaskStore {
   tasks: HabitTask[]
@@ -25,6 +25,7 @@ export const useHabitTaskStore = create<HabitTaskStore>()(
         const newTask: HabitTask = {
           ...task,
           id: Date.now().toString(),
+          completed: false,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         }
