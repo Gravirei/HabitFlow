@@ -47,6 +47,7 @@ export function Today() {
   // For HabitTasksModal
   const [selectedHabitId, setSelectedHabitId] = useState<string | null>(null)
   const [selectedHabitName, setSelectedHabitName] = useState('')
+  const [selectedHabitIcon, setSelectedHabitIcon] = useState('checklist')
 
   // Format selected date for store operations
   const formattedDate = format(selectedDate, 'yyyy-MM-dd')
@@ -59,6 +60,7 @@ export function Today() {
       // Has tasks - open modal
       setSelectedHabitId(habit.id)
       setSelectedHabitName(habit.name)
+      setSelectedHabitIcon(habit.icon)
     } else {
       // No tasks - direct toggle
       toggleHabitCompletion(habit.id, formattedDate)
@@ -516,9 +518,11 @@ export function Today() {
           onClose={() => {
             setSelectedHabitId(null)
             setSelectedHabitName('')
+            setSelectedHabitIcon('checklist')
           }}
           habitId={selectedHabitId}
           habitName={selectedHabitName}
+          habitIcon={selectedHabitIcon}
         />
       )}
     </div>

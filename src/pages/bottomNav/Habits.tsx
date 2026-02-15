@@ -22,20 +22,7 @@ export function Habits() {
   // For HabitTasksModal
   const [selectedHabitId, setSelectedHabitId] = useState<string | null>(null)
   const [selectedHabitName, setSelectedHabitName] = useState('')
-  
-  // Hybrid habit click handler
-  const handleHabitClick = (habit: any) => {
-    const taskCount = getTaskCount(habit.id)
-    
-    if (taskCount > 0) {
-      // Has tasks - open modal
-      setSelectedHabitId(habit.id)
-      setSelectedHabitName(habit.name)
-    } else {
-      // No tasks - direct toggle
-      toggleHabitCompletion(habit.id)
-    }
-  }
+  const [selectedHabitIcon, setSelectedHabitIcon] = useState('checklist')
 
   const filteredHabits = habits
     .filter(h => h.isActive === true) // Only show active habits
@@ -218,7 +205,19 @@ export function Habits() {
             ) : (
               <div className="space-y-4">
                 {/* Group habits by category or just display them */}
-                <HabitList habits={filteredHabits} />
+                <HabitList 
+                  habits={filteredHabits} 
+                  onHabitClick={(habit) => {
+                    const taskCount = getTaskCount(habit.id)
+                    if (taskCount > 0) {
+                      setSelectedHabitId(habit.id)
+                      setSelectedHabitName(habit.name)
+                      setSelectedHabitIcon(habit.icon)
+                    } else {
+                      toggleHabitCompletion(habit.id)
+                    }
+                  }}
+                />
               </div>
             )}
           </motion.div>
@@ -296,16 +295,18 @@ export function Habits() {
           onClose={() => {
             setSelectedHabitId(null)
             setSelectedHabitName('')
+            setSelectedHabitIcon('checklist')
           }}
           habitId={selectedHabitId}
           habitName={selectedHabitName}
+          habitIcon={selectedHabitIcon}
         />
       )}
     </div>
   )
 }
 
-function HabitList({ habits }: { habits: Habit[] }) {
+function HabitList({ habits, onHabitClick }: { habits: Habit[], onHabitClick: (habit: Habit) => void }) {
   const { isHabitCompletedToday } = useHabitStore()
 
   // Group habits by category
@@ -350,7 +351,7 @@ function HabitList({ habits }: { habits: Habit[] }) {
             </div>
 
             {categoryHabits.map((habit) => (
-              <HabitCard key={habit.id} habit={habit} />
+              <HabitCard key={habit.id} habit={habit} onClick={() => onHabitClick(habit)} />
             ))}
           </div>
         )
@@ -359,8 +360,8 @@ function HabitList({ habits }: { habits: Habit[] }) {
   )
 }
 
-function HabitCard({ habit }: { habit: Habit }) {
-  const { toggleHabitCompletion, isHabitCompletedToday } = useHabitStore()
+function HabitCard({ habit, onClick }: { habit: Habit, onClick: () => void }) {
+  const { isHabitCompletedToday } = useHabitStore()
   const completed = isHabitCompletedToday(habit.id)
 
   const getIconColor = (iconName: string) => {
@@ -414,7 +415,7 @@ function HabitCard({ habit }: { habit: Habit }) {
         </div>
 
         <button
-          onClick={() => handleHabitClick(habit)}
+          onClick={onClick}
           className={clsx(
             'shrink-0 w-10 h-10 rounded-full flex items-center justify-center active:scale-90 transition-all duration-300',
             getButtonStyle()

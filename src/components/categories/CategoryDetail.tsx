@@ -52,6 +52,7 @@ export function CategoryDetail() {
   
   const [selectedHabitId, setSelectedHabitId] = useState<string | null>(null)
   const [selectedHabitName, setSelectedHabitName] = useState<string>('')
+  const [selectedHabitIcon, setSelectedHabitIcon] = useState<string>('checklist')
   const [isCreateHabitOpen, setIsCreateHabitOpen] = useState(false)
   const [habitToDelete, setHabitToDelete] = useState<string | null>(null)
   const [habitToEdit, setHabitToEdit] = useState<string | null>(null)
@@ -341,6 +342,7 @@ export function CategoryDetail() {
                     onClick={() => {
                       setSelectedHabitId(habit.id)
                       setSelectedHabitName(habit.name)
+                      setSelectedHabitIcon(habit.icon)
                     }}
                     onDelete={(habitId) => setHabitToDelete(habitId)}
                     onEdit={(habitId) => setHabitToEdit(habitId)}
@@ -473,9 +475,11 @@ export function CategoryDetail() {
           onClose={() => {
             setSelectedHabitId(null)
             setSelectedHabitName('')
+            setSelectedHabitIcon('checklist')
           }}
           habitId={selectedHabitId}
           habitName={selectedHabitName}
+          habitIcon={selectedHabitIcon}
         />
       )}
 
