@@ -66,6 +66,7 @@ export function Habits() {
   // Habit Tasks Modal (for creating tasks)
   const [selectedHabitId, setSelectedHabitId] = useState<string | null>(null)
   const [selectedHabitName, setSelectedHabitName] = useState('')
+  const [selectedHabitIcon, setSelectedHabitIcon] = useState('checklist')
 
   // Task Completion Modal (for completing tasks)
   const [taskCompletionHabitId, setTaskCompletionHabitId] = useState<string | null>(null)
@@ -417,6 +418,11 @@ export function Habits() {
                 habits={filteredHabits}
                 onHabitClick={handleHabitClick}
                 onCompletionClick={handleCompletionButtonClick}
+                onManageTasks={(habit) => {
+                  setSelectedHabitId(habit.id)
+                  setSelectedHabitName(habit.name)
+                  setSelectedHabitIcon(habit.icon)
+                }}
               />
             )}
           </motion.div>
@@ -506,9 +512,11 @@ export function Habits() {
           onClose={() => {
             setSelectedHabitId(null)
             setSelectedHabitName('')
+            setSelectedHabitIcon('checklist')
           }}
           habitId={selectedHabitId}
           habitName={selectedHabitName}
+          habitIcon={selectedHabitIcon}
         />
       )}
 
@@ -619,10 +627,12 @@ function HabitList({
   habits,
   onHabitClick,
   onCompletionClick,
+  onManageTasks,
 }: {
   habits: Habit[]
   onHabitClick: (habit: Habit) => void
   onCompletionClick: (e: React.MouseEvent, habit: Habit) => void
+  onManageTasks?: (habit: Habit) => void
 }) {
   const { isHabitCompletedToday } = useHabitStore()
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
@@ -851,6 +861,7 @@ function HabitList({
                         onHabitClick={onHabitClick}
                         onCompletionClick={onCompletionClick}
                         showEditIcon={individualEditEnabled}
+                        onManageTasks={onManageTasks}
                       />
                     </motion.div>
                   ))}
@@ -969,12 +980,15 @@ function HabitCard({
   onHabitClick,
   onCompletionClick,
   showEditIcon = false,
+  onManageTasks,
 }: {
   habit: Habit
   onHabitClick: (habit: Habit) => void
   onCompletionClick: (e: React.MouseEvent, habit: Habit) => void
   showEditIcon?: boolean
+  onManageTasks?: (habit: Habit) => void
 }) {
+  const navigate = useNavigate()
   const { isHabitCompletedToday } = useHabitStore()
   const { getTaskCount, getTasksByHabitId } = useHabitTaskStore()
   const completed = isHabitCompletedToday(habit.id)
@@ -1305,7 +1319,8 @@ function HabitCard({
                   <button
                     onClick={(e) => {
                       e.stopPropagation()
-                      // TODO: Open manage tasks modal
+                      onManageTasks?.(habit)
+                      setIsMenuOpen(false)
                     }}
                     className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm text-gray-700 transition-colors hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700/50"
                   >

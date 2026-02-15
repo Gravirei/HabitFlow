@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import clsx from 'clsx'
 
@@ -10,15 +10,15 @@ interface HabitTasksModalProps {
   onClose: () => void
   habitId: string
   habitName: string
+  habitIcon?: string
 }
 
-export function HabitTasksModal({ isOpen, onClose, habitId, habitName }: HabitTasksModalProps) {
+export function HabitTasksModal({ isOpen, onClose, habitId, habitName, habitIcon = 'checklist' }: HabitTasksModalProps) {
   const { getTasksByHabitId, addTask, updateTask, deleteTask } = useHabitTaskStore()
   const tasks = getTasksByHabitId(habitId)
 
   const [isAddingTask, setIsAddingTask] = useState(false)
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null)
-  
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -28,6 +28,9 @@ export function HabitTasksModal({ isOpen, onClose, habitId, habitName }: HabitTa
   })
 
   const [tagInput, setTagInput] = useState('')
+
+  // Total task count
+  const totalTasks = tasks.length
 
   useEffect(() => {
     if (!isOpen) {
@@ -118,56 +121,51 @@ export function HabitTasksModal({ isOpen, onClose, habitId, habitName }: HabitTa
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
-          className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+          className="absolute inset-0 bg-slate-900/40 backdrop-blur-md"
         />
 
-        {/* Modal Container */}
+        {/* Modal Container - NEW DESIGN */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 20 }}
+          initial={{ opacity: 0, scale: 0.9, y: 40 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-          className="relative z-10 flex h-[600px] w-full max-w-2xl flex-col overflow-hidden rounded-3xl border border-white/20 bg-white/95 shadow-2xl backdrop-blur-3xl dark:border-white/10 dark:bg-slate-900/95"
+          exit={{ opacity: 0, scale: 0.9, y: 40 }}
+          transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+          className="relative z-10 flex h-[85vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-slate-900"
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Header */}
-          <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4 dark:border-white/10">
-            <div>
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white">{habitName}</h2>
-              <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-                {tasks.length} {tasks.length === 1 ? 'task' : 'tasks'}
-              </p>
+          {/* Header - Compact & Modern */}
+          <div className="relative flex items-center justify-between border-b border-slate-200 bg-gradient-to-r from-teal-50 via-white to-teal-50 px-6 py-4 dark:border-slate-700 dark:from-slate-800 dark:via-slate-900 dark:to-slate-800">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 shadow-sm">
+                <span className="material-symbols-outlined text-xl text-white">{habitIcon}</span>
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">{habitName}</h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  {totalTasks} {totalTasks === 1 ? 'task' : 'tasks'}
+                </p>
+              </div>
             </div>
+            
             <button
               type="button"
               onClick={onClose}
-              className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-600 transition-colors hover:bg-slate-200 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10"
+              className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 transition-all hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800 dark:hover:text-slate-300"
             >
-              <span className="material-symbols-outlined">close</span>
+              <span className="material-symbols-outlined text-xl">close</span>
             </button>
           </div>
 
-          {/* Content */}
-          <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
+
+          {/* Content Area */}
+          <div className="flex-1 overflow-y-auto bg-slate-50 p-6 dark:bg-slate-900/30">
             {/* Task List */}
             {tasks.length === 0 && !isAddingTask ? (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="flex h-full flex-col items-center justify-center text-center"
-              >
-                <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-primary/10 to-emerald-400/10">
-                  <span className="material-symbols-outlined text-5xl text-primary">task</span>
-                </div>
-                <h3 className="mt-6 text-xl font-bold text-slate-900 dark:text-white">No tasks yet</h3>
-                <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-                  Break down this habit into smaller, actionable tasks.
-                </p>
-              </motion.div>
+              <EmptyState onAddTask={() => setIsAddingTask(true)} />
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {tasks.map((task, index) => (
-                  <TaskItem
+                  <TaskCard
                     key={task.id}
                     task={task}
                     index={index}
@@ -181,165 +179,37 @@ export function HabitTasksModal({ isOpen, onClose, habitId, habitName }: HabitTa
             {/* Add/Edit Task Form */}
             <AnimatePresence>
               {isAddingTask && (
-                <motion.form
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
+                <TaskForm
+                  formData={formData}
+                  setFormData={setFormData}
+                  tagInput={tagInput}
+                  setTagInput={setTagInput}
+                  isEditing={!!editingTaskId}
                   onSubmit={handleSubmit}
-                  className={clsx('rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-lg backdrop-blur-xl dark:border-white/10 dark:bg-slate-800/80', tasks.length > 0 && 'mt-4')}
-                >
-                  <h3 className="mb-4 text-lg font-bold text-slate-900 dark:text-white">
-                    {editingTaskId ? 'Edit Task' : 'New Task'}
-                  </h3>
-
-                  {/* Title */}
-                  <div className="mb-4">
-                    <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                      Title *
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.title}
-                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                      placeholder="e.g., Read 10 pages"
-                      className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder-slate-400 transition-all focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-slate-700 dark:text-white dark:placeholder-slate-500"
-                      autoFocus
-                    />
-                  </div>
-
-                  {/* Description */}
-                  <div className="mb-4">
-                    <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                      Description
-                    </label>
-                    <textarea
-                      value={formData.description}
-                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                      placeholder="Add more details..."
-                      rows={3}
-                      className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder-slate-400 transition-all focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-slate-700 dark:text-white dark:placeholder-slate-500"
-                    />
-                  </div>
-
-                  {/* Priority and Due Date */}
-                  <div className="mb-4 grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                        Priority
-                      </label>
-                      <select
-                        value={formData.priority}
-                        onChange={(e) => setFormData({ ...formData, priority: e.target.value as HabitTaskPriority })}
-                        className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 transition-all focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-slate-700 dark:text-white"
-                      >
-                        <option value="low">Low</option>
-                        <option value="medium">Medium</option>
-                        <option value="high">High</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                        Due Date
-                      </label>
-                      <input
-                        type="date"
-                        value={formData.dueDate}
-                        onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
-                        className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 transition-all focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-slate-700 dark:text-white"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Tags */}
-                  <div className="mb-6">
-                    <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                      Tags
-                    </label>
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        value={tagInput}
-                        onChange={(e) => setTagInput(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault()
-                            handleAddTag()
-                          }
-                        }}
-                        placeholder="Add a tag..."
-                        className="flex-1 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm text-slate-900 placeholder-slate-400 transition-all focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-slate-700 dark:text-white dark:placeholder-slate-500"
-                      />
-                      <button
-                        type="button"
-                        onClick={handleAddTag}
-                        className="rounded-xl bg-slate-100 px-4 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-200 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10"
-                      >
-                        Add
-                      </button>
-                    </div>
-                    {formData.tags.length > 0 && (
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        {formData.tags.map((tag) => (
-                          <span
-                            key={tag}
-                            className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary"
-                          >
-                            {tag}
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveTag(tag)}
-                              className="hover:text-primary/70"
-                            >
-                              <span className="material-symbols-outlined text-sm">close</span>
-                            </button>
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Form Actions */}
-                  <div className="flex gap-3">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsAddingTask(false)
-                        setEditingTaskId(null)
-                        resetForm()
-                      }}
-                      className="flex-1 rounded-xl bg-slate-100 px-4 py-3 text-sm font-bold text-slate-700 transition-colors hover:bg-slate-200 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={!formData.title.trim()}
-                      className={clsx(
-                        'flex-1 rounded-xl px-4 py-3 text-sm font-bold transition-all',
-                        formData.title.trim()
-                          ? 'bg-gradient-to-r from-primary to-emerald-400 text-slate-900 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30'
-                          : 'cursor-not-allowed bg-slate-200 text-slate-400 dark:bg-white/10 dark:text-slate-500'
-                      )}
-                    >
-                      {editingTaskId ? 'Update Task' : 'Add Task'}
-                    </button>
-                  </div>
-                </motion.form>
+                  onCancel={() => {
+                    setIsAddingTask(false)
+                    setEditingTaskId(null)
+                    resetForm()
+                  }}
+                  onAddTag={handleAddTag}
+                  onRemoveTag={handleRemoveTag}
+                  hasExistingTasks={tasks.length > 0}
+                />
               )}
             </AnimatePresence>
           </div>
 
-          {/* Footer */}
+          {/* Footer - Fixed Add Button */}
           {!isAddingTask && (
-            <div className="border-t border-slate-200 px-6 py-4 dark:border-white/10">
+            <div className="border-t border-slate-200 bg-white px-6 py-4 dark:border-slate-700 dark:bg-slate-900">
               <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
                 type="button"
                 onClick={() => setIsAddingTask(true)}
-                className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-primary to-emerald-400 px-6 py-3 text-sm font-bold text-slate-900 shadow-lg shadow-primary/25 transition-all hover:shadow-xl hover:shadow-primary/30"
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teal-500 to-teal-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition-shadow hover:shadow-md"
               >
-                <span className="material-symbols-outlined">add</span>
+                <span className="material-symbols-outlined text-lg">add</span>
                 Add Task
               </motion.button>
             </div>
@@ -350,76 +220,319 @@ export function HabitTasksModal({ isOpen, onClose, habitId, habitName }: HabitTa
   )
 }
 
-// Task Item Component
-interface TaskItemProps {
+// Empty State Component
+interface EmptyStateProps {
+  onAddTask: () => void
+}
+
+function EmptyState({ onAddTask }: EmptyStateProps) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="flex h-full min-h-[300px] flex-col items-center justify-center text-center"
+    >
+      <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-50 to-teal-100 dark:from-teal-500/10 dark:to-teal-500/20">
+        <span className="material-symbols-outlined text-5xl text-teal-600 dark:text-teal-400">task_alt</span>
+      </div>
+      <h3 className="mt-6 text-lg font-semibold text-slate-900 dark:text-white">No tasks yet</h3>
+      <p className="mt-2 max-w-sm text-sm text-slate-500 dark:text-slate-400">Create your first task to start tracking progress on this habit.</p>
+      <button
+        type="button"
+        onClick={onAddTask}
+        className="mt-6 flex items-center gap-2 rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal-700"
+      >
+        <span className="material-symbols-outlined text-lg">add</span>
+        Create Task
+      </button>
+    </motion.div>
+  )
+}
+
+// Task Card Component
+interface TaskCardProps {
   task: HabitTask
   index: number
   onEdit: () => void
   onDelete: () => void
 }
 
-function TaskItem({ task, index, onEdit, onDelete }: TaskItemProps) {
-  const priorityColors = {
-    low: 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400',
-    medium: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-400',
-    high: 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400',
+function TaskCard({ task, index, onEdit, onDelete }: TaskCardProps) {
+  const priorityConfig = {
+    low: {
+      color: 'bg-blue-500',
+      label: 'Low',
+      icon: 'arrow_downward',
+    },
+    medium: {
+      color: 'bg-amber-500',
+      label: 'Medium',
+      icon: 'remove',
+    },
+    high: {
+      color: 'bg-red-500',
+      label: 'High',
+      icon: 'priority_high',
+    },
   }
+
+  const priority = task.priority || 'medium'
+  const config = priorityConfig[priority]
 
   return (
     <motion.div
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: index * 0.05 }}
-      className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white/80 p-4 backdrop-blur-xl transition-all hover:shadow-lg dark:border-white/5 dark:bg-slate-800/80"
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.03 }}
+      className="group relative overflow-hidden rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-slate-700 dark:bg-slate-800"
     >
-      <div className="flex items-start gap-4">
+      {/* Priority Indicator */}
+      <div className={clsx('absolute left-0 top-0 h-full w-1', config.color)} />
+
+      <div className="flex items-center gap-3 pl-2">
+        {/* Content */}
         <div className="flex-1 min-w-0">
-          <h4 className="font-bold text-slate-900 dark:text-white">{task.title}</h4>
+          <div className="flex items-start justify-between gap-2">
+            <h4 className="font-medium text-slate-900 dark:text-white">
+              {task.title}
+            </h4>
+            
+            {/* Priority Badge */}
+            <div className="flex items-center gap-1 rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600 dark:bg-slate-700 dark:text-slate-300">
+              <span className="material-symbols-outlined text-xs">{config.icon}</span>
+              {config.label}
+            </div>
+          </div>
+
           {task.description && (
-            <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">{task.description}</p>
+            <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+              {task.description}
+            </p>
           )}
-          <div className="mt-3 flex flex-wrap items-center gap-2">
-            {task.priority && (
-              <span className={clsx('rounded-full px-3 py-1 text-xs font-bold', priorityColors[task.priority])}>
-                {task.priority}
-              </span>
-            )}
+
+          {/* Meta Info */}
+          <div className="mt-2 flex flex-wrap items-center gap-2">
             {task.dueDate && (
-              <span className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400">
-                <span className="material-symbols-outlined text-sm">event</span>
-                {new Date(task.dueDate).toLocaleDateString()}
+              <span className="flex items-center gap-1 rounded-md bg-slate-100 px-2 py-0.5 text-xs text-slate-600 dark:bg-slate-700 dark:text-slate-400">
+                <span className="material-symbols-outlined text-xs">event</span>
+                {new Date(task.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
               </span>
             )}
-            {task.tags && task.tags.length > 0 && (
-              <div className="flex flex-wrap gap-1">
-                {task.tags.map((tag) => (
-                  <span key={tag} className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600 dark:bg-white/10 dark:text-slate-400">
-                    #{tag}
-                  </span>
-                ))}
-              </div>
-            )}
+            
+            {task.tags?.map((tag) => (
+              <span
+                key={tag}
+                className="rounded-md bg-teal-50 px-2 py-0.5 text-xs font-medium text-teal-700 dark:bg-teal-500/10 dark:text-teal-400"
+              >
+                {tag}
+              </span>
+            ))}
           </div>
         </div>
 
-        {/* Actions */}
-        <div className="flex gap-2 opacity-0 transition-opacity group-hover:opacity-100">
+        {/* Actions - Center aligned on right */}
+        <div className="flex items-center gap-1">
           <button
             type="button"
             onClick={onEdit}
-            className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-600 transition-colors hover:bg-slate-200 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10"
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-700 dark:hover:text-slate-300"
           >
-            <span className="material-symbols-outlined text-lg">edit</span>
+            <span className="material-symbols-outlined text-base">edit</span>
           </button>
           <button
             type="button"
             onClick={onDelete}
-            className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-100 text-red-600 transition-colors hover:bg-red-200 dark:bg-red-500/20 dark:text-red-400 dark:hover:bg-red-500/30"
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-500/10 dark:hover:text-red-400"
           >
-            <span className="material-symbols-outlined text-lg">delete</span>
+            <span className="material-symbols-outlined text-base">delete</span>
           </button>
         </div>
       </div>
     </motion.div>
+  )
+}
+
+// Task Form Component
+interface TaskFormProps {
+  formData: {
+    title: string
+    description: string
+    priority: HabitTaskPriority
+    dueDate: string
+    tags: string[]
+  }
+  setFormData: (data: any) => void
+  tagInput: string
+  setTagInput: (value: string) => void
+  isEditing: boolean
+  onSubmit: (e: React.FormEvent) => void
+  onCancel: () => void
+  onAddTag: () => void
+  onRemoveTag: (tag: string) => void
+  hasExistingTasks: boolean
+}
+
+function TaskForm({
+  formData,
+  setFormData,
+  tagInput,
+  setTagInput,
+  isEditing,
+  onSubmit,
+  onCancel,
+  onAddTag,
+  onRemoveTag,
+  hasExistingTasks,
+}: TaskFormProps) {
+  return (
+    <motion.form
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+      onSubmit={onSubmit}
+      className={clsx(
+        'rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800',
+        hasExistingTasks && 'mt-4'
+      )}
+    >
+      <h3 className="mb-4 text-base font-semibold text-slate-900 dark:text-white">
+        {isEditing ? 'Edit Task' : 'New Task'}
+      </h3>
+
+      {/* Title */}
+      <div className="mb-4">
+        <label htmlFor="task-title" className="mb-1.5 block text-xs font-medium text-slate-700 dark:text-slate-300">
+          Title <span className="text-red-500">*</span>
+        </label>
+        <input
+          id="task-title"
+          type="text"
+          value={formData.title}
+          onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+          placeholder="e.g., Read 10 pages"
+          className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 transition-colors focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 dark:border-slate-600 dark:bg-slate-700 dark:text-white dark:placeholder-slate-500 dark:focus:border-teal-400"
+          autoFocus
+        />
+      </div>
+
+      {/* Description */}
+      <div className="mb-4">
+        <label htmlFor="task-description" className="mb-1.5 block text-xs font-medium text-slate-700 dark:text-slate-300">
+          Description
+        </label>
+        <textarea
+          id="task-description"
+          value={formData.description}
+          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+          placeholder="Add details..."
+          rows={2}
+          className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 transition-colors focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 dark:border-slate-600 dark:bg-slate-700 dark:text-white dark:placeholder-slate-500 dark:focus:border-teal-400"
+        />
+      </div>
+
+      {/* Priority and Due Date */}
+      <div className="mb-4 grid grid-cols-2 gap-3">
+        <div>
+          <label htmlFor="task-priority" className="mb-1.5 block text-xs font-medium text-slate-700 dark:text-slate-300">
+            Priority
+          </label>
+          <select
+            id="task-priority"
+            value={formData.priority}
+            onChange={(e) => setFormData({ ...formData, priority: e.target.value as HabitTaskPriority })}
+            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 transition-colors focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 dark:border-slate-600 dark:bg-slate-700 dark:text-white dark:focus:border-teal-400"
+          >
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+          </select>
+        </div>
+        <div>
+          <label htmlFor="task-duedate" className="mb-1.5 block text-xs font-medium text-slate-700 dark:text-slate-300">
+            Due Date
+          </label>
+          <input
+            id="task-duedate"
+            type="date"
+            value={formData.dueDate}
+            onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
+            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 transition-colors focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 dark:border-slate-600 dark:bg-slate-700 dark:text-white dark:focus:border-teal-400"
+          />
+        </div>
+      </div>
+
+      {/* Tags */}
+      <div className="mb-5">
+        <label htmlFor="task-tags" className="mb-1.5 block text-xs font-medium text-slate-700 dark:text-slate-300">
+          Tags
+        </label>
+        <div className="flex gap-2">
+          <input
+            id="task-tags"
+            type="text"
+            value={tagInput}
+            onChange={(e) => setTagInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault()
+                onAddTag()
+              }
+            }}
+            placeholder="Add a tag..."
+            className="flex-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 transition-colors focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 dark:border-slate-600 dark:bg-slate-700 dark:text-white dark:placeholder-slate-500 dark:focus:border-teal-400"
+          />
+          <button
+            type="button"
+            onClick={onAddTag}
+            className="rounded-lg bg-slate-100 px-4 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600"
+          >
+            Add
+          </button>
+        </div>
+        {formData.tags.length > 0 && (
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {formData.tags.map((tag) => (
+              <span
+                key={tag}
+                className="inline-flex items-center gap-1 rounded-md bg-teal-50 px-2 py-1 text-xs font-medium text-teal-700 dark:bg-teal-500/10 dark:text-teal-400"
+              >
+                {tag}
+                <button
+                  type="button"
+                  onClick={() => onRemoveTag(tag)}
+                  className="hover:text-teal-900 dark:hover:text-teal-300"
+                >
+                  <span className="material-symbols-outlined text-xs">close</span>
+                </button>
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Form Actions */}
+      <div className="flex gap-2">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="flex-1 rounded-lg bg-slate-100 px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          disabled={!formData.title.trim()}
+          className={clsx(
+            'flex-1 rounded-lg px-4 py-2.5 text-sm font-semibold transition-all',
+            formData.title.trim()
+              ? 'bg-gradient-to-r from-teal-500 to-teal-600 text-white shadow-sm hover:shadow-md'
+              : 'cursor-not-allowed bg-slate-200 text-slate-400 dark:bg-slate-700 dark:text-slate-500'
+          )}
+        >
+          {isEditing ? 'Update' : 'Create'} Task
+        </button>
+      </div>
+    </motion.form>
   )
 }

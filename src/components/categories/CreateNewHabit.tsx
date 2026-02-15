@@ -7,6 +7,16 @@ import toast from 'react-hot-toast'
 import { useHabitStore } from '@/store/useHabitStore'
 import { IconPicker } from './IconPicker'
 
+// Predefined icon colors with gradients
+const iconColorOptions = [
+  { name: 'Blue', gradient: 'from-blue-500 to-cyan-500', textColor: 'text-blue-500' },
+  { name: 'Purple', gradient: 'from-purple-500 to-pink-500', textColor: 'text-purple-500' },
+  { name: 'Green', gradient: 'from-emerald-500 to-teal-500', textColor: 'text-emerald-500' },
+  { name: 'Orange', gradient: 'from-orange-500 to-amber-500', textColor: 'text-orange-500' },
+  { name: 'Red', gradient: 'from-red-500 to-rose-500', textColor: 'text-red-500' },
+  { name: 'Teal', gradient: 'from-teal-500 to-cyan-500', textColor: 'text-teal-500' },
+]
+
 interface CreateNewHabitProps {
   isOpen: boolean
   onClose: () => void
@@ -35,9 +45,11 @@ export function CreateNewHabit({ isOpen, onClose, categoryId, categoryName }: Cr
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [icon, setIcon] = useState('check_circle')
+  const [iconColorIndex, setIconColorIndex] = useState(0)
   const [frequency, setFrequency] = useState<FrequencyType>('daily')
   const [goal, setGoal] = useState('1')
   const [goalPeriod, setGoalPeriod] = useState<GoalPeriodType>('day')
+  const [showIconPicker, setShowIconPicker] = useState(false)
 
   const [error, setError] = useState<string | undefined>(undefined)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -48,9 +60,11 @@ export function CreateNewHabit({ isOpen, onClose, categoryId, categoryName }: Cr
     setName('')
     setDescription('')
     setIcon('check_circle')
+    setIconColorIndex(0)
     setFrequency('daily')
     setGoal('1')
     setGoalPeriod('day')
+    setShowIconPicker(false)
     setError(undefined)
     setIsSubmitting(false)
     setTimeout(() => inputRef.current?.focus(), 100)
@@ -81,6 +95,7 @@ export function CreateNewHabit({ isOpen, onClose, categoryId, categoryName }: Cr
         name: trimmedName,
         description: description.trim() || undefined,
         icon,
+        iconColor: iconColorIndex,
         frequency,
         goal: goalNumber,
         goalPeriod,
@@ -141,11 +156,41 @@ export function CreateNewHabit({ isOpen, onClose, categoryId, categoryName }: Cr
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="max-h-[70vh] overflow-y-auto p-6 space-y-4 custom-scrollbar">
+          <form onSubmit={handleSubmit} className="max-h-[70vh] overflow-y-auto p-6 space-y-5 custom-scrollbar">
+            {/* Icon Preview Section */}
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100/50 p-6 dark:from-slate-800/50 dark:to-slate-900/50">
+              <div className="flex items-center gap-4">
+                {/* Large Icon Preview */}
+                <motion.div
+                  key={`${icon}-${iconColorIndex}`}
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                  className={clsx(
+                    'flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br shadow-lg',
+                    iconColorOptions[iconColorIndex].gradient
+                  )}
+                >
+                  <span className="material-symbols-outlined text-3xl text-white">{icon}</span>
+                </motion.div>
+
+                {/* Preview Info */}
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Preview</p>
+                  <h3 className="truncate text-lg font-bold text-slate-900 dark:text-white">
+                    {name || 'Your Habit Name'}
+                  </h3>
+                  <p className="truncate text-xs text-slate-600 dark:text-slate-400">
+                    {description || 'Add a description...'}
+                  </p>
+                </div>
+              </div>
+            </div>
+
             {/* Name */}
             <div>
               <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
-                Name *
+                Habit Name *
               </label>
               <input
                 ref={inputRef}
@@ -159,42 +204,130 @@ export function CreateNewHabit({ isOpen, onClose, categoryId, categoryName }: Cr
                 maxLength={100}
                 disabled={isSubmitting}
                 className={clsx(
-                  'w-full rounded-xl border bg-white px-4 py-2.5 text-sm transition-all focus:outline-none focus:ring-2 dark:bg-slate-800 dark:text-white',
+                  'w-full rounded-xl border bg-white px-4 py-3 text-sm transition-all focus:outline-none focus:ring-2 dark:bg-slate-800 dark:text-white',
                   error
                     ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20'
                     : 'border-slate-200 focus:border-primary focus:ring-primary/20 dark:border-white/10'
                 )}
               />
-              {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
+              {error && <p className="mt-1.5 text-xs text-red-500">{error}</p>}
             </div>
 
             {/* Description */}
             <div>
               <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
-                Description
+                Description (Optional)
               </label>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Why is this important?"
+                placeholder="Why is this important to you?"
                 rows={2}
                 maxLength={200}
                 disabled={isSubmitting}
-                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm transition-all focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-slate-800 dark:text-white"
+                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm transition-all focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-slate-800 dark:text-white resize-none"
               />
+              <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
+                {description.length}/200 characters
+              </p>
             </div>
 
-            {/* Icon */}
+            {/* Icon Selection */}
             <div>
               <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
-                Icon
+                Icon & Color
               </label>
-              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-slate-800/50">
-                <div className="mb-2 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-xl text-primary">{icon}</span>
-                  <span className="text-sm text-slate-600 dark:text-slate-400">{icon}</span>
+              
+              {/* Icon & Color Grid */}
+              <div className="space-y-3">
+                {/* Icon Selector Button */}
+                <button
+                  type="button"
+                  onClick={() => setShowIconPicker(!showIconPicker)}
+                  className="group w-full rounded-xl border-2 border-dashed border-slate-200 bg-white p-4 transition-all hover:border-primary hover:bg-primary/5 dark:border-white/10 dark:bg-slate-800 dark:hover:border-primary dark:hover:bg-primary/10"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className={clsx(
+                        'flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br',
+                        iconColorOptions[iconColorIndex].gradient
+                      )}>
+                        <span className="material-symbols-outlined text-xl text-white">{icon}</span>
+                      </div>
+                      <div className="text-left">
+                        <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                          {icon.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
+                        </p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                          Click to change icon
+                        </p>
+                      </div>
+                    </div>
+                    <span className={clsx(
+                      'material-symbols-outlined text-slate-400 transition-transform group-hover:text-primary',
+                      showIconPicker && 'rotate-180'
+                    )}>
+                      expand_more
+                    </span>
+                  </div>
+                </button>
+
+                {/* Icon Picker Dropdown */}
+                <AnimatePresence>
+                  {showIconPicker && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-slate-800/50">
+                        <IconPicker 
+                          value={icon} 
+                          onChange={(newIcon) => {
+                            setIcon(newIcon)
+                            setShowIconPicker(false)
+                          }} 
+                        />
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* Color Selector */}
+                <div>
+                  <p className="mb-2 text-xs font-medium text-slate-600 dark:text-slate-400">
+                    Choose Color
+                  </p>
+                  <div className="grid grid-cols-6 gap-2">
+                    {iconColorOptions.map((color, index) => (
+                      <button
+                        key={color.name}
+                        type="button"
+                        onClick={() => setIconColorIndex(index)}
+                        className={clsx(
+                          'group relative h-10 rounded-lg bg-gradient-to-br transition-all',
+                          color.gradient,
+                          iconColorIndex === index
+                            ? 'ring-2 ring-offset-2 ring-slate-900 dark:ring-white dark:ring-offset-slate-900 scale-110'
+                            : 'hover:scale-105'
+                        )}
+                      >
+                        {iconColorIndex === index && (
+                          <motion.div
+                            layoutId="selected-color"
+                            className="absolute inset-0 flex items-center justify-center"
+                          >
+                            <span className="material-symbols-outlined text-lg text-white drop-shadow">
+                              check
+                            </span>
+                          </motion.div>
+                        )}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-                <IconPicker value={icon} onChange={setIcon} />
               </div>
             </div>
 

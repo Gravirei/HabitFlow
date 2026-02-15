@@ -3,6 +3,7 @@ export interface Habit {
   name: string
   description?: string
   icon: string
+  iconColor?: number // Index of the selected gradient color (0-5)
   frequency: 'daily' | 'weekly' | 'monthly'
   goal: number
   goalPeriod: string

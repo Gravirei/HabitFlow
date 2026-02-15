@@ -13,6 +13,16 @@ import { EditHabit } from '@/components/categories/EditHabit'
 import { ToggleSwitch } from '@/components/timer/settings/ToggleSwitch'
 import { ConfirmDialog } from '@/components/timer/settings/ConfirmDialog'
 
+// Predefined icon colors with gradients (matching CreateNewHabit)
+const iconColorOptions = [
+  { name: 'Blue', gradient: 'from-blue-500 to-cyan-500', textColor: 'text-blue-500' },
+  { name: 'Purple', gradient: 'from-purple-500 to-pink-500', textColor: 'text-purple-500' },
+  { name: 'Green', gradient: 'from-emerald-500 to-teal-500', textColor: 'text-emerald-500' },
+  { name: 'Orange', gradient: 'from-orange-500 to-amber-500', textColor: 'text-orange-500' },
+  { name: 'Red', gradient: 'from-red-500 to-rose-500', textColor: 'text-red-500' },
+  { name: 'Teal', gradient: 'from-teal-500 to-cyan-500', textColor: 'text-teal-500' },
+]
+
 const fallbackGradientByColor: Record<string, string> = {
   primary: 'from-gray-900 to-black',
   blue: 'from-blue-500 to-blue-700',
@@ -42,6 +52,7 @@ export function CategoryDetail() {
   
   const [selectedHabitId, setSelectedHabitId] = useState<string | null>(null)
   const [selectedHabitName, setSelectedHabitName] = useState<string>('')
+  const [selectedHabitIcon, setSelectedHabitIcon] = useState<string>('checklist')
   const [isCreateHabitOpen, setIsCreateHabitOpen] = useState(false)
   const [habitToDelete, setHabitToDelete] = useState<string | null>(null)
   const [habitToEdit, setHabitToEdit] = useState<string | null>(null)
@@ -331,6 +342,7 @@ export function CategoryDetail() {
                     onClick={() => {
                       setSelectedHabitId(habit.id)
                       setSelectedHabitName(habit.name)
+                      setSelectedHabitIcon(habit.icon)
                     }}
                     onDelete={(habitId) => setHabitToDelete(habitId)}
                     onEdit={(habitId) => setHabitToEdit(habitId)}
@@ -463,9 +475,11 @@ export function CategoryDetail() {
           onClose={() => {
             setSelectedHabitId(null)
             setSelectedHabitName('')
+            setSelectedHabitIcon('checklist')
           }}
           habitId={selectedHabitId}
           habitName={selectedHabitName}
+          habitIcon={selectedHabitIcon}
         />
       )}
 
@@ -568,8 +582,14 @@ function HabitCard({ habit, index, taskCount, onClick, onDelete, onEdit }: Habit
     >
       <div className="relative flex items-center gap-4 p-4">
         {/* Icon */}
-        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200 text-slate-700 shadow-md dark:from-white/10 dark:to-white/5 dark:text-slate-200">
-          <span className="material-symbols-outlined text-2xl">{habit.icon}</span>
+        <div className={clsx(
+          "flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br shadow-md",
+          habit.iconColor !== undefined ? iconColorOptions[habit.iconColor]?.gradient : 'from-slate-100 to-slate-200 dark:from-white/10 dark:to-white/5'
+        )}>
+          <span className={clsx(
+            "material-symbols-outlined text-2xl",
+            habit.iconColor !== undefined ? 'text-white' : 'text-slate-700 dark:text-slate-200'
+          )}>{habit.icon}</span>
         </div>
 
         {/* Content */}

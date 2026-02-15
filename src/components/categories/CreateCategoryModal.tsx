@@ -15,6 +15,25 @@ interface CreateCategoryModalProps {
 
 const NAME_MAX_LEN = 40
 
+// Map color tokens to text color classes
+const getIconColorClass = (color: CategoryColorToken): string => {
+  const colorMap: Record<CategoryColorToken, string> = {
+    primary: 'text-primary',
+    blue: 'text-blue-500',
+    emerald: 'text-emerald-500',
+    purple: 'text-purple-500',
+    yellow: 'text-yellow-400',
+    orange: 'text-orange-500',
+    indigo: 'text-indigo-500',
+    pink: 'text-pink-500',
+    red: 'text-red-500',
+    teal: 'text-teal-500',
+    sky: 'text-sky-500',
+    slate: 'text-slate-400',
+  }
+  return colorMap[color] || 'text-slate-700'
+}
+
 export function CreateCategoryModal({ isOpen, onClose, onCreated }: CreateCategoryModalProps) {
   const { categories, addCategory } = useCategoryStore()
 
@@ -160,7 +179,7 @@ export function CreateCategoryModal({ isOpen, onClose, onCreated }: CreateCatego
               >
                 <div className="absolute left-4 top-4">
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/80 shadow-sm backdrop-blur-sm">
-                    <span className="material-symbols-outlined text-xl text-slate-700">
+                    <span className={clsx("material-symbols-outlined text-xl", getIconColorClass(color))}>
                       {icon}
                     </span>
                   </div>
