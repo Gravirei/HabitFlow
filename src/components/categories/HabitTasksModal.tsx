@@ -100,6 +100,7 @@ export function HabitTasksModal({ isOpen, onClose, habitId, habitName, habitIcon
   const confirmDelete = () => {
     if (deletingTaskId) {
       handleDelete(deletingTaskId)
+      setDeletingTaskId(null)
     }
   }
 
