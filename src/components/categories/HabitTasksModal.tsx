@@ -18,6 +18,11 @@ interface HabitTasksModalProps {
 export function HabitTasksModal({ isOpen, onClose, habitId, habitName, habitIcon = 'checklist', habitIconColor = 0 }: HabitTasksModalProps) {
   const { getTasksByHabitId, addTask, updateTask, deleteTask } = useHabitTaskStore()
   const tasks = getTasksByHabitId(habitId)
+  
+  // Get gradient and base color from habit's iconColor
+  const colorScheme = iconColorOptions[habitIconColor] || iconColorOptions[0]
+  const gradientClass = colorScheme.gradient // e.g., 'from-blue-500 to-cyan-500'
+  const baseColorClass = colorScheme.textColor.replace('text-', '') // e.g., 'blue-500'
 
   const [isAddingTask, setIsAddingTask] = useState(false)
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null)
@@ -167,7 +172,10 @@ export function HabitTasksModal({ isOpen, onClose, habitId, habitName, habitIcon
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header - Compact & Modern */}
-          <div className="relative flex items-center justify-between border-b border-slate-200 bg-gradient-to-r from-teal-50 via-white to-teal-50 px-6 py-4 dark:border-slate-700 dark:from-slate-800 dark:via-slate-900 dark:to-slate-800">
+          <div className={clsx(
+            "relative flex items-center justify-between border-b border-slate-200 px-6 py-4 dark:border-slate-700",
+            `bg-gradient-to-r from-${baseColorClass}/10 via-white to-${baseColorClass}/10 dark:from-slate-800 dark:via-slate-900 dark:to-slate-800`
+          )}>
             <div className="flex items-center gap-3">
               <div className={clsx(
                 "flex h-10 w-10 items-center justify-center rounded-xl shadow-sm bg-gradient-to-br",
@@ -243,6 +251,8 @@ export function HabitTasksModal({ isOpen, onClose, habitId, habitName, habitIcon
                       onRemoveTag={handleRemoveTag}
                       hasExistingTasks={tasks.length > 0}
                       hasDuplicateName={hasDuplicateName}
+                      gradientClass={gradientClass}
+                      baseColorClass={baseColorClass}
                     />
                     </motion.div>
                   )}
@@ -272,7 +282,11 @@ export function HabitTasksModal({ isOpen, onClose, habitId, habitName, habitIcon
                 }}
                 whileHover={{ scale: 1.05, y: -2 }}
                 whileTap={{ scale: 0.95 }}
-                className="group absolute bottom-6 left-0 right-0 z-10 mx-auto w-fit flex items-center gap-2 rounded-full bg-gradient-to-r from-teal-500 via-teal-600 to-emerald-600 px-6 py-3 text-sm font-semibold text-white shadow-xl shadow-teal-500/30 transition-shadow hover:shadow-2xl hover:shadow-teal-500/40"
+                className={clsx(
+                  "group absolute bottom-6 left-0 right-0 z-10 mx-auto w-fit flex items-center gap-2 rounded-full bg-gradient-to-r px-6 py-3 text-sm font-semibold text-white shadow-xl transition-shadow hover:shadow-2xl",
+                  gradientClass,
+                  `shadow-${baseColorClass}/30 hover:shadow-${baseColorClass}/40`
+                )}
               >
                 <motion.span 
                   className="material-symbols-outlined text-lg"
@@ -559,6 +573,8 @@ interface TaskFormProps {
   onRemoveTag: (tag: string) => void
   hasExistingTasks: boolean
   hasDuplicateName: boolean
+  gradientClass: string
+  baseColorClass: string
 }
 
 function TaskForm({
@@ -573,6 +589,8 @@ function TaskForm({
   onRemoveTag,
   hasExistingTasks,
   hasDuplicateName,
+  gradientClass,
+  baseColorClass,
 }: TaskFormProps) {
   return (
     <motion.form
@@ -642,7 +660,10 @@ function TaskForm({
           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
           placeholder="Add details..."
           rows={2}
-          className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 transition-colors focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 dark:border-slate-600 dark:bg-slate-700 dark:text-white dark:placeholder-slate-500 dark:focus:border-teal-400"
+          className={clsx(
+            "w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 transition-colors focus:outline-none focus:ring-2 dark:border-slate-600 dark:bg-slate-700 dark:text-white dark:placeholder-slate-500",
+            `focus:border-${baseColorClass} focus:ring-${baseColorClass}/20 dark:focus:border-${baseColorClass}`
+          )}
         />
       </div>
 
@@ -672,7 +693,10 @@ function TaskForm({
             type="date"
             value={formData.dueDate}
             onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
-            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 transition-colors focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 dark:border-slate-600 dark:bg-slate-700 dark:text-white dark:focus:border-teal-400"
+            className={clsx(
+              "w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 transition-colors focus:outline-none focus:ring-2 dark:border-slate-600 dark:bg-slate-700 dark:text-white",
+              `focus:border-${baseColorClass} focus:ring-${baseColorClass}/20 dark:focus:border-${baseColorClass}`
+            )}
           />
         </div>
       </div>
@@ -695,7 +719,10 @@ function TaskForm({
               }
             }}
             placeholder="Add a tag..."
-            className="flex-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 transition-colors focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 dark:border-slate-600 dark:bg-slate-700 dark:text-white dark:placeholder-slate-500 dark:focus:border-teal-400"
+            className={clsx(
+              "flex-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 transition-colors focus:outline-none focus:ring-2 dark:border-slate-600 dark:bg-slate-700 dark:text-white dark:placeholder-slate-500",
+              `focus:border-${baseColorClass} focus:ring-${baseColorClass}/20 dark:focus:border-${baseColorClass}`
+            )}
           />
           <button
             type="button"
@@ -710,13 +737,16 @@ function TaskForm({
             {formData.tags.map((tag) => (
               <span
                 key={tag}
-                className="inline-flex items-center gap-1 rounded-md bg-teal-50 px-2 py-1 text-xs font-medium text-teal-700 dark:bg-teal-500/10 dark:text-teal-400"
+                className={clsx(
+                  "inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium",
+                  `bg-${baseColorClass}/10 text-${baseColorClass} dark:bg-${baseColorClass}/10 dark:text-${baseColorClass}`
+                )}
               >
                 {tag}
                 <button
                   type="button"
                   onClick={() => onRemoveTag(tag)}
-                  className="hover:text-teal-900 dark:hover:text-teal-300"
+                  className={`hover:text-${baseColorClass} dark:hover:text-${baseColorClass}`}
                 >
                   <span className="material-symbols-outlined text-xs">close</span>
                 </button>
@@ -741,7 +771,7 @@ function TaskForm({
           className={clsx(
             'flex-1 rounded-lg px-4 py-2.5 text-sm font-semibold transition-all',
             formData.title.trim()
-              ? 'bg-gradient-to-r from-teal-500 to-teal-600 text-white shadow-sm hover:shadow-md'
+              ? `bg-gradient-to-r ${gradientClass} text-white shadow-sm hover:shadow-md`
               : 'cursor-not-allowed bg-slate-200 text-slate-400 dark:bg-slate-700 dark:text-slate-500'
           )}
         >
