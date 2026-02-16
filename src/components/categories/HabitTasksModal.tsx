@@ -23,6 +23,17 @@ export function HabitTasksModal({ isOpen, onClose, habitId, habitName, habitIcon
   const colorScheme = iconColorOptions[habitIconColor] || iconColorOptions[0]
   const gradientClass = colorScheme.gradient // e.g., 'from-blue-500 to-cyan-500'
   const baseColorClass = colorScheme.textColor.replace('text-', '') // e.g., 'blue-500'
+  
+  // Extract actual color values for inline styles (Tailwind dynamic classes don't work)
+  const colorMap: Record<string, { from: string; to: string; base: string; light: string }> = {
+    'blue-500': { from: '#3b82f6', to: '#06b6d4', base: '#3b82f6', light: 'rgba(59, 130, 246, 0.1)' },
+    'purple-500': { from: '#a855f7', to: '#ec4899', base: '#a855f7', light: 'rgba(168, 85, 247, 0.1)' },
+    'emerald-500': { from: '#10b981', to: '#14b8a6', base: '#10b981', light: 'rgba(16, 185, 129, 0.1)' },
+    'orange-500': { from: '#f97316', to: '#f59e0b', base: '#f97316', light: 'rgba(249, 115, 22, 0.1)' },
+    'red-500': { from: '#ef4444', to: '#f43f5e', base: '#ef4444', light: 'rgba(239, 68, 68, 0.1)' },
+    'teal-500': { from: '#14b8a6', to: '#06b6d4', base: '#14b8a6', light: 'rgba(20, 184, 166, 0.1)' },
+  }
+  const colors = colorMap[baseColorClass] || colorMap['blue-500']
 
   const [isAddingTask, setIsAddingTask] = useState(false)
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null)
@@ -206,7 +217,7 @@ export function HabitTasksModal({ isOpen, onClose, habitId, habitName, habitIcon
             {/* Empty State (no animation container needed) */}
             {tasks.length === 0 && !isAddingTask ? (
               <div className="p-6 pb-24">
-                <EmptyState onAddTask={() => setIsAddingTask(true)} />
+                <EmptyState onAddTask={() => setIsAddingTask(true)} colors={colors} />
               </div>
             ) : (
               /* Container without slide animation */
@@ -253,6 +264,7 @@ export function HabitTasksModal({ isOpen, onClose, habitId, habitName, habitIcon
                       hasDuplicateName={hasDuplicateName}
                       gradientClass={gradientClass}
                       baseColorClass={baseColorClass}
+                      colors={colors}
                     />
                     </motion.div>
                   )}
@@ -420,24 +432,33 @@ export function HabitTasksModal({ isOpen, onClose, habitId, habitName, habitIcon
 // Empty State Component
 interface EmptyStateProps {
   onAddTask: () => void
+  colors: { from: string; to: string; base: string; light: string }
 }
 
-function EmptyState({ onAddTask }: EmptyStateProps) {
+function EmptyState({ onAddTask, colors }: EmptyStateProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className="flex h-full min-h-[300px] flex-col items-center justify-center text-center"
     >
-      <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-50 to-teal-100 dark:from-teal-500/10 dark:to-teal-500/20">
-        <span className="material-symbols-outlined text-5xl text-teal-600 dark:text-teal-400">task_alt</span>
+      <div 
+        className="flex h-20 w-20 items-center justify-center rounded-2xl"
+        style={{
+          backgroundImage: `linear-gradient(to bottom right, ${colors.light}, ${colors.light})`
+        }}
+      >
+        <span className="material-symbols-outlined text-5xl" style={{ color: colors.base }}>task_alt</span>
       </div>
       <h3 className="mt-6 text-lg font-semibold text-slate-900 dark:text-white">No tasks yet</h3>
       <p className="mt-2 max-w-sm text-sm text-slate-500 dark:text-slate-400">Create your first task to start tracking progress on this habit.</p>
       <button
         type="button"
         onClick={onAddTask}
-        className="mt-6 flex items-center gap-2 rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal-700"
+        className="mt-6 flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-white transition-all hover:shadow-md"
+        style={{
+          backgroundImage: `linear-gradient(to right, ${colors.from}, ${colors.to})`
+        }}
       >
         <span className="material-symbols-outlined text-lg">add</span>
         Create Task
@@ -575,6 +596,7 @@ interface TaskFormProps {
   hasDuplicateName: boolean
   gradientClass: string
   baseColorClass: string
+  colors: { from: string; to: string; base: string; light: string }
 }
 
 function TaskForm({
@@ -591,6 +613,7 @@ function TaskForm({
   hasDuplicateName,
   gradientClass,
   baseColorClass,
+  colors,
 }: TaskFormProps) {
   return (
     <motion.form
@@ -623,8 +646,21 @@ function TaskForm({
             "w-full rounded-lg border bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 transition-colors focus:outline-none focus:ring-2 dark:bg-slate-700 dark:text-white dark:placeholder-slate-500",
             hasDuplicateName
               ? "border-amber-300 focus:border-amber-500 focus:ring-amber-500/20 dark:border-amber-500/50 dark:focus:border-amber-400"
-              : "border-slate-300 focus:border-teal-500 focus:ring-teal-500/20 dark:border-slate-600 dark:focus:border-teal-400"
+              : "border-slate-300 dark:border-slate-600"
           )}
+          style={!hasDuplicateName ? {
+            ['--tw-ring-color' as any]: `${colors.base}33`,
+          } : {}}
+          onFocus={(e) => {
+            if (!hasDuplicateName) {
+              e.target.style.borderColor = colors.base
+            }
+          }}
+          onBlur={(e) => {
+            if (!hasDuplicateName) {
+              e.target.style.borderColor = ''
+            }
+          }}
           autoFocus
         />
         
@@ -660,10 +696,12 @@ function TaskForm({
           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
           placeholder="Add details..."
           rows={2}
-          className={clsx(
-            "w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 transition-colors focus:outline-none focus:ring-2 dark:border-slate-600 dark:bg-slate-700 dark:text-white dark:placeholder-slate-500",
-            `focus:border-${baseColorClass} focus:ring-${baseColorClass}/20 dark:focus:border-${baseColorClass}`
-          )}
+          className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 transition-colors focus:outline-none focus:ring-2 dark:border-slate-600 dark:bg-slate-700 dark:text-white dark:placeholder-slate-500"
+          style={{
+            ['--tw-ring-color' as any]: `${colors.base}33`,
+          }}
+          onFocus={(e) => e.target.style.borderColor = colors.base}
+          onBlur={(e) => e.target.style.borderColor = ''}
         />
       </div>
 
@@ -693,10 +731,12 @@ function TaskForm({
             type="date"
             value={formData.dueDate}
             onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
-            className={clsx(
-              "w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 transition-colors focus:outline-none focus:ring-2 dark:border-slate-600 dark:bg-slate-700 dark:text-white",
-              `focus:border-${baseColorClass} focus:ring-${baseColorClass}/20 dark:focus:border-${baseColorClass}`
-            )}
+            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 transition-colors focus:outline-none focus:ring-2 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+            style={{
+              ['--tw-ring-color' as any]: `${colors.base}33`,
+            }}
+            onFocus={(e) => e.target.style.borderColor = colors.base}
+            onBlur={(e) => e.target.style.borderColor = ''}
           />
         </div>
       </div>
@@ -719,10 +759,12 @@ function TaskForm({
               }
             }}
             placeholder="Add a tag..."
-            className={clsx(
-              "flex-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 transition-colors focus:outline-none focus:ring-2 dark:border-slate-600 dark:bg-slate-700 dark:text-white dark:placeholder-slate-500",
-              `focus:border-${baseColorClass} focus:ring-${baseColorClass}/20 dark:focus:border-${baseColorClass}`
-            )}
+            className="flex-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 transition-colors focus:outline-none focus:ring-2 dark:border-slate-600 dark:bg-slate-700 dark:text-white dark:placeholder-slate-500"
+            style={{
+              ['--tw-ring-color' as any]: `${colors.base}33`,
+            }}
+            onFocus={(e) => e.target.style.borderColor = colors.base}
+            onBlur={(e) => e.target.style.borderColor = ''}
           />
           <button
             type="button"
