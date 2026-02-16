@@ -1062,19 +1062,17 @@ function HabitCard({
     setMenuPosition({ top, left, right })
   }
 
-  const getIconGradient = (iconName: string) => {
-    const map: Record<string, string> = {
-      self_improvement: 'from-teal-400 to-teal-600',
-      water_drop: 'from-blue-400 to-cyan-600',
-      book_2: 'from-purple-400 to-violet-600',
-      menu_book: 'from-purple-400 to-violet-600',
-      edit_note: 'from-pink-400 to-rose-600',
-      directions_walk: 'from-green-400 to-emerald-600',
-      fitness_center: 'from-orange-400 to-red-500',
-      bedtime: 'from-indigo-400 to-blue-600',
-      restaurant: 'from-amber-400 to-orange-600',
-    }
-    return map[iconName] || 'from-gray-400 to-gray-500'
+  // Get gradient based on habit's iconColor (0-5)
+  const getIconGradient = (iconColor: number = 0) => {
+    const gradients = [
+      'from-blue-500 to-cyan-500',      // 0: Blue
+      'from-purple-500 to-pink-500',    // 1: Purple
+      'from-emerald-500 to-teal-500',   // 2: Green
+      'from-orange-500 to-amber-500',   // 3: Orange
+      'from-red-500 to-rose-500',       // 4: Red
+      'from-teal-500 to-cyan-500',      // 5: Teal
+    ]
+    return gradients[iconColor] || gradients[0]
   }
 
   // Calculate progress based on tasks or habit completion
@@ -1118,7 +1116,7 @@ function HabitCard({
         <div
           className={clsx(
             'flex size-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br transition-transform group-hover:scale-105',
-            getIconGradient(habit.icon)
+            getIconGradient(habit.iconColor ?? 0)
           )}
         >
           <span className="material-symbols-outlined text-xl text-white">{habit.icon}</span>
