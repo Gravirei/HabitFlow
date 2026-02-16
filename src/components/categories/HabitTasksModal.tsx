@@ -715,7 +715,12 @@ function TaskForm({
             id="task-priority"
             value={formData.priority}
             onChange={(e) => setFormData({ ...formData, priority: e.target.value as HabitTaskPriority })}
-            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 transition-colors focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 dark:border-slate-600 dark:bg-slate-700 dark:text-white dark:focus:border-teal-400"
+            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 transition-colors focus:outline-none focus:ring-2 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+            style={{
+              ['--tw-ring-color' as any]: `${colors.base}33`,
+            }}
+            onFocus={(e) => e.target.style.borderColor = colors.base}
+            onBlur={(e) => e.target.style.borderColor = ''}
           >
             <option value="low">Low</option>
             <option value="medium">Medium</option>
