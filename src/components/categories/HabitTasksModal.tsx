@@ -4,6 +4,7 @@ import clsx from 'clsx'
 
 import { useHabitTaskStore } from '@/store/useHabitTaskStore'
 import type { HabitTask, HabitTaskPriority } from '@/types/habitTask'
+import { iconColorOptions } from './CreateNewHabit'
 
 interface HabitTasksModalProps {
   isOpen: boolean
@@ -11,9 +12,10 @@ interface HabitTasksModalProps {
   habitId: string
   habitName: string
   habitIcon?: string
+  habitIconColor?: number
 }
 
-export function HabitTasksModal({ isOpen, onClose, habitId, habitName, habitIcon = 'checklist' }: HabitTasksModalProps) {
+export function HabitTasksModal({ isOpen, onClose, habitId, habitName, habitIcon = 'checklist', habitIconColor = 0 }: HabitTasksModalProps) {
   const { getTasksByHabitId, addTask, updateTask, deleteTask } = useHabitTaskStore()
   const tasks = getTasksByHabitId(habitId)
 
@@ -167,7 +169,10 @@ export function HabitTasksModal({ isOpen, onClose, habitId, habitName, habitIcon
           {/* Header - Compact & Modern */}
           <div className="relative flex items-center justify-between border-b border-slate-200 bg-gradient-to-r from-teal-50 via-white to-teal-50 px-6 py-4 dark:border-slate-700 dark:from-slate-800 dark:via-slate-900 dark:to-slate-800">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 shadow-sm">
+              <div className={clsx(
+                "flex h-10 w-10 items-center justify-center rounded-xl shadow-sm bg-gradient-to-br",
+                iconColorOptions[habitIconColor]?.gradient || 'from-teal-500 to-teal-600'
+              )}>
                 <span className="material-symbols-outlined text-xl text-white">{habitIcon}</span>
               </div>
               <div>

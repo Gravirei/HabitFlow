@@ -8,7 +8,7 @@ import { useHabitStore } from '@/store/useHabitStore'
 import { IconPicker } from './IconPicker'
 
 // Predefined icon colors with gradients
-const iconColorOptions = [
+export const iconColorOptions = [
   { name: 'Blue', gradient: 'from-blue-500 to-cyan-500', textColor: 'text-blue-500' },
   { name: 'Purple', gradient: 'from-purple-500 to-pink-500', textColor: 'text-purple-500' },
   { name: 'Green', gradient: 'from-emerald-500 to-teal-500', textColor: 'text-emerald-500' },

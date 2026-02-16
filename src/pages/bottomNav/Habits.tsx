@@ -67,6 +67,7 @@ export function Habits() {
   const [selectedHabitId, setSelectedHabitId] = useState<string | null>(null)
   const [selectedHabitName, setSelectedHabitName] = useState('')
   const [selectedHabitIcon, setSelectedHabitIcon] = useState('checklist')
+  const [selectedHabitIconColor, setSelectedHabitIconColor] = useState(0)
 
   // Task Completion Modal (for completing tasks)
   const [taskCompletionHabitId, setTaskCompletionHabitId] = useState<string | null>(null)
@@ -422,6 +423,7 @@ export function Habits() {
                   setSelectedHabitId(habit.id)
                   setSelectedHabitName(habit.name)
                   setSelectedHabitIcon(habit.icon)
+                  setSelectedHabitIconColor(habit.iconColor ?? 0)
                 }}
               />
             )}
@@ -513,10 +515,12 @@ export function Habits() {
             setSelectedHabitId(null)
             setSelectedHabitName('')
             setSelectedHabitIcon('checklist')
+            setSelectedHabitIconColor(0)
           }}
           habitId={selectedHabitId}
           habitName={selectedHabitName}
           habitIcon={selectedHabitIcon}
+          habitIconColor={selectedHabitIconColor}
         />
       )}
 

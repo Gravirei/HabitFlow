@@ -48,6 +48,7 @@ export function Today() {
   const [selectedHabitId, setSelectedHabitId] = useState<string | null>(null)
   const [selectedHabitName, setSelectedHabitName] = useState('')
   const [selectedHabitIcon, setSelectedHabitIcon] = useState('checklist')
+  const [selectedHabitIconColor, setSelectedHabitIconColor] = useState(0)
 
   // Format selected date for store operations
   const formattedDate = format(selectedDate, 'yyyy-MM-dd')
@@ -61,6 +62,7 @@ export function Today() {
       setSelectedHabitId(habit.id)
       setSelectedHabitName(habit.name)
       setSelectedHabitIcon(habit.icon)
+      setSelectedHabitIconColor(habit.iconColor ?? 0)
     } else {
       // No tasks - direct toggle
       toggleHabitCompletion(habit.id, formattedDate)
@@ -519,10 +521,12 @@ export function Today() {
             setSelectedHabitId(null)
             setSelectedHabitName('')
             setSelectedHabitIcon('checklist')
+            setSelectedHabitIconColor(0)
           }}
           habitId={selectedHabitId}
           habitName={selectedHabitName}
           habitIcon={selectedHabitIcon}
+          habitIconColor={selectedHabitIconColor}
         />
       )}
     </div>

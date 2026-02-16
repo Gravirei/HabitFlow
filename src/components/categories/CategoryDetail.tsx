@@ -53,6 +53,7 @@ export function CategoryDetail() {
   const [selectedHabitId, setSelectedHabitId] = useState<string | null>(null)
   const [selectedHabitName, setSelectedHabitName] = useState<string>('')
   const [selectedHabitIcon, setSelectedHabitIcon] = useState<string>('checklist')
+  const [selectedHabitIconColor, setSelectedHabitIconColor] = useState<number>(0)
   const [isCreateHabitOpen, setIsCreateHabitOpen] = useState(false)
   const [habitToDelete, setHabitToDelete] = useState<string | null>(null)
   const [habitToEdit, setHabitToEdit] = useState<string | null>(null)
@@ -343,6 +344,7 @@ export function CategoryDetail() {
                       setSelectedHabitId(habit.id)
                       setSelectedHabitName(habit.name)
                       setSelectedHabitIcon(habit.icon)
+                      setSelectedHabitIconColor(habit.iconColor ?? 0)
                     }}
                     onDelete={(habitId) => setHabitToDelete(habitId)}
                     onEdit={(habitId) => setHabitToEdit(habitId)}
@@ -476,10 +478,12 @@ export function CategoryDetail() {
             setSelectedHabitId(null)
             setSelectedHabitName('')
             setSelectedHabitIcon('checklist')
+            setSelectedHabitIconColor(0)
           }}
           habitId={selectedHabitId}
           habitName={selectedHabitName}
           habitIcon={selectedHabitIcon}
+          habitIconColor={selectedHabitIconColor}
         />
       )}
 
