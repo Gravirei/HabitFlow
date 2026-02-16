@@ -612,22 +612,6 @@ export function Categories() {
                 <>
                   <button
                     type="button"
-                    onClick={() => setIsTemplatesModalOpen(true)}
-                    className="rounded-full bg-white/5 px-3 py-1.5 text-xs font-semibold text-gray-200 transition-colors hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
-                    aria-label="Templates"
-                  >
-                    Templates
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setIsImportExportModalOpen(true)}
-                    className="rounded-full bg-white/5 px-3 py-1.5 text-xs font-semibold text-gray-200 transition-colors hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
-                    aria-label="Import/Export"
-                  >
-                    Import/Export
-                  </button>
-                  <button
-                    type="button"
                     onClick={() => {
                       setIsSearchOpen(!isSearchOpen)
                       if (isSearchOpen) setSearchQuery('')
@@ -642,6 +626,22 @@ export function Categories() {
                     <span className="material-symbols-outlined" aria-hidden="true">
                       {isSearchOpen ? 'close' : 'search'}
                     </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsTemplatesModalOpen(true)}
+                    className="rounded-full bg-white/5 px-3 py-1.5 text-xs font-semibold text-gray-200 transition-colors hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+                    aria-label="Templates"
+                  >
+                    Templates
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsImportExportModalOpen(true)}
+                    className="rounded-full bg-white/5 px-3 py-1.5 text-xs font-semibold text-gray-200 transition-colors hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+                    aria-label="Import/Export"
+                  >
+                    Import/Export
                   </button>
                 </>
               )}
