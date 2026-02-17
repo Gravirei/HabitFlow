@@ -32,6 +32,18 @@ export interface Habit {
    * Default: false
    */
   isActive?: boolean
+
+  /**
+   * Whether this habit is archived.
+   * Archived habits don't show in normal views, only in "Archived Habits" modal.
+   * Default: false
+   */
+  archived?: boolean
+
+  /**
+   * ISO date string when the habit was archived.
+   */
+  archivedDate?: string
 }
 
 export interface HabitCompletion {

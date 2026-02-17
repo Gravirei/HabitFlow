@@ -28,6 +28,10 @@ interface HabitState {
    * Note: this intentionally does not touch the legacy `category` field.
    */
   clearCategoryFromHabits: (categoryId: string) => void
+
+  // Archive functionality
+  archiveHabit: (habitId: string) => void
+  unarchiveHabit: (habitId: string) => void
 }
 
 const mapLegacyCategoryToCategoryId = (
@@ -174,6 +178,26 @@ export const useHabitStore = create<HabitState>()(
       clearCategoryFromHabits: (categoryId) => {
         set((state) => ({
           habits: state.habits.filter((habit) => habit.categoryId !== categoryId),
+        }))
+      },
+
+      archiveHabit: (habitId) => {
+        set((state) => ({
+          habits: state.habits.map((habit) =>
+            habit.id === habitId
+              ? { ...habit, archived: true, archivedDate: new Date().toISOString() }
+              : habit
+          ),
+        }))
+      },
+
+      unarchiveHabit: (habitId) => {
+        set((state) => ({
+          habits: state.habits.map((habit) =>
+            habit.id === habitId
+              ? { ...habit, archived: false, archivedDate: undefined }
+              : habit
+          ),
         }))
       },
     }),

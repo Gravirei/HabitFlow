@@ -10,6 +10,7 @@ import { useHabitTaskStore } from '@/store/useHabitTaskStore'
 import { HabitTasksModal } from '@/components/categories/HabitTasksModal'
 import { CreateNewHabit } from '@/components/categories/CreateNewHabit'
 import { EditHabit } from '@/components/categories/EditHabit'
+import { ArchivedHabitsModal } from '@/components/categories/ArchivedHabitsModal'
 import { ToggleSwitch } from '@/components/timer/settings/ToggleSwitch'
 import { ConfirmDialog } from '@/components/timer/settings/ConfirmDialog'
 
@@ -48,12 +49,14 @@ export function CategoryDetail() {
   const allHabits = useHabitStore((state) => state.habits)
   const updateHabit = useHabitStore((state) => state.updateHabit)
   const deleteHabit = useHabitStore((state) => state.deleteHabit)
+  const archiveHabit = useHabitStore((state) => state.archiveHabit)
   const { getTaskCount } = useHabitTaskStore()
   
   const [selectedHabitId, setSelectedHabitId] = useState<string | null>(null)
   const [selectedHabitName, setSelectedHabitName] = useState<string>('')
   const [selectedHabitIcon, setSelectedHabitIcon] = useState<string>('checklist')
   const [selectedHabitIconColor, setSelectedHabitIconColor] = useState<number>(0)
+  const [isArchivedHabitsOpen, setIsArchivedHabitsOpen] = useState(false)
   const [isCreateHabitOpen, setIsCreateHabitOpen] = useState(false)
   const [habitToDelete, setHabitToDelete] = useState<string | null>(null)
   const [habitToEdit, setHabitToEdit] = useState<string | null>(null)
@@ -436,16 +439,29 @@ export function CategoryDetail() {
                 <span className="material-symbols-outlined text-lg">bolt</span>
                 Quick Actions
               </h3>
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                type="button"
-                onClick={() => setIsCreateHabitOpen(true)}
-                className="flex w-full items-center gap-3 rounded-2xl bg-gradient-to-r from-primary to-emerald-400 p-4 text-left text-slate-900 shadow-lg shadow-primary/20 transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
-              >
-                <span className="material-symbols-outlined text-2xl">add_circle</span>
-                <span className="text-sm font-bold">Add New Habit</span>
-              </motion.button>
+              <div className="space-y-3">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  type="button"
+                  onClick={() => setIsCreateHabitOpen(true)}
+                  className="flex w-full items-center gap-3 rounded-2xl bg-gradient-to-r from-primary to-emerald-400 p-4 text-left text-slate-900 shadow-lg shadow-primary/20 transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+                >
+                  <span className="material-symbols-outlined text-2xl">add_circle</span>
+                  <span className="text-sm font-bold">Add New Habit</span>
+                </motion.button>
+                
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  type="button"
+                  onClick={() => setIsArchivedHabitsOpen(true)}
+                  className="flex w-full items-center gap-3 rounded-2xl bg-slate-100 p-4 text-left text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/50"
+                >
+                  <span className="material-symbols-outlined text-2xl">archive</span>
+                  <span className="text-sm font-bold">Archived Habits</span>
+                </motion.button>
+              </div>
             </div>
           </div>
         </motion.aside>
@@ -515,6 +531,13 @@ export function CategoryDetail() {
         cancelText="Cancel"
         variant="danger"
         icon="delete"
+      />
+
+      {/* Archived Habits Modal */}
+      <ArchivedHabitsModal
+        isOpen={isArchivedHabitsOpen}
+        onClose={() => setIsArchivedHabitsOpen(false)}
+        categoryId={category?.id}
       />
     </div>
   )
@@ -704,8 +727,8 @@ function HabitCard({ habit, index, taskCount, onClick, onDelete, onEdit }: Habit
                     onClick={(e) => {
                       e.stopPropagation()
                       setIsMenuOpen(false)
-                      // TODO: Implement Archive functionality
-                      toast.success('Archive feature coming soon!')
+                      archiveHabit(habit.id)
+                      toast.success(`"${habit.name}" archived successfully!`)
                     }}
                   >
                     <span className="material-symbols-outlined text-xl">archive</span>
