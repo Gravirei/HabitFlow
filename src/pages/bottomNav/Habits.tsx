@@ -215,37 +215,6 @@ export function Habits() {
   // Helper: today's date
   const todayDate = format(new Date(), 'yyyy-MM-dd')
 
-  // Handle complete all habits
-  const handleCompleteAllHabits = () => {
-    filteredHabits.forEach((habit) => {
-      if (!isHabitCompletedToday(habit.id)) {
-        toggleHabitCompletion(habit.id)
-      }
-    })
-    setIsUniversalMenuOpen(false)
-  }
-
-  // Handle pin all habits
-  const handlePinAllHabits = () => {
-    const allPinned = filteredHabits.every((h) => h.pinned)
-    
-    if (allPinned) {
-      // Unpin all
-      filteredHabits.forEach((habit) => {
-        if (habit.pinned) unpinHabit(habit.id)
-      })
-    } else {
-      // Pin all
-      filteredHabits.forEach((habit) => {
-        if (!habit.pinned) pinHabit(habit.id)
-      })
-    }
-    setIsUniversalMenuOpen(false)
-  }
-
-  // Check if all habits are pinned
-  const allHabitsPinned = filteredHabits.length > 0 && filteredHabits.every((h) => h.pinned)
-
   const filteredHabits = habits
     .filter((h) => h.isActive === true && h.categoryId !== undefined && !h.archived)
     .filter((h) => !h.hiddenDates?.includes(todayDate)) // Filter out hidden habits for today
