@@ -91,27 +91,6 @@ export function Habits() {
   // All Habits Stats Modal
   const [isAllStatsModalOpen, setIsAllStatsModalOpen] = useState(false)
 
-  // Universal menu state
-  const [isUniversalMenuOpen, setIsUniversalMenuOpen] = useState(false)
-  const universalMenuRef = useRef<HTMLDivElement>(null)
-
-  // Close universal menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (universalMenuRef.current && !universalMenuRef.current.contains(event.target as Node)) {
-        setIsUniversalMenuOpen(false)
-      }
-    }
-
-    if (isUniversalMenuOpen) {
-      document.addEventListener('mousedown', handleClickOutside)
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [isUniversalMenuOpen])
-
   // Confirmation dialogs
   const [confirmDialogState, setConfirmDialogState] = useState<{
     isOpen: boolean
@@ -226,37 +205,6 @@ export function Habits() {
       if (!a.pinned && b.pinned) return 1
       return 0
     })
-
-  // Handle complete all habits
-  const handleCompleteAllHabits = () => {
-    filteredHabits.forEach((habit) => {
-      if (!isHabitCompletedToday(habit.id)) {
-        toggleHabitCompletion(habit.id)
-      }
-    })
-    setIsUniversalMenuOpen(false)
-  }
-
-  // Handle pin all habits
-  const handlePinAllHabits = () => {
-    const allPinned = filteredHabits.every((h) => h.pinned)
-    
-    if (allPinned) {
-      // Unpin all
-      filteredHabits.forEach((habit) => {
-        if (habit.pinned) unpinHabit(habit.id)
-      })
-    } else {
-      // Pin all
-      filteredHabits.forEach((habit) => {
-        if (!habit.pinned) pinHabit(habit.id)
-      })
-    }
-    setIsUniversalMenuOpen(false)
-  }
-
-  // Check if all habits are pinned
-  const allHabitsPinned = filteredHabits.length > 0 && filteredHabits.every((h) => h.pinned)
 
   const tabs = [
     { id: 'daily' as const, label: 'Daily', icon: 'today' },
@@ -816,7 +764,7 @@ function HabitList({
   onArchive?: (habitId: string) => void
   onDeleteToday?: (habitId: string, habitName: string) => void
 }) {
-  const { isHabitCompletedToday } = useHabitStore()
+  const { isHabitCompletedToday, toggleHabitCompletion, pinHabit, unpinHabit } = useHabitStore()
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
     new Set(['health', 'work', 'personal', 'other'])
   )
@@ -840,6 +788,27 @@ function HabitList({
     right: 'auto',
   })
 
+  // Universal menu state
+  const [isUniversalMenuOpen, setIsUniversalMenuOpen] = useState(false)
+  const universalMenuRef = useRef<HTMLDivElement>(null)
+
+  // Close universal menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (universalMenuRef.current && !universalMenuRef.current.contains(event.target as Node)) {
+        setIsUniversalMenuOpen(false)
+      }
+    }
+
+    if (isUniversalMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isUniversalMenuOpen])
+
   // Persist universal edit state
   useEffect(() => {
     localStorage.setItem('universalEditEnabled', JSON.stringify(universalEditEnabled))
@@ -849,6 +818,36 @@ function HabitList({
   useEffect(() => {
     localStorage.setItem('individualEditEnabled', JSON.stringify(individualEditEnabled))
   }, [individualEditEnabled])
+
+  // Handler functions for universal menu
+  const handleCompleteAllHabits = () => {
+    habits.forEach((habit) => {
+      if (!isHabitCompletedToday(habit.id)) {
+        toggleHabitCompletion(habit.id)
+      }
+    })
+    setIsUniversalMenuOpen(false)
+  }
+
+  const handlePinAllHabits = () => {
+    const allPinned = habits.every((h) => h.pinned)
+    
+    if (allPinned) {
+      // Unpin all
+      habits.forEach((habit) => {
+        if (habit.pinned) unpinHabit(habit.id)
+      })
+    } else {
+      // Pin all
+      habits.forEach((habit) => {
+        if (!habit.pinned) pinHabit(habit.id)
+      })
+    }
+    setIsUniversalMenuOpen(false)
+  }
+
+  // Check if all habits are pinned
+  const allHabitsPinned = habits.length > 0 && habits.every((h) => h.pinned)
 
   const habitsByCategory = habits.reduce(
     (acc, habit) => {
