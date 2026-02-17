@@ -18,7 +18,7 @@ export function HabitDetailsModal({ isOpen, onClose, habitId }: HabitDetailsModa
 
   const habit = habits.find((h) => h.id === habitId)
   const category = categories.find((c) => c.id === habit?.categoryId)
-  const tasks = habitTasks.filter((t) => t.habitId === habitId)
+  const tasks = habitTasks?.filter((t) => t.habitId === habitId) || []
 
   if (!habit) return null
 
