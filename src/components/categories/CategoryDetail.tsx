@@ -65,7 +65,9 @@ export function CategoryDetail() {
 
   const habits = useMemo(() => {
     if (!categoryId) return []
-    return allHabits.filter((habit) => habit.categoryId === categoryId)
+    return allHabits.filter((habit) => 
+      habit.categoryId === categoryId && !habit.archived
+    )
   }, [categoryId, allHabits])
 
   // Check if all habits in this category are active
