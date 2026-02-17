@@ -681,6 +681,37 @@ function HabitCard({ habit, index, taskCount, onClick, onDelete, onEdit }: Habit
                     <span className="material-symbols-outlined text-xl">edit</span>
                     Edit
                   </button>
+                  
+                  <button
+                    type="button"
+                    role="menuitem"
+                    className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-700"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setIsMenuOpen(false)
+                      // TODO: Implement Add Notes functionality
+                      toast.success('Add Notes feature coming soon!')
+                    }}
+                  >
+                    <span className="material-symbols-outlined text-xl">note_add</span>
+                    Add Notes
+                  </button>
+                  
+                  <button
+                    type="button"
+                    role="menuitem"
+                    className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-700"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setIsMenuOpen(false)
+                      // TODO: Implement Archive functionality
+                      toast.success('Archive feature coming soon!')
+                    }}
+                  >
+                    <span className="material-symbols-outlined text-xl">archive</span>
+                    Make Archive
+                  </button>
+                  
                   <button
                     type="button"
                     role="menuitem"
