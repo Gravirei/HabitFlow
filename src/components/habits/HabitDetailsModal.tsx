@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useHabitStore } from '@/store/useHabitStore'
 import { useCategoryStore } from '@/store/useCategoryStore'
 import { useHabitTaskStore } from '@/store/useHabitTaskStore'
-import { iconColorOptions } from './CreateNewHabit'
+import { iconColorOptions } from '@/components/categories/CreateNewHabit'
 import { format } from 'date-fns'
 
 interface HabitDetailsModalProps {
