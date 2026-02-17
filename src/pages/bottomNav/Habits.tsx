@@ -475,6 +475,7 @@ export function Habits() {
                     habitName,
                   })
                 }}
+                onOpenAllStats={() => setIsAllStatsModalOpen(true)}
               />
             )}
           </motion.div>
@@ -751,6 +752,7 @@ function HabitList({
   onTogglePin,
   onArchive,
   onDeleteToday,
+  onOpenAllStats,
 }: {
   habits: Habit[]
   onHabitClick: (habit: Habit) => void
@@ -763,6 +765,7 @@ function HabitList({
   onTogglePin?: (habitId: string, isPinned: boolean) => void
   onArchive?: (habitId: string) => void
   onDeleteToday?: (habitId: string, habitName: string) => void
+  onOpenAllStats?: () => void
 }) {
   const { isHabitCompletedToday, toggleHabitCompletion, pinHabit, unpinHabit } = useHabitStore()
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
@@ -1084,7 +1087,7 @@ function HabitList({
                             onClick={(e) => {
                               e.stopPropagation()
                               setIsUniversalMenuOpen(false)
-                              setIsAllStatsModalOpen(true)
+                              if (onOpenAllStats) onOpenAllStats()
                             }}
                             className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm text-gray-700 transition-colors hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700/50"
                           >
