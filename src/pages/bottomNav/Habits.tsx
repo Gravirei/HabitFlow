@@ -1017,6 +1017,7 @@ function HabitList({
                   transition={{ duration: 0.3, ease: 'easeInOut' }}
                   onClick={(e) => {
                     e.stopPropagation()
+                    console.log('3-dot clicked', { universalEditEnabled, hasRef: !!universalButtonRef.current, isUniversalMenuOpen })
                     if (universalEditEnabled && universalButtonRef.current) {
                       const rect = universalButtonRef.current.getBoundingClientRect()
                       setUniversalMenuPosition({
@@ -1024,7 +1025,10 @@ function HabitList({
                         left: 'auto',
                         right: window.innerWidth - rect.right,
                       })
+                      console.log('Opening menu', { rect, isUniversalMenuOpen })
                       setIsUniversalMenuOpen(!isUniversalMenuOpen)
+                    } else {
+                      console.log('Conditions not met', { universalEditEnabled, hasRef: !!universalButtonRef.current })
                     }
                   }}
                   className="flex size-8 shrink-0 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-300 overflow-hidden"
