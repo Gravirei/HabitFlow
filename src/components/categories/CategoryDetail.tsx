@@ -11,6 +11,7 @@ import { HabitTasksModal } from '@/components/categories/HabitTasksModal'
 import { CreateNewHabit } from '@/components/categories/CreateNewHabit'
 import { EditHabit } from '@/components/categories/EditHabit'
 import { ArchivedHabitsModal } from '@/components/categories/ArchivedHabitsModal'
+import { HabitNotesModal } from '@/components/categories/HabitNotesModal'
 import { ToggleSwitch } from '@/components/timer/settings/ToggleSwitch'
 import { ConfirmDialog } from '@/components/timer/settings/ConfirmDialog'
 
@@ -60,6 +61,7 @@ export function CategoryDetail() {
   const [isCreateHabitOpen, setIsCreateHabitOpen] = useState(false)
   const [habitToDelete, setHabitToDelete] = useState<string | null>(null)
   const [habitToEdit, setHabitToEdit] = useState<string | null>(null)
+  const [notesModalHabit, setNotesModalHabit] = useState<{ id: string; name: string } | null>(null)
 
   const category = categoryId ? getCategoryById(categoryId) : undefined
 
@@ -354,6 +356,7 @@ export function CategoryDetail() {
                     onDelete={(habitId) => setHabitToDelete(habitId)}
                     onEdit={(habitId) => setHabitToEdit(habitId)}
                     onArchive={(habitId) => archiveHabit(habitId)}
+                    onOpenNotes={(habitId, habitName) => setNotesModalHabit({ id: habitId, name: habitName })}
                   />
                 ))}
               </div>
@@ -542,6 +545,16 @@ export function CategoryDetail() {
         onClose={() => setIsArchivedHabitsOpen(false)}
         categoryId={category?.id}
       />
+
+      {/* Habit Notes Modal */}
+      {notesModalHabit && (
+        <HabitNotesModal
+          isOpen={!!notesModalHabit}
+          onClose={() => setNotesModalHabit(null)}
+          habitId={notesModalHabit.id}
+          habitName={notesModalHabit.name}
+        />
+      )}
     </div>
   )
 }
@@ -571,9 +584,10 @@ interface HabitCardProps {
   onDelete: (habitId: string) => void
   onEdit: (habitId: string) => void
   onArchive: (habitId: string) => void
+  onOpenNotes: (habitId: string, habitName: string) => void
 }
 
-function HabitCard({ habit, index, taskCount, onClick, onDelete, onEdit, onArchive }: HabitCardProps) {
+function HabitCard({ habit, index, taskCount, onClick, onDelete, onEdit, onArchive, onOpenNotes }: HabitCardProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const menuId = `habit-menu-${habit.id}`
   const menuRef = useRef<HTMLDivElement>(null)
@@ -638,10 +652,39 @@ function HabitCard({ habit, index, taskCount, onClick, onDelete, onEdit, onArchi
             </p>
           )}
           
-          {/* Task Count */}
-          <div className="mt-2 flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
-            <span className="material-symbols-outlined text-base">task</span>
-            <span className="font-semibold">{taskCount} {taskCount === 1 ? 'task' : 'tasks'}</span>
+          {/* Task Count, Notes Badge & Frequency Badge */}
+          <div className="mt-2 flex items-center gap-2 flex-wrap">
+            <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+              <span className="material-symbols-outlined text-base">task</span>
+              <span className="font-semibold">{taskCount} {taskCount === 1 ? 'task' : 'tasks'}</span>
+            </div>
+            
+            {/* Frequency Badge */}
+            <div className={clsx(
+              "flex items-center gap-1 rounded-full px-2 py-1 text-xs font-semibold",
+              habit.frequency === 'daily' && "bg-teal-100 text-teal-700 dark:bg-teal-500/20 dark:text-teal-400",
+              habit.frequency === 'weekly' && "bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-400",
+              habit.frequency === 'monthly' && "bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400"
+            )}>
+              <span className="material-symbols-outlined text-sm">
+                {habit.frequency === 'daily' ? 'today' : habit.frequency === 'weekly' ? 'date_range' : 'calendar_month'}
+              </span>
+              <span className="capitalize">{habit.frequency}</span>
+            </div>
+            
+            {/* Notes Badge */}
+            {habit.notes && habit.notes.length > 0 && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onOpenNotes(habit.id, habit.name)
+                }}
+                className="flex items-center gap-1 rounded-full bg-amber-100 px-2 py-1 text-xs font-semibold text-amber-700 transition-colors hover:bg-amber-200 dark:bg-amber-500/20 dark:text-amber-400 dark:hover:bg-amber-500/30"
+              >
+                <span className="material-symbols-outlined text-sm">note</span>
+                <span>{habit.notes.length}</span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -716,8 +759,7 @@ function HabitCard({ habit, index, taskCount, onClick, onDelete, onEdit, onArchi
                     onClick={(e) => {
                       e.stopPropagation()
                       setIsMenuOpen(false)
-                      // TODO: Implement Add Notes functionality
-                      toast.success('Add Notes feature coming soon!')
+                      onOpenNotes(habit.id, habit.name)
                     }}
                   >
                     <span className="material-symbols-outlined text-xl">note_add</span>

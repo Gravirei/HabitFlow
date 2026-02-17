@@ -3,6 +3,8 @@ import { useHabitStore } from '@/store/useHabitStore'
 import type { Habit } from '@/types/habit'
 import { iconColorOptions } from './CreateNewHabit'
 import clsx from 'clsx'
+import { useState } from 'react'
+import { ConfirmDialog } from '@/components/timer/settings/ConfirmDialog'
 
 interface ArchivedHabitsModalProps {
   isOpen: boolean
@@ -12,6 +14,7 @@ interface ArchivedHabitsModalProps {
 
 export function ArchivedHabitsModal({ isOpen, onClose, categoryId }: ArchivedHabitsModalProps) {
   const { habits, unarchiveHabit, deleteHabit } = useHabitStore()
+  const [habitToDelete, setHabitToDelete] = useState<{ id: string; name: string } | null>(null)
 
   // Filter archived habits (optionally by category)
   const archivedHabits = habits.filter((habit) => {
@@ -24,9 +27,14 @@ export function ArchivedHabitsModal({ isOpen, onClose, categoryId }: ArchivedHab
     unarchiveHabit(habitId)
   }
 
-  const handleDelete = (habitId: string) => {
-    if (confirm('Permanently delete this habit? This action cannot be undone.')) {
-      deleteHabit(habitId)
+  const handleDeleteClick = (habitId: string, habitName: string) => {
+    setHabitToDelete({ id: habitId, name: habitName })
+  }
+
+  const handleConfirmDelete = () => {
+    if (habitToDelete) {
+      deleteHabit(habitToDelete.id)
+      setHabitToDelete(null)
     }
   }
 
@@ -85,13 +93,26 @@ export function ArchivedHabitsModal({ isOpen, onClose, categoryId }: ArchivedHab
                       key={habit.id}
                       habit={habit}
                       onUnarchive={() => handleUnarchive(habit.id)}
-                      onDelete={() => handleDelete(habit.id)}
+                      onDelete={() => handleDeleteClick(habit.id, habit.name)}
                     />
                   ))}
                 </div>
               )}
             </div>
           </motion.div>
+
+          {/* Delete Confirmation Dialog */}
+          <ConfirmDialog
+            isOpen={!!habitToDelete}
+            onClose={() => setHabitToDelete(null)}
+            onConfirm={handleConfirmDelete}
+            title="Delete Habit Permanently?"
+            message={`Are you sure you want to permanently delete "${habitToDelete?.name}"? This action cannot be undone and will remove all associated data.`}
+            confirmText="Delete Permanently"
+            cancelText="Cancel"
+            variant="danger"
+            icon="delete_forever"
+          />
         </div>
       )}
     </AnimatePresence>

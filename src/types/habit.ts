@@ -44,6 +44,18 @@ export interface Habit {
    * ISO date string when the habit was archived.
    */
   archivedDate?: string
+
+  /**
+   * Short notes attached to this habit.
+   * Each note has an id, text content, and creation timestamp.
+   */
+  notes?: HabitNote[]
+}
+
+export interface HabitNote {
+  id: string
+  text: string
+  createdAt: string
 }
 
 export interface HabitCompletion {

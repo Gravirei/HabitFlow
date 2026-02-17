@@ -6,6 +6,7 @@ import { useHabitTaskStore } from '@/store/useHabitTaskStore'
 
 import { HabitTasksModal } from '@/components/categories/HabitTasksModal'
 import { HabitTaskCompletionModal } from '@/components/HabitTaskCompletionModal'
+import { HabitNotesViewModal } from '@/components/categories/HabitNotesViewModal'
 import { BottomNav } from '@/components/BottomNav'
 import { SideNav } from '@/components/SideNav'
 import { ConfirmDialog } from '@/components/timer/settings/ConfirmDialog'
@@ -71,6 +72,9 @@ export function Habits() {
 
   // Task Completion Modal (for completing tasks)
   const [taskCompletionHabitId, setTaskCompletionHabitId] = useState<string | null>(null)
+
+  // Notes Modal (view-only)
+  const [notesModalHabit, setNotesModalHabit] = useState<{ id: string; name: string } | null>(null)
 
   // Confirmation dialogs
   const [confirmDialogState, setConfirmDialogState] = useState<{
@@ -173,7 +177,7 @@ export function Habits() {
   }
 
   const filteredHabits = habits
-    .filter((h) => h.isActive === true && h.categoryId !== undefined)
+    .filter((h) => h.isActive === true && h.categoryId !== undefined && !h.archived)
     .filter((h) => h.frequency === activeTab)
     .filter((h) => h.name.toLowerCase().includes(searchQuery.toLowerCase()))
 
@@ -189,10 +193,11 @@ export function Habits() {
       h.completedDates.includes(today()) &&
       h.frequency === activeTab &&
       h.isActive === true &&
-      h.categoryId !== undefined
+      h.categoryId !== undefined &&
+      !h.archived
   ).length
   const totalActiveTabHabits = habits.filter(
-    (h) => h.frequency === activeTab && h.isActive === true && h.categoryId !== undefined
+    (h) => h.frequency === activeTab && h.isActive === true && h.categoryId !== undefined && !h.archived
   ).length
   const bestStreak = Math.max(...habits.map((h) => h.bestStreak), 0)
   const completionPct =
@@ -425,6 +430,7 @@ export function Habits() {
                   setSelectedHabitIcon(habit.icon)
                   setSelectedHabitIconColor(habit.iconColor ?? 0)
                 }}
+                onOpenNotes={(habitId, habitName) => setNotesModalHabit({ id: habitId, name: habitName })}
               />
             )}
           </motion.div>
@@ -542,6 +548,16 @@ export function Habits() {
         />
       )}
 
+      {/* ── Notes View Modal (read-only) ── */}
+      {notesModalHabit && (
+        <HabitNotesViewModal
+          isOpen={!!notesModalHabit}
+          onClose={() => setNotesModalHabit(null)}
+          habitId={notesModalHabit.id}
+          habitName={notesModalHabit.name}
+        />
+      )}
+
       {/* ── Confirmation Dialogs ── */}
       {/* Incomplete Tasks Warning */}
       <ConfirmDialog
@@ -632,11 +648,13 @@ function HabitList({
   onHabitClick,
   onCompletionClick,
   onManageTasks,
+  onOpenNotes,
 }: {
   habits: Habit[]
   onHabitClick: (habit: Habit) => void
   onCompletionClick: (e: React.MouseEvent, habit: Habit) => void
   onManageTasks?: (habit: Habit) => void
+  onOpenNotes?: (habitId: string, habitName: string) => void
 }) {
   const { isHabitCompletedToday } = useHabitStore()
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
@@ -866,6 +884,7 @@ function HabitList({
                         onCompletionClick={onCompletionClick}
                         showEditIcon={individualEditEnabled}
                         onManageTasks={onManageTasks}
+                        onOpenNotes={onOpenNotes}
                       />
                     </motion.div>
                   ))}
@@ -985,12 +1004,14 @@ function HabitCard({
   onCompletionClick,
   showEditIcon = false,
   onManageTasks,
+  onOpenNotes,
 }: {
   habit: Habit
   onHabitClick: (habit: Habit) => void
   onCompletionClick: (e: React.MouseEvent, habit: Habit) => void
   showEditIcon?: boolean
   onManageTasks?: (habit: Habit) => void
+  onOpenNotes?: (habitId: string, habitName: string) => void
 }) {
   const navigate = useNavigate()
   const { isHabitCompletedToday } = useHabitStore()
@@ -1190,6 +1211,19 @@ function HabitCard({
                 <span className="material-symbols-outlined text-[12px]">task_alt</span>
                 {taskCount}
               </span>
+            )}
+            {/* Notes Badge */}
+            {habit.notes && habit.notes.length > 0 && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onOpenNotes?.(habit.id, habit.name)
+                }}
+                className="flex shrink-0 items-center gap-0.5 rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700 transition-colors hover:bg-amber-200 dark:bg-amber-500/20 dark:text-amber-400 dark:hover:bg-amber-500/30"
+              >
+                <span className="material-symbols-outlined text-[12px]">note</span>
+                {habit.notes.length}
+              </button>
             )}
           </div>
         </div>

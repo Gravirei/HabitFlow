@@ -32,6 +32,10 @@ interface HabitState {
   // Archive functionality
   archiveHabit: (habitId: string) => void
   unarchiveHabit: (habitId: string) => void
+
+  // Notes functionality
+  addNote: (habitId: string, noteText: string) => void
+  deleteNote: (habitId: string, noteId: string) => void
 }
 
 const mapLegacyCategoryToCategoryId = (
@@ -198,6 +202,38 @@ export const useHabitStore = create<HabitState>()(
               ? { ...habit, archived: false, archivedDate: undefined }
               : habit
           ),
+        }))
+      },
+
+      addNote: (habitId, noteText) => {
+        set((state) => ({
+          habits: state.habits.map((habit) => {
+            if (habit.id !== habitId) return habit
+            
+            const newNote = {
+              id: Date.now().toString(),
+              text: noteText,
+              createdAt: new Date().toISOString(),
+            }
+            
+            return {
+              ...habit,
+              notes: [...(habit.notes || []), newNote],
+            }
+          }),
+        }))
+      },
+
+      deleteNote: (habitId, noteId) => {
+        set((state) => ({
+          habits: state.habits.map((habit) => {
+            if (habit.id !== habitId) return habit
+            
+            return {
+              ...habit,
+              notes: (habit.notes || []).filter((note) => note.id !== noteId),
+            }
+          }),
         }))
       },
     }),
