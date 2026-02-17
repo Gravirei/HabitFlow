@@ -994,7 +994,13 @@ function HabitCard({
 }) {
   const navigate = useNavigate()
   const { isHabitCompletedToday } = useHabitStore()
-  const { getTaskCount, getTasksByHabitId } = useHabitTaskStore()
+  const { getTaskCount, getTasksByHabitId, resetTasksIfNeeded } = useHabitTaskStore()
+  
+  // Reset tasks if needed based on habit frequency
+  useEffect(() => {
+    resetTasksIfNeeded(habit.id, habit.frequency)
+  }, [habit.id, habit.frequency, resetTasksIfNeeded])
+  
   const completed = isHabitCompletedToday(habit.id)
   const taskCount = getTaskCount(habit.id)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -1077,16 +1083,42 @@ function HabitCard({
 
   // Calculate progress based on tasks or habit completion
   const calculateProgress = () => {
+    const today = new Date().toISOString().split('T')[0]
+    
     if (taskCount === 0) {
       // No tasks: binary completion (0 or 1)
       return completed ? 1 : 0
     } else {
-      // Has tasks: show task completion progress
+      // Has tasks: show task completion progress based on TODAY's completions
       const tasks = getTasksByHabitId(habit.id)
-      const completedTasks = tasks.filter((t) => t.completed).length
-      const taskProgress = completedTasks / taskCount
-
-      // If habit is completed, also factor that in (give it full credit)
+      
+      // Count tasks completed TODAY (based on frequency)
+      const completedTodayCount = tasks.filter((t) => {
+        if (!t.completed || !t.completedDate) return false
+        
+        // Check if task was completed in current period based on frequency
+        if (habit.frequency === 'daily') {
+          return t.completedDate === today
+        } else if (habit.frequency === 'weekly') {
+          // Check if in same week
+          const taskDate = new Date(t.completedDate)
+          const todayDate = new Date(today)
+          const getMonday = (d: Date) => {
+            const day = d.getDay()
+            const diff = d.getDate() - day + (day === 0 ? -6 : 1)
+            return new Date(d.setDate(diff)).toISOString().split('T')[0]
+          }
+          return getMonday(taskDate) === getMonday(todayDate)
+        } else if (habit.frequency === 'monthly') {
+          // Check if in same month
+          return t.completedDate.substring(0, 7) === today.substring(0, 7)
+        }
+        return false
+      }).length
+      
+      const taskProgress = completedTodayCount / taskCount
+      
+      // If habit is completed, show full progress; otherwise show task progress
       return completed ? 1 : taskProgress
     }
   }

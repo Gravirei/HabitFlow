@@ -9,6 +9,7 @@ export interface HabitTask {
   dueDate?: string
   tags?: string[]
   completed: boolean
+  completedDate?: string // ISO date string when task was completed (YYYY-MM-DD)
   createdAt: string
   updatedAt: string
 }
