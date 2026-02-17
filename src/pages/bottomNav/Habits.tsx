@@ -1018,21 +1018,21 @@ function HabitList({
                 {isUniversalMenuOpen && universalEditEnabled && (
                   <div
                     ref={universalMenuRef}
-                    className="absolute right-0 top-12 z-50 w-64 overflow-hidden rounded-2xl bg-white shadow-2xl ring-1 ring-gray-200 dark:bg-gray-800 dark:ring-gray-700"
+                    className="absolute right-0 top-12 z-50 w-48 overflow-hidden rounded-2xl bg-white shadow-xl ring-1 ring-gray-200/60 dark:bg-gray-800 dark:ring-white/10"
                   >
-                    <div className="p-2">
+                    <div className="py-2">
                       {/* Complete All Habits */}
                       <button
                         onClick={(e) => {
                           e.stopPropagation()
                           handleCompleteAllHabits()
                         }}
-                        className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-medium text-gray-700 transition-colors hover:bg-teal-50 dark:text-gray-200 dark:hover:bg-teal-500/10"
+                        className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm text-gray-700 transition-colors hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700/50"
                       >
-                        <span className="material-symbols-outlined text-xl text-teal-600 dark:text-teal-400">
+                        <span className="material-symbols-outlined text-[18px] text-teal-500">
                           check_circle
                         </span>
-                        <span>Complete All Habits</span>
+                        <span>Complete All</span>
                       </button>
 
                       {/* Pin/Unpin All Habits */}
@@ -1041,12 +1041,12 @@ function HabitList({
                           e.stopPropagation()
                           handlePinAllHabits()
                         }}
-                        className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-medium text-gray-700 transition-colors hover:bg-orange-50 dark:text-gray-200 dark:hover:bg-orange-500/10"
+                        className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm text-gray-700 transition-colors hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700/50"
                       >
-                        <span className="material-symbols-outlined text-xl text-orange-600 dark:text-orange-400">
+                        <span className="material-symbols-outlined text-[18px] text-orange-500">
                           push_pin
                         </span>
-                        <span>{allHabitsPinned ? 'Unpin All Habits' : 'Pin All Habits'}</span>
+                        <span>{allHabitsPinned ? 'Unpin All' : 'Pin All'}</span>
                       </button>
 
                       {/* View All Habits Stats */}
@@ -1056,12 +1056,12 @@ function HabitList({
                           setIsUniversalMenuOpen(false)
                           setIsAllStatsModalOpen(true)
                         }}
-                        className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-medium text-gray-700 transition-colors hover:bg-indigo-50 dark:text-gray-200 dark:hover:bg-indigo-500/10"
+                        className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm text-gray-700 transition-colors hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700/50"
                       >
-                        <span className="material-symbols-outlined text-xl text-indigo-600 dark:text-indigo-400">
+                        <span className="material-symbols-outlined text-[18px] text-indigo-500">
                           bar_chart
                         </span>
-                        <span>View All Habits Stats</span>
+                        <span>View Stats</span>
                       </button>
                     </div>
                   </div>
