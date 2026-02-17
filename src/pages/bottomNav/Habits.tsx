@@ -7,6 +7,9 @@ import { useHabitTaskStore } from '@/store/useHabitTaskStore'
 import { HabitTasksModal } from '@/components/categories/HabitTasksModal'
 import { HabitTaskCompletionModal } from '@/components/HabitTaskCompletionModal'
 import { HabitNotesViewModal } from '@/components/categories/HabitNotesViewModal'
+import { HabitNotesModal } from '@/components/categories/HabitNotesModal'
+import { HabitDetailsModal } from '@/components/categories/HabitDetailsModal'
+import { EditHabit } from '@/components/categories/EditHabit'
 import { BottomNav } from '@/components/BottomNav'
 import { SideNav } from '@/components/SideNav'
 import { ConfirmDialog } from '@/components/timer/settings/ConfirmDialog'
@@ -55,7 +58,7 @@ function formatDate(): string {
 
 export function Habits() {
   const navigate = useNavigate()
-  const { habits, toggleHabitCompletion } = useHabitStore()
+  const { habits, toggleHabitCompletion, archiveHabit, pinHabit, unpinHabit, hideHabitForToday } = useHabitStore()
   const { getTaskCount, tasks: habitTasks, updateTask } = useHabitTaskStore()
 
   const [isFabOpen, setIsFabOpen] = useState(false)
@@ -73,13 +76,20 @@ export function Habits() {
   // Task Completion Modal (for completing tasks)
   const [taskCompletionHabitId, setTaskCompletionHabitId] = useState<string | null>(null)
 
-  // Notes Modal (view-only)
+  // Notes Modal (view-only when clicking badge, full when clicking menu)
   const [notesModalHabit, setNotesModalHabit] = useState<{ id: string; name: string } | null>(null)
+  const [fullNotesModalHabit, setFullNotesModalHabit] = useState<{ id: string; name: string } | null>(null)
+
+  // Details Modal
+  const [detailsModalHabitId, setDetailsModalHabitId] = useState<string | null>(null)
+
+  // Edit Modal
+  const [editModalHabitId, setEditModalHabitId] = useState<string | null>(null)
 
   // Confirmation dialogs
   const [confirmDialogState, setConfirmDialogState] = useState<{
     isOpen: boolean
-    type: 'incomplete-tasks' | 'start-fresh' | null
+    type: 'incomplete-tasks' | 'start-fresh' | 'delete-today' | null
     habitId: string | null
     habitName?: string
     incompleteTasks?: number
@@ -176,10 +186,20 @@ export function Habits() {
     }
   }
 
+  // Helper: today's date
+  const todayDate = format(new Date(), 'yyyy-MM-dd')
+
   const filteredHabits = habits
     .filter((h) => h.isActive === true && h.categoryId !== undefined && !h.archived)
+    .filter((h) => !h.hiddenDates?.includes(todayDate)) // Filter out hidden habits for today
     .filter((h) => h.frequency === activeTab)
     .filter((h) => h.name.toLowerCase().includes(searchQuery.toLowerCase()))
+    .sort((a, b) => {
+      // Sort: pinned habits first
+      if (a.pinned && !b.pinned) return -1
+      if (!a.pinned && b.pinned) return 1
+      return 0
+    })
 
   const tabs = [
     { id: 'daily' as const, label: 'Daily', icon: 'today' },
@@ -431,6 +451,25 @@ export function Habits() {
                   setSelectedHabitIconColor(habit.iconColor ?? 0)
                 }}
                 onOpenNotes={(habitId, habitName) => setNotesModalHabit({ id: habitId, name: habitName })}
+                onAddNote={(habitId, habitName) => setFullNotesModalHabit({ id: habitId, name: habitName })}
+                onOpenDetails={(habitId) => setDetailsModalHabitId(habitId)}
+                onOpenEdit={(habitId) => setEditModalHabitId(habitId)}
+                onTogglePin={(habitId, isPinned) => {
+                  if (isPinned) {
+                    unpinHabit(habitId)
+                  } else {
+                    pinHabit(habitId)
+                  }
+                }}
+                onArchive={(habitId) => archiveHabit(habitId)}
+                onDeleteToday={(habitId, habitName) => {
+                  setConfirmDialogState({
+                    isOpen: true,
+                    type: 'delete-today',
+                    habitId,
+                    habitName,
+                  })
+                }}
               />
             )}
           </motion.div>
@@ -584,6 +623,52 @@ export function Habits() {
         variant="warning"
         icon="restart_alt"
       />
+
+      {/* Delete for Today Warning */}
+      <ConfirmDialog
+        isOpen={confirmDialogState.isOpen && confirmDialogState.type === 'delete-today'}
+        onClose={() => setConfirmDialogState({ isOpen: false, type: null, habitId: null })}
+        onConfirm={() => {
+          if (confirmDialogState.habitId) {
+            hideHabitForToday(confirmDialogState.habitId, todayDate)
+          }
+          setConfirmDialogState({ isOpen: false, type: null, habitId: null })
+        }}
+        title="Delete for Today?"
+        message={`This will hide "${confirmDialogState.habitName}" for today only. The habit will appear again tomorrow. If you want to delete this habit permanently, delete it from the category page.`}
+        confirmText="Hide for Today"
+        cancelText="Cancel"
+        variant="danger"
+        icon="delete"
+      />
+
+      {/* ── Details Modal ── */}
+      {detailsModalHabitId && (
+        <HabitDetailsModal
+          isOpen={!!detailsModalHabitId}
+          onClose={() => setDetailsModalHabitId(null)}
+          habitId={detailsModalHabitId}
+        />
+      )}
+
+      {/* ── Edit Modal ── */}
+      {editModalHabitId && (
+        <EditHabit
+          isOpen={!!editModalHabitId}
+          onClose={() => setEditModalHabitId(null)}
+          habitId={editModalHabitId}
+        />
+      )}
+
+      {/* ── Full Notes Modal (from menu) ── */}
+      {fullNotesModalHabit && (
+        <HabitNotesModal
+          isOpen={!!fullNotesModalHabit}
+          onClose={() => setFullNotesModalHabit(null)}
+          habitId={fullNotesModalHabit.id}
+          habitName={fullNotesModalHabit.name}
+        />
+      )}
     </div>
   )
 }
@@ -649,12 +734,24 @@ function HabitList({
   onCompletionClick,
   onManageTasks,
   onOpenNotes,
+  onAddNote,
+  onOpenDetails,
+  onOpenEdit,
+  onTogglePin,
+  onArchive,
+  onDeleteToday,
 }: {
   habits: Habit[]
   onHabitClick: (habit: Habit) => void
   onCompletionClick: (e: React.MouseEvent, habit: Habit) => void
   onManageTasks?: (habit: Habit) => void
   onOpenNotes?: (habitId: string, habitName: string) => void
+  onAddNote?: (habitId: string, habitName: string) => void
+  onOpenDetails?: (habitId: string) => void
+  onOpenEdit?: (habitId: string) => void
+  onTogglePin?: (habitId: string, isPinned: boolean) => void
+  onArchive?: (habitId: string) => void
+  onDeleteToday?: (habitId: string, habitName: string) => void
 }) {
   const { isHabitCompletedToday } = useHabitStore()
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
@@ -885,6 +982,12 @@ function HabitList({
                         showEditIcon={individualEditEnabled}
                         onManageTasks={onManageTasks}
                         onOpenNotes={onOpenNotes}
+                        onAddNote={onAddNote}
+                        onOpenDetails={onOpenDetails}
+                        onOpenEdit={onOpenEdit}
+                        onTogglePin={onTogglePin}
+                        onArchive={onArchive}
+                        onDeleteToday={onDeleteToday}
                       />
                     </motion.div>
                   ))}
@@ -1005,6 +1108,12 @@ function HabitCard({
   showEditIcon = false,
   onManageTasks,
   onOpenNotes,
+  onAddNote,
+  onOpenDetails,
+  onOpenEdit,
+  onTogglePin,
+  onArchive,
+  onDeleteToday,
 }: {
   habit: Habit
   onHabitClick: (habit: Habit) => void
@@ -1012,6 +1121,12 @@ function HabitCard({
   showEditIcon?: boolean
   onManageTasks?: (habit: Habit) => void
   onOpenNotes?: (habitId: string, habitName: string) => void
+  onAddNote?: (habitId: string, habitName: string) => void
+  onOpenDetails?: (habitId: string) => void
+  onOpenEdit?: (habitId: string) => void
+  onTogglePin?: (habitId: string, isPinned: boolean) => void
+  onArchive?: (habitId: string) => void
+  onDeleteToday?: (habitId: string, habitName: string) => void
 }) {
   const navigate = useNavigate()
   const { isHabitCompletedToday } = useHabitStore()
@@ -1187,6 +1302,15 @@ function HabitCard({
               {habit.name}
             </h5>
 
+            {/* Pin indicator */}
+            {habit.pinned && (
+              <div className="flex shrink-0 items-center gap-0.5 rounded-full bg-orange-100 px-1.5 py-0.5 dark:bg-orange-500/15">
+                <span className="material-symbols-outlined icon-filled text-[11px] text-orange-500 dark:text-orange-400">
+                  push_pin
+                </span>
+              </div>
+            )}
+
             {/* Streak badge */}
             {habit.currentStreak > 0 && (
               <div className="flex shrink-0 items-center gap-0.5 rounded-full bg-orange-100 px-1.5 py-0.5 dark:bg-orange-500/15">
@@ -1360,7 +1484,8 @@ function HabitCard({
                 <button
                   onClick={(e) => {
                     e.stopPropagation()
-                    // TODO: Navigate to habit details
+                    setIsMenuOpen(false)
+                    if (onOpenDetails) onOpenDetails(habit.id)
                   }}
                   className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm text-gray-700 transition-colors hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700/50"
                 >
@@ -1374,7 +1499,8 @@ function HabitCard({
                 <button
                   onClick={(e) => {
                     e.stopPropagation()
-                    // TODO: Navigate to edit habit
+                    setIsMenuOpen(false)
+                    if (onOpenEdit) onOpenEdit(habit.id)
                   }}
                   className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm text-gray-700 transition-colors hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700/50"
                 >
@@ -1403,7 +1529,8 @@ function HabitCard({
                 <button
                   onClick={(e) => {
                     e.stopPropagation()
-                    // TODO: Add note functionality
+                    setIsMenuOpen(false)
+                    if (onAddNote) onAddNote(habit.id, habit.name)
                   }}
                   className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm text-gray-700 transition-colors hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700/50"
                 >
@@ -1420,21 +1547,23 @@ function HabitCard({
                 <button
                   onClick={(e) => {
                     e.stopPropagation()
-                    // TODO: Pin/unpin habit
+                    setIsMenuOpen(false)
+                    if (onTogglePin) onTogglePin(habit.id, habit.pinned || false)
                   }}
                   className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm text-gray-700 transition-colors hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700/50"
                 >
                   <span className="material-symbols-outlined text-[18px] text-orange-500">
                     push_pin
                   </span>
-                  <span>Pin Habit</span>
+                  <span>{habit.pinned ? 'Unpin Habit' : 'Pin Habit'}</span>
                 </button>
 
                 {/* Archive */}
                 <button
                   onClick={(e) => {
                     e.stopPropagation()
-                    // TODO: Archive habit
+                    setIsMenuOpen(false)
+                    if (onArchive) onArchive(habit.id)
                   }}
                   className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm text-gray-700 transition-colors hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700/50"
                 >
@@ -1451,12 +1580,13 @@ function HabitCard({
                 <button
                   onClick={(e) => {
                     e.stopPropagation()
-                    // TODO: Delete habit with confirmation
+                    setIsMenuOpen(false)
+                    if (onDeleteToday) onDeleteToday(habit.id, habit.name)
                   }}
                   className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-500/10"
                 >
                   <span className="material-symbols-outlined text-[18px]">delete</span>
-                  <span>Delete Habit</span>
+                  <span>Delete for Today</span>
                 </button>
               </div>
             </motion.div>

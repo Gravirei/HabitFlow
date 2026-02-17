@@ -50,6 +50,17 @@ export interface Habit {
    * Each note has an id, text content, and creation timestamp.
    */
   notes?: HabitNote[]
+
+  /**
+   * Whether this habit is pinned (appears on top of the list).
+   */
+  pinned?: boolean
+
+  /**
+   * Array of ISO date strings when this habit should be hidden.
+   * Used for "delete for today" functionality.
+   */
+  hiddenDates?: string[]
 }
 
 export interface HabitNote {

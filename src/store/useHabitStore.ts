@@ -36,6 +36,13 @@ interface HabitState {
   // Notes functionality
   addNote: (habitId: string, noteText: string) => void
   deleteNote: (habitId: string, noteId: string) => void
+
+  // Pin functionality
+  pinHabit: (habitId: string) => void
+  unpinHabit: (habitId: string) => void
+
+  // Hide for today functionality
+  hideHabitForToday: (habitId: string, date: string) => void
 }
 
 const mapLegacyCategoryToCategoryId = (
@@ -234,6 +241,35 @@ export const useHabitStore = create<HabitState>()(
               notes: (habit.notes || []).filter((note) => note.id !== noteId),
             }
           }),
+        }))
+      },
+
+      pinHabit: (habitId) => {
+        set((state) => ({
+          habits: state.habits.map((habit) =>
+            habit.id === habitId ? { ...habit, pinned: true } : habit
+          ),
+        }))
+      },
+
+      unpinHabit: (habitId) => {
+        set((state) => ({
+          habits: state.habits.map((habit) =>
+            habit.id === habitId ? { ...habit, pinned: false } : habit
+          ),
+        }))
+      },
+
+      hideHabitForToday: (habitId, date) => {
+        set((state) => ({
+          habits: state.habits.map((habit) =>
+            habit.id === habitId
+              ? {
+                  ...habit,
+                  hiddenDates: [...(habit.hiddenDates || []), date],
+                }
+              : habit
+          ),
         }))
       },
     }),
