@@ -353,6 +353,7 @@ export function CategoryDetail() {
                     }}
                     onDelete={(habitId) => setHabitToDelete(habitId)}
                     onEdit={(habitId) => setHabitToEdit(habitId)}
+                    onArchive={(habitId) => archiveHabit(habitId)}
                   />
                 ))}
               </div>
@@ -569,9 +570,10 @@ interface HabitCardProps {
   onClick: () => void
   onDelete: (habitId: string) => void
   onEdit: (habitId: string) => void
+  onArchive: (habitId: string) => void
 }
 
-function HabitCard({ habit, index, taskCount, onClick, onDelete, onEdit }: HabitCardProps) {
+function HabitCard({ habit, index, taskCount, onClick, onDelete, onEdit, onArchive }: HabitCardProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const menuId = `habit-menu-${habit.id}`
   const menuRef = useRef<HTMLDivElement>(null)
@@ -729,7 +731,7 @@ function HabitCard({ habit, index, taskCount, onClick, onDelete, onEdit }: Habit
                     onClick={(e) => {
                       e.stopPropagation()
                       setIsMenuOpen(false)
-                      archiveHabit(habit.id)
+                      onArchive(habit.id)
                       toast.success(`"${habit.name}" archived successfully!`)
                     }}
                   >
