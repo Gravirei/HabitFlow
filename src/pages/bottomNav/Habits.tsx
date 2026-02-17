@@ -91,6 +91,27 @@ export function Habits() {
   // All Habits Stats Modal
   const [isAllStatsModalOpen, setIsAllStatsModalOpen] = useState(false)
 
+  // Universal menu state
+  const [isUniversalMenuOpen, setIsUniversalMenuOpen] = useState(false)
+  const universalMenuRef = useRef<HTMLDivElement>(null)
+
+  // Close universal menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (universalMenuRef.current && !universalMenuRef.current.contains(event.target as Node)) {
+        setIsUniversalMenuOpen(false)
+      }
+    }
+
+    if (isUniversalMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isUniversalMenuOpen])
+
   // Confirmation dialogs
   const [confirmDialogState, setConfirmDialogState] = useState<{
     isOpen: boolean
@@ -193,6 +214,37 @@ export function Habits() {
 
   // Helper: today's date
   const todayDate = format(new Date(), 'yyyy-MM-dd')
+
+  // Handle complete all habits
+  const handleCompleteAllHabits = () => {
+    filteredHabits.forEach((habit) => {
+      if (!isHabitCompletedToday(habit.id)) {
+        toggleHabitCompletion(habit.id)
+      }
+    })
+    setIsUniversalMenuOpen(false)
+  }
+
+  // Handle pin all habits
+  const handlePinAllHabits = () => {
+    const allPinned = filteredHabits.every((h) => h.pinned)
+    
+    if (allPinned) {
+      // Unpin all
+      filteredHabits.forEach((habit) => {
+        if (habit.pinned) unpinHabit(habit.id)
+      })
+    } else {
+      // Pin all
+      filteredHabits.forEach((habit) => {
+        if (!habit.pinned) pinHabit(habit.id)
+      })
+    }
+    setIsUniversalMenuOpen(false)
+  }
+
+  // Check if all habits are pinned
+  const allHabitsPinned = filteredHabits.length > 0 && filteredHabits.every((h) => h.pinned)
 
   const filteredHabits = habits
     .filter((h) => h.isActive === true && h.categoryId !== undefined && !h.archived)
@@ -953,7 +1005,7 @@ function HabitList({
                   onClick={(e) => {
                     e.stopPropagation()
                     if (universalEditEnabled) {
-                      setIsAllStatsModalOpen(true)
+                      setIsUniversalMenuOpen(!isUniversalMenuOpen)
                     }
                   }}
                   className="flex size-8 shrink-0 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-300 overflow-hidden"
@@ -961,6 +1013,59 @@ function HabitList({
                 >
                   <span className="material-symbols-outlined text-[18px] whitespace-nowrap">more_vert</span>
                 </motion.button>
+
+                {/* Universal Menu Dropdown */}
+                {isUniversalMenuOpen && universalEditEnabled && (
+                  <div
+                    ref={universalMenuRef}
+                    className="absolute right-0 top-12 z-50 w-64 overflow-hidden rounded-2xl bg-white shadow-2xl ring-1 ring-gray-200 dark:bg-gray-800 dark:ring-gray-700"
+                  >
+                    <div className="p-2">
+                      {/* Complete All Habits */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleCompleteAllHabits()
+                        }}
+                        className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-medium text-gray-700 transition-colors hover:bg-teal-50 dark:text-gray-200 dark:hover:bg-teal-500/10"
+                      >
+                        <span className="material-symbols-outlined text-xl text-teal-600 dark:text-teal-400">
+                          check_circle
+                        </span>
+                        <span>Complete All Habits</span>
+                      </button>
+
+                      {/* Pin/Unpin All Habits */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handlePinAllHabits()
+                        }}
+                        className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-medium text-gray-700 transition-colors hover:bg-orange-50 dark:text-gray-200 dark:hover:bg-orange-500/10"
+                      >
+                        <span className="material-symbols-outlined text-xl text-orange-600 dark:text-orange-400">
+                          push_pin
+                        </span>
+                        <span>{allHabitsPinned ? 'Unpin All Habits' : 'Pin All Habits'}</span>
+                      </button>
+
+                      {/* View All Habits Stats */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setIsUniversalMenuOpen(false)
+                          setIsAllStatsModalOpen(true)
+                        }}
+                        className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-medium text-gray-700 transition-colors hover:bg-indigo-50 dark:text-gray-200 dark:hover:bg-indigo-500/10"
+                      >
+                        <span className="material-symbols-outlined text-xl text-indigo-600 dark:text-indigo-400">
+                          bar_chart
+                        </span>
+                        <span>View All Habits Stats</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Expand arrow */}
