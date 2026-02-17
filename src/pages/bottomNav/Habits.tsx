@@ -791,6 +791,16 @@ function HabitList({
   // Universal menu state
   const [isUniversalMenuOpen, setIsUniversalMenuOpen] = useState(false)
   const universalMenuRef = useRef<HTMLDivElement>(null)
+  const universalButtonRef = useRef<HTMLButtonElement>(null)
+  const [universalMenuPosition, setUniversalMenuPosition] = useState<{
+    top: number
+    left: number | 'auto'
+    right: number | 'auto'
+  }>({
+    top: 0,
+    left: 0,
+    right: 'auto',
+  })
 
   // Close universal menu when clicking outside
   useEffect(() => {
@@ -1000,10 +1010,17 @@ function HabitList({
                     opacity: universalEditEnabled ? 1 : 0,
                     scale: universalEditEnabled ? 1 : 0.8,
                   }}
+                  ref={universalButtonRef}
                   transition={{ duration: 0.3, ease: 'easeInOut' }}
                   onClick={(e) => {
                     e.stopPropagation()
-                    if (universalEditEnabled) {
+                    if (universalEditEnabled && universalButtonRef.current) {
+                      const rect = universalButtonRef.current.getBoundingClientRect()
+                      setUniversalMenuPosition({
+                        top: rect.bottom + 4,
+                        left: 'auto',
+                        right: window.innerWidth - rect.right,
+                      })
                       setIsUniversalMenuOpen(!isUniversalMenuOpen)
                     }
                   }}
@@ -1013,58 +1030,74 @@ function HabitList({
                   <span className="material-symbols-outlined text-[18px] whitespace-nowrap">more_vert</span>
                 </motion.button>
 
-                {/* Universal Menu Dropdown */}
-                {isUniversalMenuOpen && universalEditEnabled && (
-                  <div
-                    ref={universalMenuRef}
-                    className="absolute right-0 top-12 z-50 w-48 overflow-hidden rounded-2xl bg-white shadow-xl ring-1 ring-gray-200/60 dark:bg-gray-800 dark:ring-white/10"
-                  >
-                    <div className="py-2">
-                      {/* Complete All Habits */}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleCompleteAllHabits()
+                {/* Universal Menu Dropdown - Rendered via Portal */}
+                {isUniversalMenuOpen &&
+                  universalEditEnabled &&
+                  createPortal(
+                    <>
+                      {/* Backdrop */}
+                      <div
+                        className="fixed inset-0 z-40"
+                        onClick={() => setIsUniversalMenuOpen(false)}
+                      />
+                      {/* Menu */}
+                      <div
+                        ref={universalMenuRef}
+                        className="fixed z-50 w-48 overflow-hidden rounded-2xl bg-white shadow-xl ring-1 ring-gray-200/60 dark:bg-gray-800 dark:ring-white/10"
+                        style={{
+                          top: `${universalMenuPosition.top}px`,
+                          left: universalMenuPosition.left === 'auto' ? 'auto' : `${universalMenuPosition.left}px`,
+                          right: universalMenuPosition.right === 'auto' ? 'auto' : `${universalMenuPosition.right}px`,
                         }}
-                        className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm text-gray-700 transition-colors hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700/50"
                       >
-                        <span className="material-symbols-outlined text-[18px] text-teal-500">
-                          check_circle
-                        </span>
-                        <span>Complete All</span>
-                      </button>
+                        <div className="py-2">
+                          {/* Complete All Habits */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleCompleteAllHabits()
+                            }}
+                            className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm text-gray-700 transition-colors hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700/50"
+                          >
+                            <span className="material-symbols-outlined text-[18px] text-teal-500">
+                              check_circle
+                            </span>
+                            <span>Complete All</span>
+                          </button>
 
-                      {/* Pin/Unpin All Habits */}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handlePinAllHabits()
-                        }}
-                        className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm text-gray-700 transition-colors hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700/50"
-                      >
-                        <span className="material-symbols-outlined text-[18px] text-orange-500">
-                          push_pin
-                        </span>
-                        <span>{allHabitsPinned ? 'Unpin All' : 'Pin All'}</span>
-                      </button>
+                          {/* Pin/Unpin All Habits */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handlePinAllHabits()
+                            }}
+                            className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm text-gray-700 transition-colors hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700/50"
+                          >
+                            <span className="material-symbols-outlined text-[18px] text-orange-500">
+                              push_pin
+                            </span>
+                            <span>{allHabitsPinned ? 'Unpin All' : 'Pin All'}</span>
+                          </button>
 
-                      {/* View All Habits Stats */}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          setIsUniversalMenuOpen(false)
-                          setIsAllStatsModalOpen(true)
-                        }}
-                        className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm text-gray-700 transition-colors hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700/50"
-                      >
-                        <span className="material-symbols-outlined text-[18px] text-indigo-500">
-                          bar_chart
-                        </span>
-                        <span>View Stats</span>
-                      </button>
-                    </div>
-                  </div>
-                )}
+                          {/* View All Habits Stats */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setIsUniversalMenuOpen(false)
+                              setIsAllStatsModalOpen(true)
+                            }}
+                            className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm text-gray-700 transition-colors hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700/50"
+                          >
+                            <span className="material-symbols-outlined text-[18px] text-indigo-500">
+                              bar_chart
+                            </span>
+                            <span>View Stats</span>
+                          </button>
+                        </div>
+                      </div>
+                    </>,
+                    document.body
+                  )}
               </div>
 
               {/* Expand arrow */}
