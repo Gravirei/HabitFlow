@@ -10,6 +10,7 @@ import { HabitTaskCompletionModal } from '@/components/HabitTaskCompletionModal'
 import { HabitNotesViewModal } from '@/components/habits/HabitNotesViewModal'
 import { HabitNotesModal } from '@/components/categories/HabitNotesModal'
 import { HabitDetailsModal } from '@/components/habits/HabitDetailsModal'
+import { AllHabitsStatsModal } from '@/components/habits/AllHabitsStatsModal'
 import { EditHabit } from '@/components/categories/EditHabit'
 import { BottomNav } from '@/components/BottomNav'
 import { SideNav } from '@/components/SideNav'
@@ -86,6 +87,9 @@ export function Habits() {
 
   // Edit Modal
   const [editModalHabitId, setEditModalHabitId] = useState<string | null>(null)
+
+  // All Habits Stats Modal
+  const [isAllStatsModalOpen, setIsAllStatsModalOpen] = useState(false)
 
   // Confirmation dialogs
   const [confirmDialogState, setConfirmDialogState] = useState<{
@@ -670,6 +674,12 @@ export function Habits() {
           habitName={fullNotesModalHabit.name}
         />
       )}
+
+      {/* ── All Habits Stats Modal ── */}
+      <AllHabitsStatsModal
+        isOpen={isAllStatsModalOpen}
+        onClose={() => setIsAllStatsModalOpen(false)}
+      />
     </div>
   )
 }
@@ -943,7 +953,7 @@ function HabitList({
                   onClick={(e) => {
                     e.stopPropagation()
                     if (universalEditEnabled) {
-                      // TODO: Category menu functionality
+                      setIsAllStatsModalOpen(true)
                     }
                   }}
                   className="flex size-8 shrink-0 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-300 overflow-hidden"
