@@ -221,11 +221,20 @@ export function Habits() {
 
   // Handler for Reset All - clears today's completion for all filtered habits
   const handleResetAllHabits = () => {
+    console.log('handleResetAllHabits called')
+    console.log('filteredHabits count:', filteredHabits.length)
+    console.log('todayDate:', todayDate)
+    
+    let resetCount = 0
     filteredHabits.forEach((habit) => {
+      console.log(`Habit: ${habit.name}, completedDates:`, habit.completedDates, 'includes today?', habit.completedDates.includes(todayDate))
       if (habit.completedDates.includes(todayDate)) {
+        console.log(`Resetting habit: ${habit.name}`)
         toggleHabitCompletion(habit.id)
+        resetCount++
       }
     })
+    console.log('Total habits reset:', resetCount)
   }
 
   // Stats - Tab-based progress (contextual to active tab)
@@ -670,8 +679,12 @@ export function Habits() {
       {/* Reset All Confirmation */}
       <ConfirmDialog
         isOpen={showResetConfirm}
-        onClose={() => setShowResetConfirm(false)}
+        onClose={() => {
+          console.log('Reset All cancelled')
+          setShowResetConfirm(false)
+        }}
         onConfirm={() => {
+          console.log('Reset All confirmed!')
           handleResetAllHabits()
           setShowResetConfirm(false)
         }}
