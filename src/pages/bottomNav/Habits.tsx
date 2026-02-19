@@ -219,11 +219,20 @@ export function Habits() {
     { id: 'monthly' as const, label: 'Monthly', icon: 'calendar_month' },
   ]
 
-  // Handler for Reset All - clears today's completion for all filtered habits
+  // Handler for Reset All - clears today's completion for all filtered habits and their tasks
   const handleResetAllHabits = () => {
     filteredHabits.forEach((habit) => {
       if (habit.completedDates.includes(todayDate)) {
+        // Unmark the habit
         toggleHabitCompletion(habit.id)
+        
+        // Unmark all tasks for this habit
+        const tasksForHabit = habitTasks.filter((t) => t.habitId === habit.id)
+        tasksForHabit.forEach((task) => {
+          if (task.completed) {
+            updateTask(task.id, { completed: false })
+          }
+        })
       }
     })
   }
@@ -880,11 +889,20 @@ function HabitList({
     localStorage.setItem('individualEditEnabled', JSON.stringify(individualEditEnabled))
   }, [individualEditEnabled])
 
-  // Handler functions for universal menu
+  // Handler functions for universal menu - complete all habits and their incomplete tasks
   const handleCompleteAllHabits = () => {
     habits.forEach((habit) => {
       if (!isHabitCompletedToday(habit.id)) {
+        // Mark the habit as complete
         toggleHabitCompletion(habit.id)
+        
+        // Mark all incomplete tasks for this habit as complete
+        const tasksForHabit = habitTasks.filter((t) => t.habitId === habit.id)
+        tasksForHabit.forEach((task) => {
+          if (!task.completed) {
+            updateTask(task.id, { completed: true })
+          }
+        })
       }
     })
     setIsUniversalMenuOpen(false)
