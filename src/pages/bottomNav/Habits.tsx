@@ -219,6 +219,34 @@ export function Habits() {
     { id: 'monthly' as const, label: 'Monthly', icon: 'calendar_month' },
   ]
 
+  // Handler for Complete All - marks all habits and their incomplete tasks as complete
+  const handleCompleteAllHabits = () => {
+    console.log('=== Complete All Habits ===')
+    console.log('Total filteredHabits:', filteredHabits.length)
+    console.log('Total habitTasks:', habitTasks.length)
+    
+    filteredHabits.forEach((habit) => {
+      if (!habit.completedDates.includes(todayDate)) {
+        console.log(`Processing habit: ${habit.name}`)
+        
+        // Mark the habit as complete
+        toggleHabitCompletion(habit.id)
+        
+        // Mark all incomplete tasks for this habit as complete
+        const tasksForHabit = habitTasks.filter((t) => t.habitId === habit.id)
+        console.log(`  - Found ${tasksForHabit.length} tasks for this habit`)
+        
+        tasksForHabit.forEach((task) => {
+          console.log(`    Task: "${task.text}", completed: ${task.completed}`)
+          if (!task.completed) {
+            console.log(`    -> Marking task as complete`)
+            updateTask(task.id, { completed: true })
+          }
+        })
+      }
+    })
+  }
+
   // Handler for Reset All - clears today's completion for all filtered habits and their tasks
   const handleResetAllHabits = () => {
     filteredHabits.forEach((habit) => {
@@ -504,6 +532,10 @@ export function Habits() {
                 onOpenPinModal={() => setIsSelectPinModalOpen(true)}
                 showResetConfirm={showResetConfirm}
                 onResetConfirm={() => setShowResetConfirm(true)}
+                onCompleteAll={() => {
+                  handleCompleteAllHabits()
+                  setIsUniversalMenuOpen(false)
+                }}
               />
             )}
           </motion.div>
@@ -807,6 +839,7 @@ function HabitList({
   onOpenPinModal,
   showResetConfirm,
   onResetConfirm,
+  onCompleteAll,
 }: {
   habits: Habit[]
   onHabitClick: (habit: Habit) => void
@@ -823,6 +856,7 @@ function HabitList({
   onOpenPinModal?: () => void
   showResetConfirm?: boolean
   onResetConfirm?: () => void
+  onCompleteAll?: () => void
 }) {
   const { isHabitCompletedToday, toggleHabitCompletion, pinHabit, unpinHabit } = useHabitStore()
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
@@ -888,35 +922,6 @@ function HabitList({
   useEffect(() => {
     localStorage.setItem('individualEditEnabled', JSON.stringify(individualEditEnabled))
   }, [individualEditEnabled])
-
-  // Handler functions for universal menu - complete all habits and their incomplete tasks
-  const handleCompleteAllHabits = () => {
-    console.log('=== Complete All Habits ===')
-    console.log('Total habits:', habits.length)
-    console.log('Total habitTasks:', habitTasks.length)
-    
-    habits.forEach((habit) => {
-      if (!isHabitCompletedToday(habit.id)) {
-        console.log(`Processing habit: ${habit.name}`)
-        
-        // Mark the habit as complete
-        toggleHabitCompletion(habit.id)
-        
-        // Mark all incomplete tasks for this habit as complete
-        const tasksForHabit = habitTasks.filter((t) => t.habitId === habit.id)
-        console.log(`  - Found ${tasksForHabit.length} tasks for this habit`)
-        
-        tasksForHabit.forEach((task) => {
-          console.log(`    Task: "${task.text}", completed: ${task.completed}`)
-          if (!task.completed) {
-            console.log(`    -> Marking task as complete`)
-            updateTask(task.id, { completed: true })
-          }
-        })
-      }
-    })
-    setIsUniversalMenuOpen(false)
-  }
 
   // Check if all habits are completed today
   const allHabitsComplete = habits.length > 0 && habits.every((h) => isHabitCompletedToday(h.id))
@@ -1135,7 +1140,7 @@ function HabitList({
                                 if (onResetConfirm) onResetConfirm()
                               } else {
                                 // Complete all directly
-                                handleCompleteAllHabits()
+                                if (onCompleteAll) onCompleteAll()
                               }
                             }}
                             className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm text-gray-700 transition-colors hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700/50"
