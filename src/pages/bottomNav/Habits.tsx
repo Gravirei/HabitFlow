@@ -92,6 +92,9 @@ export function Habits() {
   // All Habits Stats Modal
   const [isAllStatsModalOpen, setIsAllStatsModalOpen] = useState(false)
 
+  // Select Pin Habits Modal
+  const [isSelectPinModalOpen, setIsSelectPinModalOpen] = useState(false)
+
   // Confirmation dialogs
   const [confirmDialogState, setConfirmDialogState] = useState<{
     isOpen: boolean
@@ -477,6 +480,7 @@ export function Habits() {
                   })
                 }}
                 onOpenAllStats={() => setIsAllStatsModalOpen(true)}
+                onOpenPinModal={() => setIsSelectPinModalOpen(true)}
               />
             )}
           </motion.div>
@@ -774,6 +778,7 @@ function HabitList({
   onArchive?: (habitId: string) => void
   onDeleteToday?: (habitId: string, habitName: string) => void
   onOpenAllStats?: () => void
+  onOpenPinModal?: () => void
 }) {
   const { isHabitCompletedToday, toggleHabitCompletion, pinHabit, unpinHabit } = useHabitStore()
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
@@ -812,9 +817,6 @@ function HabitList({
     left: 0,
     right: 'auto',
   })
-
-  // Select Pin Habits Modal
-  const [isSelectPinModalOpen, setIsSelectPinModalOpen] = useState(false)
 
   // Close universal menu when clicking outside
   useEffect(() => {
@@ -855,7 +857,7 @@ function HabitList({
 
   const handleOpenPinModal = () => {
     setIsUniversalMenuOpen(false)
-    setIsSelectPinModalOpen(true)
+    if (onOpenPinModal) onOpenPinModal()
   }
 
   const habitsByCategory = habits.reduce(
