@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { AccessibleModal } from './timer/shared/AccessibleModal'
+import { AccessibleModal } from '../timer/shared/AccessibleModal'
 import { TemplatePreviewModal } from './TemplatePreviewModal'
 import type { TaskTemplate } from '@/types/taskTemplate'
 

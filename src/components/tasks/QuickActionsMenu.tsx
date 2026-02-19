@@ -1,9 +1,9 @@
 import { useState, useRef, useEffect } from 'react'
 import toast from 'react-hot-toast'
-import { AccessibleModal } from './timer/shared/AccessibleModal'
+import { AccessibleModal } from '../timer/shared/AccessibleModal'
 import { TemplatePreviewModal } from './TemplatePreviewModal'
 import { TemplateLibraryModal } from './TemplateLibraryModal'
-import { ToggleSwitch } from './timer/settings/ToggleSwitch'
+import { ToggleSwitch } from '../timer/settings/ToggleSwitch'
 import type { TaskTemplate } from '@/types/taskTemplate'
 import type { Task } from '@/types/task'
 

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import type { Task, TaskPriority, TaskStatus, Subtask } from '@/types/task'
-import { AccessibleModal } from './timer/shared/AccessibleModal'
+import { AccessibleModal } from '@/components/timer/shared/AccessibleModal'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
   useFloating, 

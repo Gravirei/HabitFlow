@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { AccessibleModal } from './timer/shared/AccessibleModal'
+import { AccessibleModal } from '@/components/timer/shared/AccessibleModal'
 import type { TaskTemplate } from '@/types/taskTemplate'
 import type { TaskPriority, TaskStatus, Subtask } from '@/types/task'
 

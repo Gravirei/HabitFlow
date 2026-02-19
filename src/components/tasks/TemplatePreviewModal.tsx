@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react'
 import toast from 'react-hot-toast'
 import { motion, AnimatePresence } from 'framer-motion'
-import { AccessibleModal } from './timer/shared/AccessibleModal'
+import { AccessibleModal } from '../timer/shared/AccessibleModal'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
 import type { TaskTemplate } from '@/types/taskTemplate'
 import type { TaskPriority, Subtask, Task } from '@/types/task'
