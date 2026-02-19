@@ -819,6 +819,9 @@ function HabitList({
     right: 'auto',
   })
 
+  // Reset All confirmation
+  const [showResetConfirm, setShowResetConfirm] = useState(false)
+
   // Close universal menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -855,6 +858,18 @@ function HabitList({
     })
     setIsUniversalMenuOpen(false)
   }
+
+  const handleResetAllHabits = () => {
+    habits.forEach((habit) => {
+      if (isHabitCompletedToday(habit.id)) {
+        toggleHabitCompletion(habit.id)
+      }
+    })
+    setIsUniversalMenuOpen(false)
+  }
+
+  // Check if all habits are completed today
+  const allHabitsComplete = habits.length > 0 && habits.every((h) => isHabitCompletedToday(h.id))
 
   const handleOpenPinModal = () => {
     setIsUniversalMenuOpen(false)
@@ -1061,18 +1076,24 @@ function HabitList({
                         }}
                       >
                         <div className="py-2">
-                          {/* Complete All Habits */}
+                          {/* Complete All / Reset All (Dynamic) */}
                           <button
                             onClick={(e) => {
                               e.stopPropagation()
-                              handleCompleteAllHabits()
+                              if (allHabitsComplete) {
+                                // Show confirmation for Reset All
+                                setShowResetConfirm(true)
+                              } else {
+                                // Complete all directly
+                                handleCompleteAllHabits()
+                              }
                             }}
                             className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm text-gray-700 transition-colors hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700/50"
                           >
-                            <span className="material-symbols-outlined text-[18px] text-teal-500">
-                              check_circle
+                            <span className={`material-symbols-outlined text-[18px] ${allHabitsComplete ? 'text-orange-500' : 'text-teal-500'}`}>
+                              {allHabitsComplete ? 'restart_alt' : 'check_circle'}
                             </span>
-                            <span>Complete All</span>
+                            <span>{allHabitsComplete ? 'Reset All' : 'Complete All'}</span>
                           </button>
 
                           {/* Pin Habits */}
