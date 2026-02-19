@@ -809,6 +809,8 @@ function HabitList({
   onDeleteToday,
   onOpenAllStats,
   onOpenPinModal,
+  showResetConfirm,
+  onResetConfirm,
 }: {
   habits: Habit[]
   onHabitClick: (habit: Habit) => void
