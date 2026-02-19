@@ -891,15 +891,25 @@ function HabitList({
 
   // Handler functions for universal menu - complete all habits and their incomplete tasks
   const handleCompleteAllHabits = () => {
+    console.log('=== Complete All Habits ===')
+    console.log('Total habits:', habits.length)
+    console.log('Total habitTasks:', habitTasks.length)
+    
     habits.forEach((habit) => {
       if (!isHabitCompletedToday(habit.id)) {
+        console.log(`Processing habit: ${habit.name}`)
+        
         // Mark the habit as complete
         toggleHabitCompletion(habit.id)
         
         // Mark all incomplete tasks for this habit as complete
         const tasksForHabit = habitTasks.filter((t) => t.habitId === habit.id)
+        console.log(`  - Found ${tasksForHabit.length} tasks for this habit`)
+        
         tasksForHabit.forEach((task) => {
+          console.log(`    Task: "${task.text}", completed: ${task.completed}`)
           if (!task.completed) {
+            console.log(`    -> Marking task as complete`)
             updateTask(task.id, { completed: true })
           }
         })
