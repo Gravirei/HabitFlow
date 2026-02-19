@@ -219,6 +219,15 @@ export function Habits() {
     { id: 'monthly' as const, label: 'Monthly', icon: 'calendar_month' },
   ]
 
+  // Handler for Reset All - clears today's completion for all filtered habits
+  const handleResetAllHabits = () => {
+    filteredHabits.forEach((habit) => {
+      if (habit.completedDates.includes(todayDate)) {
+        toggleHabitCompletion(habit.id)
+      }
+    })
+  }
+
   // Stats - Tab-based progress (contextual to active tab)
   const completedToday = habits.filter(
     (h) =>
@@ -873,15 +882,6 @@ function HabitList({
   const handleCompleteAllHabits = () => {
     habits.forEach((habit) => {
       if (!isHabitCompletedToday(habit.id)) {
-        toggleHabitCompletion(habit.id)
-      }
-    })
-    setIsUniversalMenuOpen(false)
-  }
-
-  const handleResetAllHabits = () => {
-    habits.forEach((habit) => {
-      if (isHabitCompletedToday(habit.id)) {
         toggleHabitCompletion(habit.id)
       }
     })
