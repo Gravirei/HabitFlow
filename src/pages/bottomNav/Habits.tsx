@@ -653,6 +653,22 @@ export function Habits() {
         icon="delete"
       />
 
+      {/* Reset All Confirmation */}
+      <ConfirmDialog
+        isOpen={showResetConfirm}
+        onClose={() => setShowResetConfirm(false)}
+        onConfirm={() => {
+          handleResetAllHabits()
+          setShowResetConfirm(false)
+        }}
+        title="Reset All Progress?"
+        message={`This will clear today's completion for all habits in the ${activeTab} tab. This action cannot be undone.`}
+        confirmText="Reset All"
+        cancelText="Cancel"
+        variant="danger"
+        icon="restart_alt"
+      />
+
       {/* ── Details Modal ── */}
       {detailsModalHabitId && (
         <HabitDetailsModal
