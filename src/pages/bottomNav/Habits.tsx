@@ -6,7 +6,7 @@ import { useHabitStore } from '@/store/useHabitStore'
 import { useHabitTaskStore } from '@/store/useHabitTaskStore'
 
 import { HabitTasksModal } from '@/components/categories/HabitTasksModal'
-import { HabitTaskCompletionModal } from '@/components/HabitTaskCompletionModal'
+import { HabitTaskCompletionModal } from '@/components/habits/HabitTaskCompletionModal'
 import { HabitNotesViewModal } from '@/components/habits/HabitNotesViewModal'
 import { HabitNotesModal } from '@/components/categories/HabitNotesModal'
 import { HabitDetailsModal } from '@/components/habits/HabitDetailsModal'
