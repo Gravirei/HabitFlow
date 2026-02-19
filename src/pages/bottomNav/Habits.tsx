@@ -943,7 +943,15 @@ function HabitList({
     <div className="space-y-5 pt-1">
       {Object.entries(habitsByCategory).map(([category, categoryHabits]) => {
         const info = getCategoryInfo(category)
-        const completedCount = categoryHabits.filter((h) => isHabitCompletedToday(h.id)).length
+        
+        // Sort habits: pinned first, then by original order
+        const sortedCategoryHabits = [...categoryHabits].sort((a, b) => {
+          if (a.pinned && !b.pinned) return -1
+          if (!a.pinned && b.pinned) return 1
+          return 0
+        })
+        
+        const completedCount = sortedCategoryHabits.filter((h) => isHabitCompletedToday(h.id)).length
         const isExpanded = expandedCategories.has(category)
 
         return (
@@ -974,7 +982,7 @@ function HabitList({
               <div className="flex items-center gap-2">
                 {/* Mini progress dots */}
                 <div className="flex items-center gap-1 pr-1">
-                  {categoryHabits.map((h) => (
+                  {sortedCategoryHabits.map((h) => (
                     <div
                       key={h.id}
                       className={clsx(
@@ -1118,7 +1126,7 @@ function HabitList({
                   transition={{ duration: 0.25, ease: 'easeOut' }}
                   className="space-y-2.5 overflow-hidden"
                 >
-                  {categoryHabits.map((habit, index) => (
+                  {sortedCategoryHabits.map((habit, index) => (
                     <motion.div
                       key={habit.id}
                       layout
