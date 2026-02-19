@@ -11,6 +11,7 @@ import { HabitNotesViewModal } from '@/components/habits/HabitNotesViewModal'
 import { HabitNotesModal } from '@/components/categories/HabitNotesModal'
 import { HabitDetailsModal } from '@/components/habits/HabitDetailsModal'
 import { AllHabitsStatsModal } from '@/components/habits/AllHabitsStatsModal'
+import { SelectPinHabitsModal } from '@/components/habits/SelectPinHabitsModal'
 import { EditHabit } from '@/components/categories/EditHabit'
 import { BottomNav } from '@/components/BottomNav'
 import { SideNav } from '@/components/SideNav'
@@ -681,6 +682,13 @@ export function Habits() {
         isOpen={isAllStatsModalOpen}
         onClose={() => setIsAllStatsModalOpen(false)}
       />
+
+      {/* ── Select Pin Habits Modal ── */}
+      <SelectPinHabitsModal
+        isOpen={isSelectPinModalOpen}
+        onClose={() => setIsSelectPinModalOpen(false)}
+        habits={filteredHabits}
+      />
     </div>
   )
 }
@@ -805,6 +813,9 @@ function HabitList({
     right: 'auto',
   })
 
+  // Select Pin Habits Modal
+  const [isSelectPinModalOpen, setIsSelectPinModalOpen] = useState(false)
+
   // Close universal menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -842,25 +853,10 @@ function HabitList({
     setIsUniversalMenuOpen(false)
   }
 
-  const handlePinAllHabits = () => {
-    const allPinned = habits.every((h) => h.pinned)
-    
-    if (allPinned) {
-      // Unpin all
-      habits.forEach((habit) => {
-        if (habit.pinned) unpinHabit(habit.id)
-      })
-    } else {
-      // Pin all
-      habits.forEach((habit) => {
-        if (!habit.pinned) pinHabit(habit.id)
-      })
-    }
+  const handleOpenPinModal = () => {
     setIsUniversalMenuOpen(false)
+    setIsSelectPinModalOpen(true)
   }
-
-  // Check if all habits are pinned
-  const allHabitsPinned = habits.length > 0 && habits.every((h) => h.pinned)
 
   const habitsByCategory = habits.reduce(
     (acc, habit) => {
@@ -1017,7 +1013,6 @@ function HabitList({
                   transition={{ duration: 0.3, ease: 'easeInOut' }}
                   onClick={(e) => {
                     e.stopPropagation()
-                    console.log('3-dot clicked', { universalEditEnabled, hasRef: !!universalButtonRef.current, isUniversalMenuOpen })
                     if (universalEditEnabled && universalButtonRef.current) {
                       const rect = universalButtonRef.current.getBoundingClientRect()
                       setUniversalMenuPosition({
@@ -1025,10 +1020,7 @@ function HabitList({
                         left: 'auto',
                         right: window.innerWidth - rect.right,
                       })
-                      console.log('Opening menu', { rect, isUniversalMenuOpen })
                       setIsUniversalMenuOpen(!isUniversalMenuOpen)
-                    } else {
-                      console.log('Conditions not met', { universalEditEnabled, hasRef: !!universalButtonRef.current })
                     }
                   }}
                   className="flex size-8 shrink-0 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-300 overflow-hidden"
@@ -1072,18 +1064,18 @@ function HabitList({
                             <span>Complete All</span>
                           </button>
 
-                          {/* Pin/Unpin All Habits */}
+                          {/* Pin Habits */}
                           <button
                             onClick={(e) => {
                               e.stopPropagation()
-                              handlePinAllHabits()
+                              handleOpenPinModal()
                             }}
                             className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm text-gray-700 transition-colors hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700/50"
                           >
                             <span className="material-symbols-outlined text-[18px] text-orange-500">
                               push_pin
                             </span>
-                            <span>{allHabitsPinned ? 'Unpin All' : 'Pin All'}</span>
+                            <span>Pin Habits</span>
                           </button>
 
                           {/* View All Habits Stats */}
