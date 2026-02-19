@@ -765,6 +765,7 @@ function HabitList({
   onArchive,
   onDeleteToday,
   onOpenAllStats,
+  onOpenPinModal,
 }: {
   habits: Habit[]
   onHabitClick: (habit: Habit) => void
