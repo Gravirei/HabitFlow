@@ -1121,9 +1121,13 @@ function HabitList({
                   {categoryHabits.map((habit, index) => (
                     <motion.div
                       key={habit.id}
+                      layout
                       initial={{ opacity: 0, x: -16 }}
                       animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.04 }}
+                      transition={{ 
+                        delay: index * 0.04,
+                        layout: { duration: 0.4, ease: 'easeInOut' }
+                      }}
                     >
                       <HabitCard
                         habit={habit}
