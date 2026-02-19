@@ -18,7 +18,6 @@ import { Settings } from '@/pages/Settings'
 import { EditProfile } from '@/pages/EditProfile'
 import { Calendar } from '@/pages/Calendar'
 import { NewHabit } from '@/pages/NewHabit'
-import { HabitDetails } from '@/pages/HabitDetails'
 import { ProgressOverview } from '@/pages/ProgressOverview'
 import { Today } from '@/pages/bottomNav/Today'
 import { Habits } from '@/pages/bottomNav/Habits'
@@ -133,7 +132,6 @@ function App() {
           <Route path="/timer/export" element={<RequireAuth><RequireVerifiedEmail><Export /></RequireVerifiedEmail></RequireAuth>} />
           <Route path="/statistics" element={<RequireAuth><RequireVerifiedEmail><Statistics /></RequireVerifiedEmail></RequireAuth>} />
           <Route path="/new-habit" element={<RequireAuth><RequireVerifiedEmail><NewHabit /></RequireVerifiedEmail></RequireAuth>} />
-          <Route path="/habit/:id" element={<RequireAuth><RequireVerifiedEmail><HabitDetails /></RequireVerifiedEmail></RequireAuth>} />
           <Route path="/progress" element={<RequireAuth><RequireVerifiedEmail><ProgressOverview /></RequireVerifiedEmail></RequireAuth>} />
           <Route path="/all-habits" element={<RequireAuth><RequireVerifiedEmail><Habits /></RequireVerifiedEmail></RequireAuth>} />
         </Routes>
