@@ -221,25 +221,15 @@ export function Habits() {
 
   // Handler for Complete All - marks all habits and their incomplete tasks as complete
   const handleCompleteAllHabits = () => {
-    console.log('=== Complete All Habits ===')
-    console.log('Total filteredHabits:', filteredHabits.length)
-    console.log('Total habitTasks:', habitTasks.length)
-    
     filteredHabits.forEach((habit) => {
       if (!habit.completedDates.includes(todayDate)) {
-        console.log(`Processing habit: ${habit.name}`)
-        
         // Mark the habit as complete
         toggleHabitCompletion(habit.id)
         
         // Mark all incomplete tasks for this habit as complete
         const tasksForHabit = habitTasks.filter((t) => t.habitId === habit.id)
-        console.log(`  - Found ${tasksForHabit.length} tasks for this habit`)
-        
         tasksForHabit.forEach((task) => {
-          console.log(`    Task: "${task.text}", completed: ${task.completed}`)
           if (!task.completed) {
-            console.log(`    -> Marking task as complete`)
             updateTask(task.id, { completed: true })
           }
         })
