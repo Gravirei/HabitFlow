@@ -857,14 +857,8 @@ function HabitList({
   }
 
   const handleOpenPinModal = () => {
-    console.log('handleOpenPinModal called', { onOpenPinModal: !!onOpenPinModal })
     setIsUniversalMenuOpen(false)
-    if (onOpenPinModal) {
-      console.log('Calling onOpenPinModal')
-      onOpenPinModal()
-    } else {
-      console.log('onOpenPinModal is undefined!')
-    }
+    if (onOpenPinModal) onOpenPinModal()
   }
 
   const habitsByCategory = habits.reduce(

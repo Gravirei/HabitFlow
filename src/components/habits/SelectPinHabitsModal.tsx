@@ -4,6 +4,7 @@ import { useHabitStore } from '@/store/useHabitStore'
 import { useCategoryStore } from '@/store/useCategoryStore'
 import type { Habit } from '@/types/habit'
 import { ToggleSwitch } from '@/components/timer/settings/ToggleSwitch'
+import clsx from 'clsx'
 
 interface SelectPinHabitsModalProps {
   isOpen: boolean
@@ -17,6 +18,19 @@ export function SelectPinHabitsModal({ isOpen, onClose, habits }: SelectPinHabit
   
   // Track pending pin changes (habit id -> pinned status)
   const [pendingChanges, setPendingChanges] = useState<Record<string, boolean>>({})
+
+  // Get gradient based on habit's iconColor (0-5) - Same as Habits.tsx
+  const getIconGradient = (iconColor: number = 0) => {
+    const gradients = [
+      'from-blue-500 to-cyan-500',      // 0: Blue
+      'from-purple-500 to-pink-500',    // 1: Purple
+      'from-emerald-500 to-teal-500',   // 2: Green
+      'from-orange-500 to-amber-500',   // 3: Orange
+      'from-red-500 to-rose-500',       // 4: Red
+      'from-teal-500 to-cyan-500',      // 5: Teal
+    ]
+    return gradients[iconColor] || gradients[0]
+  }
 
   // Initialize pending changes when modal opens
   useEffect(() => {
@@ -130,14 +144,10 @@ export function SelectPinHabitsModal({ isOpen, onClose, habits }: SelectPinHabit
                       <div className="flex items-center gap-3">
                         {/* Habit Icon */}
                         <div
-                          className="flex h-10 w-10 items-center justify-center rounded-xl"
-                          style={{
-                            background: `linear-gradient(135deg, ${
-                              habit.iconColor !== undefined && habit.iconColor >= 0
-                                ? `var(--icon-gradient-${habit.iconColor}-from), var(--icon-gradient-${habit.iconColor}-to)`
-                                : 'var(--icon-gradient-0-from), var(--icon-gradient-0-to)'
-                            })`,
-                          }}
+                          className={clsx(
+                            'flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br',
+                            getIconGradient(habit.iconColor ?? 0)
+                          )}
                         >
                           <span className="material-symbols-outlined text-xl text-white">
                             {habit.icon || 'star'}
