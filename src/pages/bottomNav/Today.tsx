@@ -141,19 +141,19 @@ export function Today() {
   }
 
   return (
-    <div className="relative mx-auto flex min-h-screen w-full max-w-md flex-col font-display text-slate-800 dark:text-slate-200">
+    <div className="relative mx-auto flex min-h-screen w-full max-w-md sm:max-w-2xl lg:max-w-4xl xl:max-w-5xl flex-col font-display text-slate-800 dark:text-slate-200">
       {/* Main Content */}
       <main className="flex-grow pb-28 overflow-hidden">
-        {/* Top App Bar - KEPT AS IS */}
-        <div className="flex flex-col gap-4 p-4 pb-2">
-          <div className="flex h-12 items-center justify-between">
+        {/* Top App Bar */}
+        <div className="flex flex-col gap-4 p-4 pb-2 sm:p-6 sm:pb-2 lg:px-8">
+          <div className="flex h-12 sm:h-14 items-center justify-between">
             <div className="flex size-12 shrink-0 items-center">
               <button 
                 onClick={() => setIsSideNavOpen(true)}
-                className="flex size-10 items-center justify-center rounded-full text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-surface-dark transition-colors"
+                className="flex size-10 sm:size-11 items-center justify-center rounded-full text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-surface-dark transition-colors"
                 aria-label="Open navigation menu"
               >
-                <span className="material-symbols-outlined" aria-hidden="true">menu</span>
+                <span className="material-symbols-outlined sm:text-[28px]" aria-hidden="true">menu</span>
               </button>
             </div>
             
@@ -174,7 +174,7 @@ export function Today() {
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       autoFocus
-                      className="w-full rounded-full border-none bg-slate-100 dark:bg-surface-dark px-4 py-1.5 text-sm outline-none focus:ring-2 focus:ring-primary/50"
+                      className="w-full rounded-full border-none bg-slate-100 dark:bg-surface-dark px-4 py-1.5 text-sm sm:text-base outline-none focus:ring-2 focus:ring-primary/50"
                     />
                   </motion.div>
                 ) : (
@@ -188,7 +188,7 @@ export function Today() {
                         animate="center"
                         exit="exit"
                         transition={{ type: 'tween', ease: 'easeInOut', duration: 0.2 }}
-                        className="text-lg font-bold dark:text-slate-200 text-center"
+                        className="text-lg sm:text-xl lg:text-2xl font-bold dark:text-slate-200 text-center"
                       >
                         {getPageTitle()}
                       </motion.p>
@@ -204,31 +204,31 @@ export function Today() {
                   setIsSearchOpen(!isSearchOpen)
                   if (isSearchOpen) setSearchQuery('')
                 }}
-                className={`flex size-10 items-center justify-center rounded-full transition-colors ${
+                className={`flex size-10 sm:size-11 items-center justify-center rounded-full transition-colors ${
                   isSearchOpen 
                     ? 'bg-primary/10 text-primary' 
                     : 'text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-surface-dark'
                 }`}
                 aria-label={isSearchOpen ? 'Close search' : 'Open search'}
               >
-                <span className="material-symbols-outlined" aria-hidden="true">
+                <span className="material-symbols-outlined sm:text-[28px]" aria-hidden="true">
                   {isSearchOpen ? 'close' : 'search'}
                 </span>
               </button>
               <button 
                 onClick={() => navigate('/calendar')}
-                className="flex size-10 items-center justify-center rounded-full text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-surface-dark transition-colors"
+                className="flex size-10 sm:size-11 items-center justify-center rounded-full text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-surface-dark transition-colors"
                 aria-label="Open calendar"
               >
-                <span className="material-symbols-outlined" aria-hidden="true">calendar_month</span>
+                <span className="material-symbols-outlined sm:text-[28px]" aria-hidden="true">calendar_month</span>
               </button>
             </div>
           </div>
           
-          {/* Horizontal Calendar - KEPT AS IS */}
+          {/* Horizontal Calendar */}
           <div 
             ref={scrollRef}
-            className="flex overflow-x-auto no-scrollbar gap-3 py-2 -mx-4 px-4 scroll-smooth"
+            className="flex overflow-x-auto no-scrollbar gap-3 py-2 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 scroll-smooth"
           >
             {days.map((date) => {
               const isSelected = date.getDate() === selectedDate.getDate() && date.getMonth() === selectedDate.getMonth()
@@ -238,7 +238,7 @@ export function Today() {
                 <button
                   key={date.toISOString()}
                   onClick={() => handleDateClick(date)}
-                  className={`flex min-w-[50px] flex-col items-center justify-center gap-0.5 rounded-xl py-2 transition-all ${
+                  className={`flex min-w-[50px] sm:min-w-[60px] lg:min-w-[68px] flex-col items-center justify-center gap-0.5 rounded-xl sm:rounded-2xl py-2 sm:py-3 transition-all ${
                     isSelected 
                       ? 'bg-primary text-white shadow-lg shadow-primary/30' 
                       : 'bg-white dark:bg-surface-dark text-slate-500 dark:text-slate-400 border border-slate-100 dark:border-white/10'
@@ -247,10 +247,10 @@ export function Today() {
                   aria-current={isTodayDate ? 'date' : undefined}
                   aria-pressed={isSelected}
                 >
-                  <span className={`text-[10px] font-bold uppercase ${isSelected ? 'text-white/80' : ''}`} aria-hidden="true">
+                  <span className={`text-[10px] sm:text-xs font-bold uppercase ${isSelected ? 'text-white/80' : ''}`} aria-hidden="true">
                     {format(date, 'EEE')}
                   </span>
-                  <span className={`text-lg font-bold ${isSelected ? 'text-white' : 'text-slate-900 dark:text-white'}`} aria-hidden="true">
+                  <span className={`text-lg sm:text-xl font-bold ${isSelected ? 'text-white' : 'text-slate-900 dark:text-white'}`} aria-hidden="true">
                     {date.getDate()}
                   </span>
                   {isTodayDate && !isSelected && (
@@ -272,27 +272,27 @@ export function Today() {
             animate="center"
             exit="exit"
             transition={{ type: 'tween', ease: 'easeInOut', duration: 0.2 }}
-            className="w-full px-4"
+            className="w-full px-4 sm:px-6 lg:px-8"
           >
             {/* Daily Goal Card - NEW */}
             {!isSearchOpen && (
               <div className="py-2">
-                <div className="relative w-full bg-slate-900 dark:bg-[#1A2F22] rounded-[2rem] p-6 shadow-2xl shadow-slate-900/10 dark:shadow-black/40 overflow-hidden text-white group cursor-pointer transition-transform hover:scale-[1.01] duration-500">
-                  <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl transform translate-x-1/3 -translate-y-1/3 group-hover:bg-primary/20 transition-colors duration-500"></div>
-                  <div className="absolute bottom-0 left-0 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl transform -translate-x-1/3 translate-y-1/3"></div>
+                <div className="relative w-full bg-slate-900 dark:bg-[#1A2F22] rounded-[2rem] p-6 sm:p-8 lg:p-10 shadow-2xl shadow-slate-900/10 dark:shadow-black/40 overflow-hidden text-white group cursor-pointer transition-transform hover:scale-[1.01] duration-500">
+                  <div className="absolute top-0 right-0 w-64 lg:w-96 h-64 lg:h-96 bg-primary/10 rounded-full blur-3xl transform translate-x-1/3 -translate-y-1/3 group-hover:bg-primary/20 transition-colors duration-500"></div>
+                  <div className="absolute bottom-0 left-0 w-48 lg:w-72 h-48 lg:h-72 bg-blue-500/10 rounded-full blur-3xl transform -translate-x-1/3 translate-y-1/3"></div>
                   <div className="flex items-center justify-between relative z-10">
-                    <div className="flex flex-col gap-3">
+                    <div className="flex flex-col gap-3 sm:gap-4">
                       <div>
-                        <span className="text-xs font-bold text-primary mb-1 block">DAILY GOAL</span>
-                        <span className="text-2xl font-display font-bold">{getProgressMessage()}</span>
+                        <span className="text-xs sm:text-sm font-bold text-primary mb-1 block">DAILY GOAL</span>
+                        <span className="text-2xl sm:text-3xl lg:text-4xl font-display font-bold">{getProgressMessage()}</span>
                       </div>
                       <div className="flex flex-col gap-0.5">
-                        <span className="text-sm text-slate-300 font-medium">You've completed</span>
-                        <span className="text-base font-semibold text-white">{completedHabits} of {totalHabits} habits</span>
+                        <span className="text-sm sm:text-base text-slate-300 font-medium">You've completed</span>
+                        <span className="text-base sm:text-lg lg:text-xl font-semibold text-white">{completedHabits} of {totalHabits} habits</span>
                       </div>
                     </div>
-                    <div className="relative flex items-center justify-center h-28 w-28">
-                      <svg className="size-28" viewBox="0 0 100 100">
+                    <div className="relative flex items-center justify-center h-28 w-28 sm:h-36 sm:w-36 lg:h-44 lg:w-44">
+                      <svg className="size-28 sm:size-36 lg:size-44" viewBox="0 0 100 100">
                         <circle 
                           className="text-primary/20 dark:text-primary/10" 
                           cx="50" cy="50" 
@@ -318,7 +318,7 @@ export function Today() {
                         ></circle>
                       </svg>
                       <div className="absolute flex flex-col items-center justify-center">
-                        <span className="text-2xl font-bold text-white">{Math.round(progressPercentage)}%</span>
+                        <span className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white">{Math.round(progressPercentage)}%</span>
                       </div>
                     </div>
                   </div>
@@ -326,18 +326,18 @@ export function Today() {
               </div>
             )}
 
-            {/* Habits Section - NEW */}
-            <section className="mt-6">
+            {/* Habits Section */}
+            <section className="mt-6 sm:mt-8">
               <div className="flex items-end justify-between mb-4 px-1">
-                <h3 className="text-xl font-display font-bold text-slate-900 dark:text-white">Habits</h3>
+                <h3 className="text-xl sm:text-2xl lg:text-3xl font-display font-bold text-slate-900 dark:text-white">Habits</h3>
                 <button 
                   onClick={() => navigate('/habits')}
-                  className="text-sm font-semibold text-slate-400 hover:text-primary transition-colors flex items-center gap-1"
+                  className="text-sm sm:text-base font-semibold text-slate-400 hover:text-primary transition-colors flex items-center gap-1"
                 >
-                  View All <span className="material-symbols-outlined text-lg">arrow_forward</span>
+                  View All <span className="material-symbols-outlined text-lg sm:text-xl">arrow_forward</span>
                 </button>
               </div>
-              <div className="grid grid-cols-1 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 {filteredHabits.length === 0 ? (
                   <div className="py-8 text-center text-slate-500">
                     <p>{isSearchOpen ? 'No habits found.' : 'No habits yet.'}</p>
@@ -451,15 +451,15 @@ export function Today() {
               </div>
             </section>
 
-            {/* Tasks Section - NEW */}
-            <section className="mt-8 pb-4">
+            {/* Tasks Section */}
+            <section className="mt-8 sm:mt-10 pb-4">
               <div className="flex items-end justify-between mb-4 px-1">
-                <h3 className="text-xl font-display font-bold text-slate-900 dark:text-white">Tasks</h3>
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider bg-white dark:bg-surface-dark px-3 py-1.5 rounded-full shadow-sm border border-slate-100 dark:border-white/5">
+                <h3 className="text-xl sm:text-2xl lg:text-3xl font-display font-bold text-slate-900 dark:text-white">Tasks</h3>
+                <span className="text-xs sm:text-sm font-bold text-slate-400 uppercase tracking-wider bg-white dark:bg-surface-dark px-3 py-1.5 rounded-full shadow-sm border border-slate-100 dark:border-white/5">
                   {filteredTasks.length} Pending
                 </span>
               </div>
-              <div className="space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 {filteredTasks.map((task) => (
                   <div 
                     key={task.id}
@@ -499,14 +499,14 @@ export function Today() {
         </AnimatePresence>
       </main>
 
-      {/* Floating Action Button - UPDATED */}
-      <div className="fixed bottom-24 right-4 z-10">
+      {/* Floating Action Button */}
+      <div className="fixed bottom-24 right-4 sm:right-6 lg:right-8 z-10">
         <button 
           onClick={() => navigate('/new-habit')}
-          className="group flex items-center justify-center rounded-full h-14 w-14 bg-slate-900 dark:bg-primary text-white dark:text-slate-900 shadow-2xl hover:scale-110 active:scale-95 transition-all duration-300"
+          className="group flex items-center justify-center rounded-full h-14 w-14 sm:h-16 sm:w-16 bg-slate-900 dark:bg-primary text-white dark:text-slate-900 shadow-2xl hover:scale-110 active:scale-95 transition-all duration-300"
           aria-label="Add new habit"
         >
-          <span className="material-symbols-outlined text-3xl group-hover:rotate-90 transition-transform duration-300" aria-hidden="true">add</span>
+          <span className="material-symbols-outlined text-3xl sm:text-4xl group-hover:rotate-90 transition-transform duration-300" aria-hidden="true">add</span>
         </button>
       </div>
 
