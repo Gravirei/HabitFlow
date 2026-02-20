@@ -36,9 +36,15 @@ import Export from '@/pages/timer/Export'
 import { AchievementNotifications } from '@/components/timer/sidebar/achievements'
 import { EmailVerificationBanner } from '@/components/auth/EmailVerificationBanner'
 import { SyncOnAuthChange } from '@/components/timer/premium-history/cloud-sync'
+import { migrateHabitStorage } from '@/utils/habitStorageMigration'
+import { useEffect } from 'react'
 // ARCHIVED: ThemeProvider import removed (theme module archived)
 
 function App() {
+  // Run migration on app startup to fix habits without isActive property
+  useEffect(() => {
+    migrateHabitStorage()
+  }, [])
   return (
     <ErrorBoundary>
       <BrowserRouter>
