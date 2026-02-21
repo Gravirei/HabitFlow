@@ -1,4 +1,5 @@
 import {
+  useCallback,
   useDeferredValue,
   useEffect,
   useMemo,
@@ -319,12 +320,12 @@ export function Categories() {
     return deferredSearchQuery.trim().toLocaleLowerCase()
   }, [deferredSearchQuery])
 
-  const matchesSearchQuery = (category: StoreCategory) => {
+  const matchesSearchQuery = useCallback((category: StoreCategory) => {
     if (!normalizedSearchQuery) return true
     return category.name.toLocaleLowerCase().includes(normalizedSearchQuery)
-  }
+  }, [normalizedSearchQuery])
 
-  const sortCategories = (values: StoreCategory[]) => {
+  const sortCategories = useCallback((values: StoreCategory[]) => {
     const next = [...values]
 
     const statFor = (category: StoreCategory) =>
@@ -368,7 +369,7 @@ export function Categories() {
     })
 
     return next
-  }
+  }, [sort, derivedStatsByCategoryId])
 
   const filteredPinnedStoreCategories = useMemo(() => {
     return sortCategories(
@@ -376,7 +377,7 @@ export function Categories() {
         return matchesSearchQuery(category)
       })
     )
-  }, [pinnedStoreCategories, normalizedSearchQuery, sort, derivedStatsByCategoryId])
+  }, [pinnedStoreCategories, matchesSearchQuery, sortCategories])
 
   const filteredUnpinnedStoreCategories = useMemo(() => {
     return sortCategories(
@@ -384,7 +385,7 @@ export function Categories() {
         return matchesSearchQuery(category)
       })
     )
-  }, [unpinnedStoreCategories, normalizedSearchQuery, sort, derivedStatsByCategoryId])
+  }, [unpinnedStoreCategories, matchesSearchQuery, sortCategories])
 
   const pinnedCategories = useMemo(() => {
     return filteredPinnedStoreCategories.map((category) => {

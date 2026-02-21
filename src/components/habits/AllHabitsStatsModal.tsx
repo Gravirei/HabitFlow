@@ -191,7 +191,7 @@ function FrequencyBar({ label, count, total, color, icon }: { label: string; cou
 }
 
 // ─── Category Row ─────────────────────────────────────────────────────────────
-function CategoryRow({ name, completed, total, rate, color, index }: { name: string; completed: number; total: number; rate: number; color: string; index: number }) {
+export function CategoryRow({ name, completed, total, rate, color, index }: { name: string; completed: number; total: number; rate: number; color: string; index: number }) {
   return (
     <motion.div
       initial={{ opacity: 0, x: -6 }} animate={{ opacity: 1, x: 0 }}

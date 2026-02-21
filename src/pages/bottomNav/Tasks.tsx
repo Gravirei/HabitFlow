@@ -149,6 +149,7 @@ export function Tasks() {
     }
     
     fixBrokenTemplates()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []) // Run only once on mount
   const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'completed'>('all')
   const [searchQuery, setSearchQuery] = useState('')
@@ -247,7 +248,7 @@ export function Tasks() {
 
   // Get unique categories and tags
   const categories = useMemo(() => Array.from(new Set(tasks.map(t => t.category))), [tasks])
-  const allTags = useMemo(() => Array.from(new Set(tasks.flatMap(t => t.tags))), [tasks])
+  // allTags removed — was unused
 
   const toggleTask = (id: string) => {
     setTasks(tasks.map(t => 
@@ -395,29 +396,6 @@ export function Tasks() {
   }, [tasks, filterStatus, selectedPriorities, selectedCategories, searchQuery, sort])
 
   // Helper functions
-  const getPriorityColor = (priority: TaskPriority) => {
-    switch (priority) {
-      case 'high': return 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20'
-      case 'medium': return 'text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20'
-      case 'low': return 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20'
-    }
-  }
-
-  const getPriorityIcon = (priority: TaskPriority) => {
-    switch (priority) {
-      case 'high': return 'priority_high'
-      case 'medium': return 'drag_handle'
-      case 'low': return 'arrow_downward'
-    }
-  }
-
-  const getStatusColor = (status: TaskStatus) => {
-    switch (status) {
-      case 'completed': return 'text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20'
-      case 'in_progress': return 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20'
-      case 'todo': return 'text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/20'
-    }
-  }
 
   const formatDueDate = (due?: string) => {
     if (!due) return null
@@ -723,7 +701,7 @@ export function Tasks() {
                           <div className="text-xs text-gray-500 dark:text-gray-400">{desc}</div>
                         </div>
                         <button
-                          onClick={() => setKanbanStyle(value as any)}
+                          onClick={() => setKanbanStyle(value as typeof kanbanStyle)}
                           className={cn(
                             "relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none",
                             kanbanStyle === value

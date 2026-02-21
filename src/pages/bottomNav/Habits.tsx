@@ -520,11 +520,9 @@ export function Habits() {
                 }}
                 onOpenAllStats={() => setIsAllStatsModalOpen(true)}
                 onOpenPinModal={() => setIsSelectPinModalOpen(true)}
-                showResetConfirm={showResetConfirm}
                 onResetConfirm={() => setShowResetConfirm(true)}
                 onCompleteAll={() => {
                   handleCompleteAllHabits()
-                  setIsUniversalMenuOpen(false)
                 }}
               />
             )}
@@ -827,7 +825,6 @@ function HabitList({
   onDeleteToday,
   onOpenAllStats,
   onOpenPinModal,
-  showResetConfirm,
   onResetConfirm,
   onCompleteAll,
 }: {
@@ -844,11 +841,10 @@ function HabitList({
   onDeleteToday?: (habitId: string, habitName: string) => void
   onOpenAllStats?: () => void
   onOpenPinModal?: () => void
-  showResetConfirm?: boolean
   onResetConfirm?: () => void
   onCompleteAll?: () => void
 }) {
-  const { isHabitCompletedToday, toggleHabitCompletion, pinHabit, unpinHabit } = useHabitStore()
+  const { isHabitCompletedToday } = useHabitStore()
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
     new Set(['health', 'work', 'personal', 'other'])
   )
@@ -1356,7 +1352,7 @@ function HabitCard({
   onArchive?: (habitId: string) => void
   onDeleteToday?: (habitId: string, habitName: string) => void
 }) {
-  const navigate = useNavigate()
+  // navigate removed — unused in HabitCard
   const { isHabitCompletedToday } = useHabitStore()
   const { getTaskCount, getTasksByHabitId, resetTasksIfNeeded } = useHabitTaskStore()
   

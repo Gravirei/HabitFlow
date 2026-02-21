@@ -116,6 +116,7 @@ export function HabitTasksModal({ isOpen, onClose, habitId, habitName, habitIcon
         priority: formData.priority,
         dueDate: formData.dueDate || undefined,
         tags: formData.tags.length > 0 ? formData.tags : undefined,
+        completed: false,
       })
     }
     
@@ -475,7 +476,7 @@ interface TaskCardProps {
   onDelete: () => void
 }
 
-function TaskCard({ task, index, onEdit, onDelete }: TaskCardProps) {
+function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
   const priorityConfig = {
     low: {
       color: 'bg-blue-500',
@@ -584,7 +585,7 @@ interface TaskFormProps {
     dueDate: string
     tags: string[]
   }
-  setFormData: (data: any) => void
+  setFormData: (data: { title: string; description: string; priority: HabitTaskPriority; dueDate: string; tags: string[] }) => void
   tagInput: string
   setTagInput: (value: string) => void
   isEditing: boolean
@@ -649,7 +650,7 @@ function TaskForm({
               : "border-slate-300 dark:border-slate-600"
           )}
           style={!hasDuplicateName ? {
-            ['--tw-ring-color' as any]: `${colors.base}33`,
+            ['--tw-ring-color' as string]: `${colors.base}33`,
           } : {}}
           onFocus={(e) => {
             if (!hasDuplicateName) {
@@ -698,7 +699,7 @@ function TaskForm({
           rows={2}
           className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 transition-colors focus:outline-none focus:ring-2 dark:border-slate-600 dark:bg-slate-700 dark:text-white dark:placeholder-slate-500"
           style={{
-            ['--tw-ring-color' as any]: `${colors.base}33`,
+            ['--tw-ring-color' as string]: `${colors.base}33`,
           }}
           onFocus={(e) => e.target.style.borderColor = colors.base}
           onBlur={(e) => e.target.style.borderColor = ''}
@@ -717,7 +718,7 @@ function TaskForm({
             onChange={(e) => setFormData({ ...formData, priority: e.target.value as HabitTaskPriority })}
             className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 transition-colors focus:outline-none focus:ring-2 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
             style={{
-              ['--tw-ring-color' as any]: `${colors.base}33`,
+              ['--tw-ring-color' as string]: `${colors.base}33`,
             }}
             onFocus={(e) => e.target.style.borderColor = colors.base}
             onBlur={(e) => e.target.style.borderColor = ''}
@@ -738,7 +739,7 @@ function TaskForm({
             onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
             className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 transition-colors focus:outline-none focus:ring-2 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
             style={{
-              ['--tw-ring-color' as any]: `${colors.base}33`,
+              ['--tw-ring-color' as string]: `${colors.base}33`,
             }}
             onFocus={(e) => e.target.style.borderColor = colors.base}
             onBlur={(e) => e.target.style.borderColor = ''}
@@ -766,7 +767,7 @@ function TaskForm({
             placeholder="Add a tag..."
             className="flex-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 transition-colors focus:outline-none focus:ring-2 dark:border-slate-600 dark:bg-slate-700 dark:text-white dark:placeholder-slate-500"
             style={{
-              ['--tw-ring-color' as any]: `${colors.base}33`,
+              ['--tw-ring-color' as string]: `${colors.base}33`,
             }}
             onFocus={(e) => e.target.style.borderColor = colors.base}
             onBlur={(e) => e.target.style.borderColor = ''}
