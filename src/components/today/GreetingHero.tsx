@@ -10,16 +10,15 @@ interface GreetingHeroProps {
 }
 
 const QUOTES = [
-  "Small steps every day lead to big changes.",
+  "Small steps lead to big changes.",
   "Consistency is the key to transformation.",
-  "Every habit is a vote for the person you want to become.",
+  "Every habit is a vote for your future self.",
   "Progress, not perfection.",
-  "The secret of your future is hidden in your daily routine.",
   "Build the life you want, one habit at a time.",
-  "Discipline is choosing between what you want now and what you want most.",
-  "Your only competition is who you were yesterday.",
-  "Show up every day — that's the whole strategy.",
-  "Motivation gets you started. Habit keeps you going.",
+  "Discipline is choosing what you want most.",
+  "Your competition is who you were yesterday.",
+  "Show up every day.",
+  "Motivation starts it. Habit sustains it.",
 ]
 
 const GREETING_PHRASES = [
@@ -27,7 +26,6 @@ const GREETING_PHRASES = [
   "Make today count.",
   "You've got this!",
   "Stay consistent.",
-  "One habit at a time.",
   "Keep the streak alive.",
   "Small wins matter.",
   "Be proud of yourself.",
@@ -41,13 +39,14 @@ const getTimeGreeting = () => {
 }
 
 const getRingColor = (pct: number) => {
-  if (pct >= 80) return { stroke: '#22C55E', glow: 'rgba(34,197,94,0.35)', track: 'rgba(34,197,94,0.15)' }
-  if (pct >= 50) return { stroke: '#F59E0B', glow: 'rgba(245,158,11,0.35)', track: 'rgba(245,158,11,0.15)' }
-  if (pct >= 25) return { stroke: '#3B82F6', glow: 'rgba(59,130,246,0.35)', track: 'rgba(59,130,246,0.15)' }
-  return { stroke: '#6366F1', glow: 'rgba(99,102,241,0.35)', track: 'rgba(99,102,241,0.15)' }
+  // Teal to Orange gradient feel logic
+  if (pct >= 80) return { stroke: '#2DD4BF', glow: 'rgba(45,212,191,0.5)', track: 'rgba(45,212,191,0.1)' } // Teal 400
+  if (pct >= 50) return { stroke: '#38BDF8', glow: 'rgba(56,189,248,0.5)', track: 'rgba(56,189,248,0.1)' } // Sky 400
+  if (pct >= 25) return { stroke: '#818CF8', glow: 'rgba(129,140,248,0.5)', track: 'rgba(129,140,248,0.1)' } // Indigo 400
+  return { stroke: '#FB923C', glow: 'rgba(251,146,60,0.5)', track: 'rgba(251,146,60,0.1)' } // Orange 400
 }
 
-const CIRCUMFERENCE = 2 * Math.PI * 42
+const CIRCUMFERENCE = 2 * Math.PI * 52 // Larger ring radius
 
 export function GreetingHero({ completedHabits, totalHabits, progressPercentage, progressMessage }: GreetingHeroProps) {
   const ring = getRingColor(progressPercentage)
@@ -63,7 +62,7 @@ export function GreetingHero({ completedHabits, totalHabits, progressPercentage,
   useEffect(() => {
     const quoteTimer = setInterval(() => {
       setQuoteIndex(i => (i + 1) % QUOTES.length)
-    }, 6000)
+    }, 8000) // Slower cycle
     const phraseTimer = setInterval(() => {
       setPhraseIndex(i => (i + 1) % GREETING_PHRASES.length)
     }, 6000)
@@ -75,61 +74,57 @@ export function GreetingHero({ completedHabits, totalHabits, progressPercentage,
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 16 }}
+      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-      className="relative w-full overflow-hidden rounded-3xl p-5 sm:p-6 lg:p-8"
-      style={{
-        background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 60%, #0F172A 100%)',
-        border: '1px solid rgba(255,255,255,0.08)',
-        boxShadow: '0 25px 50px rgba(0,0,0,0.4)',
-      }}
+      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+      className="relative w-full overflow-hidden rounded-[32px] p-6 sm:p-8 isolate"
     >
-      {/* Ambient glow blobs */}
-      <div className="pointer-events-none absolute -right-10 -top-10 size-48 rounded-full blur-3xl opacity-20"
-        style={{ backgroundColor: ring.stroke }} />
-      <div className="pointer-events-none absolute -bottom-10 -left-10 size-36 rounded-full blur-3xl opacity-10"
-        style={{ backgroundColor: '#3B82F6' }} />
+      {/* Glass Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-800/80 via-slate-900/80 to-slate-950/90 backdrop-blur-2xl border border-white/10 -z-10" />
+      
+      {/* Ambient Glows */}
+      <div 
+        className="absolute -top-24 -right-24 size-64 rounded-full blur-[100px] opacity-30 -z-10"
+        style={{ backgroundColor: ring.stroke }} 
+      />
+      <div 
+        className="absolute -bottom-24 -left-24 size-64 rounded-full bg-teal-900/40 blur-[80px] -z-10"
+      />
 
-      {/* Grid dot pattern */}
-      <div className="pointer-events-none absolute inset-0 opacity-[0.03]"
-        style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
-
-      <div className="relative flex items-center justify-between gap-4">
-        {/* Left: Greeting + quote + stats */}
-        <div className="flex flex-col gap-3 min-w-0 flex-1">
-          {/* Greeting — small & elegant, cycling */}
+      <div className="relative flex items-center justify-between gap-6 sm:gap-8">
+        {/* Left: Content */}
+        <div className="flex flex-col gap-4 min-w-0 flex-1 py-2">
+          
+          {/* Date & Greeting */}
           <div>
-            <p className="text-[11px] sm:text-xs font-bold uppercase tracking-[0.15em] text-slate-500">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-teal-200/60 mb-1">
               {format(new Date(), 'EEEE, MMMM d')}
             </p>
 
-            {/* Cycling greeting phrase */}
-            <div className="mt-0.5 overflow-hidden" style={{ height: '1.75rem' }}>
+            <div className="h-8 sm:h-9 overflow-hidden relative">
               <AnimatePresence mode="wait">
-                <motion.p
+                <motion.h2
                   key={phraseIndex}
-                  initial={{ y: 12, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  exit={{ y: -12, opacity: 0 }}
-                  transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                  className="text-base sm:text-lg font-bold text-white leading-tight"
+                  initial={{ y: 20, opacity: 0, filter: 'blur(4px)' }}
+                  animate={{ y: 0, opacity: 1, filter: 'blur(0px)' }}
+                  exit={{ y: -20, opacity: 0, filter: 'blur(4px)' }}
+                  transition={{ duration: 0.5, ease: "easeOut" }}
+                  className="text-2xl sm:text-3xl font-black text-white tracking-tight absolute inset-0 whitespace-nowrap"
                 >
-                  {getTimeGreeting()} — {GREETING_PHRASES[phraseIndex]}
-                </motion.p>
+                  {getTimeGreeting()}
+                </motion.h2>
               </AnimatePresence>
             </div>
 
-            {/* Cycling quote */}
-            <div className="mt-1 overflow-hidden" style={{ height: '2.2rem' }}>
+            <div className="h-10 sm:h-12 mt-2 overflow-hidden relative">
               <AnimatePresence mode="wait">
                 <motion.p
                   key={quoteIndex}
-                  initial={{ y: 10, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  exit={{ y: -10, opacity: 0 }}
-                  transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1], delay: 0.05 }}
-                  className="text-[11px] sm:text-xs text-slate-500 leading-snug max-w-[200px] sm:max-w-[240px] italic"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.8 }}
+                  className="text-sm sm:text-base text-slate-400 font-medium leading-relaxed max-w-sm"
                 >
                   "{QUOTES[quoteIndex]}"
                 </motion.p>
@@ -137,75 +132,71 @@ export function GreetingHero({ completedHabits, totalHabits, progressPercentage,
             </div>
           </div>
 
-          {/* Stats */}
-          <div className="flex flex-col gap-0.5">
-            <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: ring.stroke }}>
-              Daily Goal
-            </p>
-            <p className="text-3xl sm:text-4xl font-black text-white leading-none tracking-tight">
-              {progressMessage}
-            </p>
-            <p className="mt-1 text-sm text-slate-400">
-              <span className="font-bold text-white tabular-nums">{completedHabits}</span>
-              <span className="text-slate-600"> / </span>
-              <span className="tabular-nums">{totalHabits}</span>
-              <span className="ml-1">habits done</span>
-            </p>
-          </div>
+          {/* Stats & Dots */}
+          <div className="mt-auto">
+             <div className="flex items-end gap-2 mb-3">
+              <span className="text-4xl sm:text-5xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-white to-slate-400">
+                {Math.round(progressPercentage)}%
+              </span>
+              <div className="flex flex-col pb-1">
+                 <p className="text-sm font-bold text-white leading-none">
+                  {progressMessage}
+                </p>
+                <p className="text-xs text-slate-500 font-medium">
+                  completed
+                </p>
+              </div>
+             </div>
 
-          {/* Segmented dots */}
-          {totalHabits > 0 && (
-            <div className="flex gap-1 flex-wrap">
-              {Array.from({ length: totalHabits }).map((_, i) => (
-                <motion.div
-                  key={i}
-                  className="h-1.5 rounded-full"
-                  style={{
-                    width: `${Math.min(100 / totalHabits, 12)}%`,
-                    minWidth: 6,
-                    maxWidth: 20,
-                    backgroundColor: i < completedHabits ? ring.stroke : 'rgba(255,255,255,0.08)',
-                  }}
-                  initial={{ scaleX: 0 }}
-                  animate={{ scaleX: 1 }}
-                  transition={{ delay: i * 0.03, duration: 0.25, ease: 'easeOut' }}
-                />
-              ))}
-            </div>
-          )}
+            {/* Segmented Progress Bar */}
+            {totalHabits > 0 && (
+              <div className="flex gap-1.5 h-1.5 w-full max-w-[200px]">
+                {Array.from({ length: totalHabits }).map((_, i) => (
+                  <motion.div
+                    key={i}
+                    className="h-full rounded-full flex-1"
+                    initial={{ opacity: 0, scaleX: 0 }}
+                    animate={{ 
+                      opacity: 1, 
+                      scaleX: 1,
+                      backgroundColor: i < completedHabits ? ring.stroke : 'rgba(255,255,255,0.1)' 
+                    }}
+                    transition={{ delay: i * 0.05, duration: 0.4 }}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Right: Big progress ring */}
-        <div className="relative shrink-0 flex items-center justify-center"
-          style={{ filter: `drop-shadow(0 0 20px ${ring.glow})` }}>
-          <svg
-            className="size-28 sm:size-36 lg:size-44 -rotate-90"
-            viewBox="0 0 100 100"
-          >
+        {/* Right: Ring Visualization */}
+        <div className="relative shrink-0 hidden sm:flex items-center justify-center p-4">
+          {/* Outer Glow Ring */}
+          <div className="absolute inset-0 rounded-full blur-2xl opacity-20" 
+               style={{ background: ring.stroke }} />
+          
+          <svg className="size-32 lg:size-40 -rotate-90 drop-shadow-2xl" viewBox="0 0 120 120">
             {/* Track */}
-            <circle cx="50" cy="50" r="42" fill="none"
-              stroke={ring.track} strokeWidth="7" />
+            <circle cx="60" cy="60" r="52" fill="none"
+              stroke={ring.track} strokeWidth="8" strokeLinecap="round" />
+            
             {/* Progress */}
             <motion.circle
-              cx="50" cy="50" r="42" fill="none"
-              stroke={ring.stroke} strokeWidth="7"
+              cx="60" cy="60" r="52" fill="none"
+              stroke={ring.stroke} strokeWidth="8"
               strokeLinecap="round"
               strokeDasharray={CIRCUMFERENCE}
               initial={{ strokeDashoffset: CIRCUMFERENCE }}
               animate={{ strokeDashoffset: offset }}
-              transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
+              transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
             />
           </svg>
-          <div className="absolute flex flex-col items-center justify-center">
-            <motion.span
-              className="text-2xl sm:text-3xl lg:text-4xl font-black tabular-nums"
-              style={{ color: ring.stroke }}
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.4, duration: 0.3 }}
-            >
-              {Math.round(progressPercentage)}%
-            </motion.span>
+          
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+             <span className="material-symbols-outlined text-3xl text-slate-400" 
+                   style={{ color: ring.stroke }}>
+                {progressPercentage >= 100 ? 'emoji_events' : 'bolt'}
+             </span>
           </div>
         </div>
       </div>

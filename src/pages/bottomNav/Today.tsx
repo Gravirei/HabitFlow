@@ -4,10 +4,11 @@ import { useHabitTaskStore } from '@/store/useHabitTaskStore'
 import { BottomNav } from '@/components/BottomNav'
 import { SideNav } from '@/components/SideNav'
 import { HabitTasksModal } from '@/components/categories/HabitTasksModal'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { format, isToday, isBefore } from 'date-fns'
 import { motion, AnimatePresence } from 'framer-motion'
 import { GreetingHero, HabitCard, HydrationCard, TaskCard, DateStrip } from '@/components/today'
+import { cn } from '@/utils/cn'
 
 // ─── Mock tasks ───────────────────────────────────────────────────────────────
 const tasks = [
@@ -17,26 +18,24 @@ const tasks = [
 
 // ─── Slide variants ───────────────────────────────────────────────────────────
 const slideVariants = {
-  enter: (dir: number) => ({ x: dir > 0 ? 40 : -40, opacity: 0 }),
+  enter: (dir: number) => ({ x: dir > 0 ? 20 : -20, opacity: 0 }),
   center: { x: 0, opacity: 1 },
-  exit: (dir: number) => ({ x: dir > 0 ? -40 : 40, opacity: 0 }),
+  exit: (dir: number) => ({ x: dir > 0 ? -20 : 20, opacity: 0 }),
 }
 
 // ─── Section Header ───────────────────────────────────────────────────────────
-function SectionHeader({ title, count, countLabel, onAction, actionLabel }: {
+function SectionHeader({ title, count, onAction, actionLabel }: {
   title: string
   count?: number
-  countLabel?: string
   onAction?: () => void
   actionLabel?: string
 }) {
   return (
-    <div className="flex items-center justify-between px-1 mb-3">
-      <div className="flex items-center gap-2">
-        <h3 className="text-lg sm:text-xl lg:text-2xl font-black text-white tracking-tight">{title}</h3>
-        {count !== undefined && (
-          <span className="rounded-full px-2 py-0.5 text-[10px] font-bold tabular-nums"
-            style={{ background: 'rgba(255,255,255,0.07)', color: 'rgba(148,163,184,0.9)' }}>
+    <div className="flex items-center justify-between px-2 mb-4 mt-8">
+      <div className="flex items-center gap-3">
+        <h3 className="text-xl font-bold text-white tracking-tight">{title}</h3>
+        {count !== undefined && count > 0 && (
+          <span className="flex items-center justify-center min-w-[24px] h-6 px-1.5 rounded-full text-xs font-bold bg-slate-800 text-teal-400 border border-slate-700">
             {count}
           </span>
         )}
@@ -44,17 +43,11 @@ function SectionHeader({ title, count, countLabel, onAction, actionLabel }: {
       {onAction && (
         <button
           onClick={onAction}
-          className="flex cursor-pointer items-center gap-1 text-xs font-semibold text-slate-500 transition-colors hover:text-emerald-400"
+          className="flex cursor-pointer items-center gap-1 text-xs font-semibold text-slate-400 transition-colors hover:text-teal-400 hover:bg-slate-800/50 px-2 py-1 rounded-lg"
         >
           {actionLabel ?? 'View All'}
-          <span className="material-symbols-outlined text-base" aria-hidden="true">arrow_forward</span>
+          <span className="material-symbols-outlined text-sm">arrow_forward</span>
         </button>
-      )}
-      {countLabel && (
-        <span className="rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-500"
-          style={{ border: '1px solid rgba(255,255,255,0.07)' }}>
-          {countLabel}
-        </span>
       )}
     </div>
   )
@@ -63,12 +56,11 @@ function SectionHeader({ title, count, countLabel, onAction, actionLabel }: {
 // ─── Empty State ──────────────────────────────────────────────────────────────
 function EmptyState({ icon, message }: { icon: string; message: string }) {
   return (
-    <div className="flex flex-col items-center justify-center gap-2 py-8 text-center">
-      <div className="flex size-14 items-center justify-center rounded-2xl"
-        style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
-        <span className="material-symbols-outlined text-2xl text-slate-600" aria-hidden="true">{icon}</span>
+    <div className="flex flex-col items-center justify-center gap-3 py-12 text-center bg-slate-800/20 rounded-3xl border border-dashed border-slate-700/50">
+      <div className="flex size-16 items-center justify-center rounded-2xl bg-slate-800/50 shadow-inner">
+        <span className="material-symbols-outlined text-3xl text-slate-500">{icon}</span>
       </div>
-      <p className="text-sm text-slate-600">{message}</p>
+      <p className="text-sm font-medium text-slate-500 max-w-[200px]">{message}</p>
     </div>
   )
 }
@@ -145,89 +137,102 @@ export function Today() {
 
   const getPageTitle = () => {
     if (isToday(selectedDate)) return 'Today'
-    return format(selectedDate, 'EEE, MMM d')
+    return format(selectedDate, 'MMMM d')
   }
 
   return (
     <div
-      className="relative mx-auto flex min-h-screen w-full max-w-md sm:max-w-2xl lg:max-w-4xl xl:max-w-5xl flex-col"
-      style={{ backgroundColor: '#020617', color: '#F8FAFC' }}
+      className="relative mx-auto flex min-h-screen w-full max-w-md sm:max-w-2xl lg:max-w-4xl xl:max-w-5xl flex-col bg-slate-950 text-slate-50 selection:bg-teal-500/30"
     >
-      <main className="flex-grow pb-28">
+      {/* Background Gradient Mesh */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-teal-900/10 blur-[100px]" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-slate-800/20 blur-[100px]" />
+      </div>
+
+      <main className="flex-grow pb-32 relative z-0">
 
         {/* ── Top App Bar ───────────────────────────────────────────── */}
-        <div className="flex flex-col gap-3 px-4 pt-4 pb-2 sm:px-6 sm:pt-5 lg:px-8">
-          <div className="flex h-12 sm:h-14 items-center justify-between">
-            {/* Menu button */}
-            <button
-              onClick={() => setIsSideNavOpen(true)}
-              aria-label="Open navigation menu"
-              className="flex size-10 sm:size-11 cursor-pointer items-center justify-center rounded-2xl text-slate-400 transition-colors hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
-            >
-              <span className="material-symbols-outlined" aria-hidden="true">menu</span>
-            </button>
+        <div className="sticky top-0 z-50 backdrop-blur-xl bg-slate-950/80 border-b border-white/5 transition-all duration-300">
+          <div className="flex flex-col gap-2 px-4 pt-4 pb-3 sm:px-6 lg:px-8">
+            <div className="flex h-12 items-center justify-between">
+              {/* Menu button */}
+              <button
+                onClick={() => setIsSideNavOpen(true)}
+                aria-label="Open navigation menu"
+                className="flex size-10 cursor-pointer items-center justify-center rounded-xl text-slate-400 hover:text-white hover:bg-white/5 active:scale-95 transition-all"
+              >
+                <span className="material-symbols-outlined">menu</span>
+              </button>
 
-            {/* Title / Search */}
-            <div className="flex-1 overflow-hidden px-3 text-center">
-              <AnimatePresence mode="wait">
-                {isSearchOpen ? (
-                  <motion.input
-                    key="search"
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    type="text"
-                    placeholder="Search habits & tasks..."
-                    value={searchQuery}
-                    onChange={e => setSearchQuery(e.target.value)}
-                    autoFocus
-                    className="w-full rounded-2xl px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500/40"
-                    style={{ background: 'rgba(255,255,255,0.06)', color: '#F8FAFC', border: '1px solid rgba(255,255,255,0.1)' }}
-                  />
-                ) : (
-                  <AnimatePresence mode="wait" custom={direction}>
-                    <motion.p
-                      key={selectedDate.toISOString()}
-                      custom={direction}
-                      variants={slideVariants}
-                      initial="enter"
-                      animate="center"
-                      exit="exit"
-                      transition={{ type: 'tween', ease: 'easeInOut', duration: 0.18 }}
-                      className="text-lg sm:text-xl font-black text-white"
+              {/* Title / Search */}
+              <div className="flex-1 overflow-hidden px-4 text-center">
+                <AnimatePresence mode="wait">
+                  {isSearchOpen ? (
+                    <motion.div
+                      key="search"
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      className="relative max-w-xs mx-auto"
                     >
-                      {getPageTitle()}
-                    </motion.p>
-                  </AnimatePresence>
-                )}
-              </AnimatePresence>
-            </div>
+                      <input
+                        type="text"
+                        placeholder="Search..."
+                        value={searchQuery}
+                        onChange={e => setSearchQuery(e.target.value)}
+                        autoFocus
+                        className="w-full rounded-xl px-4 py-2 pl-10 text-sm bg-slate-800/50 border border-slate-700 text-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-transparent placeholder:text-slate-500"
+                      />
+                      <span className="material-symbols-outlined absolute left-3 top-2 text-slate-500 text-lg">search</span>
+                    </motion.div>
+                  ) : (
+                    <AnimatePresence mode="wait" custom={direction}>
+                      <motion.h1
+                        key={selectedDate.toISOString()}
+                        custom={direction}
+                        variants={slideVariants}
+                        initial="enter"
+                        animate="center"
+                        exit="exit"
+                        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                        className="text-lg font-bold text-white tracking-tight"
+                      >
+                        {getPageTitle()}
+                      </motion.h1>
+                    </AnimatePresence>
+                  )}
+                </AnimatePresence>
+              </div>
 
-            {/* Action buttons */}
-            <div className="flex items-center gap-1">
-              <button
-                onClick={() => { setIsSearchOpen(!isSearchOpen); if (isSearchOpen) setSearchQuery('') }}
-                aria-label={isSearchOpen ? 'Close search' : 'Open search'}
-                className={`flex size-10 sm:size-11 cursor-pointer items-center justify-center rounded-2xl transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500/40 ${
-                  isSearchOpen ? 'text-emerald-400' : 'text-slate-400 hover:bg-white/5'
-                }`}
-                style={isSearchOpen ? { background: 'rgba(34,197,94,0.12)' } : {}}
-              >
-                <span className="material-symbols-outlined" aria-hidden="true">
-                  {isSearchOpen ? 'close' : 'search'}
-                </span>
-              </button>
-              <button
-                onClick={() => navigate('/calendar')}
-                aria-label="Open calendar"
-                className="flex size-10 sm:size-11 cursor-pointer items-center justify-center rounded-2xl text-slate-400 transition-colors hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
-              >
-                <span className="material-symbols-outlined" aria-hidden="true">calendar_month</span>
-              </button>
+              {/* Action buttons */}
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => { setIsSearchOpen(!isSearchOpen); if (isSearchOpen) setSearchQuery('') }}
+                  aria-label={isSearchOpen ? 'Close search' : 'Open search'}
+                  className={cn(
+                    "flex size-10 cursor-pointer items-center justify-center rounded-xl transition-all active:scale-95",
+                    isSearchOpen ? "bg-teal-500/10 text-teal-400 ring-2 ring-teal-500/20" : "text-slate-400 hover:text-white hover:bg-white/5"
+                  )}
+                >
+                  <span className="material-symbols-outlined">
+                    {isSearchOpen ? 'close' : 'search'}
+                  </span>
+                </button>
+                <button
+                  onClick={() => navigate('/calendar')}
+                  aria-label="Open calendar"
+                  className="flex size-10 cursor-pointer items-center justify-center rounded-xl text-slate-400 hover:text-white hover:bg-white/5 active:scale-95 transition-all"
+                >
+                  <span className="material-symbols-outlined">calendar_month</span>
+                </button>
+              </div>
             </div>
           </div>
+        </div>
 
-          {/* Date strip */}
+        {/* ── Date Strip ────────────────────────────────────────────── */}
+        <div className="pt-2">
           <DateStrip days={days} selectedDate={selectedDate} onDateClick={handleDateClick} />
         </div>
 
@@ -240,8 +245,8 @@ export function Today() {
             initial="enter"
             animate="center"
             exit="exit"
-            transition={{ type: 'tween', ease: 'easeInOut', duration: 0.2 }}
-            className="px-4 sm:px-6 lg:px-8 space-y-6 mt-4"
+            transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
+            className="px-4 sm:px-6 lg:px-8 space-y-8 mt-6 max-w-3xl mx-auto"
           >
 
             {/* ── Greeting Hero ────────────────────────────────────── */}
@@ -254,25 +259,20 @@ export function Today() {
               />
             )}
 
-            {/* ── Divider ──────────────────────────────────────────── */}
-            {!isSearchOpen && (
-              <div className="h-px" style={{ background: 'rgba(255,255,255,0.05)' }} />
-            )}
-
             {/* ── Habits Section ───────────────────────────────────── */}
             <section>
               <SectionHeader
-                title="Habits"
+                title="Your Habits"
                 count={filteredHabits.length}
                 onAction={() => navigate('/habits')}
                 actionLabel="View All"
               />
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {filteredHabits.length === 0 ? (
                   <div className="col-span-full">
                     <EmptyState
                       icon="checklist"
-                      message={isSearchOpen ? 'No habits match your search.' : 'No habits yet — add your first one!'}
+                      message={isSearchOpen ? 'No habits match your search.' : 'No habits for today.'}
                     />
                   </div>
                 ) : (
@@ -314,19 +314,16 @@ export function Today() {
               </div>
             </section>
 
-            {/* ── Divider ──────────────────────────────────────────── */}
-            <div className="h-px" style={{ background: 'rgba(255,255,255,0.05)' }} />
-
             {/* ── Tasks Section ────────────────────────────────────── */}
-            <section className="pb-4">
+            <section>
               <SectionHeader
-                title="Tasks"
-                countLabel={`${filteredTasks.length} Pending`}
+                title="Pending Tasks"
+                count={filteredTasks.length}
               />
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {filteredTasks.length === 0 ? (
                   <div className="col-span-full">
-                    <EmptyState icon="task_alt" message="No tasks pending." />
+                    <EmptyState icon="task_alt" message="You're all caught up!" />
                   </div>
                 ) : (
                   filteredTasks.map((task, i) => (
@@ -341,14 +338,16 @@ export function Today() {
       </main>
 
       {/* ── FAB ──────────────────────────────────────────────────────── */}
-      <div className="fixed bottom-24 right-4 sm:right-6 lg:right-8 z-10">
-        <button
+      <div className="fixed bottom-24 right-6 lg:right-10 z-30">
+        <motion.button
           onClick={() => navigate('/new-habit')}
           aria-label="Add new habit"
-          className="group flex size-14 sm:size-16 cursor-pointer items-center justify-center rounded-full shadow-2xl transition-all duration-300 hover:scale-110 active:scale-95 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="group flex size-14 sm:size-16 cursor-pointer items-center justify-center rounded-2xl shadow-2xl transition-all duration-300 ring-2 ring-white/10"
           style={{
-            background: 'linear-gradient(135deg, #22C55E 0%, #16A34A 100%)',
-            boxShadow: '0 8px 30px rgba(34,197,94,0.4)',
+            background: 'linear-gradient(135deg, #14B8A6 0%, #0D9488 100%)', // Teal Gradient
+            boxShadow: '0 8px 30px rgba(20,184,166,0.4)',
           }}
         >
           <span
@@ -357,7 +356,7 @@ export function Today() {
           >
             add
           </span>
-        </button>
+        </motion.button>
       </div>
 
       <SideNav isOpen={isSideNavOpen} onClose={() => setIsSideNavOpen(false)} />

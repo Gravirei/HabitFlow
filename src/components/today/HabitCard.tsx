@@ -1,18 +1,18 @@
 import { motion } from 'framer-motion'
-import clsx from 'clsx'
+import { cn } from '@/utils/cn'
 
 // ─── Color map ────────────────────────────────────────────────────────────────
 const ICON_COLORS: Record<string, { accent: string; glow: string; bg: string }> = {
-  directions_run:  { accent: '#22C55E', glow: 'rgba(34,197,94,0.2)',   bg: 'rgba(34,197,94,0.08)'   },
-  auto_stories:    { accent: '#3B82F6', glow: 'rgba(59,130,246,0.2)',  bg: 'rgba(59,130,246,0.08)'  },
-  menu_book:       { accent: '#3B82F6', glow: 'rgba(59,130,246,0.2)',  bg: 'rgba(59,130,246,0.08)'  },
-  self_improvement:{ accent: '#A855F7', glow: 'rgba(168,85,247,0.2)',  bg: 'rgba(168,85,247,0.08)'  },
-  water_drop:      { accent: '#06B6D4', glow: 'rgba(6,182,212,0.2)',   bg: 'rgba(6,182,212,0.08)'   },
-  fitness_center:  { accent: '#F97316', glow: 'rgba(249,115,22,0.2)',  bg: 'rgba(249,115,22,0.08)'  },
-  bedtime:         { accent: '#6366F1', glow: 'rgba(99,102,241,0.2)',  bg: 'rgba(99,102,241,0.08)'  },
-  edit_note:       { accent: '#EC4899', glow: 'rgba(236,72,153,0.2)',  bg: 'rgba(236,72,153,0.08)'  },
-  directions_walk: { accent: '#14B8A6', glow: 'rgba(20,184,166,0.2)',  bg: 'rgba(20,184,166,0.08)'  },
-  default:         { accent: '#94A3B8', glow: 'rgba(148,163,184,0.2)', bg: 'rgba(148,163,184,0.08)' },
+  directions_run:  { accent: '#2DD4BF', glow: 'rgba(45,212,191,0.3)',   bg: 'rgba(45,212,191,0.1)'   }, // Teal 400
+  auto_stories:    { accent: '#38BDF8', glow: 'rgba(56,189,248,0.3)',  bg: 'rgba(56,189,248,0.1)'  }, // Sky 400
+  menu_book:       { accent: '#38BDF8', glow: 'rgba(56,189,248,0.3)',  bg: 'rgba(56,189,248,0.1)'  },
+  self_improvement:{ accent: '#A78BFA', glow: 'rgba(167,139,250,0.3)',  bg: 'rgba(167,139,250,0.1)'  }, // Violet 400
+  water_drop:      { accent: '#22D3EE', glow: 'rgba(34,211,238,0.3)',   bg: 'rgba(34,211,238,0.1)'   }, // Cyan 400
+  fitness_center:  { accent: '#FB923C', glow: 'rgba(251,146,60,0.3)',  bg: 'rgba(251,146,60,0.1)'  }, // Orange 400
+  bedtime:         { accent: '#818CF8', glow: 'rgba(129,140,248,0.3)',  bg: 'rgba(129,140,248,0.1)'  }, // Indigo 400
+  edit_note:       { accent: '#F472B6', glow: 'rgba(244,114,182,0.3)',  bg: 'rgba(244,114,182,0.1)'  }, // Pink 400
+  directions_walk: { accent: '#34D399', glow: 'rgba(52,211,153,0.3)',  bg: 'rgba(52,211,153,0.1)'  }, // Emerald 400
+  default:         { accent: '#94A3B8', glow: 'rgba(148,163,184,0.3)', bg: 'rgba(148,163,184,0.1)' },
 }
 
 const getColors = (icon: string) => ICON_COLORS[icon] ?? ICON_COLORS.default
@@ -30,57 +30,67 @@ export function HabitCard({ habit, isCompleted, index, onToggle }: HabitCardProp
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12 }}
+      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.05, duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-      className="group relative overflow-hidden rounded-2xl p-3.5 flex items-center gap-3 cursor-pointer transition-all duration-200"
+      transition={{ delay: index * 0.05, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      className={cn(
+        "group relative overflow-hidden rounded-2xl p-4 flex items-center gap-4 cursor-pointer transition-all duration-300 isolate",
+        isCompleted 
+          ? "bg-slate-900/40 border-teal-500/20" 
+          : "bg-slate-800/40 border-white/5 hover:bg-slate-800/60 hover:border-white/10 hover:shadow-lg hover:shadow-black/20"
+      )}
       style={{
-        background: isCompleted
-          ? `linear-gradient(135deg, ${c.bg} 0%, rgba(255,255,255,0.03) 100%)`
-          : 'rgba(255,255,255,0.03)',
-        border: `1px solid ${isCompleted ? c.accent + '40' : 'rgba(255,255,255,0.06)'}`,
-        boxShadow: isCompleted ? `0 4px 20px ${c.glow}` : 'none',
+        backdropFilter: 'blur(12px)',
+        borderWidth: '1px',
       }}
       onClick={onToggle}
       role="checkbox"
       aria-checked={isCompleted}
       aria-label={`${isCompleted ? 'Unmark' : 'Mark'} ${habit.name} as complete`}
     >
-      {/* Glow blob on completed */}
-      {isCompleted && (
-        <div className="pointer-events-none absolute -right-4 -top-4 size-16 rounded-full blur-2xl opacity-40"
-          style={{ backgroundColor: c.accent }} />
-      )}
-
-      {/* Left accent strip */}
-      <div className="absolute left-0 inset-y-3 w-[3px] rounded-r-full transition-all duration-300"
-        style={{ backgroundColor: isCompleted ? c.accent : 'transparent' }} />
+      {/* Background Gradient on Complete */}
+      <div 
+        className={cn(
+          "absolute inset-0 transition-opacity duration-500 -z-10",
+          isCompleted ? "opacity-100" : "opacity-0"
+        )}
+        style={{ 
+          background: `linear-gradient(135deg, ${c.bg} 0%, transparent 100%)` 
+        }} 
+      />
 
       {/* Icon */}
       <div
-        className="relative flex size-12 shrink-0 items-center justify-center rounded-xl transition-transform duration-200 group-hover:scale-105"
-        style={{ backgroundColor: c.bg, border: `1px solid ${c.accent}20` }}
+        className={cn(
+          "relative flex size-12 shrink-0 items-center justify-center rounded-xl transition-all duration-300",
+          isCompleted ? "scale-95 opacity-80" : "group-hover:scale-110 shadow-inner shadow-white/10"
+        )}
+        style={{ 
+          backgroundColor: isCompleted ? 'rgba(0,0,0,0.2)' : c.bg,
+          boxShadow: isCompleted ? 'none' : `0 0 20px ${c.glow}`
+        }}
       >
-        <span className="material-symbols-outlined text-2xl" style={{ color: c.accent }} aria-hidden="true">
+        <span className="material-symbols-outlined text-2xl" style={{ color: c.accent }}>
           {habit.icon}
         </span>
       </div>
 
       {/* Content */}
-      <div className="flex-1 min-w-0">
-        <p className={clsx(
-          "text-sm font-bold leading-tight truncate transition-colors duration-200",
-          isCompleted ? "text-white/60 line-through" : "text-white"
+      <div className="flex-1 min-w-0 flex flex-col gap-0.5">
+        <p className={cn(
+          "text-base font-bold leading-tight truncate transition-all duration-300",
+          isCompleted ? "text-slate-500 line-through decoration-slate-600 decoration-2" : "text-white group-hover:text-teal-50"
         )}>
           {habit.name}
         </p>
-        <div className="flex items-center gap-2 mt-0.5">
-          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md"
-            style={{ backgroundColor: `${c.accent}18`, color: c.accent }}>
+        <div className="flex items-center gap-2">
+          <span 
+            className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-slate-950/30 border border-white/5 text-slate-400"
+          >
             {habit.category || 'General'}
           </span>
           {habit.goal && (
-            <span className="text-[10px] text-slate-600 tabular-nums">
+            <span className="text-xs text-slate-500 tabular-nums font-medium">
               {habit.goal} {habit.goalPeriod}
             </span>
           )}
@@ -89,27 +99,21 @@ export function HabitCard({ habit, isCompleted, index, onToggle }: HabitCardProp
 
       {/* Checkbox */}
       <div
-        className="relative flex size-9 shrink-0 items-center justify-center rounded-full transition-all duration-300"
-        style={{
-          backgroundColor: isCompleted ? c.accent : 'rgba(255,255,255,0.05)',
-          border: `2px solid ${isCompleted ? c.accent : 'rgba(255,255,255,0.12)'}`,
-          boxShadow: isCompleted ? `0 0 12px ${c.glow}` : 'none',
-        }}
+        className={cn(
+          "relative flex size-8 shrink-0 items-center justify-center rounded-full transition-all duration-300 border-2",
+          isCompleted 
+            ? "border-teal-500 bg-teal-500 shadow-[0_0_15px_rgba(20,184,166,0.4)]" 
+            : "border-slate-600 bg-slate-950/20 group-hover:border-slate-500"
+        )}
       >
-        <motion.svg
-          viewBox="0 0 12 10"
-          fill="none"
-          stroke="white"
-          strokeWidth={2}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="size-4"
-          initial={{ pathLength: 0, opacity: 0 }}
-          animate={{ pathLength: isCompleted ? 1 : 0, opacity: isCompleted ? 1 : 0 }}
-          transition={{ duration: 0.25, ease: 'easeOut' }}
+        <motion.span 
+          className="material-symbols-outlined text-lg text-white font-bold"
+          initial={false}
+          animate={{ scale: isCompleted ? 1 : 0, opacity: isCompleted ? 1 : 0 }}
+          transition={{ type: "spring", stiffness: 400, damping: 25 }}
         >
-          <motion.path d="M1 5l3.5 3.5L11 1" />
-        </motion.svg>
+          check
+        </motion.span>
       </div>
     </motion.div>
   )
@@ -127,33 +131,31 @@ interface HydrationCardProps {
 export function HydrationCard({ habit, isCompleted, waterCount, index, onAddWater }: HydrationCardProps) {
   const maxCups = habit.goal || 8
   const pct = (waterCount / maxCups) * 100
-  const c = ICON_COLORS.water_drop
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12 }}
+      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.05, duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-      className="group relative overflow-hidden rounded-2xl p-4"
-      style={{
-        background: 'rgba(6,182,212,0.06)',
-        border: `1px solid ${isCompleted ? c.accent + '40' : 'rgba(6,182,212,0.15)'}`,
-        boxShadow: isCompleted ? `0 4px 20px ${c.glow}` : 'none',
-      }}
+      transition={{ delay: index * 0.05, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      className={cn(
+        "group relative overflow-hidden rounded-2xl p-5 flex flex-col gap-4 isolate",
+        "bg-cyan-950/20 border border-cyan-500/20 backdrop-blur-xl shadow-lg shadow-cyan-900/10"
+      )}
     >
-      {/* Glow */}
-      <div className="pointer-events-none absolute -right-6 -top-6 size-24 rounded-full blur-3xl opacity-20"
-        style={{ backgroundColor: c.accent }} />
+      {/* Background Liquid Effect (Simplified) */}
+      <div 
+        className="absolute inset-0 bg-gradient-to-b from-transparent to-cyan-500/10 -z-10"
+        style={{ transform: `scaleY(${pct/100})`, transformOrigin: 'bottom', transition: 'transform 0.5s ease-out' }}
+      />
 
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-3">
-          <div className="flex size-11 items-center justify-center rounded-xl"
-            style={{ backgroundColor: c.bg, border: `1px solid ${c.accent}20` }}>
-            <span className="material-symbols-outlined text-xl" style={{ color: c.accent }} aria-hidden="true">water_drop</span>
+      <div className="flex items-start justify-between">
+        <div className="flex items-center gap-4">
+          <div className="flex size-12 items-center justify-center rounded-xl bg-cyan-500/10 border border-cyan-400/20 shadow-[0_0_15px_rgba(34,211,238,0.2)]">
+            <span className="material-symbols-outlined text-2xl text-cyan-400">water_drop</span>
           </div>
           <div>
-            <p className="text-sm font-bold text-white leading-tight">{habit.name}</p>
-            <p className="text-[10px] tabular-nums" style={{ color: c.accent }}>
+            <h3 className="text-lg font-bold text-white leading-tight">{habit.name}</h3>
+            <p className="text-sm font-medium text-cyan-200/60 tabular-nums">
               {waterCount} / {maxCups} cups
             </p>
           </div>
@@ -162,37 +164,42 @@ export function HydrationCard({ habit, isCompleted, waterCount, index, onAddWate
         <button
           onClick={onAddWater}
           disabled={isCompleted}
-          aria-label={isCompleted ? `${habit.name} completed` : `Add cup`}
-          className="flex size-9 cursor-pointer items-center justify-center rounded-full transition-all duration-200 active:scale-90 disabled:cursor-default"
-          style={{
-            backgroundColor: isCompleted ? c.accent : `${c.accent}22`,
-            border: `1.5px solid ${c.accent}`,
-            color: isCompleted ? 'white' : c.accent,
-          }}
+          className={cn(
+            "flex size-10 cursor-pointer items-center justify-center rounded-full transition-all duration-200 active:scale-90 disabled:cursor-not-allowed disabled:opacity-50",
+            isCompleted 
+              ? "bg-cyan-500 text-white shadow-[0_0_15px_rgba(34,211,238,0.4)]" 
+              : "bg-cyan-500/20 border border-cyan-400/50 text-cyan-400 hover:bg-cyan-500 hover:text-white hover:shadow-[0_0_15px_rgba(34,211,238,0.3)]"
+          )}
         >
-          <span className="material-symbols-outlined text-lg" aria-hidden="true">
+          <span className="material-symbols-outlined text-xl">
             {isCompleted ? 'check' : 'add'}
           </span>
         </button>
       </div>
 
-      {/* Cups grid */}
-      <div className="flex gap-1.5">
+      {/* Cups Indicators */}
+      <div className="flex items-center justify-between gap-1">
         {Array.from({ length: maxCups }).map((_, i) => (
           <motion.div
             key={i}
-            className="h-2 flex-1 rounded-full"
-            style={{ backgroundColor: i < waterCount ? c.accent : 'rgba(255,255,255,0.06)' }}
-            animate={{ backgroundColor: i < waterCount ? c.accent : 'rgba(255,255,255,0.06)' }}
-            transition={{ duration: 0.2 }}
-          />
+            className={cn(
+              "h-8 flex-1 rounded-full relative overflow-hidden bg-cyan-950/40 border border-cyan-500/10"
+            )}
+            initial={false}
+            animate={{ 
+              backgroundColor: i < waterCount ? 'rgba(34,211,238,0.2)' : 'rgba(8,51,68,0.4)',
+              borderColor: i < waterCount ? 'rgba(34,211,238,0.4)' : 'rgba(34,211,238,0.1)'
+            }}
+          >
+             <motion.div 
+               className="absolute bottom-0 left-0 right-0 bg-cyan-400"
+               initial={{ height: '0%' }}
+               animate={{ height: i < waterCount ? '100%' : '0%' }}
+               transition={{ type: 'spring', stiffness: 100, damping: 20 }}
+             />
+          </motion.div>
         ))}
       </div>
-
-      {/* Progress label */}
-      <p className="mt-1.5 text-right text-[10px] font-semibold tabular-nums" style={{ color: c.accent }}>
-        {Math.round(pct)}%
-      </p>
     </motion.div>
   )
 }

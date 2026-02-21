@@ -1,6 +1,7 @@
 import { useRef, useEffect } from 'react'
 import { format, isToday } from 'date-fns'
 import { motion } from 'framer-motion'
+import { cn } from '@/utils/cn'
 
 interface DateStripProps {
   days: Date[]
@@ -14,8 +15,8 @@ export function DateStrip({ days, selectedDate, onDateClick }: DateStripProps) {
   useEffect(() => {
     if (scrollRef.current) {
       const today = new Date().getDate()
-      const itemWidth = 56
-      const gap = 10
+      const itemWidth = 60 // Slightly wider for elegance
+      const gap = 12
       const containerWidth = scrollRef.current.clientWidth
       const scrollPos = (today - 1) * (itemWidth + gap) - containerWidth / 2 + itemWidth / 2
       scrollRef.current.scrollLeft = Math.max(0, scrollPos)
@@ -25,7 +26,7 @@ export function DateStrip({ days, selectedDate, onDateClick }: DateStripProps) {
   return (
     <div
       ref={scrollRef}
-      className="flex overflow-x-auto no-scrollbar gap-2.5 py-2 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 scroll-smooth"
+      className="flex overflow-x-auto no-scrollbar gap-3 py-4 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 scroll-smooth"
     >
       {days.map((date) => {
         const isSelected =
@@ -40,51 +41,59 @@ export function DateStrip({ days, selectedDate, onDateClick }: DateStripProps) {
             aria-label={format(date, 'EEEE, MMMM d, yyyy')}
             aria-current={isTodayDate ? 'date' : undefined}
             aria-pressed={isSelected}
-            className="relative flex min-w-[52px] sm:min-w-[60px] cursor-pointer flex-col items-center justify-center gap-0.5 rounded-2xl py-2.5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
-            style={
-              isSelected
-                ? {
-                    background: 'linear-gradient(135deg, #22C55E 0%, #16A34A 100%)',
-                    boxShadow: '0 4px 16px rgba(34,197,94,0.35)',
-                    border: '1px solid rgba(34,197,94,0.6)',
-                  }
-                : {
-                    background: 'rgba(255,255,255,0.04)',
-                    border: '1px solid rgba(255,255,255,0.07)',
-                  }
-            }
+            className={cn(
+              "relative flex min-w-[56px] h-[72px] cursor-pointer flex-col items-center justify-center rounded-2xl transition-all duration-300 group",
+              isSelected 
+                ? "shadow-[0_8px_20px_-4px_rgba(20,184,166,0.3)]" 
+                : "hover:-translate-y-0.5"
+            )}
           >
-            <span
-              className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider"
-              style={{ color: isSelected ? 'rgba(255,255,255,0.8)' : 'rgba(148,163,184,0.8)' }}
-              aria-hidden="true"
-            >
-              {format(date, 'EEE')}
-            </span>
-            <span
-              className="text-base sm:text-lg font-black leading-none"
-              style={{ color: isSelected ? '#ffffff' : '#f1f5f9' }}
-              aria-hidden="true"
-            >
-              {date.getDate()}
-            </span>
+            {/* Glass Background Layer */}
+            <div 
+              className={cn(
+                "absolute inset-0 rounded-2xl border transition-all duration-300",
+                isSelected
+                  ? "bg-gradient-to-br from-teal-500 to-teal-400 border-teal-400/50"
+                  : "bg-slate-800/40 border-white/5 group-hover:bg-slate-700/50 group-hover:border-white/10"
+              )}
+            />
+
+            {/* Content */}
+            <div className="relative z-10 flex flex-col items-center gap-1">
+              <span
+                className={cn(
+                  "text-[10px] font-bold uppercase tracking-wider transition-colors duration-200",
+                  isSelected ? "text-teal-50" : "text-slate-400 group-hover:text-slate-300"
+                )}
+              >
+                {format(date, 'EEE')}
+              </span>
+              <span
+                className={cn(
+                  "text-lg font-bold leading-none transition-colors duration-200",
+                  isSelected ? "text-white" : "text-slate-200 group-hover:text-white"
+                )}
+              >
+                {date.getDate()}
+              </span>
+            </div>
 
             {/* Today dot */}
             {isTodayDate && !isSelected && (
-              <motion.div
-                layoutId="today-dot"
-                className="mt-0.5 size-1 rounded-full bg-emerald-500"
-                aria-hidden="true"
-              />
+              <div className="absolute bottom-2 z-10">
+                <motion.div
+                  layoutId="today-dot"
+                  className="size-1 rounded-full bg-orange-400 shadow-[0_0_8px_rgba(251,146,60,0.6)]"
+                />
+              </div>
             )}
-
-            {/* Selected indicator */}
+            
+            {/* Selected Indicator Glow */}
             {isSelected && (
               <motion.div
-                layoutId="date-selection"
-                className="absolute inset-0 rounded-2xl"
-                style={{ boxShadow: '0 0 0 2px rgba(34,197,94,0.4)' }}
-                transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                layoutId="date-glow"
+                className="absolute -inset-0.5 rounded-2xl bg-teal-500/20 blur-sm -z-10"
+                transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
               />
             )}
           </button>
