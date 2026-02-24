@@ -9,7 +9,8 @@ import { logError, ErrorCategory, ErrorSeverity } from './errorMessages'
 import { logger } from './logger'
 
 // Security: Input length limits to prevent abuse
-export const MAX_SESSION_NAME_LENGTH = 255
+// Must match UI maxLength in SessionSetupModal (50 chars) and DB CHECK constraint
+export const MAX_SESSION_NAME_LENGTH = 50
 export const MAX_TAG_LENGTH = 50
 export const MAX_TAGS_PER_SESSION = 10
 
