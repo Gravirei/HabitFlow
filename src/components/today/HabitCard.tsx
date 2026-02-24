@@ -2,22 +2,18 @@ import { motion } from 'framer-motion'
 import { cn } from '@/utils/cn'
 import { useHabitTaskStore } from '@/store/useHabitTaskStore'
 
-// ─── Gradient Color Palette (Modern Glassmorphic) ─────────────────────────────
-const ICON_PALETTE: Record<string, { gradient: string; glow: string; accent: string }> = {
-  directions_run:   { gradient: 'linear-gradient(135deg, #0D9488, #14B8A6)', glow: 'rgba(20,184,166,0.35)', accent: '#2DD4BF' },
-  auto_stories:     { gradient: 'linear-gradient(135deg, #0369A1, #0EA5E9)', glow: 'rgba(14,165,233,0.35)', accent: '#38BDF8' },
-  menu_book:        { gradient: 'linear-gradient(135deg, #0369A1, #0EA5E9)', glow: 'rgba(14,165,233,0.35)', accent: '#38BDF8' },
-  self_improvement: { gradient: 'linear-gradient(135deg, #6D28D9, #8B5CF6)', glow: 'rgba(139,92,246,0.35)', accent: '#A78BFA' },
-  water_drop:       { gradient: 'linear-gradient(135deg, #0E7490, #06B6D4)', glow: 'rgba(6,182,212,0.35)',  accent: '#22D3EE' },
-  fitness_center:   { gradient: 'linear-gradient(135deg, #C2410C, #F97316)', glow: 'rgba(249,115,22,0.35)', accent: '#FB923C' },
-  bedtime:          { gradient: 'linear-gradient(135deg, #4338CA, #6366F1)', glow: 'rgba(99,102,241,0.35)', accent: '#818CF8' },
-  edit_note:        { gradient: 'linear-gradient(135deg, #BE185D, #EC4899)', glow: 'rgba(236,72,153,0.35)', accent: '#F472B6' },
-  directions_walk:  { gradient: 'linear-gradient(135deg, #047857, #10B981)', glow: 'rgba(16,185,129,0.35)', accent: '#34D399' },
-  home:             { gradient: 'linear-gradient(135deg, #0D9488, #14B8A6)', glow: 'rgba(20,184,166,0.35)', accent: '#2DD4BF' },
-  default:          { gradient: 'linear-gradient(135deg, #475569, #64748B)', glow: 'rgba(100,116,139,0.30)', accent: '#94A3B8' },
+// ─── Icon Color Gradients (exact match to Habits page iconColor index 0–5) ────
+const ICON_COLOR_GRADIENTS: Record<number, string> = {
+  0: 'from-blue-500 to-cyan-500',      // 0: Blue
+  1: 'from-purple-500 to-pink-500',    // 1: Purple
+  2: 'from-emerald-500 to-teal-500',   // 2: Green
+  3: 'from-orange-500 to-amber-500',   // 3: Orange
+  4: 'from-red-500 to-rose-500',       // 4: Red
+  5: 'from-teal-500 to-cyan-500',      // 5: Teal
 }
 
-const getPalette = (icon: string) => ICON_PALETTE[icon] ?? ICON_PALETTE.default
+const getIconGradient = (iconColor: number = 0): string =>
+  ICON_COLOR_GRADIENTS[iconColor] ?? ICON_COLOR_GRADIENTS[0]
 
 // ─── Regular Habit Card ───────────────────────────────────────────────────────
 interface HabitCardProps {
@@ -29,7 +25,7 @@ interface HabitCardProps {
 }
 
 export function HabitCard({ habit, isCompleted, index, onToggle, onBodyClick }: HabitCardProps) {
-  const palette = getPalette(habit.icon)
+  const iconGradient = getIconGradient(habit.iconColor ?? 0)
   const { getTaskCount } = useHabitTaskStore()
   const taskCount = getTaskCount(habit.id)
 
@@ -56,7 +52,7 @@ export function HabitCard({ habit, isCompleted, index, onToggle, onBodyClick }: 
       whileHover={{ y: -2 }}
       whileTap={{ scale: 0.98 }}
       className={cn(
-        "group relative overflow-hidden rounded-2xl p-4 flex items-start gap-3.5 cursor-pointer transition-all duration-300 isolate",
+        "group relative overflow-hidden rounded-2xl p-4 flex items-center gap-3.5 cursor-pointer transition-all duration-300 isolate",
         "border border-white/[0.06]",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950",
         isCompleted
@@ -76,25 +72,25 @@ export function HabitCard({ habit, isCompleted, index, onToggle, onBodyClick }: 
           "absolute -left-8 -top-8 size-32 rounded-full blur-[60px] transition-opacity duration-500 -z-10",
           isCompleted ? "opacity-0" : "opacity-0 group-hover:opacity-40"
         )}
-        style={{ backgroundColor: palette.accent }}
+        style={{ backgroundColor: '#2DD4BF' }}
       />
 
       {/* ── Icon ── */}
-      <div className="relative shrink-0">
+      <div className="relative shrink-0 self-center">
         {/* Icon glow ring */}
         <div
           className={cn(
             "absolute inset-0 rounded-xl blur-lg transition-opacity duration-300",
             isCompleted ? "opacity-0" : "opacity-30 group-hover:opacity-50"
           )}
-          style={{ background: palette.glow }}
+          style={{ background: 'rgba(45,212,191,0.35)' }}
         />
         <div
           className={cn(
-            "relative flex size-12 items-center justify-center rounded-xl transition-all duration-300 shadow-lg",
+            "relative flex size-12 items-center justify-center rounded-xl transition-all duration-300 shadow-lg bg-gradient-to-br",
+            iconGradient,
             isCompleted && "opacity-50 saturate-50 scale-95"
           )}
-          style={{ background: palette.gradient }}
         >
           <span className="material-symbols-outlined text-[26px] text-white/90 drop-shadow-sm">
             {habit.icon}
@@ -149,7 +145,7 @@ export function HabitCard({ habit, isCompleted, index, onToggle, onBodyClick }: 
           <span className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-widest px-2 py-[3px] rounded-md bg-white/[0.04] border border-white/[0.06] text-slate-400">
             <span
               className="inline-block size-1.5 rounded-full"
-              style={{ backgroundColor: palette.accent }}
+              style={{ backgroundColor: '#2DD4BF' }}
             />
             {habit.category || 'General'}
           </span>
