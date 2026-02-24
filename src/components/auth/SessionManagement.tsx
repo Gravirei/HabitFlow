@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/lib/auth/AuthContext'
+import { useNavigate } from 'react-router-dom'
 
 type UserSessionRow = {
   id: string
@@ -17,8 +18,18 @@ type UserSessionRow = {
 
 export function SessionManagement() {
   const { user } = useAuth()
+  const navigate = useNavigate()
   const [sessions, setSessions] = useState<UserSessionRow[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [currentSessionToken, setCurrentSessionToken] = useState<string | null>(null)
+
+  // Fetch the current Supabase session's access_token so we can identify
+  // which row in user_sessions belongs to this device/tab.
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setCurrentSessionToken(data.session?.access_token ?? null)
+    })
+  }, [])
 
   const load = async () => {
     if (!user) return
@@ -91,15 +102,38 @@ export function SessionManagement() {
                       type="button"
                       className="rounded-full bg-red-50 dark:bg-red-900/20 px-3 py-1.5 text-xs font-semibold text-red-600 dark:text-red-400"
                       onClick={async () => {
-                        const confirmed = confirm('Log out this device/session?')
+                        const isCurrentSession = currentSessionToken !== null && s.session_token === currentSessionToken
+                        const confirmed = confirm(
+                          isCurrentSession
+                            ? 'Log out this device/session? You will be signed out.'
+                            : 'Log out this device/session?'
+                        )
                         if (!confirmed) return
                         try {
+                          // Mark the session as inactive in our records first.
                           const { error } = await supabase
                             .from('user_sessions')
                             .update({ is_active: false })
                             .eq('id', s.id)
-
                           if (error) throw error
+
+                          if (isCurrentSession) {
+                            // Terminating the current session: revoke the JWT by
+                            // signing out locally. This clears the refresh token so
+                            // it can no longer be used to obtain new access tokens.
+                            await supabase.auth.signOut({ scope: 'local' })
+                            navigate('/login')
+                            return
+                          }
+
+                          // Terminating a DIFFERENT device's session:
+                          // We can only mark it inactive in our DB here.
+                          // True server-side JWT revocation for another session
+                          // requires the Supabase Admin API (service-role key),
+                          // which must be called from a trusted server/edge
+                          // function — never from the client. The session record
+                          // is now inactive, so app-level guards (middleware,
+                          // RLS policies checking user_sessions) will block it.
                           toast.success('Session ended')
                           await load()
                         } catch (e: any) {
@@ -122,19 +156,25 @@ export function SessionManagement() {
               disabled={sessions.length === 0}
               className="w-full rounded-full bg-red-50 dark:bg-red-900/20 px-4 py-2 text-sm font-semibold text-red-600 dark:text-red-400 disabled:opacity-50"
               onClick={async () => {
-                const confirmed = confirm('Log out all other devices?')
+                const confirmed = confirm('Log out of all devices? You will also be signed out here.')
                 if (!confirmed) return
 
                 try {
-                  // End all active sessions belonging to the current user only.
+                  // Mark all active sessions inactive in our records.
                   const { error } = await supabase
                     .from('user_sessions')
                     .update({ is_active: false })
                     .eq('user_id', user!.id)
                     .eq('is_active', true)
                   if (error) throw error
-                  toast.success('All sessions ended')
-                  await load()
+
+                  // Revoke ALL refresh tokens for this user across every device.
+                  // scope: 'global' tells Supabase Auth to invalidate every
+                  // refresh token issued to this user, not just the local one.
+                  // This is the closest a client-side app can get to true
+                  // global JWT revocation without the Admin API.
+                  await supabase.auth.signOut({ scope: 'global' })
+                  navigate('/login')
                 } catch (e: any) {
                   console.error(e)
                   toast.error(e?.message || 'Failed to end sessions')

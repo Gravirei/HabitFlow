@@ -56,7 +56,7 @@ describe('NotificationManager', () => {
 
   afterEach(() => {
     // Restore original Notification
-    ;(global as any).Notification = originalNotification
+    (global as any).Notification = originalNotification
     vi.restoreAllMocks()
   })
 

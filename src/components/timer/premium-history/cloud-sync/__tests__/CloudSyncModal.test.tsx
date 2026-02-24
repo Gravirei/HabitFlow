@@ -133,7 +133,7 @@ describe('CloudSyncModal', () => {
     })
 
     it('should show "Local Only" badge when not logged in', () => {
-      ;(tieredStorage.isLoggedIn as Mock).mockReturnValue(false)
+      (tieredStorage.isLoggedIn as Mock).mockReturnValue(false)
       
       render(<CloudSyncModal isOpen={true} onClose={mockOnClose} sessions={mockSessions as any} />)
       
@@ -159,7 +159,7 @@ describe('CloudSyncModal', () => {
     })
 
     it('should show sync error when present', () => {
-      ;(useSyncStore as unknown as Mock).mockReturnValue({
+      (useSyncStore as unknown as Mock).mockReturnValue({
         ...defaultStoreState,
         syncStatus: { ...defaultSyncStatus, syncError: 'Network error occurred' },
       })
@@ -170,7 +170,7 @@ describe('CloudSyncModal', () => {
     })
 
     it('should show pending changes count', () => {
-      ;(useSyncStore as unknown as Mock).mockReturnValue({
+      (useSyncStore as unknown as Mock).mockReturnValue({
         ...defaultStoreState,
         syncStatus: { ...defaultSyncStatus, pendingChanges: 5 },
       })
@@ -217,7 +217,7 @@ describe('CloudSyncModal', () => {
     })
 
     it('should be disabled when syncing', () => {
-      ;(useSyncStore as unknown as Mock).mockReturnValue({
+      (useSyncStore as unknown as Mock).mockReturnValue({
         ...defaultStoreState,
         syncStatus: { ...defaultSyncStatus, isSyncing: true },
       })
@@ -229,7 +229,7 @@ describe('CloudSyncModal', () => {
     })
 
     it('should show "Syncing..." text when syncing', () => {
-      ;(useSyncStore as unknown as Mock).mockReturnValue({
+      (useSyncStore as unknown as Mock).mockReturnValue({
         ...defaultStoreState,
         syncStatus: { ...defaultSyncStatus, isSyncing: true },
       })
@@ -240,7 +240,7 @@ describe('CloudSyncModal', () => {
     })
 
     it('should be disabled when not logged in', () => {
-      ;(tieredStorage.isLoggedIn as Mock).mockReturnValue(false)
+      (tieredStorage.isLoggedIn as Mock).mockReturnValue(false)
       
       render(<CloudSyncModal isOpen={true} onClose={mockOnClose} sessions={mockSessions as any} />)
       
@@ -255,7 +255,7 @@ describe('CloudSyncModal', () => {
     })
 
     it('should show error toast when sync attempted without login', async () => {
-      ;(tieredStorage.isLoggedIn as Mock).mockReturnValue(false)
+      (tieredStorage.isLoggedIn as Mock).mockReturnValue(false)
       
       render(<CloudSyncModal isOpen={true} onClose={mockOnClose} sessions={mockSessions as any} />)
       
@@ -271,7 +271,7 @@ describe('CloudSyncModal', () => {
     })
 
     it('should create backup before sync if setting enabled', async () => {
-      ;(useSyncStore as unknown as Mock).mockReturnValue({
+      (useSyncStore as unknown as Mock).mockReturnValue({
         ...defaultStoreState,
         settings: { ...defaultSettings, backupBeforeSync: true },
       })
@@ -296,7 +296,7 @@ describe('CloudSyncModal', () => {
 
   describe('Login Status Banner', () => {
     it('should show login prompt when not logged in', () => {
-      ;(tieredStorage.isLoggedIn as Mock).mockReturnValue(false)
+      (tieredStorage.isLoggedIn as Mock).mockReturnValue(false)
       
       render(<CloudSyncModal isOpen={true} onClose={mockOnClose} sessions={mockSessions as any} />)
       
@@ -336,7 +336,7 @@ describe('CloudSyncModal', () => {
     })
 
     it('should show backup count in tab', () => {
-      ;(useSyncStore as unknown as Mock).mockReturnValue({
+      (useSyncStore as unknown as Mock).mockReturnValue({
         ...defaultStoreState,
         backups: [
           { id: '1', timestamp: Date.now(), deviceName: 'Test', itemCount: 5, size: 1024, autoBackup: false },
@@ -366,7 +366,7 @@ describe('CloudSyncModal', () => {
     })
 
     it('should show backup list when backups exist', () => {
-      ;(useSyncStore as unknown as Mock).mockReturnValue({
+      (useSyncStore as unknown as Mock).mockReturnValue({
         ...defaultStoreState,
         backups: mockBackups,
       })
@@ -404,7 +404,7 @@ describe('CloudSyncModal', () => {
     })
 
     it('should show Restore button for each backup', () => {
-      ;(useSyncStore as unknown as Mock).mockReturnValue({
+      (useSyncStore as unknown as Mock).mockReturnValue({
         ...defaultStoreState,
         backups: mockBackups,
       })
@@ -445,7 +445,7 @@ describe('CloudSyncModal', () => {
     })
 
     it('should stop auto sync when toggled off', () => {
-      ;(useSyncStore as unknown as Mock).mockReturnValue({
+      (useSyncStore as unknown as Mock).mockReturnValue({
         ...defaultStoreState,
         settings: { ...defaultSettings, autoSync: true },
       })
@@ -505,7 +505,7 @@ describe('CloudSyncModal', () => {
     })
 
     it('should disable settings when not logged in', () => {
-      ;(tieredStorage.isLoggedIn as Mock).mockReturnValue(false)
+      (tieredStorage.isLoggedIn as Mock).mockReturnValue(false)
       
       render(<CloudSyncModal isOpen={true} onClose={mockOnClose} sessions={mockSessions as any} />)
       
@@ -516,7 +516,7 @@ describe('CloudSyncModal', () => {
     })
 
     it('should show sync interval selector when auto sync is enabled', () => {
-      ;(useSyncStore as unknown as Mock).mockReturnValue({
+      (useSyncStore as unknown as Mock).mockReturnValue({
         ...defaultStoreState,
         settings: { ...defaultSettings, autoSync: true },
       })
@@ -577,7 +577,7 @@ describe('CloudSyncModal', () => {
     })
 
     it('should show Local Only mode when not logged in', () => {
-      ;(tieredStorage.isLoggedIn as Mock).mockReturnValue(false)
+      (tieredStorage.isLoggedIn as Mock).mockReturnValue(false)
       
       render(<CloudSyncModal isOpen={true} onClose={mockOnClose} sessions={mockSessions as any} />)
       

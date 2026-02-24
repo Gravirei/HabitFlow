@@ -11,7 +11,7 @@ import type { Achievement, AchievementStats, UserStats } from './types'
  */
 export function calculateUserStats(sessions: any[]): UserStats {
   let totalTime = 0
-  let totalSessions = sessions.length
+  const totalSessions = sessions.length
   let completedSessions = 0
   let stopwatchSessions = 0
   let countdownSessions = 0

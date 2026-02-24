@@ -57,7 +57,7 @@ export async function logout(options: LogoutOptions = {}): Promise<void> {
     // Default cleanup (safe even if keys don't exist)
     try {
       // If you later store additional auth-related items, clear them here
-      localStorage.removeItem('device_id')
+      localStorage.removeItem('habitflow_device_id')
     } catch {
       // ignore
     }

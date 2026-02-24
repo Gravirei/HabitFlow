@@ -304,7 +304,7 @@ export function analyzeConsistency(sessions: TimerSessionData[]): ConsistencyIns
   
   if (dateKeys.includes(today) || dateKeys.includes(yesterday)) {
     currentStreak = 1
-    let checkDate = dateKeys.includes(today) ? new Date() : new Date(Date.now() - 24 * 60 * 60 * 1000)
+    const checkDate = dateKeys.includes(today) ? new Date() : new Date(Date.now() - 24 * 60 * 60 * 1000)
     
     while (true) {
       checkDate.setDate(checkDate.getDate() - 1)

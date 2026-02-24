@@ -479,7 +479,7 @@ describe.skip('Filter Visibility Feature', () => {
 
 // Helper functions for hook testing
 function renderHook<T>(hook: () => T) {
-  let result: { current: T } = { current: undefined as any }
+  const result: { current: T } = { current: undefined as any }
   
   function TestComponent() {
     result.current = hook()

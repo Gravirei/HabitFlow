@@ -39,7 +39,7 @@ export function ResetPassword() {
     // When user lands here from the recovery email, Supabase will put tokens in the URL.
     // supabase-js will pick them up (detectSessionInUrl: true).
     // We can optionally validate that a session exists.
-    ;(async () => {
+    (async () => {
       const { data } = await supabase.auth.getSession()
       // If there is no session, the user likely opened this page directly.
       if (!data.session) {

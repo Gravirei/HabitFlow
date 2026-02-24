@@ -33,7 +33,7 @@ describe('OnboardingModal', () => {
     })
 
     it('should not render when isFirstVisit is false', () => {
-      ;(useHabitStore as any).mockReturnValue({
+      (useHabitStore as any).mockReturnValue({
         isFirstVisit: false,
         loadSampleHabits: mockLoadSampleHabits,
         markOnboardingComplete: mockMarkOnboardingComplete,

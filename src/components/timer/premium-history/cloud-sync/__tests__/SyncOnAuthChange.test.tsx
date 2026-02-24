@@ -112,7 +112,7 @@ describe('SyncOnAuthChange', () => {
     })
 
     it('should not trigger sync when already logged in on mount', () => {
-      ;(useAuth as unknown as Mock).mockReturnValue({
+      (useAuth as unknown as Mock).mockReturnValue({
         user: { id: 'user-123', email: 'test@example.com' },
       })
       
@@ -126,7 +126,7 @@ describe('SyncOnAuthChange', () => {
   describe('Logout Detection', () => {
     it('should stop auto sync on logout', async () => {
       // Start with logged in user
-      ;(useAuth as unknown as Mock).mockReturnValue({
+      (useAuth as unknown as Mock).mockReturnValue({
         user: { id: 'user-123', email: 'test@example.com' },
       })
       
@@ -146,7 +146,7 @@ describe('SyncOnAuthChange', () => {
 
     it('should clear user in tieredStorage on logout', async () => {
       // Start with logged in user
-      ;(useAuth as unknown as Mock).mockReturnValue({
+      (useAuth as unknown as Mock).mockReturnValue({
         user: { id: 'user-123', email: 'test@example.com' },
       })
       
@@ -169,7 +169,7 @@ describe('SyncOnAuthChange', () => {
 
     it('should only stop auto sync once on logout', async () => {
       // Start with logged in user
-      ;(useAuth as unknown as Mock).mockReturnValue({
+      (useAuth as unknown as Mock).mockReturnValue({
         user: { id: 'user-123', email: 'test@example.com' },
       })
       
@@ -196,7 +196,7 @@ describe('SyncOnAuthChange', () => {
   describe('User Change Detection', () => {
     it('should handle switching between different users', async () => {
       // Start with user 1
-      ;(useAuth as unknown as Mock).mockReturnValue({
+      (useAuth as unknown as Mock).mockReturnValue({
         user: { id: 'user-1', email: 'user1@example.com' },
       })
       
@@ -234,7 +234,7 @@ describe('SyncOnAuthChange', () => {
 
     it('should not trigger anything when user id stays the same', async () => {
       // Start with user
-      ;(useAuth as unknown as Mock).mockReturnValue({
+      (useAuth as unknown as Mock).mockReturnValue({
         user: { id: 'user-123', email: 'test@example.com' },
       })
       
@@ -257,7 +257,7 @@ describe('SyncOnAuthChange', () => {
 
   describe('No User State', () => {
     it('should not trigger anything when starting and staying without user', () => {
-      ;(useAuth as unknown as Mock).mockReturnValue({
+      (useAuth as unknown as Mock).mockReturnValue({
         user: null,
       })
       
@@ -271,7 +271,7 @@ describe('SyncOnAuthChange', () => {
     })
 
     it('should not set user in tieredStorage when no user present', () => {
-      ;(useAuth as unknown as Mock).mockReturnValue({
+      (useAuth as unknown as Mock).mockReturnValue({
         user: null,
       })
       
@@ -295,7 +295,7 @@ describe('SyncOnAuthChange', () => {
     })
 
     it('should access triggerSyncOnLogin from store', () => {
-      ;(useAuth as unknown as Mock).mockReturnValue({
+      (useAuth as unknown as Mock).mockReturnValue({
         user: { id: 'user-123', email: 'test@example.com' },
       })
       
@@ -306,7 +306,7 @@ describe('SyncOnAuthChange', () => {
 
     it('should access stopAutoSync from store', async () => {
       // Start with logged in user
-      ;(useAuth as unknown as Mock).mockReturnValue({
+      (useAuth as unknown as Mock).mockReturnValue({
         user: { id: 'user-123', email: 'test@example.com' },
       })
       
@@ -364,7 +364,7 @@ describe('SyncOnAuthChange', () => {
 
   describe('Edge Cases', () => {
     it('should handle undefined user gracefully', () => {
-      ;(useAuth as unknown as Mock).mockReturnValue({
+      (useAuth as unknown as Mock).mockReturnValue({
         user: undefined,
       })
       
@@ -372,7 +372,7 @@ describe('SyncOnAuthChange', () => {
     })
 
     it('should handle user with missing id', async () => {
-      ;(useAuth as unknown as Mock).mockReturnValue({
+      (useAuth as unknown as Mock).mockReturnValue({
         user: { email: 'test@example.com' }, // no id
       })
       
@@ -421,7 +421,7 @@ describe('SyncOnAuthChange', () => {
     })
 
     it('should handle empty string user id as no user', () => {
-      ;(useAuth as unknown as Mock).mockReturnValue({
+      (useAuth as unknown as Mock).mockReturnValue({
         user: { id: '', email: 'test@example.com' },
       })
       
