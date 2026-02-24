@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { TurnstileWidget } from '@/components/shared/TurnstileWidget'
 import { applySupabaseSessionFromGateway, callAuthGateway } from '@/lib/security/authGatewayClient'
 import toast from 'react-hot-toast'
-import { listFactors } from '@/lib/auth/mfa'
 import { TwoFactorChallengeModal } from '@/components/auth/TwoFactorChallengeModal'
+import { supabase } from '@/lib/supabase'
 
 export function Login() {
   const navigate = useNavigate()
@@ -16,6 +16,7 @@ export function Login() {
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [mfaFactorId, setMfaFactorId] = useState<string | null>(null)
+  const [mfaAal1Token, setMfaAal1Token] = useState<string | null>(null)
   const [showMfaModal, setShowMfaModal] = useState(false)
   const [rememberDevice, setRememberDevice] = useState(() => {
     // Check if user previously opted to remember device
@@ -74,9 +75,6 @@ export function Login() {
         return
       }
 
-      // Apply session locally so the app is logged in
-      await applySupabaseSessionFromGateway(res.data)
-
       // Save remember device preference
       if (rememberDevice) {
         localStorage.setItem('rememberDevice', 'true')
@@ -84,17 +82,17 @@ export function Login() {
         localStorage.removeItem('rememberDevice')
       }
 
-      // If user has TOTP enabled, require a 2FA challenge
-      // Note: For full enforcement, your auth-gateway should block until 2FA is completed.
-      // This client-side flow adds an additional layer.
-      const factors = await listFactors()
-      if (factors.length > 0) {
-        setMfaFactorId(factors[0].id)
+      // Server-side MFA enforcement: gateway withholds session tokens until TOTP verified
+      if (res.mfa_required && res.factor_id && res.aal1_access_token) {
+        setMfaFactorId(res.factor_id)
+        setMfaAal1Token(res.aal1_access_token)
         setShowMfaModal(true)
         toast('Enter your 2FA code to finish signing in')
         return
       }
 
+      // No MFA — apply full session and navigate
+      await applySupabaseSessionFromGateway(res.data)
       toast.success('Signed in successfully')
       navigate('/')
     } catch (error: any) {
@@ -105,14 +103,34 @@ export function Login() {
     }
   }
 
-  const handleGoogleLogin = () => {
-    // TODO: Implement Google OAuth
-    console.log('Google login clicked')
+  const handleGoogleLogin = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/`,
+        },
+      })
+      if (error) throw error
+    } catch (error: any) {
+      console.error('Google login error:', error)
+      toast.error(error.message || 'Failed to sign in with Google')
+    }
   }
 
-  const handleAppleLogin = () => {
-    // TODO: Implement Apple Sign In
-    console.log('Apple login clicked')
+  const handleAppleLogin = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'apple',
+        options: {
+          redirectTo: `${window.location.origin}/`,
+        },
+      })
+      if (error) throw error
+    } catch (error: any) {
+      console.error('Apple login error:', error)
+      toast.error(error.message || 'Failed to sign in with Apple')
+    }
   }
 
   return (
@@ -120,13 +138,16 @@ export function Login() {
     <TwoFactorChallengeModal
       isOpen={showMfaModal}
       factorId={mfaFactorId}
+      aal1AccessToken={mfaAal1Token}
       onClose={() => {
         setShowMfaModal(false)
         setMfaFactorId(null)
+        setMfaAal1Token(null)
       }}
       onSuccess={() => {
         setShowMfaModal(false)
         setMfaFactorId(null)
+        setMfaAal1Token(null)
         toast.success('Signed in successfully')
         navigate('/')
       }}
@@ -317,7 +338,8 @@ export function Login() {
           {/* Google Button */}
           <button
             onClick={handleGoogleLogin}
-            className="flex-1 flex items-center justify-center gap-3 rounded-xl bg-white dark:bg-slate-800 border-2 border-white/50 px-4 py-3.5 font-semibold text-slate-700 dark:text-slate-200 transition-all hover:border-white hover:shadow-md active:scale-[0.98]"
+            disabled={isLoading}
+            className="flex-1 flex items-center justify-center gap-3 rounded-xl bg-white dark:bg-slate-800 border-2 border-white/50 px-4 py-3.5 font-semibold text-slate-700 dark:text-slate-200 transition-all hover:border-white hover:shadow-md active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <svg className="h-5 w-5" viewBox="0 0 24 24">
               <path
@@ -343,7 +365,8 @@ export function Login() {
           {/* Apple Button */}
           <button
             onClick={handleAppleLogin}
-            className="flex-1 flex items-center justify-center gap-3 rounded-xl bg-white dark:bg-slate-800 border-2 border-white/50 px-4 py-3.5 font-semibold text-slate-700 dark:text-slate-200 transition-all hover:border-white hover:shadow-md active:scale-[0.98]"
+            disabled={isLoading}
+            className="flex-1 flex items-center justify-center gap-3 rounded-xl bg-white dark:bg-slate-800 border-2 border-white/50 px-4 py-3.5 font-semibold text-slate-700 dark:text-slate-200 transition-all hover:border-white hover:shadow-md active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <svg className="h-5 w-5 text-slate-900 dark:text-white" viewBox="0 0 24 24" fill="currentColor">
               <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />

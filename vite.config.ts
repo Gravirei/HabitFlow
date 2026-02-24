@@ -11,13 +11,16 @@ export default defineConfig({
     },
   },
   server: {
-    host: '0.0.0.0', // This allows external connections
+    host: 'localhost', // Restrict to localhost only — prevents LAN exposure during development
     port: 3000,
     open: true,
   },
   build: {
     outDir: 'dist',
-    sourcemap: true,
+    // 'hidden' generates source maps for Sentry error tracking but does NOT
+    // serve them publicly — browsers/attackers cannot access your source code.
+    // Use 'false' if you don't use Sentry. Never use 'true' in production.
+    sourcemap: 'hidden',
   },
   test: {
     globals: true,

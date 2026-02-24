@@ -27,6 +27,7 @@ export function SessionManagement() {
       const { data, error } = await supabase
         .from('user_sessions')
         .select('*')
+        .eq('user_id', user.id)
         .eq('is_active', true)
         .order('last_activity', { ascending: false })
 
@@ -125,9 +126,12 @@ export function SessionManagement() {
                 if (!confirmed) return
 
                 try {
-                  // We do not know the current session id; server-side session tracking is recommended.
-                  // As a safe client-side action, end all sessions. User may need to sign in again.
-                  const { error } = await supabase.from('user_sessions').update({ is_active: false }).eq('is_active', true)
+                  // End all active sessions belonging to the current user only.
+                  const { error } = await supabase
+                    .from('user_sessions')
+                    .update({ is_active: false })
+                    .eq('user_id', user!.id)
+                    .eq('is_active', true)
                   if (error) throw error
                   toast.success('All sessions ended')
                   await load()

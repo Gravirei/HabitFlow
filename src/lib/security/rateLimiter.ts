@@ -39,8 +39,11 @@ export async function checkRateLimit(
 
     if (error) {
       console.error('Rate limit check error:', error)
-      // On error, allow the attempt (fail open for better UX)
-      return { allowed: true, remainingAttempts: config.maxAttempts }
+      // Fail-closed: if we can't verify the rate limit, deny the attempt.
+      // This prevents attackers from bypassing rate limiting by triggering DB errors.
+      // The server-side auth-gateway enforces rate limiting independently, so
+      // legitimate users are only blocked temporarily until DB recovers.
+      return { allowed: false, remainingAttempts: 0 }
     }
 
     const attemptCount = attempts?.length || 0
@@ -54,7 +57,8 @@ export async function checkRateLimit(
     return { allowed: true, remainingAttempts }
   } catch (error) {
     console.error('Rate limit check exception:', error)
-    return { allowed: true, remainingAttempts: config.maxAttempts }
+    // Fail-closed: deny on unexpected errors for the same reason as above.
+    return { allowed: false, remainingAttempts: 0 }
   }
 }
 

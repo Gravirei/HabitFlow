@@ -1,22 +1,54 @@
 import { useState } from 'react'
 import toast from 'react-hot-toast'
-import { challengeFactor, verifyFactor } from '@/lib/auth/mfa'
+import { verifyMfaWithGateway } from '@/lib/security/authGatewayClient'
 
 export function TwoFactorChallengeModal({
   isOpen,
   factorId,
+  aal1AccessToken,
   onClose,
   onSuccess,
 }: {
   isOpen: boolean
   factorId: string | null
+  /** Partial aal1 token returned by gateway when mfa_required is true. */
+  aal1AccessToken: string | null
   onClose: () => void
   onSuccess: () => void
 }) {
   const [code, setCode] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
-  if (!isOpen || !factorId) return null
+  if (!isOpen || !factorId || !aal1AccessToken) return null
+
+  const handleVerify = async () => {
+    const trimmedCode = code.trim()
+    if (!trimmedCode) {
+      toast.error('Enter the 6-digit code')
+      return
+    }
+    if (!/^\d{6}$/.test(trimmedCode)) {
+      toast.error('Code must be exactly 6 digits')
+      return
+    }
+
+    setIsLoading(true)
+    try {
+      // Server-side MFA verification — gateway creates challenge + verifies TOTP,
+      // then returns the full aal2 session tokens and applies them to Supabase client.
+      await verifyMfaWithGateway({
+        aal1AccessToken,
+        factorId,
+        code: trimmedCode,
+      })
+      onSuccess()
+    } catch (e: any) {
+      console.error(e)
+      toast.error(e?.message || 'Invalid code. Please try again.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
@@ -39,38 +71,19 @@ export function TwoFactorChallengeModal({
         <div className="space-y-4">
           <input
             value={code}
-            onChange={(e) => setCode(e.target.value)}
+            onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+            onKeyDown={(e) => e.key === 'Enter' && handleVerify()}
             placeholder="123456"
             inputMode="numeric"
-            className="w-full rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 text-slate-900 dark:text-white"
+            maxLength={6}
+            autoComplete="one-time-code"
+            className="w-full rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 text-slate-900 dark:text-white tracking-widest text-center text-xl"
           />
 
           <button
             type="button"
-            disabled={isLoading}
-            onClick={async () => {
-              if (!code.trim()) {
-                toast.error('Enter the 6-digit code')
-                return
-              }
-
-              setIsLoading(true)
-              try {
-                const challenge = await challengeFactor(factorId)
-                await verifyFactor({
-                  factorId,
-                  challengeId: challenge.id,
-                  code: code.trim(),
-                })
-                toast.success('2FA verified')
-                onSuccess()
-              } catch (e: any) {
-                console.error(e)
-                toast.error(e?.message || 'Invalid code')
-              } finally {
-                setIsLoading(false)
-              }
-            }}
+            disabled={isLoading || code.length !== 6}
+            onClick={handleVerify}
             className="w-full rounded-full bg-primary px-6 py-3 font-semibold text-white hover:bg-primary-focus disabled:opacity-50"
           >
             {isLoading ? 'Verifying…' : 'Verify'}

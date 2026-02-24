@@ -8,7 +8,7 @@
 
 import { supabase } from '@/lib/supabase'
 
-export type AuthGatewayAction = 'signup' | 'login' | 'forgot-password'
+export type AuthGatewayAction = 'signup' | 'login' | 'forgot-password' | 'verify-mfa'
 
 export interface AuthGatewayResponse<T = any> {
   ok: boolean
@@ -16,8 +16,18 @@ export interface AuthGatewayResponse<T = any> {
   data?: T
   error?: string
   message?: string
+  /**
+   * Only returned for non-login actions (e.g. signup, forgot-password) when an
+   * account lockout is detected. For the `login` action, lockouts are deliberately
+   * masked as generic 401 `invalid_credentials` to prevent account enumeration —
+   * so `lockedUntil` will never be present in a login response.
+   */
   lockedUntil?: string
   retryAfterMinutes?: number
+  // MFA fields — returned by login when user has TOTP enrolled
+  mfa_required?: boolean
+  factor_id?: string
+  aal1_access_token?: string
 }
 
 function getFunctionsBaseUrl() {
@@ -95,4 +105,33 @@ export async function applySupabaseSessionFromGateway(data: any) {
   })
 
   if (error) throw error
+}
+
+/**
+ * Complete server-side MFA verification via auth-gateway.
+ * Called after login returns mfa_required: true.
+ * On success, applies the full aal2 session and returns.
+ */
+export async function verifyMfaWithGateway(params: {
+  aal1AccessToken: string
+  factorId: string
+  code: string
+}): Promise<void> {
+  const res = await callAuthGateway('verify-mfa', {
+    aal1_access_token: params.aal1AccessToken,
+    factor_id: params.factorId,
+    code: params.code,
+  })
+
+  if (!res.ok) {
+    const msg =
+      res.error === 'mfa_verification_failed' ? (res.message ?? 'Invalid 2FA code') :
+      res.error === 'rate_limited' ? 'Too many attempts. Please try again later.' :
+      res.error === 'invalid_code_format' ? 'Enter a valid 6-digit code.' :
+      'MFA verification failed. Please try again.'
+    throw new Error(msg)
+  }
+
+  // Apply the full aal2 session returned by the gateway
+  await applySupabaseSessionFromGateway(res.data)
 }
