@@ -71,6 +71,14 @@ export function Login() {
           toast.error('Too many attempts. Please try again later.')
           return
         }
+        if (res.error === 'turnstile_failed' || res.error === 'turnstile_required') {
+          toast.error('Security check failed. Please refresh the page and try again.')
+          return
+        }
+        if (res.error === 'email_required' || res.error === 'password_required') {
+          toast.error('Please fill in all fields.')
+          return
+        }
         toast.error('Invalid email or password')
         return
       }
