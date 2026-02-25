@@ -58,10 +58,10 @@ export function HabitCard({ habit, isCompleted, index, onToggle, onBodyClick }: 
       setOrbPhase('shrinking')
       // Call onToggle immediately so habit is marked done — animation is just visual
       onToggle()
-      // After ring shrinks (~400ms), start orb fill
-      const t1 = setTimeout(() => setOrbPhase('filling'), 420)
-      // After orb fills (~400ms), finalize done phase
-      const t2 = setTimeout(() => setOrbPhase('done'), 840)
+      // After ring shrinks (700ms), start orb fill
+      const t1 = setTimeout(() => setOrbPhase('filling'), 750)
+      // After orb fills (700ms), finalize done phase
+      const t2 = setTimeout(() => setOrbPhase('done'), 1500)
       return () => { clearTimeout(t1); clearTimeout(t2) }
     }
     prevAllTasksDone.current = allTasksDone
@@ -280,7 +280,7 @@ export function HabitCard({ habit, isCompleted, index, onToggle, onBodyClick }: 
                     : { scale: 1, opacity: 1, rotate: -90 }
                 }
                 exit={{ scale: 0, opacity: 0 }}
-                transition={{ duration: 0.4, ease: 'easeIn' }}
+                transition={{ duration: 0.7, ease: 'easeIn' }}
               >
                 {/* Track */}
                 <circle
@@ -331,7 +331,7 @@ export function HabitCard({ habit, isCompleted, index, onToggle, onBodyClick }: 
                 initial={{ width: 0, height: 0, opacity: 1 }}
                 animate={{ width: 32, height: 32, opacity: 1 }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 0.4, ease: 'easeOut' }}
+                transition={{ duration: 0.7, ease: 'easeOut' }}
                 style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}
               />
             )}
