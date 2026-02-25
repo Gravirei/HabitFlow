@@ -769,13 +769,14 @@ export function Today() {
           </motion.div>
 
           {/* ── Desktop/Tablet: centered modal ── */}
+          <div className="hidden md:flex fixed inset-0 z-50 items-center justify-center pointer-events-none">
           <motion.div
             key="sheet-desktop"
-            initial={{ opacity: 0, scale: 0.96, y: 10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.96, y: 10 }}
+            initial={{ opacity: 0, scale: 0.96 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.96 }}
             transition={{ type: 'spring', stiffness: 400, damping: 35 }}
-            className="hidden md:flex md:flex-col fixed z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[380px] rounded-2xl bg-slate-900 border border-white/10 shadow-2xl overflow-hidden"
+            className="pointer-events-auto w-full max-w-[380px] rounded-2xl bg-slate-900 border border-white/10 shadow-2xl overflow-hidden relative"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close button */}
@@ -788,6 +789,7 @@ export function Today() {
             <HabitSheetHeader habit={longPressHabit} />
             <HabitContextMenuItems habit={longPressHabit} onClose={() => setLongPressHabit(null)} onAction={handleBottomSheetAction} />
           </motion.div>
+          </div>
         </AnimatePresence>,
         document.body
       )}
