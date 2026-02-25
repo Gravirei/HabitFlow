@@ -158,6 +158,72 @@ function EmptyState({ icon, message }: { icon: string; message: string }) {
   )
 }
 
+// ─── Habit Context Menu Items (shared between mobile & desktop) ───────────────
+function HabitContextMenuItems({ habit, onClose, onAction }: {
+  habit: any
+  onClose: () => void
+  onAction: (action: string, habit: any) => void
+}) {
+  return (
+    <div className="py-2">
+      <button onClick={() => onAction('details', habit)} className="flex w-full items-center gap-4 px-5 py-3.5 text-left transition-colors hover:bg-white/[0.04] active:bg-white/[0.08]">
+        <span className="material-symbols-outlined text-[20px] text-slate-400">info</span>
+        <span className="text-sm font-medium text-slate-200">View Details</span>
+      </button>
+      <button onClick={() => onAction('edit', habit)} className="flex w-full items-center gap-4 px-5 py-3.5 text-left transition-colors hover:bg-white/[0.04] active:bg-white/[0.08]">
+        <span className="material-symbols-outlined text-[20px] text-slate-400">edit</span>
+        <span className="text-sm font-medium text-slate-200">Edit Habit</span>
+      </button>
+      <button onClick={() => onAction('tasks', habit)} className="flex w-full items-center gap-4 px-5 py-3.5 text-left transition-colors hover:bg-white/[0.04] active:bg-white/[0.08]">
+        <span className="material-symbols-outlined text-[20px] text-slate-400">checklist</span>
+        <span className="text-sm font-medium text-slate-200">Manage Tasks</span>
+      </button>
+      <button onClick={() => onAction('notes', habit)} className="flex w-full items-center gap-4 px-5 py-3.5 text-left transition-colors hover:bg-white/[0.04] active:bg-white/[0.08]">
+        <span className="material-symbols-outlined text-[20px] text-slate-400">note</span>
+        <span className="text-sm font-medium text-slate-200">Notes</span>
+      </button>
+      <button onClick={() => onAction('pin', habit)} className="flex w-full items-center gap-4 px-5 py-3.5 text-left transition-colors hover:bg-white/[0.04] active:bg-white/[0.08]">
+        <span className="material-symbols-outlined text-[20px] text-slate-400">{habit.pinned ? 'keep_off' : 'keep'}</span>
+        <span className="text-sm font-medium text-slate-200">{habit.pinned ? 'Unpin Habit' : 'Pin Habit'}</span>
+      </button>
+      <div className="my-1 border-t border-white/[0.06]" />
+      <button onClick={() => onAction('hide', habit)} className="flex w-full items-center gap-4 px-5 py-3.5 text-left transition-colors hover:bg-white/[0.04] active:bg-white/[0.08]">
+        <span className="material-symbols-outlined text-[20px] text-orange-400">hide_source</span>
+        <span className="text-sm font-medium text-orange-300">Hide for Today</span>
+      </button>
+      <button onClick={() => onAction('archive', habit)} className="flex w-full items-center gap-4 px-5 py-3.5 text-left transition-colors hover:bg-white/[0.04] active:bg-white/[0.08]">
+        <span className="material-symbols-outlined text-[20px] text-red-400">archive</span>
+        <span className="text-sm font-medium text-red-300">Archive Habit</span>
+      </button>
+    </div>
+  )
+}
+
+// ─── Habit Icon Header (shared between mobile & desktop) ─────────────────────
+function HabitSheetHeader({ habit }: { habit: any }) {
+  return (
+    <div className="flex items-center gap-3 px-5 py-4 border-b border-white/[0.06]">
+      <div className={cn(
+        "flex size-11 items-center justify-center rounded-xl bg-gradient-to-br shadow-lg",
+        {
+          'from-blue-500 to-cyan-500': (habit.iconColor ?? 0) === 0,
+          'from-purple-500 to-pink-500': habit.iconColor === 1,
+          'from-emerald-500 to-teal-500': habit.iconColor === 2,
+          'from-orange-500 to-amber-500': habit.iconColor === 3,
+          'from-red-500 to-rose-500': habit.iconColor === 4,
+          'from-teal-500 to-cyan-500': habit.iconColor === 5,
+        }
+      )}>
+        <span className="material-symbols-outlined text-[22px] text-white">{habit.icon}</span>
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-bold text-white truncate">{habit.name}</p>
+        <p className="text-xs text-slate-400 mt-0.5">{habit.category || 'General'}</p>
+      </div>
+    </div>
+  )
+}
+
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export function Today() {
   const navigate = useNavigate()
@@ -312,6 +378,24 @@ export function Today() {
     const isCompleted = isHabitCompletedOnDate(habitId, formattedDate)
     if (isCompleted) {
       toggleHabitCompletion(habitId, formattedDate)
+    }
+  }
+
+  // Handle bottom sheet menu actions
+  const handleBottomSheetAction = (action: string, habit: any) => {
+    setLongPressHabit(null)
+    switch (action) {
+      case 'details': setDetailsModalHabitId(habit.id); break
+      case 'edit': setEditModalHabitId(habit.id); break
+      case 'tasks': setManageTasksHabit(habit); break
+      case 'notes': setNotesModalHabit({ id: habit.id, name: habit.name }); break
+      case 'pin':
+        habit.pinned
+          ? useHabitStore.getState().unpinHabit(habit.id)
+          : useHabitStore.getState().pinHabit(habit.id)
+        break
+      case 'hide': setConfirmDeleteToday({ id: habit.id, name: habit.name }); break
+      case 'archive': setConfirmArchive({ id: habit.id, name: habit.name }); break
     }
   }
 
@@ -653,134 +737,56 @@ export function Today() {
         icon="restart_alt"
       />
 
-      {/* ── Long-press Bottom Sheet ── */}
+      {/* ── Long-press Bottom Sheet (mobile) / Centered Modal (desktop) ── */}
       {longPressHabit && createPortal(
         <AnimatePresence>
+          {/* Backdrop */}
           <motion.div
-            key="bottom-sheet-backdrop"
+            key="sheet-backdrop"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
             onClick={() => setLongPressHabit(null)}
           />
+
+          {/* ── Mobile: slides up from bottom ── */}
           <motion.div
-            key="bottom-sheet"
+            key="sheet-mobile"
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', stiffness: 400, damping: 40 }}
-            className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl bg-slate-900 border-t border-white/10 pb-safe"
+            className="md:hidden fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl bg-slate-900 border-t border-white/10"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Handle */}
             <div className="flex justify-center pt-3 pb-1">
               <div className="h-1 w-10 rounded-full bg-slate-700" />
             </div>
-
-            {/* Habit info header */}
-            <div className="flex items-center gap-3 px-5 py-4 border-b border-white/[0.06]">
-              <div className={cn(
-                "flex size-11 items-center justify-center rounded-xl bg-gradient-to-br shadow-lg",
-                {
-                  'from-blue-500 to-cyan-500': (longPressHabit.iconColor ?? 0) === 0,
-                  'from-purple-500 to-pink-500': longPressHabit.iconColor === 1,
-                  'from-emerald-500 to-teal-500': longPressHabit.iconColor === 2,
-                  'from-orange-500 to-amber-500': longPressHabit.iconColor === 3,
-                  'from-red-500 to-rose-500': longPressHabit.iconColor === 4,
-                  'from-teal-500 to-cyan-500': longPressHabit.iconColor === 5,
-                }
-              )}>
-                <span className="material-symbols-outlined text-[22px] text-white">{longPressHabit.icon}</span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-bold text-white truncate">{longPressHabit.name}</p>
-                <p className="text-xs text-slate-400 mt-0.5">{longPressHabit.category || 'General'}</p>
-              </div>
-            </div>
-
-            {/* Menu items */}
-            <div className="py-2">
-              {/* View Details */}
-              <button
-                onClick={() => { setLongPressHabit(null); setDetailsModalHabitId(longPressHabit.id) }}
-                className="flex w-full items-center gap-4 px-5 py-3.5 text-left transition-colors hover:bg-white/[0.04] active:bg-white/[0.08]"
-              >
-                <span className="material-symbols-outlined text-[20px] text-slate-400">info</span>
-                <span className="text-sm font-medium text-slate-200">View Details</span>
-              </button>
-
-              {/* Edit Habit */}
-              <button
-                onClick={() => { setLongPressHabit(null); setEditModalHabitId(longPressHabit.id) }}
-                className="flex w-full items-center gap-4 px-5 py-3.5 text-left transition-colors hover:bg-white/[0.04] active:bg-white/[0.08]"
-              >
-                <span className="material-symbols-outlined text-[20px] text-slate-400">edit</span>
-                <span className="text-sm font-medium text-slate-200">Edit Habit</span>
-              </button>
-
-              {/* Manage Tasks */}
-              <button
-                onClick={() => { setLongPressHabit(null); setManageTasksHabit(longPressHabit) }}
-                className="flex w-full items-center gap-4 px-5 py-3.5 text-left transition-colors hover:bg-white/[0.04] active:bg-white/[0.08]"
-              >
-                <span className="material-symbols-outlined text-[20px] text-slate-400">checklist</span>
-                <span className="text-sm font-medium text-slate-200">Manage Tasks</span>
-              </button>
-
-              {/* Notes */}
-              <button
-                onClick={() => { setLongPressHabit(null); setNotesModalHabit({ id: longPressHabit.id, name: longPressHabit.name }) }}
-                className="flex w-full items-center gap-4 px-5 py-3.5 text-left transition-colors hover:bg-white/[0.04] active:bg-white/[0.08]"
-              >
-                <span className="material-symbols-outlined text-[20px] text-slate-400">note</span>
-                <span className="text-sm font-medium text-slate-200">Notes</span>
-              </button>
-
-              {/* Pin / Unpin */}
-              <button
-                onClick={() => {
-                  if (longPressHabit.pinned) {
-                    useHabitStore.getState().unpinHabit(longPressHabit.id)
-                  } else {
-                    useHabitStore.getState().pinHabit(longPressHabit.id)
-                  }
-                  setLongPressHabit(null)
-                }}
-                className="flex w-full items-center gap-4 px-5 py-3.5 text-left transition-colors hover:bg-white/[0.04] active:bg-white/[0.08]"
-              >
-                <span className="material-symbols-outlined text-[20px] text-slate-400">
-                  {longPressHabit.pinned ? 'keep_off' : 'keep'}
-                </span>
-                <span className="text-sm font-medium text-slate-200">
-                  {longPressHabit.pinned ? 'Unpin Habit' : 'Pin Habit'}
-                </span>
-              </button>
-
-              {/* Divider */}
-              <div className="my-1 border-t border-white/[0.06]" />
-
-              {/* Hide for Today */}
-              <button
-                onClick={() => { setLongPressHabit(null); setConfirmDeleteToday({ id: longPressHabit.id, name: longPressHabit.name }) }}
-                className="flex w-full items-center gap-4 px-5 py-3.5 text-left transition-colors hover:bg-white/[0.04] active:bg-white/[0.08]"
-              >
-                <span className="material-symbols-outlined text-[20px] text-orange-400">hide_source</span>
-                <span className="text-sm font-medium text-orange-300">Hide for Today</span>
-              </button>
-
-              {/* Archive */}
-              <button
-                onClick={() => { setLongPressHabit(null); setConfirmArchive({ id: longPressHabit.id, name: longPressHabit.name }) }}
-                className="flex w-full items-center gap-4 px-5 py-3.5 text-left transition-colors hover:bg-white/[0.04] active:bg-white/[0.08]"
-              >
-                <span className="material-symbols-outlined text-[20px] text-red-400">archive</span>
-                <span className="text-sm font-medium text-red-300">Archive Habit</span>
-              </button>
-            </div>
-
-            {/* Safe area bottom padding */}
+            <HabitSheetHeader habit={longPressHabit} />
+            <HabitContextMenuItems habit={longPressHabit} onClose={() => setLongPressHabit(null)} onAction={handleBottomSheetAction} />
             <div className="h-6" />
+          </motion.div>
+
+          {/* ── Desktop/Tablet: centered modal ── */}
+          <motion.div
+            key="sheet-desktop"
+            initial={{ opacity: 0, scale: 0.96, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.96, y: 10 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 35 }}
+            className="hidden md:flex md:flex-col fixed z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[380px] rounded-2xl bg-slate-900 border border-white/10 shadow-2xl overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close button */}
+            <button
+              onClick={() => setLongPressHabit(null)}
+              className="absolute top-3 right-3 z-10 flex size-8 items-center justify-center rounded-full bg-slate-800 hover:bg-slate-700 transition-colors"
+            >
+              <span className="material-symbols-outlined text-[18px] text-slate-400">close</span>
+            </button>
+            <HabitSheetHeader habit={longPressHabit} />
+            <HabitContextMenuItems habit={longPressHabit} onClose={() => setLongPressHabit(null)} onAction={handleBottomSheetAction} />
           </motion.div>
         </AnimatePresence>,
         document.body
