@@ -228,9 +228,9 @@ export function HabitCard({ habit, isCompleted, index, onToggle, onBodyClick }: 
           }
         />
 
-        {/* SVG Progress Ring — outside inner orb, perfectly centered in the 40px container */}
+        {/* SVG Progress Ring — sized to match inner orb (32px), centered in 40px container */}
         {taskCount > 0 && !isCompleted && (() => {
-          const size = 40
+          const size = 32
           const strokeWidth = 2.5
           const radius = (size - strokeWidth) / 2
           const circumference = 2 * Math.PI * radius
@@ -238,11 +238,11 @@ export function HabitCard({ habit, isCompleted, index, onToggle, onBodyClick }: 
           const dashOffset = circumference * (1 - progress)
           return (
             <svg
-              className="absolute inset-0 z-20 pointer-events-none"
+              className="absolute z-20 pointer-events-none"
               width={size}
               height={size}
               viewBox={`0 0 ${size} ${size}`}
-              style={{ transform: 'rotate(-90deg)' }}
+              style={{ transform: 'rotate(-90deg)', top: '50%', left: '50%', marginTop: -size/2, marginLeft: -size/2 }}
             >
               {/* Track */}
               <circle
