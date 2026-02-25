@@ -229,11 +229,11 @@ export function HabitCard({ habit, isCompleted, index, onToggle, onBodyClick }: 
           {/* Checkmark */}
           <motion.span
             className="material-symbols-outlined text-base font-bold text-white"
-            initial={false}
+            initial={{ scale: 0, opacity: 0, rotate: 0 }}
             animate={{
-              scale: isCompleted ? [0, 1.2, 1] : 0,
+              scale: isCompleted ? 1 : 0,
               opacity: isCompleted ? 1 : 0,
-              rotate: isCompleted ? [0, 10, 0] : 0,
+              rotate: 0,
             }}
             transition={{
               type: 'spring',

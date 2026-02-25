@@ -56,7 +56,6 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 
   const handleConfirm = () => {
     onConfirm()
-    onClose()
   }
 
   return (

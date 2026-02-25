@@ -227,23 +227,26 @@ export function Today() {
         habitName: habit.name,
       })
     } else {
-      // Check if has incomplete tasks
-      const habitTasksForHabit = getTasksByHabitId(habitId)
-      const incompleteTasks = habitTasksForHabit.filter((ht) => !ht.completed).length
+      // Only check for incomplete tasks if the habit actually has tasks
+      const totalTaskCount = getTaskCount(habitId)
+      if (totalTaskCount > 0) {
+        const habitTasksForHabit = getTasksByHabitId(habitId)
+        const incompleteTasks = habitTasksForHabit.filter((ht) => !ht.completed).length
 
-      if (incompleteTasks > 0) {
-        // Scenario: Has incomplete tasks - warn
-        setConfirmDialogState({
-          isOpen: true,
-          type: 'incomplete-tasks',
-          habitId: habit.id,
-          habitName: habit.name,
-          incompleteTasks,
-        })
-      } else {
-        // Scenario: No incomplete tasks - normal toggle
-        toggleHabitCompletion(habitId, formattedDate)
+        if (incompleteTasks > 0) {
+          // Scenario: Has incomplete tasks - warn
+          setConfirmDialogState({
+            isOpen: true,
+            type: 'incomplete-tasks',
+            habitId: habit.id,
+            habitName: habit.name,
+            incompleteTasks,
+          })
+          return
+        }
       }
+      // Scenario: No tasks, or all tasks complete - normal toggle
+      toggleHabitCompletion(habitId, formattedDate)
     }
   }
 
