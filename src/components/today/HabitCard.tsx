@@ -12,8 +12,21 @@ const ICON_COLOR_GRADIENTS: Record<number, string> = {
   5: 'from-teal-500 to-cyan-500',      // 5: Teal
 }
 
+// ─── Glow colors matching icon gradients ─────────────────────────────────────
+const ICON_GLOW_COLORS: Record<number, string> = {
+  0: '#3B82F6', // Blue
+  1: '#A855F7', // Purple
+  2: '#10B981', // Emerald/Green
+  3: '#F97316', // Orange
+  4: '#EF4444', // Red
+  5: '#14B8A6', // Teal
+}
+
 const getIconGradient = (iconColor: number = 0): string =>
   ICON_COLOR_GRADIENTS[iconColor] ?? ICON_COLOR_GRADIENTS[0]
+
+const getGlowColor = (iconColor: number = 0): string =>
+  ICON_GLOW_COLORS[iconColor] ?? ICON_GLOW_COLORS[0]
 
 // ─── Regular Habit Card ───────────────────────────────────────────────────────
 interface HabitCardProps {
@@ -26,6 +39,7 @@ interface HabitCardProps {
 
 export function HabitCard({ habit, isCompleted, index, onToggle, onBodyClick }: HabitCardProps) {
   const iconGradient = getIconGradient(habit.iconColor ?? 0)
+  const glowColor = getGlowColor(habit.iconColor ?? 0)
   const { getTaskCount } = useHabitTaskStore()
   const taskCount = getTaskCount(habit.id)
 
@@ -64,10 +78,10 @@ export function HabitCard({ habit, isCompleted, index, onToggle, onBodyClick }: 
       role="button"
       aria-label={`View details for ${habit.name}`}
     >
-      {/* ── Ambient Glow (appears on hover) ── */}
+      {/* ── Ambient Glow (appears on hover, matches icon color) ── */}
       <div
         className="absolute -left-8 -top-8 size-32 rounded-full blur-[60px] transition-opacity duration-500 -z-10 opacity-0 group-hover:opacity-40"
-        style={{ backgroundColor: '#2DD4BF' }}
+        style={{ backgroundColor: glowColor }}
       />
 
       {/* ── Icon ── */}
