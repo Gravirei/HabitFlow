@@ -228,6 +228,48 @@ export function HabitCard({ habit, isCompleted, index, onToggle, onBodyClick }: 
           }
         />
 
+        {/* SVG Progress Ring — outside inner orb, perfectly centered in the 40px container */}
+        {taskCount > 0 && !isCompleted && (() => {
+          const size = 40
+          const strokeWidth = 2.5
+          const radius = (size - strokeWidth) / 2
+          const circumference = 2 * Math.PI * radius
+          const progress = completedTaskCount / taskCount
+          const dashOffset = circumference * (1 - progress)
+          return (
+            <svg
+              className="absolute inset-0 z-20 pointer-events-none"
+              width={size}
+              height={size}
+              viewBox={`0 0 ${size} ${size}`}
+              style={{ transform: 'rotate(-90deg)' }}
+            >
+              {/* Track */}
+              <circle
+                cx={size / 2}
+                cy={size / 2}
+                r={radius}
+                fill="none"
+                stroke="rgba(45,212,191,0.15)"
+                strokeWidth={strokeWidth}
+              />
+              {/* Progress arc */}
+              <motion.circle
+                cx={size / 2}
+                cy={size / 2}
+                r={radius}
+                fill="none"
+                stroke="rgba(45,212,191,0.9)"
+                strokeWidth={strokeWidth}
+                strokeLinecap="round"
+                strokeDasharray={circumference}
+                animate={{ strokeDashoffset: dashOffset }}
+                transition={{ duration: 0.5, ease: 'easeOut' }}
+              />
+            </svg>
+          )
+        })()}
+
         {/* Inner orb - main button */}
         <motion.div
           className={cn(
@@ -241,48 +283,6 @@ export function HabitCard({ habit, isCompleted, index, onToggle, onBodyClick }: 
           )}
           whileHover={!isCompleted ? { boxShadow: '0 0 20px rgba(45,212,191,0.4)' } : {}}
         >
-          {/* SVG Progress Ring — only when habit has tasks and not yet fully completed */}
-          {taskCount > 0 && !isCompleted && (() => {
-            const size = 32
-            const strokeWidth = 2.5
-            const radius = (size - strokeWidth) / 2
-            const circumference = 2 * Math.PI * radius
-            const progress = taskCount > 0 ? completedTaskCount / taskCount : 0
-            const dashOffset = circumference * (1 - progress)
-            return (
-              <svg
-                className="absolute inset-0"
-                width={size}
-                height={size}
-                viewBox={`0 0 ${size} ${size}`}
-                style={{ transform: 'rotate(-90deg)' }}
-              >
-                {/* Track */}
-                <circle
-                  cx={size / 2}
-                  cy={size / 2}
-                  r={radius}
-                  fill="none"
-                  stroke="rgba(45,212,191,0.15)"
-                  strokeWidth={strokeWidth}
-                />
-                {/* Progress arc */}
-                <motion.circle
-                  cx={size / 2}
-                  cy={size / 2}
-                  r={radius}
-                  fill="none"
-                  stroke="rgba(45,212,191,0.9)"
-                  strokeWidth={strokeWidth}
-                  strokeLinecap="round"
-                  strokeDasharray={circumference}
-                  animate={{ strokeDashoffset: dashOffset }}
-                  transition={{ duration: 0.5, ease: 'easeOut' }}
-                />
-              </svg>
-            )
-          })()}
-
           {/* Checkmark */}
           <motion.span
             className="material-symbols-outlined text-base font-bold text-white"
