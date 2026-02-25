@@ -14,6 +14,7 @@ interface HabitTaskStore {
   // Queries
   getTasksByHabitId: (habitId: string) => HabitTask[]
   getTaskCount: (habitId: string) => number
+  getCompletedTaskCount: (habitId: string) => number
   
   // Reset tasks based on frequency
   resetTasksIfNeeded: (habitId: string, frequency: 'daily' | 'weekly' | 'monthly') => void
@@ -70,6 +71,10 @@ export const useHabitTaskStore = create<HabitTaskStore>()(
 
       getTaskCount: (habitId) => {
         return get().tasks.filter((task) => task.habitId === habitId).length
+      },
+
+      getCompletedTaskCount: (habitId) => {
+        return get().tasks.filter((task) => task.habitId === habitId && task.completed).length
       },
 
       resetTasksIfNeeded: (habitId, frequency) => {

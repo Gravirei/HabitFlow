@@ -40,8 +40,10 @@ interface HabitCardProps {
 export function HabitCard({ habit, isCompleted, index, onToggle, onBodyClick }: HabitCardProps) {
   const iconGradient = getIconGradient(habit.iconColor ?? 0)
   const glowColor = getGlowColor(habit.iconColor ?? 0)
-  const { getTaskCount } = useHabitTaskStore()
+  const { getTaskCount, getCompletedTaskCount } = useHabitTaskStore()
   const taskCount = getTaskCount(habit.id)
+  const completedTaskCount = getCompletedTaskCount(habit.id)
+  const allTasksDone = taskCount > 0 && completedTaskCount === taskCount
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ' ') {
@@ -127,9 +129,22 @@ export function HabitCard({ habit, isCompleted, index, onToggle, onBodyClick }: 
 
             {/* Tasks */}
             {taskCount > 0 && (
-              <div className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-lg bg-blue-500/10 border border-blue-400/20 backdrop-blur-sm">
-                <span className="material-symbols-outlined text-[13px] text-blue-400">checklist</span>
-                <span className="text-[11px] font-bold text-blue-300/90 tabular-nums">{taskCount}</span>
+              <div className={cn(
+                "flex items-center gap-0.5 px-1.5 py-0.5 rounded-lg backdrop-blur-sm transition-colors duration-300",
+                allTasksDone
+                  ? "bg-emerald-500/15 border border-emerald-400/30"
+                  : "bg-blue-500/10 border border-blue-400/20"
+              )}>
+                <span className={cn(
+                  "material-symbols-outlined text-[13px] transition-colors duration-300",
+                  allTasksDone ? "text-emerald-400" : "text-blue-400"
+                )}>checklist</span>
+                <span className={cn(
+                  "text-[11px] font-bold tabular-nums transition-colors duration-300",
+                  allTasksDone ? "text-emerald-300/90" : "text-blue-300/90"
+                )}>
+                  {allTasksDone ? completedTaskCount : `${completedTaskCount}/${taskCount}`}
+                </span>
               </div>
             )}
           </div>
