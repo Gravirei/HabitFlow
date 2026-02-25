@@ -5,6 +5,7 @@ import { BottomNav } from '@/components/BottomNav'
 import { SideNav } from '@/components/SideNav'
 import { HabitTaskCompletionModal } from '@/components/habits/HabitTaskCompletionModal'
 import { HabitDetailsModal } from '@/components/habits/HabitDetailsModal'
+import { HabitNotesViewModal } from '@/components/habits/HabitNotesViewModal'
 import { HabitNotesModal } from '@/components/categories/HabitNotesModal'
 import { HabitTasksModal } from '@/components/categories/HabitTasksModal'
 import { EditHabit } from '@/components/categories/EditHabit'
@@ -264,6 +265,7 @@ export function Today() {
   // Modals opened from bottom sheet
   const [detailsModalHabitId, setDetailsModalHabitId] = useState<string | null>(null)
   const [editModalHabitId, setEditModalHabitId] = useState<string | null>(null)
+  const [notesViewModalHabit, setNotesViewModalHabit] = useState<{ id: string; name: string } | null>(null)
   const [notesModalHabit, setNotesModalHabit] = useState<{ id: string; name: string } | null>(null)
   const [manageTasksHabit, setManageTasksHabit] = useState<any | null>(null)
   const [confirmDeleteToday, setConfirmDeleteToday] = useState<{ id: string; name: string } | null>(null)
@@ -617,6 +619,7 @@ export function Today() {
                           onToggle={() => handleHabitCompletion(habit.id)}
                           onBodyClick={() => handleHabitBodyClick(habit)}
                           onLongPress={() => setLongPressHabit(habit)}
+                          onNotesClick={() => setNotesViewModalHabit({ id: habit.id, name: habit.name })}
                         />
                       )
                     })
@@ -792,6 +795,16 @@ export function Today() {
           </div>
         </AnimatePresence>,
         document.body
+      )}
+
+      {/* ── Notes View Modal (read-only, from badge click) ── */}
+      {notesViewModalHabit && (
+        <HabitNotesViewModal
+          isOpen={!!notesViewModalHabit}
+          onClose={() => setNotesViewModalHabit(null)}
+          habitId={notesViewModalHabit.id}
+          habitName={notesViewModalHabit.name}
+        />
       )}
 
       {/* ── Modals from bottom sheet ── */}

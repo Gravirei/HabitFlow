@@ -37,9 +37,10 @@ interface HabitCardProps {
   onToggle: () => void
   onBodyClick?: () => void
   onLongPress?: () => void
+  onNotesClick?: () => void
 }
 
-export function HabitCard({ habit, isCompleted, index, onToggle, onBodyClick, onLongPress }: HabitCardProps) {
+export function HabitCard({ habit, isCompleted, index, onToggle, onBodyClick, onLongPress, onNotesClick }: HabitCardProps) {
   const iconGradient = getIconGradient(habit.iconColor ?? 0)
   const glowColor = getGlowColor(habit.iconColor ?? 0)
   const { getTaskCount, getCompletedTaskCount } = useHabitTaskStore()
@@ -211,6 +212,20 @@ export function HabitCard({ habit, isCompleted, index, onToggle, onBodyClick, on
                   {allTasksDone ? completedTaskCount : `${completedTaskCount}/${taskCount}`}
                 </span>
               </div>
+            )}
+
+            {/* Notes Badge */}
+            {habit.notes && habit.notes.length > 0 && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onNotesClick?.()
+                }}
+                className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-lg bg-amber-500/10 border border-amber-400/20 backdrop-blur-sm hover:bg-amber-500/20 transition-colors duration-200"
+              >
+                <span className="material-symbols-outlined text-[13px] text-amber-400">note</span>
+                <span className="text-[11px] font-bold text-amber-300/90 tabular-nums">{habit.notes.length}</span>
+              </button>
             )}
           </div>
         </div>
