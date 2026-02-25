@@ -36,9 +36,10 @@ interface HabitCardProps {
   index: number
   onToggle: () => void
   onBodyClick?: () => void
+  onLongPress?: () => void
 }
 
-export function HabitCard({ habit, isCompleted, index, onToggle, onBodyClick }: HabitCardProps) {
+export function HabitCard({ habit, isCompleted, index, onToggle, onBodyClick, onLongPress }: HabitCardProps) {
   const iconGradient = getIconGradient(habit.iconColor ?? 0)
   const glowColor = getGlowColor(habit.iconColor ?? 0)
   const { getTaskCount, getCompletedTaskCount } = useHabitTaskStore()
@@ -46,28 +47,60 @@ export function HabitCard({ habit, isCompleted, index, onToggle, onBodyClick }: 
   const completedTaskCount = getCompletedTaskCount(habit.id)
   const allTasksDone = taskCount > 0 && completedTaskCount === taskCount
 
+  // ── Long Press Detection ──────────────────────────────────────────────────
+  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const longPressFired = useRef(false)
+
+  const handlePointerDown = () => {
+    longPressFired.current = false
+    longPressTimer.current = setTimeout(() => {
+      longPressFired.current = true
+      onLongPress?.()
+    }, 400)
+  }
+
+  const handlePointerUp = () => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current)
+      longPressTimer.current = null
+    }
+  }
+
+  const handlePointerCancel = () => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current)
+      longPressTimer.current = null
+    }
+  }
+
   // Animation phase: 'ring' | 'shrinking' | 'filling' | 'done'
   const [orbPhase, setOrbPhase] = useState<'ring' | 'shrinking' | 'filling' | 'done'>(
     isCompleted ? 'done' : 'ring'
   )
   const prevAllTasksDone = useRef(allTasksDone)
+  const isAnimating = useRef(false)
 
   useEffect(() => {
     // Trigger animation only when transitioning from not-all-done → all-done
     if (allTasksDone && !prevAllTasksDone.current && !isCompleted) {
+      isAnimating.current = true
       setOrbPhase('shrinking')
-      // Call onToggle immediately so habit is marked done — animation is just visual
-      onToggle()
-      // After ring shrinks (700ms), start orb fill
+      // After ring shrinks (750ms), start orb fill
       const t1 = setTimeout(() => setOrbPhase('filling'), 750)
-      // After orb fills (700ms), finalize done phase
-      const t2 = setTimeout(() => setOrbPhase('done'), 1500)
+      // After orb fills (750ms), finalize done phase and mark habit complete
+      const t2 = setTimeout(() => {
+        setOrbPhase('done')
+        isAnimating.current = false
+        onToggle()
+      }, 1500)
       return () => { clearTimeout(t1); clearTimeout(t2) }
     }
     prevAllTasksDone.current = allTasksDone
   }, [allTasksDone])
 
   useEffect(() => {
+    // Don't interrupt the shrinking → filling → done animation
+    if (isAnimating.current) return
     // Sync phase when isCompleted changes externally (e.g. un-toggling)
     if (!isCompleted && orbPhase === 'done') setOrbPhase('ring')
     if (isCompleted && orbPhase !== 'done') setOrbPhase('done')
@@ -102,7 +135,11 @@ export function HabitCard({ habit, isCompleted, index, onToggle, onBodyClick }: 
         "bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/[0.12]"
       )}
       style={{ backdropFilter: 'blur(20px)' }}
-      onClick={onBodyClick}
+      onClick={() => { if (!longPressFired.current) onBodyClick?.() }}
+      onPointerDown={handlePointerDown}
+      onPointerUp={handlePointerUp}
+      onPointerCancel={handlePointerCancel}
+      onPointerLeave={handlePointerCancel}
       onKeyDown={handleKeyDown}
       tabIndex={0}
       role="button"

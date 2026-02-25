@@ -4,12 +4,17 @@ import { useHabitTaskStore } from '@/store/useHabitTaskStore'
 import { BottomNav } from '@/components/BottomNav'
 import { SideNav } from '@/components/SideNav'
 import { HabitTaskCompletionModal } from '@/components/habits/HabitTaskCompletionModal'
+import { HabitDetailsModal } from '@/components/habits/HabitDetailsModal'
+import { HabitNotesModal } from '@/components/categories/HabitNotesModal'
+import { HabitTasksModal } from '@/components/categories/HabitTasksModal'
+import { EditHabit } from '@/components/categories/EditHabit'
 import { ConfirmDialog } from '@/components/timer/settings/ConfirmDialog'
 import { useState } from 'react'
 import { format, isToday, isBefore } from 'date-fns'
 import { motion, AnimatePresence } from 'framer-motion'
 import { GreetingHero, HabitCard, HydrationCard, TaskCard, DateStrip } from '@/components/today'
 import { cn } from '@/utils/cn'
+import { createPortal } from 'react-dom'
 
 // ─── Mock tasks ───────────────────────────────────────────────────────────────
 const tasks = [
@@ -186,6 +191,17 @@ export function Today() {
   const [selectedHabitName, setSelectedHabitName] = useState('')
   const [selectedHabitIcon, setSelectedHabitIcon] = useState('checklist')
   const [selectedHabitIconColor, setSelectedHabitIconColor] = useState(0)
+
+  // Long-press bottom sheet
+  const [longPressHabit, setLongPressHabit] = useState<any | null>(null)
+
+  // Modals opened from bottom sheet
+  const [detailsModalHabitId, setDetailsModalHabitId] = useState<string | null>(null)
+  const [editModalHabitId, setEditModalHabitId] = useState<string | null>(null)
+  const [notesModalHabit, setNotesModalHabit] = useState<{ id: string; name: string } | null>(null)
+  const [manageTasksHabit, setManageTasksHabit] = useState<any | null>(null)
+  const [confirmDeleteToday, setConfirmDeleteToday] = useState<{ id: string; name: string } | null>(null)
+  const [confirmArchive, setConfirmArchive] = useState<{ id: string; name: string } | null>(null)
 
   // Confirmation dialogs
   const [confirmDialogState, setConfirmDialogState] = useState<{
@@ -516,6 +532,7 @@ export function Today() {
                           index={i}
                           onToggle={() => handleHabitCompletion(habit.id)}
                           onBodyClick={() => handleHabitBodyClick(habit)}
+                          onLongPress={() => setLongPressHabit(habit)}
                         />
                       )
                     })
@@ -634,6 +651,212 @@ export function Today() {
         cancelText="Cancel"
         variant="warning"
         icon="restart_alt"
+      />
+
+      {/* ── Long-press Bottom Sheet ── */}
+      {longPressHabit && createPortal(
+        <AnimatePresence>
+          <motion.div
+            key="bottom-sheet-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
+            onClick={() => setLongPressHabit(null)}
+          />
+          <motion.div
+            key="bottom-sheet"
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
+            transition={{ type: 'spring', stiffness: 400, damping: 40 }}
+            className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl bg-slate-900 border-t border-white/10 pb-safe"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Handle */}
+            <div className="flex justify-center pt-3 pb-1">
+              <div className="h-1 w-10 rounded-full bg-slate-700" />
+            </div>
+
+            {/* Habit info header */}
+            <div className="flex items-center gap-3 px-5 py-4 border-b border-white/[0.06]">
+              <div className={cn(
+                "flex size-11 items-center justify-center rounded-xl bg-gradient-to-br shadow-lg",
+                {
+                  'from-blue-500 to-cyan-500': (longPressHabit.iconColor ?? 0) === 0,
+                  'from-purple-500 to-pink-500': longPressHabit.iconColor === 1,
+                  'from-emerald-500 to-teal-500': longPressHabit.iconColor === 2,
+                  'from-orange-500 to-amber-500': longPressHabit.iconColor === 3,
+                  'from-red-500 to-rose-500': longPressHabit.iconColor === 4,
+                  'from-teal-500 to-cyan-500': longPressHabit.iconColor === 5,
+                }
+              )}>
+                <span className="material-symbols-outlined text-[22px] text-white">{longPressHabit.icon}</span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-bold text-white truncate">{longPressHabit.name}</p>
+                <p className="text-xs text-slate-400 mt-0.5">{longPressHabit.category || 'General'}</p>
+              </div>
+            </div>
+
+            {/* Menu items */}
+            <div className="py-2">
+              {/* View Details */}
+              <button
+                onClick={() => { setLongPressHabit(null); setDetailsModalHabitId(longPressHabit.id) }}
+                className="flex w-full items-center gap-4 px-5 py-3.5 text-left transition-colors hover:bg-white/[0.04] active:bg-white/[0.08]"
+              >
+                <span className="material-symbols-outlined text-[20px] text-slate-400">info</span>
+                <span className="text-sm font-medium text-slate-200">View Details</span>
+              </button>
+
+              {/* Edit Habit */}
+              <button
+                onClick={() => { setLongPressHabit(null); setEditModalHabitId(longPressHabit.id) }}
+                className="flex w-full items-center gap-4 px-5 py-3.5 text-left transition-colors hover:bg-white/[0.04] active:bg-white/[0.08]"
+              >
+                <span className="material-symbols-outlined text-[20px] text-slate-400">edit</span>
+                <span className="text-sm font-medium text-slate-200">Edit Habit</span>
+              </button>
+
+              {/* Manage Tasks */}
+              <button
+                onClick={() => { setLongPressHabit(null); setManageTasksHabit(longPressHabit) }}
+                className="flex w-full items-center gap-4 px-5 py-3.5 text-left transition-colors hover:bg-white/[0.04] active:bg-white/[0.08]"
+              >
+                <span className="material-symbols-outlined text-[20px] text-slate-400">checklist</span>
+                <span className="text-sm font-medium text-slate-200">Manage Tasks</span>
+              </button>
+
+              {/* Notes */}
+              <button
+                onClick={() => { setLongPressHabit(null); setNotesModalHabit({ id: longPressHabit.id, name: longPressHabit.name }) }}
+                className="flex w-full items-center gap-4 px-5 py-3.5 text-left transition-colors hover:bg-white/[0.04] active:bg-white/[0.08]"
+              >
+                <span className="material-symbols-outlined text-[20px] text-slate-400">note</span>
+                <span className="text-sm font-medium text-slate-200">Notes</span>
+              </button>
+
+              {/* Pin / Unpin */}
+              <button
+                onClick={() => {
+                  if (longPressHabit.pinned) {
+                    useHabitStore.getState().unpinHabit(longPressHabit.id)
+                  } else {
+                    useHabitStore.getState().pinHabit(longPressHabit.id)
+                  }
+                  setLongPressHabit(null)
+                }}
+                className="flex w-full items-center gap-4 px-5 py-3.5 text-left transition-colors hover:bg-white/[0.04] active:bg-white/[0.08]"
+              >
+                <span className="material-symbols-outlined text-[20px] text-slate-400">
+                  {longPressHabit.pinned ? 'keep_off' : 'keep'}
+                </span>
+                <span className="text-sm font-medium text-slate-200">
+                  {longPressHabit.pinned ? 'Unpin Habit' : 'Pin Habit'}
+                </span>
+              </button>
+
+              {/* Divider */}
+              <div className="my-1 border-t border-white/[0.06]" />
+
+              {/* Hide for Today */}
+              <button
+                onClick={() => { setLongPressHabit(null); setConfirmDeleteToday({ id: longPressHabit.id, name: longPressHabit.name }) }}
+                className="flex w-full items-center gap-4 px-5 py-3.5 text-left transition-colors hover:bg-white/[0.04] active:bg-white/[0.08]"
+              >
+                <span className="material-symbols-outlined text-[20px] text-orange-400">hide_source</span>
+                <span className="text-sm font-medium text-orange-300">Hide for Today</span>
+              </button>
+
+              {/* Archive */}
+              <button
+                onClick={() => { setLongPressHabit(null); setConfirmArchive({ id: longPressHabit.id, name: longPressHabit.name }) }}
+                className="flex w-full items-center gap-4 px-5 py-3.5 text-left transition-colors hover:bg-white/[0.04] active:bg-white/[0.08]"
+              >
+                <span className="material-symbols-outlined text-[20px] text-red-400">archive</span>
+                <span className="text-sm font-medium text-red-300">Archive Habit</span>
+              </button>
+            </div>
+
+            {/* Safe area bottom padding */}
+            <div className="h-6" />
+          </motion.div>
+        </AnimatePresence>,
+        document.body
+      )}
+
+      {/* ── Modals from bottom sheet ── */}
+      {detailsModalHabitId && (
+        <HabitDetailsModal
+          isOpen={!!detailsModalHabitId}
+          onClose={() => setDetailsModalHabitId(null)}
+          habitId={detailsModalHabitId}
+        />
+      )}
+
+      {editModalHabitId && (
+        <EditHabit
+          isOpen={!!editModalHabitId}
+          onClose={() => setEditModalHabitId(null)}
+          habitId={editModalHabitId}
+        />
+      )}
+
+      {notesModalHabit && (
+        <HabitNotesModal
+          isOpen={!!notesModalHabit}
+          onClose={() => setNotesModalHabit(null)}
+          habitId={notesModalHabit.id}
+          habitName={notesModalHabit.name}
+        />
+      )}
+
+      {manageTasksHabit && (
+        <HabitTasksModal
+          isOpen={!!manageTasksHabit}
+          onClose={() => setManageTasksHabit(null)}
+          habitId={manageTasksHabit.id}
+          habitName={manageTasksHabit.name}
+          habitIcon={manageTasksHabit.icon}
+          habitIconColor={manageTasksHabit.iconColor ?? 0}
+        />
+      )}
+
+      {/* Hide for Today confirm */}
+      <ConfirmDialog
+        isOpen={!!confirmDeleteToday}
+        onClose={() => setConfirmDeleteToday(null)}
+        onConfirm={() => {
+          if (confirmDeleteToday) {
+            useHabitStore.getState().hideHabitForToday(confirmDeleteToday.id, formattedDate)
+          }
+          setConfirmDeleteToday(null)
+        }}
+        title="Hide for Today?"
+        message={`This will hide "${confirmDeleteToday?.name}" for today only. It will appear again tomorrow.`}
+        confirmText="Hide for Today"
+        cancelText="Cancel"
+        variant="danger"
+        icon="hide_source"
+      />
+
+      {/* Archive confirm */}
+      <ConfirmDialog
+        isOpen={!!confirmArchive}
+        onClose={() => setConfirmArchive(null)}
+        onConfirm={() => {
+          if (confirmArchive) {
+            useHabitStore.getState().archiveHabit(confirmArchive.id)
+          }
+          setConfirmArchive(null)
+        }}
+        title="Archive Habit?"
+        message={`"${confirmArchive?.name}" will be archived and removed from your daily view. You can restore it later.`}
+        confirmText="Archive"
+        cancelText="Cancel"
+        variant="danger"
+        icon="archive"
       />
     </div>
   )
