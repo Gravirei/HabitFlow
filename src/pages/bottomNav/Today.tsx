@@ -571,18 +571,14 @@ export function Today() {
                 onAction={() => navigate('/habits')}
                 actionLabel="View All"
               />
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={habitViewMode}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ duration: 0.3, ease: 'easeInOut' }}
-                  className={cn(
-                    "grid gap-4",
-                    habitViewMode === 'grid' ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1"
-                  )}
-                >
+              <motion.div
+                layout
+                className={cn(
+                  "grid gap-4",
+                  habitViewMode === 'grid' ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1"
+                )}
+                transition={{ layout: { duration: 0.3, ease: 'easeInOut' } }}
+              >
                   {filteredHabits.length === 0 ? (
                     <div className="col-span-full">
                       <EmptyState
@@ -591,7 +587,7 @@ export function Today() {
                       />
                     </div>
                   ) : (
-                    <AnimatePresence>
+                    <AnimatePresence mode="popLayout">
                       {filteredHabits.map((habit, i) => {
                         const isCompleted = isHabitCompletedOnDate(habit.id, formattedDate)
                         const isHydration = habit.icon === 'water_drop'
@@ -632,8 +628,7 @@ export function Today() {
                       })}
                     </AnimatePresence>
                   )}
-                </motion.div>
-              </AnimatePresence>
+              </motion.div>
             </section>
 
             {/* ── Tasks Section ────────────────────────────────────── */}

@@ -125,16 +125,13 @@ export function HabitCard({ habit, isCompleted, index, onToggle, onBodyClick, on
 
   return (
     <motion.div
-      layout={enableLayoutAnimation}
-      layoutId={enableLayoutAnimation ? `habit-card-${habit.id}` : undefined}
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{
-        delay: index * 0.04,
-        duration: 0.4,
-        ease: [0.22, 1, 0.36, 1],
-        ...(enableLayoutAnimation ? { layout: { duration: 0.4, ease: 'easeInOut' } } : {}),
-      }}
+      layout={enableLayoutAnimation ? true : false}
+      initial={enableLayoutAnimation ? false : { opacity: 0, y: 16 }}
+      animate={enableLayoutAnimation ? {} : { opacity: 1, y: 0 }}
+      transition={enableLayoutAnimation
+        ? { layout: { duration: 0.45, ease: [0.22, 1, 0.36, 1] } }
+        : { delay: index * 0.04, duration: 0.4, ease: [0.22, 1, 0.36, 1] }
+      }
       whileHover={{ y: -2 }}
       whileTap={{ scale: 0.98 }}
       className={cn(
