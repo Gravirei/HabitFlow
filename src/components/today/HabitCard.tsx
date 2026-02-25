@@ -94,8 +94,10 @@ export function HabitCard({ habit, isCompleted, index, onToggle, onBodyClick }: 
         {/* Title & Badges */}
         <div className="flex items-start justify-between gap-2">
           <h3 className={cn(
-            "text-[15px] font-semibold leading-snug tracking-tight transition-colors duration-200 text-slate-100 group-hover:text-white",
-            isCompleted && "line-through decoration-slate-400/70"
+            "text-[15px] font-semibold leading-snug tracking-tight transition-colors duration-200",
+            isCompleted
+              ? "text-slate-500 line-through decoration-slate-500/60"
+              : "text-slate-100 group-hover:text-white"
           )}>
             {habit.name}
           </h3>
