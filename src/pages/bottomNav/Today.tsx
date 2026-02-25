@@ -405,6 +405,11 @@ export function Today() {
   const filteredHabits = habits
     .filter(h => h.isActive === true && h.categoryId !== undefined && !h.archived && !h.hiddenDates?.includes(formattedDate))
     .filter(h => h.name.toLowerCase().includes(searchQuery.toLowerCase()))
+    .sort((a, b) => {
+      if (a.pinned && !b.pinned) return -1
+      if (!a.pinned && b.pinned) return 1
+      return 0
+    })
 
   const filteredTasks = tasks.filter(t =>
     t.text.toLowerCase().includes(searchQuery.toLowerCase())

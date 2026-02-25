@@ -185,6 +185,11 @@ export function HabitCard({ habit, isCompleted, index, onToggle, onBodyClick, on
           </h3>
 
           <div className="flex items-center gap-1.5 shrink-0">
+            {/* Pin indicator — minimal, no badge */}
+            {habit.pinned && (
+              <span className="material-symbols-outlined text-[14px] text-teal-400/60">keep</span>
+            )}
+
             {/* Streak */}
             {habit.currentStreak > 0 && (
               <div className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-lg bg-orange-500/10 border border-orange-400/20 backdrop-blur-sm">
