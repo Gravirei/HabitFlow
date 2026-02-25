@@ -55,9 +55,7 @@ export function HabitCard({ habit, isCompleted, index, onToggle, onBodyClick }: 
         "group relative overflow-hidden rounded-2xl p-4 flex items-center gap-3.5 cursor-pointer transition-all duration-300 isolate",
         "border border-white/[0.06]",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950",
-        isCompleted
-          ? "bg-slate-900/40"
-          : "bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/[0.12]"
+        "bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/[0.12]"
       )}
       style={{ backdropFilter: 'blur(20px)' }}
       onClick={onBodyClick}
@@ -66,12 +64,9 @@ export function HabitCard({ habit, isCompleted, index, onToggle, onBodyClick }: 
       role="button"
       aria-label={`View details for ${habit.name}`}
     >
-      {/* ── Ambient Glow (appears on hover, fades for completed) ── */}
+      {/* ── Ambient Glow (appears on hover) ── */}
       <div
-        className={cn(
-          "absolute -left-8 -top-8 size-32 rounded-full blur-[60px] transition-opacity duration-500 -z-10",
-          isCompleted ? "opacity-0" : "opacity-0 group-hover:opacity-40"
-        )}
+        className="absolute -left-8 -top-8 size-32 rounded-full blur-[60px] transition-opacity duration-500 -z-10 opacity-0 group-hover:opacity-40"
         style={{ backgroundColor: '#2DD4BF' }}
       />
 
@@ -79,17 +74,13 @@ export function HabitCard({ habit, isCompleted, index, onToggle, onBodyClick }: 
       <div className="relative shrink-0 self-center">
         {/* Icon glow ring */}
         <div
-          className={cn(
-            "absolute inset-0 rounded-xl blur-lg transition-opacity duration-300",
-            isCompleted ? "opacity-0" : "opacity-30 group-hover:opacity-50"
-          )}
+          className="absolute inset-0 rounded-xl blur-lg transition-opacity duration-300 opacity-30 group-hover:opacity-50"
           style={{ background: 'rgba(45,212,191,0.35)' }}
         />
         <div
           className={cn(
             "relative flex size-12 items-center justify-center rounded-xl transition-all duration-300 shadow-lg bg-gradient-to-br",
-            iconGradient,
-            isCompleted && "opacity-50 saturate-50 scale-95"
+            iconGradient
           )}
         >
           <span className="material-symbols-outlined text-[26px] text-white/90 drop-shadow-sm">
@@ -103,10 +94,8 @@ export function HabitCard({ habit, isCompleted, index, onToggle, onBodyClick }: 
         {/* Title & Badges */}
         <div className="flex items-start justify-between gap-2">
           <h3 className={cn(
-            "text-[15px] font-semibold leading-snug tracking-tight transition-colors duration-200",
-            isCompleted
-              ? "text-slate-500 line-through decoration-slate-600/50"
-              : "text-slate-100 group-hover:text-white"
+            "text-[15px] font-semibold leading-snug tracking-tight transition-colors duration-200 text-slate-100 group-hover:text-white",
+            isCompleted && "line-through decoration-slate-400/70"
           )}>
             {habit.name}
           </h3>
@@ -133,8 +122,8 @@ export function HabitCard({ habit, isCompleted, index, onToggle, onBodyClick }: 
         {/* Description */}
         {habit.description && (
           <p className={cn(
-            "text-[13px] leading-relaxed line-clamp-1 transition-colors duration-200",
-            isCompleted ? "text-slate-600" : "text-slate-400 group-hover:text-slate-300"
+            "text-[13px] leading-relaxed line-clamp-1 transition-colors duration-200 text-slate-400 group-hover:text-slate-300",
+            isCompleted && "line-through decoration-slate-400/70"
           )}>
             {habit.description}
           </p>
