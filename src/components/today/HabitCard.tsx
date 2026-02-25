@@ -126,10 +126,11 @@ export function HabitCard({ habit, isCompleted, index, onToggle, onBodyClick, on
   return (
     <motion.div
       layout={enableLayoutAnimation ? true : false}
+      layoutId={enableLayoutAnimation ? habit.id : undefined}
       initial={enableLayoutAnimation ? false : { opacity: 0, y: 16 }}
       animate={enableLayoutAnimation ? {} : { opacity: 1, y: 0 }}
       transition={enableLayoutAnimation
-        ? { layout: { duration: 0.45, ease: [0.22, 1, 0.36, 1] } }
+        ? { layout: { duration: 0.5, ease: [0.32, 0.72, 0, 1] } }
         : { delay: index * 0.04, duration: 0.4, ease: [0.22, 1, 0.36, 1] }
       }
       whileHover={{ y: -2 }}

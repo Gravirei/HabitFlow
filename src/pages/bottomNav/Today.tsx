@@ -392,9 +392,15 @@ export function Today() {
       case 'tasks': setManageTasksHabit(habit); break
       case 'notes': setNotesModalHabit({ id: habit.id, name: habit.name }); break
       case 'pin':
-        habit.pinned
-          ? useHabitStore.getState().unpinHabit(habit.id)
-          : useHabitStore.getState().pinHabit(habit.id)
+        // Delay pin state change so the bottom sheet exit animation completes first
+        // giving framer-motion a clean stable snapshot before layout reorder
+        setTimeout(() => {
+          if (habit.pinned) {
+            useHabitStore.getState().unpinHabit(habit.id)
+          } else {
+            useHabitStore.getState().pinHabit(habit.id)
+          }
+        }, 350)
         break
       case 'hide': setConfirmDeleteToday({ id: habit.id, name: habit.name }); break
       case 'archive': setConfirmArchive({ id: habit.id, name: habit.name }); break
@@ -573,11 +579,11 @@ export function Today() {
               />
               <motion.div
                 layout
+                transition={{ layout: { duration: 0.45, ease: [0.22, 1, 0.36, 1] } }}
                 className={cn(
                   "grid gap-4",
                   habitViewMode === 'grid' ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1"
                 )}
-                transition={{ layout: { duration: 0.3, ease: 'easeInOut' } }}
               >
                   {filteredHabits.length === 0 ? (
                     <div className="col-span-full">
@@ -594,21 +600,22 @@ export function Today() {
 
                         if (isHydration) {
                           return (
-                            <HydrationCard
-                              key={habit.id}
-                              habit={habit}
-                              isCompleted={isCompleted}
-                              waterCount={waterCount}
-                              index={i}
-                              onAddWater={() => {
-                                const max = habit.goal || 8
-                                if (waterCount < max) {
-                                  const next = waterCount + 1
-                                  setWaterCount(next)
-                                  if (next >= max && !isCompleted) toggleHabitCompletion(habit.id, formattedDate)
-                                }
-                              }}
-                            />
+                            <motion.div key={habit.id} layout>
+                              <HydrationCard
+                                habit={habit}
+                                isCompleted={isCompleted}
+                                waterCount={waterCount}
+                                index={i}
+                                onAddWater={() => {
+                                  const max = habit.goal || 8
+                                  if (waterCount < max) {
+                                    const next = waterCount + 1
+                                    setWaterCount(next)
+                                    if (next >= max && !isCompleted) toggleHabitCompletion(habit.id, formattedDate)
+                                  }
+                                }}
+                              />
+                            </motion.div>
                           )
                         }
 
