@@ -591,43 +591,46 @@ export function Today() {
                       />
                     </div>
                   ) : (
-                    filteredHabits.map((habit, i) => {
-                      const isCompleted = isHabitCompletedOnDate(habit.id, formattedDate)
-                      const isHydration = habit.icon === 'water_drop'
+                    <AnimatePresence>
+                      {filteredHabits.map((habit, i) => {
+                        const isCompleted = isHabitCompletedOnDate(habit.id, formattedDate)
+                        const isHydration = habit.icon === 'water_drop'
 
-                      if (isHydration) {
+                        if (isHydration) {
+                          return (
+                            <HydrationCard
+                              key={habit.id}
+                              habit={habit}
+                              isCompleted={isCompleted}
+                              waterCount={waterCount}
+                              index={i}
+                              onAddWater={() => {
+                                const max = habit.goal || 8
+                                if (waterCount < max) {
+                                  const next = waterCount + 1
+                                  setWaterCount(next)
+                                  if (next >= max && !isCompleted) toggleHabitCompletion(habit.id, formattedDate)
+                                }
+                              }}
+                            />
+                          )
+                        }
+
                         return (
-                          <HydrationCard
+                          <HabitCard
                             key={habit.id}
                             habit={habit}
                             isCompleted={isCompleted}
-                            waterCount={waterCount}
                             index={i}
-                            onAddWater={() => {
-                              const max = habit.goal || 8
-                              if (waterCount < max) {
-                                const next = waterCount + 1
-                                setWaterCount(next)
-                                if (next >= max && !isCompleted) toggleHabitCompletion(habit.id, formattedDate)
-                              }
-                            }}
+                            onToggle={() => handleHabitCompletion(habit.id)}
+                            onBodyClick={() => handleHabitBodyClick(habit)}
+                            onLongPress={() => setLongPressHabit(habit)}
+                            onNotesClick={() => setNotesViewModalHabit({ id: habit.id, name: habit.name })}
+                            enableLayoutAnimation={habitViewMode === 'list'}
                           />
                         )
-                      }
-
-                      return (
-                        <HabitCard
-                          key={habit.id}
-                          habit={habit}
-                          isCompleted={isCompleted}
-                          index={i}
-                          onToggle={() => handleHabitCompletion(habit.id)}
-                          onBodyClick={() => handleHabitBodyClick(habit)}
-                          onLongPress={() => setLongPressHabit(habit)}
-                          onNotesClick={() => setNotesViewModalHabit({ id: habit.id, name: habit.name })}
-                        />
-                      )
-                    })
+                      })}
+                    </AnimatePresence>
                   )}
                 </motion.div>
               </AnimatePresence>
