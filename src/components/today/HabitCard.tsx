@@ -54,15 +54,14 @@ export function HabitCard({ habit, isCompleted, index, onToggle, onBodyClick }: 
 
   useEffect(() => {
     // Trigger animation only when transitioning from not-all-done → all-done
-    if (allTasksDone && !prevAllTasksDone.current) {
+    if (allTasksDone && !prevAllTasksDone.current && !isCompleted) {
       setOrbPhase('shrinking')
+      // Call onToggle immediately so habit is marked done — animation is just visual
+      onToggle()
       // After ring shrinks (~400ms), start orb fill
       const t1 = setTimeout(() => setOrbPhase('filling'), 420)
-      // After orb fills (~400ms), mark done
-      const t2 = setTimeout(() => {
-        setOrbPhase('done')
-        onToggle()
-      }, 840)
+      // After orb fills (~400ms), finalize done phase
+      const t2 = setTimeout(() => setOrbPhase('done'), 840)
       return () => { clearTimeout(t1); clearTimeout(t2) }
     }
     prevAllTasksDone.current = allTasksDone
