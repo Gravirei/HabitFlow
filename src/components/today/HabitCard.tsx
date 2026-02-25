@@ -1,4 +1,5 @@
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
+import { useEffect, useRef, useState } from 'react'
 import { cn } from '@/utils/cn'
 import { useHabitTaskStore } from '@/store/useHabitTaskStore'
 
@@ -44,6 +45,34 @@ export function HabitCard({ habit, isCompleted, index, onToggle, onBodyClick }: 
   const taskCount = getTaskCount(habit.id)
   const completedTaskCount = getCompletedTaskCount(habit.id)
   const allTasksDone = taskCount > 0 && completedTaskCount === taskCount
+
+  // Animation phase: 'ring' | 'shrinking' | 'filling' | 'done'
+  const [orbPhase, setOrbPhase] = useState<'ring' | 'shrinking' | 'filling' | 'done'>(
+    isCompleted ? 'done' : 'ring'
+  )
+  const prevAllTasksDone = useRef(allTasksDone)
+
+  useEffect(() => {
+    // Trigger animation only when transitioning from not-all-done → all-done
+    if (allTasksDone && !prevAllTasksDone.current) {
+      setOrbPhase('shrinking')
+      // After ring shrinks (~400ms), start orb fill
+      const t1 = setTimeout(() => setOrbPhase('filling'), 420)
+      // After orb fills (~400ms), mark done
+      const t2 = setTimeout(() => {
+        setOrbPhase('done')
+        onToggle()
+      }, 840)
+      return () => { clearTimeout(t1); clearTimeout(t2) }
+    }
+    prevAllTasksDone.current = allTasksDone
+  }, [allTasksDone])
+
+  useEffect(() => {
+    // Sync phase when isCompleted changes externally (e.g. un-toggling)
+    if (!isCompleted && orbPhase === 'done') setOrbPhase('ring')
+    if (isCompleted && orbPhase !== 'done') setOrbPhase('done')
+  }, [isCompleted])
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ' ') {
@@ -228,75 +257,96 @@ export function HabitCard({ habit, isCompleted, index, onToggle, onBodyClick }: 
           }
         />
 
-        {/* SVG Progress Ring — sized to match inner orb (32px), centered in 40px container */}
-        {taskCount > 0 && !isCompleted && (() => {
-          const size = 32
-          const strokeWidth = 2.5
-          const radius = (size - strokeWidth) / 2
-          const circumference = 2 * Math.PI * radius
-          const progress = completedTaskCount / taskCount
-          const dashOffset = circumference * (1 - progress)
-          return (
-            <svg
-              className="absolute z-20 pointer-events-none"
-              width={size}
-              height={size}
-              viewBox={`0 0 ${size} ${size}`}
-              style={{ transform: 'rotate(-90deg)', top: '50%', left: '50%', marginTop: -size/2, marginLeft: -size/2 }}
-            >
-              {/* Track */}
-              <circle
-                cx={size / 2}
-                cy={size / 2}
-                r={radius}
-                fill="none"
-                stroke="rgba(45,212,191,0.15)"
-                strokeWidth={strokeWidth}
-              />
-              {/* Progress arc */}
-              <motion.circle
-                cx={size / 2}
-                cy={size / 2}
-                r={radius}
-                fill="none"
-                stroke="rgba(45,212,191,0.9)"
-                strokeWidth={strokeWidth}
-                strokeLinecap="round"
-                strokeDasharray={circumference}
-                animate={{ strokeDashoffset: dashOffset }}
-                transition={{ duration: 0.5, ease: 'easeOut' }}
-              />
-            </svg>
-          )
-        })()}
+        {/* SVG Progress Ring — visible during 'ring' and 'shrinking' phases */}
+        <AnimatePresence>
+          {taskCount > 0 && (orbPhase === 'ring' || orbPhase === 'shrinking') && (() => {
+            const size = 32
+            const strokeWidth = 2.5
+            const radius = (size - strokeWidth) / 2
+            const circumference = 2 * Math.PI * radius
+            const progress = completedTaskCount / taskCount
+            const dashOffset = circumference * (1 - progress)
+            return (
+              <motion.svg
+                key="progress-ring"
+                className="absolute z-20 pointer-events-none"
+                width={size}
+                height={size}
+                viewBox={`0 0 ${size} ${size}`}
+                style={{ top: '50%', left: '50%', marginTop: -size/2, marginLeft: -size/2 }}
+                initial={{ scale: 1, opacity: 1, rotate: -90 }}
+                animate={
+                  orbPhase === 'shrinking'
+                    ? { scale: 0, opacity: 0, rotate: -90 }
+                    : { scale: 1, opacity: 1, rotate: -90 }
+                }
+                exit={{ scale: 0, opacity: 0 }}
+                transition={{ duration: 0.4, ease: 'easeIn' }}
+              >
+                {/* Track */}
+                <circle
+                  cx={size / 2}
+                  cy={size / 2}
+                  r={radius}
+                  fill="none"
+                  stroke="rgba(45,212,191,0.15)"
+                  strokeWidth={strokeWidth}
+                />
+                {/* Progress arc */}
+                <motion.circle
+                  cx={size / 2}
+                  cy={size / 2}
+                  r={radius}
+                  fill="none"
+                  stroke="rgba(45,212,191,0.9)"
+                  strokeWidth={strokeWidth}
+                  strokeLinecap="round"
+                  strokeDasharray={circumference}
+                  animate={{ strokeDashoffset: dashOffset }}
+                  transition={{ duration: 0.5, ease: 'easeOut' }}
+                />
+              </motion.svg>
+            )
+          })()}
+        </AnimatePresence>
 
         {/* Inner orb - main button */}
         <motion.div
           className={cn(
-            'relative z-10 flex size-8 items-center justify-center rounded-full border-2 transition-all duration-300',
+            'relative z-10 flex size-8 items-center justify-center rounded-full border-2 transition-colors duration-300',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950',
-            isCompleted
+            orbPhase === 'done'
               ? 'border-teal-400 bg-gradient-to-br from-teal-400 to-teal-600 shadow-[0_0_15px_rgba(45,212,191,0.6)]'
               : taskCount > 0
                 ? 'border-transparent bg-slate-900/60 backdrop-blur-sm'
                 : 'border-teal-400/40 bg-slate-900/60 backdrop-blur-sm hover:border-teal-400/70 hover:bg-slate-800/60'
           )}
-          whileHover={!isCompleted ? { boxShadow: '0 0 20px rgba(45,212,191,0.4)' } : {}}
+          whileHover={orbPhase !== 'done' ? { boxShadow: '0 0 20px rgba(45,212,191,0.4)' } : {}}
         >
+          {/* Orb fill ripple — expands from center during 'filling' phase */}
+          <AnimatePresence>
+            {orbPhase === 'filling' && (
+              <motion.div
+                key="orb-fill"
+                className="absolute rounded-full bg-gradient-to-br from-teal-400 to-teal-600"
+                initial={{ width: 0, height: 0, opacity: 1 }}
+                animate={{ width: 32, height: 32, opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.4, ease: 'easeOut' }}
+                style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}
+              />
+            )}
+          </AnimatePresence>
+
           {/* Checkmark */}
           <motion.span
-            className="material-symbols-outlined text-base font-bold text-white"
-            initial={{ scale: 0, opacity: 0, rotate: 0 }}
+            className="material-symbols-outlined text-base font-bold text-white relative z-10"
+            initial={{ scale: 0, opacity: 0 }}
             animate={{
-              scale: isCompleted ? 1 : 0,
-              opacity: isCompleted ? 1 : 0,
-              rotate: 0,
+              scale: orbPhase === 'done' ? 1 : 0,
+              opacity: orbPhase === 'done' ? 1 : 0,
             }}
-            transition={{
-              type: 'spring',
-              stiffness: 500,
-              damping: 28,
-            }}
+            transition={{ type: 'spring', stiffness: 500, damping: 28 }}
           >
             check
           </motion.span>
