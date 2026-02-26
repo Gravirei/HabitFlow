@@ -16,6 +16,12 @@ interface HabitState {
   loadSampleHabits: () => void
   markOnboardingComplete: () => void
 
+  /**
+   * Returns only habits that have a valid categoryId, are active, and not archived.
+   * Use this in pages/components instead of raw `habits` to avoid orphaned records.
+   */
+  getActiveHabits: () => Habit[]
+
   // Category helpers (additive; no behavior change for existing callers)
   getHabitsByCategory: (categoryId: string) => Habit[]
   moveHabitToCategory: (habitId: string, categoryId: string) => void
@@ -164,6 +170,12 @@ export const useHabitStore = create<HabitState>()(
         set({ isFirstVisit: false })
       },
 
+      getActiveHabits: () => {
+        return get().habits.filter(
+          (h) => h.isActive !== false && h.categoryId !== undefined && !h.archived
+        )
+      },
+
       getHabitsByCategory: (categoryId) => {
         return get().habits.filter((habit) => {
           if (habit.categoryId) return habit.categoryId === categoryId
@@ -275,6 +287,7 @@ export const useHabitStore = create<HabitState>()(
     }),
     {
       name: 'habit-storage',
+      version: 1,
       storage: {
         getItem: (name) => {
           const value = localStorage.getItem(name)
@@ -286,7 +299,20 @@ export const useHabitStore = create<HabitState>()(
         removeItem: (name) => {
           localStorage.removeItem(name)
         }
-      }
+      },
+      migrate: (persistedState: unknown, version: number) => {
+        const state = persistedState as Record<string, unknown>
+
+        if (version === 0) {
+          // Migration v0→v1: Remove orphaned habits that have no categoryId.
+          // These are legacy/sample habits that are already invisible on
+          // Today and Habits pages but still bloat storage and skew stats.
+          const habits = (state.habits ?? []) as Habit[]
+          state.habits = habits.filter((h) => h.categoryId !== undefined)
+        }
+
+        return state as HabitState
+      },
     }
   )
 )

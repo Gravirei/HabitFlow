@@ -77,7 +77,7 @@ export function GreetingHero({ completedHabits, totalHabits, progressPercentage,
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-      className="relative w-full overflow-hidden rounded-[32px] p-6 sm:p-8 isolate"
+      className="relative w-full overflow-hidden rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 md:p-8 isolate"
     >
       {/* Glass Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-slate-800/80 via-slate-900/80 to-slate-950/90 backdrop-blur-2xl border border-white/10 -z-10" />
@@ -91,17 +91,17 @@ export function GreetingHero({ completedHabits, totalHabits, progressPercentage,
         className="absolute -bottom-24 -left-24 size-64 rounded-full bg-teal-900/40 blur-[80px] -z-10"
       />
 
-      <div className="relative flex items-center justify-between gap-6 sm:gap-8">
+      <div className="relative flex items-center justify-between gap-3 sm:gap-6 md:gap-8">
         {/* Left: Content */}
-        <div className="flex flex-col gap-4 min-w-0 flex-1 py-2">
+        <div className="flex flex-col gap-2 sm:gap-4 min-w-0 flex-1 py-1 sm:py-2">
           
           {/* Date & Greeting */}
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-teal-200/60 mb-1">
+            <p className="text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] text-teal-200/60 mb-0.5 sm:mb-1">
               {format(new Date(), 'EEEE, MMMM d')}
             </p>
 
-            <div className="h-8 sm:h-9 overflow-hidden relative">
+            <div className="h-6 sm:h-8 md:h-9 overflow-hidden relative">
               <AnimatePresence mode="wait">
                 <motion.h2
                   key={phraseIndex}
@@ -109,14 +109,14 @@ export function GreetingHero({ completedHabits, totalHabits, progressPercentage,
                   animate={{ y: 0, opacity: 1, filter: 'blur(0px)' }}
                   exit={{ y: -20, opacity: 0, filter: 'blur(4px)' }}
                   transition={{ duration: 0.5, ease: "easeOut" }}
-                  className="text-2xl sm:text-3xl font-black text-white tracking-tight absolute inset-0 whitespace-nowrap"
+                  className="text-lg sm:text-2xl md:text-3xl font-black text-white tracking-tight absolute inset-0 whitespace-nowrap"
                 >
                   {getTimeGreeting()}
                 </motion.h2>
               </AnimatePresence>
             </div>
 
-            <div className="h-10 sm:h-12 mt-2 overflow-hidden relative">
+            <div className="h-8 sm:h-10 md:h-12 mt-1 sm:mt-2 overflow-hidden relative">
               <AnimatePresence mode="wait">
                 <motion.p
                   key={quoteIndex}
@@ -124,7 +124,7 @@ export function GreetingHero({ completedHabits, totalHabits, progressPercentage,
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.8 }}
-                  className="text-sm sm:text-base text-slate-400 font-medium leading-relaxed max-w-sm"
+                  className="text-xs sm:text-sm md:text-base text-slate-400 font-medium leading-relaxed max-w-sm"
                 >
                   "{QUOTES[quoteIndex]}"
                 </motion.p>
@@ -135,14 +135,14 @@ export function GreetingHero({ completedHabits, totalHabits, progressPercentage,
           {/* Stats & Dots */}
           <div className="mt-auto">
              <div className="flex items-end gap-2 mb-3">
-              <span className="text-4xl sm:text-5xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-white to-slate-400">
+              <span className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-white to-slate-400">
                 {Math.round(progressPercentage)}%
               </span>
               <div className="flex flex-col pb-1">
-                 <p className="text-sm font-bold text-white leading-none">
+                 <p className="text-xs sm:text-sm font-bold text-white leading-none">
                   {progressMessage}
                 </p>
-                <p className="text-xs text-slate-500 font-medium">
+                <p className="text-[10px] sm:text-xs text-slate-500 font-medium">
                   completed
                 </p>
               </div>
@@ -170,12 +170,12 @@ export function GreetingHero({ completedHabits, totalHabits, progressPercentage,
         </div>
 
         {/* Right: Ring Visualization */}
-        <div className="relative shrink-0 hidden sm:flex items-center justify-center p-4">
+        <div className="relative shrink-0 flex items-center justify-center p-2 sm:p-4">
           {/* Outer Glow Ring */}
           <div className="absolute inset-0 rounded-full blur-2xl opacity-20" 
                style={{ background: ring.stroke }} />
           
-          <svg className="size-32 lg:size-40 -rotate-90 drop-shadow-2xl" viewBox="0 0 120 120">
+          <svg className="size-20 sm:size-32 lg:size-40 -rotate-90 drop-shadow-2xl" viewBox="0 0 120 120">
             {/* Track */}
             <circle cx="60" cy="60" r="52" fill="none"
               stroke={ring.track} strokeWidth="8" strokeLinecap="round" />
@@ -193,7 +193,7 @@ export function GreetingHero({ completedHabits, totalHabits, progressPercentage,
           </svg>
           
           <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-             <span className="material-symbols-outlined text-3xl text-slate-400" 
+             <span className="material-symbols-outlined text-xl sm:text-3xl text-slate-400" 
                    style={{ color: ring.stroke }}>
                 {progressPercentage >= 100 ? 'emoji_events' : 'bolt'}
              </span>

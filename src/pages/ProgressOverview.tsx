@@ -1,292 +1,718 @@
-import { useState } from 'react'
+/**
+ * Progress Overview — Full-featured habit progress dashboard
+ * Features: Stats hero, calendar heatmap, weekly chart, habit strength + sparklines,
+ *           milestone tracker, target vs actual, day patterns, motivational banner
+ */
+
+import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useHabitStore } from '@/store/useHabitStore'
+import {
+  buildHeatmapData,
+  getSparklineData,
+  getDayOfWeekPatterns,
+  calculateHabitStrength,
+  getUpcomingMilestones,
+  getTargetVsActual,
+  getMotivation,
+} from '@/utils/progressUtils'
 
 type TimePeriod = 'week' | 'month' | 'all'
 
-export function ProgressOverview() {
-  const navigate = useNavigate()
-  const { habits } = useHabitStore()
-  const [timePeriod, setTimePeriod] = useState<TimePeriod>('week')
+const periodLabels: Record<TimePeriod, string> = {
+  week: 'This Week',
+  month: 'This Month',
+  all: 'All Time',
+}
 
-  // Calculate statistics
-  const totalHabits = habits.length
-  const totalCompletions = habits.reduce((sum, habit) => sum + habit.totalCompletions, 0)
-  const avgCompletionRate = totalHabits > 0
-    ? Math.round(habits.reduce((sum, habit) => sum + habit.completionRate, 0) / totalHabits)
-    : 0
-  const longestStreak = Math.max(...habits.map(h => h.currentStreak), 0)
+/* ═══════════════════════════════════════════════════════════════════════════════
+   REUSABLE COMPONENTS
+   ═══════════════════════════════════════════════════════════════════════════════ */
 
-  // Weekly completion data (mock data for visualization)
-  const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-  const weeklyData = [70, 90, 50, 60, 10, 50, 60] // percentage heights
+/* ─── Section Header ────────────────────────────────────────────────────────── */
+function SectionHeader({
+  title,
+  subtitle,
+  action,
+}: {
+  title: string
+  subtitle?: string
+  action?: React.ReactNode
+}) {
+  return (
+    <div className="flex items-start justify-between mb-4 sm:mb-5">
+      <div>
+        <h3 className="text-base sm:text-lg font-bold text-white">{title}</h3>
+        {subtitle && <p className="text-xs sm:text-sm text-slate-500 mt-0.5">{subtitle}</p>}
+      </div>
+      {action}
+    </div>
+  )
+}
 
-  // Habit performance - sort by completion rate
-  const sortedHabits = [...habits].sort((a, b) => b.completionRate - a.completionRate)
-  const topHabit = sortedHabits[0]
-  const needsWorkHabit = sortedHabits[sortedHabits.length - 1]
+/* ─── Card Wrapper ──────────────────────────────────────────────────────────── */
+function Card({
+  children,
+  className = '',
+  hover = false,
+}: {
+  children: React.ReactNode
+  className?: string
+  hover?: boolean
+}) {
+  return (
+    <div
+      className={`bg-slate-900/60 rounded-2xl border border-slate-800 ${
+        hover ? 'hover:border-slate-700 transition-colors duration-200' : ''
+      } ${className}`}
+    >
+      {children}
+    </div>
+  )
+}
 
-  // Category breakdown
-  const categoryData = {
-    health: habits.filter(h => h.category === 'health').length,
-    work: habits.filter(h => h.category === 'work').length,
-    personal: habits.filter(h => h.category === 'personal').length,
+/* ─── Stat Card ─────────────────────────────────────────────────────────────── */
+function StatCard({
+  label,
+  value,
+  suffix,
+  icon,
+  gradient,
+  change,
+}: {
+  label: string
+  value: string | number
+  suffix?: string
+  icon: string
+  gradient: string
+  change?: string
+}) {
+  return (
+    <Card hover className="p-4 sm:p-5">
+      <div className="flex items-center justify-between mb-3">
+        <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-500">
+          {label}
+        </span>
+        <div
+          className={`flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-lg bg-gradient-to-br ${gradient}`}
+        >
+          <span className="material-symbols-outlined text-white text-sm sm:text-base">{icon}</span>
+        </div>
+      </div>
+      <div className="flex items-baseline gap-1">
+        <span className="text-2xl sm:text-3xl font-black text-white tracking-tight">{value}</span>
+        {suffix && (
+          <span className="text-sm sm:text-lg text-slate-500 font-medium">{suffix}</span>
+        )}
+      </div>
+      {change && (
+        <div className="flex items-center gap-1 mt-2 text-xs font-semibold text-green-400">
+          <span className="material-symbols-outlined text-sm">trending_up</span>
+          {change}
+        </div>
+      )}
+    </Card>
+  )
+}
+
+/* ─── Sparkline (mini bar chart) ────────────────────────────────────────────── */
+function Sparkline({ data }: { data: boolean[] }) {
+  return (
+    <div className="flex items-end gap-[3px] h-4">
+      {data.map((completed, i) => (
+        <div
+          key={i}
+          className={`w-[4px] rounded-full transition-all duration-300 ${
+            completed
+              ? 'h-full bg-gradient-to-t from-primary to-green-400'
+              : 'h-1.5 bg-slate-700'
+          }`}
+        />
+      ))}
+    </div>
+  )
+}
+
+/* ─── Strength Bar ──────────────────────────────────────────────────────────── */
+function StrengthBar({
+  label,
+  value,
+  gradient,
+}: {
+  label: string
+  value: number
+  gradient: string
+}) {
+  return (
+    <div className="flex items-center gap-2">
+      <span className="text-[10px] sm:text-xs text-slate-500 w-16 sm:w-20 shrink-0">{label}</span>
+      <div className="flex-1 bg-slate-800 rounded-full h-1.5">
+        <div
+          className={`h-full rounded-full bg-gradient-to-r ${gradient} transition-all duration-500`}
+          style={{ width: `${value}%` }}
+        />
+      </div>
+      <span className="text-[10px] sm:text-xs font-bold text-slate-400 w-8 text-right">
+        {value}
+      </span>
+    </div>
+  )
+}
+
+/* ─── Heatmap Level Colors ──────────────────────────────────────────────────── */
+const HEATMAP_COLORS = [
+  'bg-slate-800/60', // 0 = no activity
+  'bg-primary/20', // 1 = low
+  'bg-primary/40', // 2 = medium
+  'bg-primary/70', // 3 = high
+  'bg-primary', // 4 = max
+]
+
+/* ─── Status Badge ──────────────────────────────────────────────────────────── */
+function StatusBadge({ status }: { status: 'on-track' | 'behind' | 'ahead' }) {
+  const styles = {
+    ahead: 'bg-green-500/15 text-green-400 border-green-500/20',
+    'on-track': 'bg-blue-500/15 text-blue-400 border-blue-500/20',
+    behind: 'bg-amber-500/15 text-amber-400 border-amber-500/20',
   }
-  const totalCategories = categoryData.health + categoryData.work + categoryData.personal
-  const healthPercent = totalCategories > 0 ? Math.round((categoryData.health / totalCategories) * 100) : 0
-  const workPercent = totalCategories > 0 ? Math.round((categoryData.work / totalCategories) * 100) : 0
-  const personalPercent = totalCategories > 0 ? Math.round((categoryData.personal / totalCategories) * 100) : 0
+  const icons = { ahead: 'arrow_upward', 'on-track': 'check', behind: 'arrow_downward' }
+  const labels = { ahead: 'Ahead', 'on-track': 'On Track', behind: 'Behind' }
 
   return (
-    <div className="relative flex h-screen w-full max-w-md mx-auto flex-col overflow-hidden bg-background-light dark:bg-background-dark">
-      {/* Top App Bar */}
-      <header className="flex items-center bg-background-light dark:bg-background-dark p-4 pb-2 justify-between pt-safe shrink-0">
-        <button
-          onClick={() => navigate('/')}
-          className="text-slate-800 dark:text-white flex size-12 shrink-0 items-center justify-center active:scale-95 transition-transform touch-manipulation"
-        >
-          <span className="material-symbols-outlined">arrow_back</span>
-        </button>
-        <h1 className="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">
-          Progress Overview
-        </h1>
-        <div className="flex size-12 shrink-0 items-center"></div>
+    <span
+      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-bold border ${styles[status]}`}
+    >
+      <span className="material-symbols-outlined text-xs">{icons[status]}</span>
+      {labels[status]}
+    </span>
+  )
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   MAIN COMPONENT
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+export function ProgressOverview() {
+  const navigate = useNavigate()
+  const { getActiveHabits } = useHabitStore()
+  const [timePeriod, setTimePeriod] = useState<TimePeriod>('week')
+
+  // ── Computed data ──
+  const activeHabits = useMemo(() => getActiveHabits(), [getActiveHabits])
+  const totalHabits = activeHabits.length
+  const totalCompletions = activeHabits.reduce((s, h) => s + h.totalCompletions, 0)
+  const avgCompletion =
+    totalHabits > 0
+      ? Math.round(activeHabits.reduce((s, h) => s + h.completionRate, 0) / totalHabits)
+      : 0
+  const longestStreak = Math.max(...activeHabits.map((h) => h.currentStreak), 0)
+  const bestStreak = Math.max(...activeHabits.map((h) => h.bestStreak), 0)
+
+  const heatmapData = useMemo(() => buildHeatmapData(activeHabits, 12), [activeHabits])
+  const dayPatterns = useMemo(() => getDayOfWeekPatterns(activeHabits), [activeHabits])
+  const milestones = useMemo(() => getUpcomingMilestones(activeHabits, 3), [activeHabits])
+  const targetVsActual = useMemo(() => getTargetVsActual(activeHabits).slice(0, 5), [activeHabits])
+  const motivation = useMemo(
+    () => getMotivation(avgCompletion, longestStreak, totalHabits),
+    [avgCompletion, longestStreak, totalHabits]
+  )
+
+  const sortedHabits = useMemo(
+    () => [...activeHabits].sort((a, b) => b.completionRate - a.completionRate),
+    [activeHabits]
+  )
+
+  const habitStrengths = useMemo(
+    () =>
+      sortedHabits.slice(0, 5).map((h) => ({
+        habit: h,
+        strength: calculateHabitStrength(h),
+        sparkline: getSparklineData(h, 7),
+      })),
+    [sortedHabits]
+  )
+
+  // Weekly chart mock (we derive from day patterns for visual)
+  const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+  const weeklyPctData = dayPatterns
+    .slice(1) // Skip Sunday (idx 0)
+    .concat(dayPatterns.slice(0, 1)) // Append Sunday at end
+  const maxDayPct = Math.max(...weeklyPctData.map((d) => d.percentage), 1)
+
+  // Heatmap grid: organize into columns (weeks)
+  const heatmapWeeks: (typeof heatmapData)[] = []
+  for (let i = 0; i < heatmapData.length; i += 7) {
+    heatmapWeeks.push(heatmapData.slice(i, i + 7))
+  }
+
+  return (
+    <div className="relative mx-auto flex h-auto min-h-screen w-full max-w-md sm:max-w-2xl md:max-w-4xl lg:max-w-6xl xl:max-w-7xl flex-col overflow-hidden bg-gray-950 text-slate-50 selection:bg-teal-500/30">
+      {/* ── Header ─────────────────────────────────────────────────────── */}
+      <header className="sticky top-0 z-30 backdrop-blur-sm bg-background-light/95 dark:bg-background-dark/95 shrink-0">
+        <div className="flex flex-col gap-2 px-4 pt-4 pb-3 sm:px-6 lg:px-8">
+          <div className="flex h-12 items-center justify-between">
+            <button
+              onClick={() => navigate('/')}
+              aria-label="Go back"
+              className="flex size-10 cursor-pointer items-center justify-center rounded-xl text-slate-400 hover:text-white hover:bg-white/5 active:scale-95 transition-all"
+            >
+              <span className="material-symbols-outlined text-xl">arrow_back</span>
+            </button>
+            <div className="flex-1 overflow-hidden px-4 text-center">
+              <h1 className="text-lg font-bold text-white tracking-tight">Progress</h1>
+            </div>
+            <button
+              onClick={() => navigate('/statistics')}
+              aria-label="View detailed statistics"
+              className="flex size-10 cursor-pointer items-center justify-center rounded-xl text-slate-400 hover:text-white hover:bg-white/5 active:scale-95 transition-all"
+            >
+              <span className="material-symbols-outlined text-xl">bar_chart</span>
+            </button>
+          </div>
+        </div>
       </header>
 
-      <main className="flex flex-col gap-6 px-4 py-3 overflow-y-auto no-scrollbar pb-safe">
-        {/* Segmented Buttons */}
-        <div className="flex">
-          <div className="flex h-10 flex-1 items-center justify-center rounded-lg bg-slate-200 dark:bg-[#23483c] p-1">
-            {(['week', 'month', 'all'] as TimePeriod[]).map((period) => (
-              <label
-                key={period}
-                className={`flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-md px-2 transition-colors ${
-                  timePeriod === period
-                    ? 'bg-primary shadow-lg text-slate-900'
-                    : 'text-slate-500 dark:text-[#92c9b7]'
-                } text-sm font-bold leading-normal`}
-              >
-                <span className="truncate">
-                  {period === 'week' ? 'This Week' : period === 'month' ? 'This Month' : 'All Time'}
+      {/* ── Content ────────────────────────────────────────────────────── */}
+      <main className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 pb-24">
+        <div className="max-w-6xl mx-auto space-y-5 sm:space-y-6 pt-4 sm:pt-6">
+
+          {/* ── Motivational Banner ──────────────────────────────────── */}
+          <div className={`relative overflow-hidden rounded-2xl p-4 sm:p-6 bg-gradient-to-br ${motivation.gradient}`}>
+            <div className="absolute top-0 right-0 w-32 h-32 sm:w-48 sm:h-48 bg-white/5 rounded-full -translate-y-16 translate-x-16 sm:-translate-y-24 sm:translate-x-24" />
+            <div className="relative flex items-start gap-3 sm:gap-4">
+              <div className="flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
+                <span className="material-symbols-outlined text-white text-lg sm:text-2xl">
+                  {motivation.icon}
                 </span>
-                <input
-                  className="invisible w-0"
-                  name="time-period"
-                  type="radio"
-                  value={period}
-                  checked={timePeriod === period}
-                  onChange={(e) => setTimePeriod(e.target.value as TimePeriod)}
-                />
-              </label>
-            ))}
-          </div>
-        </div>
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="flex flex-col gap-2 rounded-lg p-4 bg-slate-100 dark:bg-[#1a382e] border border-transparent dark:border-[#326755]">
-            <p className="text-slate-600 dark:text-white text-base font-medium leading-normal">
-              Completion
-            </p>
-            <p className="text-slate-900 dark:text-white tracking-light text-2xl font-bold leading-tight">
-              {avgCompletionRate}%
-            </p>
-            <p className="text-green-500 dark:text-[#0bda49] text-sm font-medium leading-normal">
-              +5%
-            </p>
-          </div>
-          <div className="flex flex-col gap-2 rounded-lg p-4 bg-slate-100 dark:bg-[#1a382e] border border-transparent dark:border-[#326755]">
-            <p className="text-slate-600 dark:text-white text-base font-medium leading-normal">
-              Longest Streak
-            </p>
-            <p className="text-slate-900 dark:text-white tracking-light text-2xl font-bold leading-tight">
-              {longestStreak} days
-            </p>
-            <p className="text-green-500 dark:text-[#0bda49] text-sm font-medium leading-normal">
-              +2 days
-            </p>
-          </div>
-          <div className="col-span-2 flex flex-col gap-2 rounded-lg p-4 bg-slate-100 dark:bg-[#1a382e] border border-transparent dark:border-[#326755]">
-            <p className="text-slate-600 dark:text-white text-base font-medium leading-normal">
-              Total Habits Completed
-            </p>
-            <p className="text-slate-900 dark:text-white tracking-light text-2xl font-bold leading-tight">
-              {totalCompletions}
-            </p>
-            <p className="text-green-500 dark:text-[#0bda49] text-sm font-medium leading-normal">
-              +18 this week
-            </p>
-          </div>
-        </div>
-
-        {/* Chart */}
-        <div className="flex flex-col gap-4 rounded-lg bg-slate-100 dark:bg-[#1a382e] p-4 border border-transparent dark:border-[#326755]">
-          <div className="flex flex-col gap-2">
-            <p className="text-slate-600 dark:text-white text-base font-medium leading-normal">
-              Weekly Completion
-            </p>
-            <p className="text-slate-900 dark:text-white tracking-light text-[32px] font-bold leading-tight truncate">
-              35/42
-            </p>
-            <div className="flex gap-1">
-              <p className="text-slate-500 dark:text-[#92c9b7] text-base font-normal leading-normal">
-                This week
-              </p>
-              <p className="text-green-500 dark:text-[#0bda49] text-base font-medium leading-normal">
-                +3%
-              </p>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-black text-white text-sm sm:text-base mb-0.5">{motivation.title}</p>
+                <p className="text-white/80 text-xs sm:text-sm leading-relaxed">{motivation.message}</p>
+              </div>
             </div>
           </div>
-          <div className="grid min-h-[180px] grid-flow-col gap-4 grid-rows-[1fr_auto] items-end justify-items-center px-1">
-            {weekDays.map((day, index) => (
-              <div key={day} className="contents">
-                <div
-                  className={`w-full rounded-t-sm ${
-                    weeklyData[index] > 80
-                      ? 'bg-primary dark:bg-primary'
-                      : 'bg-primary/20 dark:bg-[#23483c]'
-                  }`}
-                  style={{ height: `${weeklyData[index]}%` }}
-                ></div>
-                <p className="text-slate-500 dark:text-[#92c9b7] text-[13px] font-bold leading-normal tracking-[0.015em]">
-                  {day}
-                </p>
-              </div>
+
+          {/* ── Time Period Selector ──────────────────────────────────── */}
+          <div className="flex rounded-xl bg-slate-900/60 border border-slate-800 p-1">
+            {(['week', 'month', 'all'] as TimePeriod[]).map((p) => (
+              <button
+                key={p}
+                onClick={() => setTimePeriod(p)}
+                className={`cursor-pointer flex-1 rounded-lg px-3 py-2.5 text-xs sm:text-sm font-bold transition-all duration-200 focus-visible:ring-2 focus-visible:ring-primary/50 ${
+                  timePeriod === p
+                    ? 'bg-primary text-slate-900 shadow-lg shadow-primary/20'
+                    : 'text-slate-400 hover:text-white hover:bg-white/5'
+                }`}
+                aria-pressed={timePeriod === p}
+              >
+                {periodLabels[p]}
+              </button>
             ))}
           </div>
-        </div>
 
-        {/* Section Header */}
-        <h2 className="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] pt-4">
-          Habit Performance
-        </h2>
+          {/* ── Hero Stats Grid ───────────────────────────────────────── */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            <StatCard
+              label="Completion"
+              value={avgCompletion}
+              suffix="%"
+              icon="check_circle"
+              gradient="from-green-500 to-emerald-500"
+            />
+            <StatCard
+              label="Current Streak"
+              value={longestStreak}
+              suffix="days"
+              icon="local_fire_department"
+              gradient="from-orange-500 to-red-500"
+              change={`Best: ${bestStreak}`}
+            />
+            <StatCard
+              label="Completions"
+              value={totalCompletions}
+              icon="task_alt"
+              gradient="from-blue-500 to-indigo-500"
+            />
+            <StatCard
+              label="Active Habits"
+              value={totalHabits}
+              icon="self_improvement"
+              gradient="from-violet-500 to-purple-500"
+            />
+          </div>
 
-        {/* Habit List */}
-        <div className="flex flex-col gap-3">
-          {topHabit && (
-            <div className="flex items-center gap-4 rounded-lg bg-slate-100 dark:bg-[#1a382e] p-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/50 text-green-600 dark:text-green-300">
-                <span className="material-symbols-outlined">trending_up</span>
-              </div>
-              <div className="flex-1">
-                <p className="font-semibold text-slate-800 dark:text-white">{topHabit.name}</p>
-                <p className="text-sm text-slate-500 dark:text-gray-400">
-                  {topHabit.completionRate}% completion
-                </p>
-              </div>
-              <div className="text-green-500 dark:text-green-400 font-bold">Top Habit</div>
-            </div>
-          )}
-
-          {habits.slice(0, 2).map((habit) => (
-            habit.id !== topHabit?.id && habit.id !== needsWorkHabit?.id && (
-              <div key={habit.id} className="flex items-center gap-4 rounded-lg bg-slate-100 dark:bg-[#1a382e] p-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-300">
-                  <span className="material-symbols-outlined">{habit.icon}</span>
+          {/* ── Calendar Heatmap ───────────────────────────────────────── */}
+          <Card className="p-4 sm:p-6">
+            <SectionHeader
+              title="Activity Heatmap"
+              subtitle="Last 12 weeks"
+              action={
+                <div className="flex items-center gap-1">
+                  <span className="text-[10px] text-slate-500 mr-1">Less</span>
+                  {HEATMAP_COLORS.map((color, i) => (
+                    <div key={i} className={`w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-sm ${color}`} />
+                  ))}
+                  <span className="text-[10px] text-slate-500 ml-1">More</span>
                 </div>
-                <div className="flex-1">
-                  <p className="font-semibold text-slate-800 dark:text-white">{habit.name}</p>
-                  <p className="text-sm text-slate-500 dark:text-gray-400">
-                    {habit.completionRate}% completion
+              }
+            />
+            <div className="overflow-x-auto -mx-2 px-2">
+              <div className="flex gap-[3px] sm:gap-1 min-w-fit">
+                {heatmapWeeks.map((week, wi) => (
+                  <div key={wi} className="flex flex-col gap-[3px] sm:gap-1">
+                    {week.map((cell) => (
+                      <div
+                        key={cell.date}
+                        className={`w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-sm ${HEATMAP_COLORS[cell.level]} transition-colors duration-200 cursor-default group relative`}
+                        title={`${cell.date}: ${cell.count} completions`}
+                      >
+                        <div className="absolute -top-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-slate-800 px-2 py-1 rounded text-[10px] font-medium whitespace-nowrap border border-slate-700 z-10 pointer-events-none">
+                          {cell.count} · {cell.date.slice(5)}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </Card>
+
+          {/* ── Weekly Completion + Day Patterns (side by side on lg) ──── */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6">
+
+            {/* Weekly Bar Chart */}
+            <Card className="p-4 sm:p-6">
+              <SectionHeader title="Weekly Completion" />
+              <div className="h-28 sm:h-36 flex items-end justify-between gap-1.5 sm:gap-3">
+                {weekDays.map((day, i) => {
+                  const pct = weeklyPctData[i]?.percentage ?? 0
+                  const heightPct = Math.round((pct / maxDayPct) * 100)
+                  const isHighest = pct === maxDayPct && pct > 0
+                  return (
+                    <div
+                      key={day}
+                      className="flex-1 flex flex-col items-center gap-1.5 sm:gap-2 h-full justify-end"
+                    >
+                      <div
+                        className={`w-full rounded-t-md sm:rounded-t-lg transition-all duration-200 relative group cursor-pointer min-h-[4px] ${
+                          isHighest
+                            ? 'bg-gradient-to-t from-primary to-green-400'
+                            : pct > 0
+                              ? 'bg-gradient-to-t from-primary/30 to-primary/50 hover:from-primary/50 hover:to-primary/70'
+                              : 'bg-slate-800'
+                        }`}
+                        style={{ height: `${Math.max(heightPct, 3)}%` }}
+                      >
+                        <div className="absolute -top-7 sm:-top-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-slate-800 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-[10px] sm:text-xs font-medium whitespace-nowrap border border-slate-700 z-10">
+                          {weeklyPctData[i]?.completions ?? 0}
+                        </div>
+                      </div>
+                      <span
+                        className={`text-[10px] sm:text-xs font-medium ${isHighest ? 'text-primary' : 'text-slate-500'}`}
+                      >
+                        {day}
+                      </span>
+                    </div>
+                  )
+                })}
+              </div>
+            </Card>
+
+            {/* Day Patterns */}
+            <Card className="p-4 sm:p-6">
+              <SectionHeader title="Best Days" subtitle="When you're most consistent" />
+              <div className="space-y-2.5 sm:space-y-3">
+                {dayPatterns
+                  .filter((d) => d.completions > 0)
+                  .sort((a, b) => b.completions - a.completions)
+                  .slice(0, 5)
+                  .map((day, i) => (
+                    <div key={day.day} className="flex items-center gap-3">
+                      <div
+                        className={`flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-lg text-xs sm:text-sm font-black ${
+                          i === 0
+                            ? 'bg-gradient-to-br from-amber-500 to-orange-500 text-white'
+                            : 'bg-slate-800 text-slate-400'
+                        }`}
+                      >
+                        {i + 1}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs sm:text-sm font-semibold text-white">
+                            {day.day}
+                          </span>
+                          <span className="text-xs font-bold text-slate-400">
+                            {day.completions}
+                          </span>
+                        </div>
+                        <div className="w-full bg-slate-800 rounded-full h-1.5">
+                          <div
+                            className={`h-full rounded-full transition-all duration-500 ${
+                              i === 0
+                                ? 'bg-gradient-to-r from-amber-500 to-orange-500'
+                                : 'bg-gradient-to-r from-primary/50 to-primary'
+                            }`}
+                            style={{ width: `${day.percentage}%` }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                {dayPatterns.every((d) => d.completions === 0) && (
+                  <p className="text-sm text-slate-500 text-center py-4">
+                    Complete some habits to see your patterns
                   </p>
+                )}
+              </div>
+            </Card>
+          </div>
+
+          {/* ── Milestone Tracker ──────────────────────────────────────── */}
+          {milestones.length > 0 && (
+            <Card className="p-4 sm:p-6">
+              <SectionHeader
+                title="Upcoming Milestones"
+                subtitle="Keep going to unlock these"
+              />
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                {milestones.map((m) => (
+                  <div
+                    key={`${m.habitName}-${m.nextMilestone}`}
+                    className="flex items-start gap-3 p-3 sm:p-4 rounded-xl bg-slate-800/50 border border-slate-700/50 group hover:border-amber-500/30 transition-colors duration-200"
+                  >
+                    <div className="flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 group-hover:from-amber-500/30 group-hover:to-orange-500/30 transition-colors duration-200">
+                      <span className="material-symbols-outlined text-amber-400 text-lg sm:text-xl">
+                        {m.habitIcon}
+                      </span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs sm:text-sm font-semibold text-white truncate">
+                        {m.habitName}
+                      </p>
+                      <p className="text-[10px] sm:text-xs text-slate-500 mb-2">
+                        {m.daysRemaining} days to {m.nextMilestone}-day milestone
+                      </p>
+                      <div className="w-full bg-slate-800 rounded-full h-1.5">
+                        <div
+                          className="h-full rounded-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-500"
+                          style={{ width: `${m.progress}%` }}
+                        />
+                      </div>
+                      <div className="flex items-center justify-between mt-1">
+                        <span className="text-[10px] text-slate-500">{m.currentStreak} days</span>
+                        <span className="text-[10px] font-bold text-amber-400">{m.progress}%</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
+
+          {/* ── Habit Strength + Sparklines ────────────────────────────── */}
+          {habitStrengths.length > 0 && (
+            <Card className="p-4 sm:p-6">
+              <SectionHeader
+                title="Habit Strength"
+                subtitle="Based on recency, frequency & streak"
+              />
+              <div className="space-y-4 sm:space-y-5">
+                {habitStrengths.map(({ habit, strength, sparkline }) => (
+                  <div key={habit.id} className="space-y-2">
+                    {/* Habit header */}
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl bg-slate-800">
+                        <span className="material-symbols-outlined text-slate-300 text-base sm:text-lg">
+                          {habit.icon || 'check_circle'}
+                        </span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm font-semibold text-white truncate">{habit.name}</p>
+                          <div className="flex items-center gap-3 shrink-0 ml-2">
+                            <Sparkline data={sparkline} />
+                            <span
+                              className={`text-lg sm:text-xl font-black ${
+                                strength.overall >= 70
+                                  ? 'text-green-400'
+                                  : strength.overall >= 40
+                                    ? 'text-blue-400'
+                                    : 'text-amber-400'
+                              }`}
+                            >
+                              {strength.overall}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    {/* Breakdown bars */}
+                    <div className="pl-12 sm:pl-[52px] space-y-1.5">
+                      <StrengthBar
+                        label="Recency"
+                        value={strength.recency}
+                        gradient="from-cyan-500 to-blue-500"
+                      />
+                      <StrengthBar
+                        label="Frequency"
+                        value={strength.frequency}
+                        gradient="from-green-500 to-emerald-500"
+                      />
+                      <StrengthBar
+                        label="Streak"
+                        value={strength.streak}
+                        gradient="from-orange-500 to-red-500"
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
+
+          {/* ── Target vs Actual ───────────────────────────────────────── */}
+          {targetVsActual.length > 0 && (
+            <Card className="p-4 sm:p-6">
+              <SectionHeader title="Target vs Actual" subtitle="How you compare to your goals" />
+              <div className="space-y-3">
+                {targetVsActual.map((item) => (
+                  <div
+                    key={item.habitName}
+                    className="flex items-center gap-3 sm:gap-4 p-3 rounded-xl bg-slate-800/40"
+                  >
+                    <div className="flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl bg-slate-800">
+                      <span className="material-symbols-outlined text-slate-300 text-base sm:text-lg">
+                        {item.habitIcon}
+                      </span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-1">
+                        <p className="text-xs sm:text-sm font-semibold text-white truncate">
+                          {item.habitName}
+                        </p>
+                        <StatusBadge status={item.status} />
+                      </div>
+                      <div className="flex items-center gap-2 text-[10px] sm:text-xs text-slate-500">
+                        <span>
+                          Target:{' '}
+                          <span className="text-slate-300 font-medium">{item.target}</span>
+                        </span>
+                        <span className="text-slate-700">·</span>
+                        <span>
+                          Actual:{' '}
+                          <span className="text-slate-300 font-medium">{item.actual}%</span>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
+
+          {/* ── Insights Row ──────────────────────────────────────────── */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+            {/* Consistency Score */}
+            <Card
+              hover
+              className="p-4 sm:p-6 relative overflow-hidden group hover:border-blue-500/40"
+            >
+              <div className="absolute top-2 right-3 sm:top-3 sm:right-4">
+                <span className="material-symbols-outlined text-4xl sm:text-5xl text-slate-800/50 group-hover:text-blue-500/10 transition-colors duration-200">
+                  speed
+                </span>
+              </div>
+              <div className="relative">
+                <p className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
+                  Consistency
+                </p>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+                    {avgCompletion}
+                  </span>
+                  <span className="text-sm sm:text-lg text-slate-500 font-medium">/100</span>
+                </div>
+                <div className="w-full bg-slate-800 rounded-full h-1.5 mt-3">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 transition-all duration-500"
+                    style={{ width: `${avgCompletion}%` }}
+                  />
                 </div>
               </div>
-            )
-          ))}
+            </Card>
 
-          {needsWorkHabit && needsWorkHabit.completionRate < 50 && (
-            <div className="flex items-center gap-4 rounded-lg bg-slate-100 dark:bg-[#1a382e] p-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-yellow-100 dark:bg-yellow-900/50 text-yellow-600 dark:text-yellow-300">
-                <span className="material-symbols-outlined">trending_down</span>
+            {/* Best Streak */}
+            <Card
+              hover
+              className="p-4 sm:p-6 relative overflow-hidden group hover:border-orange-500/40"
+            >
+              <div className="absolute top-2 right-3 sm:top-3 sm:right-4">
+                <span className="material-symbols-outlined text-4xl sm:text-5xl text-slate-800/50 group-hover:text-orange-500/10 transition-colors duration-200">
+                  emoji_events
+                </span>
               </div>
-              <div className="flex-1">
-                <p className="font-semibold text-slate-800 dark:text-white">{needsWorkHabit.name}</p>
-                <p className="text-sm text-slate-500 dark:text-gray-400">
-                  {needsWorkHabit.completionRate}% completion
+              <div className="relative">
+                <p className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
+                  Best Streak
                 </p>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-orange-400 to-red-400 bg-clip-text text-transparent">
+                    {bestStreak}
+                  </span>
+                  <span className="text-sm sm:text-lg text-slate-500 font-medium">days</span>
+                </div>
+                <p className="text-[10px] sm:text-xs text-slate-500 mt-1.5">Personal record</p>
               </div>
-              <div className="text-yellow-500 dark:text-yellow-400 font-bold">Needs Work</div>
-            </div>
-          )}
-        </div>
+            </Card>
 
-        {/* Category Breakdown */}
-        <h2 className="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] pt-4">
-          Category Breakdown
-        </h2>
-        <div className="flex flex-col md:flex-row items-center gap-6 rounded-lg bg-slate-100 dark:bg-[#1a382e] p-4">
-          <div className="relative flex h-40 w-40 items-center justify-center">
-            <svg className="h-full w-full -rotate-90" viewBox="0 0 36 36">
-              <circle
-                className="stroke-current text-purple-200 dark:text-purple-800"
-                cx="18"
-                cy="18"
-                fill="none"
-                r="15.9155"
-                strokeWidth="3"
-              />
-              <circle
-                className="stroke-current text-purple-500 dark:text-purple-400"
-                cx="18"
-                cy="18"
-                fill="none"
-                r="15.9155"
-                strokeDasharray={`${healthPercent}, 100`}
-                strokeLinecap="round"
-                strokeWidth="3"
-              />
-              <circle
-                className="stroke-current text-green-500 dark:text-green-400"
-                cx="18"
-                cy="18"
-                fill="none"
-                r="15.9155"
-                strokeDasharray={`${workPercent}, 100`}
-                strokeDashoffset={`-${healthPercent}`}
-                strokeLinecap="round"
-                strokeWidth="3"
-              />
-              <circle
-                className="stroke-current text-blue-500 dark:text-blue-400"
-                cx="18"
-                cy="18"
-                fill="none"
-                r="15.9155"
-                strokeDasharray={`${personalPercent}, 100`}
-                strokeDashoffset={`-${healthPercent + workPercent}`}
-                strokeLinecap="round"
-                strokeWidth="3"
-              />
-            </svg>
-            <div className="absolute flex flex-col items-center">
-              <span className="text-2xl font-bold text-slate-900 dark:text-white">
-                {totalCompletions}
-              </span>
-              <span className="text-sm text-slate-500 dark:text-gray-400">Total</span>
-            </div>
+            {/* Total Completions */}
+            <Card
+              hover
+              className="p-4 sm:p-6 relative overflow-hidden group hover:border-green-500/40"
+            >
+              <div className="absolute top-2 right-3 sm:top-3 sm:right-4">
+                <span className="material-symbols-outlined text-4xl sm:text-5xl text-slate-800/50 group-hover:text-green-500/10 transition-colors duration-200">
+                  military_tech
+                </span>
+              </div>
+              <div className="relative">
+                <p className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
+                  Total Done
+                </p>
+                <span className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
+                  {totalCompletions}
+                </span>
+                <p className="text-[10px] sm:text-xs text-slate-500 mt-1.5">All time</p>
+              </div>
+            </Card>
           </div>
-          <div className="flex flex-col gap-3">
-            <div className="flex items-center gap-2">
-              <div className="h-3 w-3 rounded-full bg-purple-500 dark:bg-purple-400"></div>
-              <span className="text-slate-800 dark:text-white">
-                Health ({healthPercent}%)
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="h-3 w-3 rounded-full bg-green-500 dark:bg-green-400"></div>
-              <span className="text-slate-800 dark:text-white">
-                Work ({workPercent}%)
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="h-3 w-3 rounded-full bg-blue-500 dark:bg-blue-400"></div>
-              <span className="text-slate-800 dark:text-white">
-                Personal ({personalPercent}%)
-              </span>
-            </div>
-          </div>
+
+          {/* ── Empty State ───────────────────────────────────────────── */}
+          {totalHabits === 0 && (
+            <Card className="p-8 sm:p-12 text-center">
+              <div className="flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 mx-auto mb-4">
+                <span className="material-symbols-outlined text-primary text-3xl sm:text-4xl">
+                  add_circle
+                </span>
+              </div>
+              <h3 className="text-base sm:text-lg font-bold text-white mb-2">No Habits Yet</h3>
+              <p className="text-sm text-slate-400 mb-5 max-w-sm mx-auto">
+                Start adding habits to see your progress, streaks, heatmap, and insights here.
+              </p>
+              <button
+                onClick={() => navigate('/new-habit')}
+                className="cursor-pointer inline-flex items-center gap-2 bg-primary hover:bg-primary-focus text-slate-900 font-bold px-6 py-3 rounded-xl transition-colors duration-200 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950"
+              >
+                <span className="material-symbols-outlined text-lg">add</span>
+                Create Your First Habit
+              </button>
+            </Card>
+          )}
+
+          {/* ── Footer spacer ─────────────────────────────────────────── */}
+          <div className="h-4" />
         </div>
-        <div className="h-10"></div>
       </main>
     </div>
   )
