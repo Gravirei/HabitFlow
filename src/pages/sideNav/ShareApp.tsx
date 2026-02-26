@@ -105,22 +105,20 @@ export function ShareApp() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-teal-50 to-white dark:from-slate-950 dark:to-slate-900/50 text-teal-950 dark:text-slate-100">
-      {/* Sticky Header with Back Button */}
+      {/* Back Button — top left */}
       <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-        className="sticky top-0 z-20 bg-white/80 dark:bg-slate-900/50 backdrop-blur-md border-b border-teal-100 dark:border-slate-800 px-4 py-3 shadow-sm"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.2 }}
+        className="px-4 pt-4"
       >
-        <div className="max-w-2xl mx-auto">
-          <button
-            onClick={() => navigate(-1)}
-            className="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-teal-700 dark:text-slate-300 hover:bg-teal-50 dark:hover:bg-slate-800/50 active:bg-teal-100 dark:active:bg-slate-700/50 transition-colors duration-150"
-          >
-            <span className="material-symbols-outlined text-xl">arrow_back</span>
-            <span className="font-medium text-sm">Back</span>
-          </button>
-        </div>
+        <button
+          onClick={() => navigate(-1)}
+          className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-teal-700 dark:text-slate-300 hover:bg-teal-50 dark:hover:bg-slate-800/50 active:bg-teal-100 dark:active:bg-slate-700/50 transition-colors duration-150"
+        >
+          <span className="material-symbols-outlined text-xl">arrow_back</span>
+          <span className="font-medium text-sm">Back</span>
+        </button>
       </motion.div>
 
       {/* Main Content */}
@@ -128,17 +126,8 @@ export function ShareApp() {
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="max-w-2xl mx-auto px-4 py-8 space-y-8"
+        className="max-w-2xl mx-auto px-4 py-6 space-y-8"
       >
-        {/* Header Section */}
-        <motion.div variants={itemVariants} className="text-center space-y-3 pt-4">
-          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-teal-600 to-emerald-600 dark:from-teal-400 dark:to-emerald-400 bg-clip-text text-transparent">
-            Share HabitFlow
-          </h1>
-          <p className="text-base md:text-lg text-teal-700/80 dark:text-slate-300 max-w-md mx-auto leading-relaxed">
-            Inspire others to build better habits and transform their lives
-          </p>
-        </motion.div>
 
         {/* QR Code Section - Visually Prominent Card */}
         <motion.div variants={itemVariants}>

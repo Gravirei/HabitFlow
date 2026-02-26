@@ -123,6 +123,7 @@ export function HelpSupport() {
   const navigate = useNavigate();
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchOpen, setSearchOpen] = useState(false);
 
   // Filter FAQ items based on search query
   const filteredFAQ = faqData.filter(
@@ -171,39 +172,67 @@ export function HelpSupport() {
     >
       {/* Header */}
       <div className="sticky top-0 z-10 bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 backdrop-blur-sm bg-opacity-95 dark:bg-opacity-95">
-        <div className="max-w-5xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
-          {/* Back Button & Title */}
-          <div className="flex items-center gap-4 mb-8">
+        <div className="max-w-5xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
+          {/* Back Button, Title & Search Icon */}
+          <div className="flex items-center gap-3">
             <motion.button
               onClick={() => navigate(-1)}
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
-              className="p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-900 transition-colors"
+              className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-900 transition-colors"
               aria-label="Go back"
             >
               <span className="material-symbols-outlined text-2xl">arrow_back</span>
             </motion.button>
-            <div>
-              <h1 className="text-4xl font-bold text-slate-900 dark:text-white">Help & Support</h1>
-              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                Find answers to common questions
-              </p>
+            <div className="flex-1">
+              <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Help & Support</h1>
             </div>
+            <motion.button
+              onClick={() => {
+                setSearchOpen(!searchOpen)
+                if (searchOpen) setSearchQuery('')
+              }}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              className={`p-2.5 rounded-xl transition-colors ${
+                searchOpen
+                  ? 'bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-400'
+                  : 'hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-600 dark:text-slate-400'
+              }`}
+              aria-label={searchOpen ? 'Close search' : 'Open search'}
+            >
+              <span className="material-symbols-outlined text-xl">
+                {searchOpen ? 'close' : 'search'}
+              </span>
+            </motion.button>
           </div>
 
-          {/* Search Bar */}
-          <div className="relative group">
-            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-teal-500 transition-colors">
-              search
-            </span>
-            <input
-              type="text"
-              placeholder="Search FAQs, categories, or keywords..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-50 placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:focus:ring-teal-400 transition-all duration-200"
-            />
-          </div>
+          {/* Expandable Search Bar */}
+          <AnimatePresence>
+            {searchOpen && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="overflow-hidden"
+              >
+                <div className="relative group pt-3">
+                  <span className="material-symbols-outlined absolute left-4 top-1/2 mt-[6px] -translate-y-1/2 text-slate-400 group-focus-within:text-teal-500 transition-colors">
+                    search
+                  </span>
+                  <input
+                    type="text"
+                    placeholder="Search FAQs, categories, or keywords..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    autoFocus
+                    className="w-full pl-12 pr-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-50 placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:focus:ring-teal-400 transition-all duration-200"
+                  />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
 

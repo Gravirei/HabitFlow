@@ -40,6 +40,8 @@ import { AboutUs } from '@/pages/sideNav/AboutUs'
 import { HelpSupport } from '@/pages/sideNav/HelpSupport'
 import { Feedback } from '@/pages/sideNav/Feedback'
 import { ShareApp } from '@/pages/sideNav/ShareApp'
+import { PremiumFeatures } from '@/pages/sideNav/PremiumFeatures'
+import { Integrations } from '@/pages/sideNav/Integrations'
 // ARCHIVED: ThemeProvider import removed (theme module archived)
 
 function App() {
@@ -142,6 +144,8 @@ function App() {
           <Route path="/help" element={<RequireAuth><HelpSupport /></RequireAuth>} />
           <Route path="/feedback" element={<RequireAuth><Feedback /></RequireAuth>} />
           <Route path="/share" element={<RequireAuth><ShareApp /></RequireAuth>} />
+          <Route path="/premium" element={<RequireAuth><PremiumFeatures /></RequireAuth>} />
+          <Route path="/integrations" element={<RequireAuth><Integrations /></RequireAuth>} />
         </Routes>
         </BrowserRouter>
     </ErrorBoundary>

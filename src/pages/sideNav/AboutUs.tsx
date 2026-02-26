@@ -182,13 +182,11 @@ export function AboutUs() {
               .map((feature, index) => (
                 <motion.div
                   key={`large-${index}`}
-                  variants={itemVariants}
+                  variants={cardHoverVariants}
                   initial="hidden"
                   animate="visible"
                   transition={{ delay: getStaggerDelay(index) }}
                   whileHover="hover"
-                  whileRest="rest"
-                  variants={cardHoverVariants}
                   className="md:col-span-2 bg-gradient-to-br from-slate-50/80 to-teal-50/30 dark:from-slate-900/50 dark:to-teal-900/20 rounded-2xl border border-teal-200/50 dark:border-teal-800/30 p-8 cursor-pointer transition-all duration-200"
                 >
                   <div className="flex items-start gap-6">
@@ -215,13 +213,11 @@ export function AboutUs() {
               .map((feature, index) => (
                 <motion.div
                   key={`small-${index}`}
-                  variants={itemVariants}
+                  variants={cardHoverVariants}
                   initial="hidden"
                   animate="visible"
                   transition={{ delay: getStaggerDelay(index + 2) }}
                   whileHover="hover"
-                  whileRest="rest"
-                  variants={cardHoverVariants}
                   className="bg-gradient-to-br from-slate-50/80 to-teal-50/30 dark:from-slate-900/50 dark:to-teal-900/20 rounded-2xl border border-teal-200/50 dark:border-teal-800/30 p-6 cursor-pointer transition-all duration-200"
                 >
                   <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-400 to-orange-500 flex items-center justify-center mb-3 shadow-sm">
@@ -248,10 +244,8 @@ export function AboutUs() {
           className="mb-20"
         >
           <motion.div
-            variants={itemVariants}
-            whileHover="hover"
-            whileRest="rest"
             variants={cardHoverVariants}
+            whileHover="hover"
             className="bg-gradient-to-br from-emerald-50/80 to-teal-50/40 dark:from-emerald-900/20 dark:to-teal-900/20 rounded-3xl border border-emerald-200/50 dark:border-emerald-800/30 p-12 text-center max-w-2xl mx-auto cursor-pointer transition-all duration-200"
           >
             {/* Avatar Placeholder */}
