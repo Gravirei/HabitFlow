@@ -27,6 +27,28 @@ import clsx from 'clsx'
 const today = () => new Date().toISOString().split('T')[0]
 
 const WEEKDAYS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'] as const
+const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] as const
+
+/** Get today's day index in weeklyDays format (0=Mon, ..., 6=Sun) */
+function getTodayDayIndex(): number {
+  const jsDay = new Date().getDay() // 0=Sun, 1=Mon, ..., 6=Sat
+  return jsDay === 0 ? 6 : jsDay - 1
+}
+
+/** Check if a weekly habit is active today */
+function isWeeklyHabitActiveToday(habit: Habit): boolean {
+  if (habit.frequency !== 'weekly' || !habit.weeklyDays || habit.weeklyDays.length === 0) return true
+  return habit.weeklyDays.includes(getTodayDayIndex())
+}
+
+/** Get the next active day name for a weekly habit */
+function getNextActiveDay(habit: Habit): string {
+  if (!habit.weeklyDays || habit.weeklyDays.length === 0) return ''
+  const todayIdx = getTodayDayIndex()
+  const sorted = [...habit.weeklyDays].sort((a, b) => a - b)
+  const next = sorted.find((d) => d > todayIdx) ?? sorted[0]
+  return DAY_NAMES[next]
+}
 
 /** Returns ISO date strings for the last 7 days (Mon→Sun of current week) */
 function getLast7Days(): string[] {
@@ -1000,8 +1022,14 @@ function HabitList({
       {Object.entries(habitsByCategory).map(([category, categoryHabits]) => {
         const info = getCategoryInfo(category)
         
-        // Sort habits: pinned first, then by original order
+        // Sort habits: pinned first, inactive weekly habits last, then by original order
         const sortedCategoryHabits = [...categoryHabits].sort((a, b) => {
+          const aActive = isWeeklyHabitActiveToday(a)
+          const bActive = isWeeklyHabitActiveToday(b)
+          // Inactive weekly habits go to bottom
+          if (aActive && !bActive) return -1
+          if (!aActive && bActive) return 1
+          // Among same active-status, pinned first
           if (a.pinned && !b.pinned) return -1
           if (!a.pinned && b.pinned) return 1
           return 0
@@ -1212,6 +1240,8 @@ function HabitList({
                         onTogglePin={onTogglePin}
                         onArchive={onArchive}
                         onDeleteToday={onDeleteToday}
+                        isInactiveToday={!isWeeklyHabitActiveToday(habit)}
+                        nextActiveDay={getNextActiveDay(habit)}
                       />
                     </motion.div>
                   ))}
@@ -1338,6 +1368,8 @@ function HabitCard({
   onTogglePin,
   onArchive,
   onDeleteToday,
+  isInactiveToday = false,
+  nextActiveDay = '',
 }: {
   habit: Habit
   onHabitClick: (habit: Habit) => void
@@ -1351,10 +1383,13 @@ function HabitCard({
   onTogglePin?: (habitId: string, isPinned: boolean) => void
   onArchive?: (habitId: string) => void
   onDeleteToday?: (habitId: string, habitName: string) => void
+  isInactiveToday?: boolean
+  nextActiveDay?: string
 }) {
   // navigate removed — unused in HabitCard
   const { isHabitCompletedToday } = useHabitStore()
   const { getTaskCount, getTasksByHabitId, resetTasksIfNeeded } = useHabitTaskStore()
+  const [showInactiveMessage, setShowInactiveMessage] = useState(false)
   
   // Reset tasks if needed based on habit frequency
   useEffect(() => {
@@ -1492,15 +1527,42 @@ function HabitCard({
 
   return (
     <motion.div
-      whileTap={{ scale: 0.98 }}
+      whileTap={isInactiveToday ? undefined : { scale: 0.98 }}
       className={clsx(
-        'group relative cursor-pointer rounded-2xl p-4 transition-all duration-200',
-        completed
-          ? 'bg-gradient-to-r from-teal-50 to-emerald-50/50 dark:from-teal-950/30 dark:to-emerald-950/20'
-          : 'bg-white dark:bg-gray-800/60'
+        'group relative rounded-2xl p-4 transition-all duration-200',
+        isInactiveToday
+          ? 'cursor-default opacity-45 grayscale'
+          : 'cursor-pointer',
+        isInactiveToday
+          ? 'bg-gray-100 dark:bg-gray-800/30'
+          : completed
+            ? 'bg-gradient-to-r from-teal-50 to-emerald-50/50 dark:from-teal-950/30 dark:to-emerald-950/20'
+            : 'bg-white dark:bg-gray-800/60'
       )}
-      onClick={() => onHabitClick(habit)}
+      onClick={() => {
+        if (isInactiveToday) {
+          setShowInactiveMessage(true)
+          setTimeout(() => setShowInactiveMessage(false), 3000)
+          return
+        }
+        onHabitClick(habit)
+      }}
     >
+      {/* Inactive today message */}
+      <AnimatePresence>
+        {showInactiveMessage && isInactiveToday && (
+          <motion.div
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: 0.2 }}
+            className="absolute inset-x-0 -top-1 z-10 mx-4 rounded-xl bg-slate-800 px-3 py-2 text-center text-xs font-medium text-white shadow-lg dark:bg-slate-700"
+          >
+            This habit is inactive today. You will be able to use this habit next <strong>{nextActiveDay}</strong>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Completed shimmer - removed to prevent visual artifacts */}
 
       <div className="relative z-0 flex items-center gap-3.5">

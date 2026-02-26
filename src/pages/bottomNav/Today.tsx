@@ -408,8 +408,21 @@ export function Today() {
   }
 
   // Filtered habits & tasks
+  // Convert JS day (0=Sun) to weeklyDays format (0=Mon, 1=Tue, ..., 6=Sun)
+  const todayDayIndex = (() => {
+    const jsDay = selectedDate.getDay() // 0=Sun, 1=Mon, ..., 6=Sat
+    return jsDay === 0 ? 6 : jsDay - 1 // Convert to 0=Mon, ..., 6=Sun
+  })()
+
   const filteredHabits = habits
     .filter(h => h.isActive === true && h.categoryId !== undefined && !h.archived && !h.hiddenDates?.includes(formattedDate))
+    .filter(h => {
+      // Hide weekly habits on non-matching days (only if weeklyDays is configured)
+      if (h.frequency === 'weekly' && h.weeklyDays && h.weeklyDays.length > 0) {
+        return h.weeklyDays.includes(todayDayIndex)
+      }
+      return true
+    })
     .filter(h => h.name.toLowerCase().includes(searchQuery.toLowerCase()))
     .sort((a, b) => {
       if (a.pinned && !b.pinned) return -1
@@ -423,6 +436,12 @@ export function Today() {
 
   // Progress
   const activeHabits = habits.filter(h => h.isActive === true && h.categoryId !== undefined && !h.archived && !h.hiddenDates?.includes(formattedDate))
+    .filter(h => {
+      if (h.frequency === 'weekly' && h.weeklyDays && h.weeklyDays.length > 0) {
+        return h.weeklyDays.includes(todayDayIndex)
+      }
+      return true
+    })
   const completedHabits = activeHabits.filter(h => isHabitCompletedOnDate(h.id, formattedDate)).length
   const totalHabits = activeHabits.length
   const progressPercentage = totalHabits > 0 ? (completedHabits / totalHabits) * 100 : 0
