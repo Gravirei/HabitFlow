@@ -26,34 +26,53 @@ export function SessionManagement() {
   // Fetch the current Supabase session's access_token so we can identify
   // which row in user_sessions belongs to this device/tab.
   useEffect(() => {
+    let mounted = true
     supabase.auth.getSession().then(({ data }) => {
-      setCurrentSessionToken(data.session?.access_token ?? null)
+      if (mounted) setCurrentSessionToken(data.session?.access_token ?? null)
+    }).catch((e) => {
+      if (mounted && e?.name !== 'AbortError') console.error(e)
     })
+    return () => { mounted = false }
   }, [])
 
-  const load = async () => {
+  const load = async (signal?: AbortSignal) => {
     if (!user) return
     setIsLoading(true)
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('user_sessions')
         .select('*')
         .eq('user_id', user.id)
         .eq('is_active', true)
         .order('last_activity', { ascending: false })
 
+      if (signal) {
+        query = query.abortSignal(signal)
+      }
+
+      const { data, error } = await query
+
+      // Bail out silently if the request was aborted during unmount
+      if (signal?.aborted) return
+
       if (error) throw error
       setSessions((data || []) as UserSessionRow[])
     } catch (e: any) {
+      // Ignore abort errors from unmount cleanup
+      if (e?.name === 'AbortError' || e?.message?.includes('abort') || signal?.aborted) return
       console.error(e)
       toast.error(e?.message || 'Failed to load sessions')
     } finally {
-      setIsLoading(false)
+      if (!signal?.aborted) {
+        setIsLoading(false)
+      }
     }
   }
 
   useEffect(() => {
-    load()
+    const controller = new AbortController()
+    load(controller.signal)
+    return () => controller.abort()
   }, [user?.id])
 
   return (

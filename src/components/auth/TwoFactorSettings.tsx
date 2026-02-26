@@ -16,17 +16,22 @@ export function TwoFactorSettings() {
   const [challengeId, setChallengeId] = useState<string | null>(null)
   const [code, setCode] = useState('')
 
-  const refresh = async () => {
+  const refresh = async (mounted?: { current: boolean }) => {
     try {
       const totpFactors = await listFactors()
+      if (mounted && !mounted.current) return
       setFactors(totpFactors)
     } catch (e: any) {
+      if (e?.name === 'AbortError') return
+      if (mounted && !mounted.current) return
       console.error(e)
     }
   }
 
   useEffect(() => {
-    refresh()
+    const mounted = { current: true }
+    refresh(mounted)
+    return () => { mounted.current = false }
   }, [])
 
   const hasTotp = factors.length > 0
