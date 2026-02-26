@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
 import { cn } from '@/utils/cn'
 import { useHabitTaskStore } from '@/store/useHabitTaskStore'
+import { useCategoryStore } from '@/store/useCategoryStore'
 
 // ─── Icon Color Gradients (exact match to Habits page iconColor index 0–5) ────
 const ICON_COLOR_GRADIENTS: Record<number, string> = {
@@ -48,6 +49,17 @@ export function HabitCard({ habit, isCompleted, index, onToggle, onBodyClick, on
   const taskCount = getTaskCount(habit.id)
   const completedTaskCount = getCompletedTaskCount(habit.id)
   const allTasksDone = taskCount > 0 && completedTaskCount === taskCount
+
+  // ── Scrolling marquee text (Category | Frequency | Goal) ────────────────
+  const getCategoryById = useCategoryStore((s) => s.getCategoryById)
+  const categoryName = habit.categoryId
+    ? getCategoryById(habit.categoryId)?.name ?? habit.category ?? 'General'
+    : habit.category ?? 'General'
+  const frequencyLabel = habit.frequency
+    ? habit.frequency.charAt(0).toUpperCase() + habit.frequency.slice(1)
+    : ''
+  const goalLabel = habit.goal ? `${habit.goal} ${habit.goalPeriod || ''}`.trim() : ''
+  const marqueeText = [categoryName, frequencyLabel, goalLabel].filter(Boolean).join(' | ')
 
   // ── Long Press Detection ──────────────────────────────────────────────────
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -246,20 +258,12 @@ export function HabitCard({ habit, isCompleted, index, onToggle, onBodyClick, on
           </p>
         )}
 
-        {/* Category & Goal */}
-        <div className="flex items-center gap-2 mt-0.5">
-          <span className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-widest px-2 py-[3px] rounded-md bg-white/[0.04] border border-white/[0.06] text-slate-400">
-            <span
-              className="inline-block size-1.5 rounded-full"
-              style={{ backgroundColor: '#2DD4BF' }}
-            />
-            {habit.category || 'General'}
-          </span>
-          {habit.goal && (
-            <span className="text-[11px] text-slate-500/80 tabular-nums font-medium">
-              {habit.goal} {habit.goalPeriod}
-            </span>
-          )}
+        {/* Category Info — Scrolling Marquee */}
+        <div className="marquee-container mt-0.5 h-5">
+          <div className="marquee-track">
+            <span className="text-[11px] font-medium text-slate-500/80 tracking-wide">{marqueeText}</span>
+            <span className="text-[11px] font-medium text-slate-500/80 tracking-wide">{marqueeText}</span>
+          </div>
         </div>
       </div>
 
