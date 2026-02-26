@@ -49,6 +49,9 @@ export function EditHabit({ isOpen, onClose, habitId }: EditHabitProps) {
   const [goal, setGoal] = useState('1')
   const [goalPeriod, setGoalPeriod] = useState<GoalPeriodType>('day')
   const [showIconPicker, setShowIconPicker] = useState(false)
+  const [weeklyTimesPerWeek, setWeeklyTimesPerWeek] = useState('')
+  const [weeklyTimesSet, setWeeklyTimesSet] = useState(false)
+  const [weeklyDays, setWeeklyDays] = useState<number[]>([])
 
   const [error, setError] = useState<string | undefined>(undefined)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -66,6 +69,9 @@ export function EditHabit({ isOpen, onClose, habitId }: EditHabitProps) {
     setGoal(habit.goal.toString())
     setGoalPeriod(habit.goalPeriod)
     setShowIconPicker(false)
+    setWeeklyTimesPerWeek(habit.weeklyTimesPerWeek?.toString() || '')
+    setWeeklyTimesSet(!!habit.weeklyTimesPerWeek)
+    setWeeklyDays(habit.weeklyDays || [])
     setError(undefined)
     setIsSubmitting(false)
     
@@ -88,6 +94,19 @@ export function EditHabit({ isOpen, onClose, habitId }: EditHabitProps) {
       return
     }
 
+    // Validate weekly day selection
+    if (frequency === 'weekly') {
+      const timesNum = parseInt(weeklyTimesPerWeek, 10)
+      if (!weeklyTimesSet || isNaN(timesNum) || timesNum < 1) {
+        setError('Please set how many times per week')
+        return
+      }
+      if (weeklyDays.length !== timesNum) {
+        setError(`Please select exactly ${timesNum} day${timesNum > 1 ? 's' : ''}`)
+        return
+      }
+    }
+
     setIsSubmitting(true)
 
     try {
@@ -101,6 +120,8 @@ export function EditHabit({ isOpen, onClose, habitId }: EditHabitProps) {
         frequency,
         goal: goalNumber,
         goalPeriod,
+        weeklyTimesPerWeek: frequency === 'weekly' ? parseInt(weeklyTimesPerWeek, 10) : undefined,
+        weeklyDays: frequency === 'weekly' ? [...weeklyDays].sort() : undefined,
       })
 
       toast.success('✅ Habit updated!')
@@ -336,7 +357,14 @@ export function EditHabit({ isOpen, onClose, habitId }: EditHabitProps) {
                       <button
                         key={opt.value}
                         type="button"
-                        onClick={() => setFrequency(opt.value)}
+                        onClick={() => {
+                          setFrequency(opt.value)
+                          if (opt.value !== 'weekly') {
+                            setWeeklyTimesPerWeek('')
+                            setWeeklyTimesSet(false)
+                            setWeeklyDays([])
+                          }
+                        }}
                         disabled={isSubmitting}
                         className={clsx(
                           'flex flex-col items-center gap-1.5 rounded-xl border p-3 text-center transition-all',
@@ -356,12 +384,126 @@ export function EditHabit({ isOpen, onClose, habitId }: EditHabitProps) {
                       </button>
                     ))}
                   </div>
+
+                  {/* Weekly Day Selector — inline expand */}
+                  <AnimatePresence>
+                    {frequency === 'weekly' && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.25 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-4 dark:border-white/10 dark:bg-slate-800/50">
+                          {/* Step 1: How many times per week */}
+                          <div>
+                            <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                              How many times do you want to do this habit in a week?
+                            </p>
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="number"
+                                value={weeklyTimesPerWeek}
+                                onChange={(e) => {
+                                  setWeeklyTimesPerWeek(e.target.value)
+                                  setWeeklyTimesSet(false)
+                                  setWeeklyDays([])
+                                }}
+                                min="1"
+                                max="7"
+                                placeholder="e.g. 3"
+                                disabled={isSubmitting}
+                                className="w-20 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-center text-sm font-semibold focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-slate-800 dark:text-white"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const n = parseInt(weeklyTimesPerWeek, 10)
+                                  if (!isNaN(n) && n >= 1 && n <= 7) {
+                                    setWeeklyTimesSet(true)
+                                    setWeeklyDays([])
+                                  }
+                                }}
+                                disabled={isSubmitting || !weeklyTimesPerWeek || parseInt(weeklyTimesPerWeek, 10) < 1 || parseInt(weeklyTimesPerWeek, 10) > 7}
+                                className={clsx(
+                                  'rounded-xl px-4 py-2.5 text-sm font-semibold transition-all',
+                                  weeklyTimesPerWeek && parseInt(weeklyTimesPerWeek, 10) >= 1 && parseInt(weeklyTimesPerWeek, 10) <= 7 && !isSubmitting
+                                    ? 'bg-primary text-slate-900 hover:bg-primary/90'
+                                    : 'bg-slate-200 text-slate-400 cursor-not-allowed dark:bg-slate-700 dark:text-slate-500'
+                                )}
+                              >
+                                Set
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Step 2: Select specific days */}
+                          <AnimatePresence>
+                            {weeklyTimesSet && (
+                              <motion.div
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: 'auto', opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                transition={{ duration: 0.2 }}
+                                className="overflow-hidden"
+                              >
+                                <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                  Please select {weeklyTimesPerWeek} specific day{parseInt(weeklyTimesPerWeek, 10) > 1 ? 's' : ''} you want to complete this habit
+                                </p>
+                                <div className="flex gap-1.5">
+                                  {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, index) => {
+                                    const isSelected = weeklyDays.includes(index)
+                                    const maxReached = weeklyDays.length >= parseInt(weeklyTimesPerWeek, 10) && !isSelected
+                                    return (
+                                      <button
+                                        key={day}
+                                        type="button"
+                                        onClick={() => {
+                                          if (isSelected) {
+                                            setWeeklyDays(weeklyDays.filter((d) => d !== index))
+                                          } else if (!maxReached) {
+                                            setWeeklyDays([...weeklyDays, index])
+                                          }
+                                        }}
+                                        disabled={isSubmitting || (maxReached && !isSelected)}
+                                        className={clsx(
+                                          'flex-1 rounded-lg py-2 text-xs font-bold transition-all',
+                                          isSelected
+                                            ? 'bg-primary text-slate-900 shadow-sm ring-2 ring-primary/30'
+                                            : maxReached
+                                              ? 'bg-slate-100 text-slate-300 cursor-not-allowed dark:bg-slate-700 dark:text-slate-600'
+                                              : 'bg-white text-slate-600 border border-slate-200 hover:border-primary hover:text-primary dark:bg-slate-800 dark:text-slate-400 dark:border-white/10 dark:hover:border-primary'
+                                        )}
+                                      >
+                                        {day}
+                                      </button>
+                                    )
+                                  })}
+                                </div>
+                                {weeklyDays.length > 0 && weeklyDays.length < parseInt(weeklyTimesPerWeek, 10) && (
+                                  <p className="mt-2 text-xs text-amber-500">
+                                    Select {parseInt(weeklyTimesPerWeek, 10) - weeklyDays.length} more day{parseInt(weeklyTimesPerWeek, 10) - weeklyDays.length > 1 ? 's' : ''}
+                                  </p>
+                                )}
+                                {weeklyDays.length === parseInt(weeklyTimesPerWeek, 10) && (
+                                  <p className="mt-2 text-xs text-emerald-500 font-medium">
+                                    ✓ All days selected
+                                  </p>
+                                )}
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
 
                 {/* Goal */}
                 <div>
                   <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
-                    Goal *
+                    Set Your Streak Goal *
                   </label>
                   <div className="flex items-center gap-2">
                     <input

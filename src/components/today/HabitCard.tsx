@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { cn } from '@/utils/cn'
 import { useHabitTaskStore } from '@/store/useHabitTaskStore'
 import { useCategoryStore } from '@/store/useCategoryStore'
@@ -60,6 +60,7 @@ export function HabitCard({ habit, isCompleted, index, onToggle, onBodyClick, on
     : ''
   const goalLabel = habit.goal ? `${habit.goal} ${habit.goalPeriod || ''}`.trim() : ''
   const marqueeText = [categoryName, frequencyLabel, goalLabel].filter(Boolean).join(' | ')
+  const marqueeDelay = useMemo(() => -(Math.random() * 14), [])
 
   // ── Long Press Detection ──────────────────────────────────────────────────
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -260,7 +261,7 @@ export function HabitCard({ habit, isCompleted, index, onToggle, onBodyClick, on
 
         {/* Category Info — Scrolling Marquee */}
         <div className="marquee-container mt-0.5 h-5">
-          <div className="marquee-track">
+          <div className="marquee-track" style={{ animationDelay: `${marqueeDelay}s` }}>
             <span className="text-[11px] font-medium text-slate-500/80 tracking-wide">{marqueeText}</span>
             <span className="text-[11px] font-medium text-slate-500/80 tracking-wide">{marqueeText}</span>
           </div>

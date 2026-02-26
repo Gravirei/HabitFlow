@@ -546,14 +546,17 @@ select:focus-visible {
 }
 
 .marquee-track {
-  display: inline-flex;
+  display: flex;
+  width: 200%;
   white-space: nowrap;
   animation: marquee-scroll 14s linear infinite;
   will-change: transform;
 }
 
 .marquee-track > span {
+  flex: 0 0 50%;
   padding-right: 3rem;
+  box-sizing: border-box;
 }
 
 @media (prefers-reduced-motion: reduce) {

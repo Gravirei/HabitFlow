@@ -1,4 +1,5 @@
-import { useMemo, useState, useEffect, useRef } from 'react'
+import { useMemo, useState, useEffect, useRef, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import { useNavigate, useParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import clsx from 'clsx'
@@ -589,9 +590,23 @@ interface HabitCardProps {
 
 function HabitCard({ habit, index, taskCount, onClick, onDelete, onEdit, onArchive, onOpenNotes }: HabitCardProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [showWeeklySchedule, setShowWeeklySchedule] = useState(false)
+  const [popupPosition, setPopupPosition] = useState({ top: 0, left: 0 })
   const menuId = `habit-menu-${habit.id}`
   const menuRef = useRef<HTMLDivElement>(null)
+  const weeklyBadgeRef = useRef<HTMLButtonElement>(null)
   const navigate = useNavigate()
+
+  const openWeeklySchedule = useCallback(() => {
+    if (weeklyBadgeRef.current) {
+      const rect = weeklyBadgeRef.current.getBoundingClientRect()
+      setPopupPosition({
+        top: rect.bottom + 8,
+        left: rect.left,
+      })
+    }
+    setShowWeeklySchedule(true)
+  }, [])
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -660,17 +675,105 @@ function HabitCard({ habit, index, taskCount, onClick, onDelete, onEdit, onArchi
             </div>
             
             {/* Frequency Badge */}
-            <div className={clsx(
-              "flex items-center gap-1 rounded-full px-2 py-1 text-xs font-semibold",
-              habit.frequency === 'daily' && "bg-teal-100 text-teal-700 dark:bg-teal-500/20 dark:text-teal-400",
-              habit.frequency === 'weekly' && "bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-400",
-              habit.frequency === 'monthly' && "bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400"
-            )}>
+            <button
+              ref={weeklyBadgeRef}
+              type="button"
+              onClick={(e) => {
+                if (habit.frequency === 'weekly' && habit.weeklyTimesPerWeek) {
+                  e.stopPropagation()
+                  showWeeklySchedule ? setShowWeeklySchedule(false) : openWeeklySchedule()
+                }
+              }}
+              className={clsx(
+                "flex items-center gap-1 rounded-full px-2 py-1 text-xs font-semibold transition-all",
+                habit.frequency === 'daily' && "bg-teal-100 text-teal-700 dark:bg-teal-500/20 dark:text-teal-400",
+                habit.frequency === 'weekly' && "bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-400",
+                habit.frequency === 'monthly' && "bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400",
+                habit.frequency === 'weekly' && habit.weeklyTimesPerWeek && "cursor-pointer hover:ring-2 hover:ring-purple-300 dark:hover:ring-purple-500/40"
+              )}
+            >
               <span className="material-symbols-outlined text-sm">
                 {habit.frequency === 'daily' ? 'today' : habit.frequency === 'weekly' ? 'date_range' : 'calendar_month'}
               </span>
-              <span className="capitalize">{habit.frequency}</span>
-            </div>
+              <span className="capitalize">
+                {habit.frequency === 'weekly' && habit.weeklyTimesPerWeek
+                  ? `Weekly · ${habit.weeklyTimesPerWeek} day${habit.weeklyTimesPerWeek > 1 ? 's' : ''}`
+                  : habit.frequency}
+              </span>
+            </button>
+
+            {/* Weekly Schedule Popup — rendered via portal */}
+            {showWeeklySchedule && habit.frequency === 'weekly' && habit.weeklyTimesPerWeek && createPortal(
+              <>
+                {/* Backdrop — covers entire screen */}
+                <div
+                  className="fixed inset-0 z-[9998] bg-black/0"
+                  onMouseDown={(e) => {
+                    e.stopPropagation()
+                    e.preventDefault()
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    e.preventDefault()
+                    setShowWeeklySchedule(false)
+                  }}
+                />
+                <motion.div
+                  initial={{ opacity: 0, y: -8, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -8, scale: 0.95 }}
+                  transition={{ duration: 0.2 }}
+                  className="fixed z-[9999] w-64 rounded-xl border border-slate-200 bg-white p-4 shadow-xl dark:border-white/10 dark:bg-slate-800"
+                  style={{ top: popupPosition.top, left: popupPosition.left }}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="text-sm font-bold text-slate-800 dark:text-white">Weekly Schedule</h4>
+                    <button
+                      type="button"
+                      onClick={() => setShowWeeklySchedule(false)}
+                      className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                    >
+                      <span className="material-symbols-outlined text-lg">close</span>
+                    </button>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+                      <span className="material-symbols-outlined text-base text-purple-500">repeat</span>
+                      <span>
+                        <strong className="text-slate-800 dark:text-white">{habit.weeklyTimesPerWeek}</strong> time{habit.weeklyTimesPerWeek > 1 ? 's' : ''} per week
+                      </span>
+                    </div>
+
+                    {habit.weeklyDays && habit.weeklyDays.length > 0 && (
+                      <div>
+                        <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-2">Selected Days</p>
+                        <div className="flex gap-1.5">
+                          {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, idx) => {
+                            const isSelected = habit.weeklyDays!.includes(idx)
+                            return (
+                              <div
+                                key={day}
+                                className={clsx(
+                                  'flex-1 rounded-lg py-1.5 text-center text-[10px] font-bold',
+                                  isSelected
+                                    ? 'bg-purple-500 text-white shadow-sm'
+                                    : 'bg-slate-100 text-slate-300 dark:bg-slate-700 dark:text-slate-600'
+                                )}
+                              >
+                                {day}
+                              </div>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              </>,
+              document.body
+            )}
             
             {/* Notes Badge */}
             {habit.notes && habit.notes.length > 0 && (

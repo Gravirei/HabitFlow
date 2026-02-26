@@ -57,6 +57,17 @@ export interface Habit {
   pinned?: boolean
 
   /**
+   * How many times per week the user wants to do this habit (only when frequency is 'weekly').
+   */
+  weeklyTimesPerWeek?: number
+
+  /**
+   * Specific days of the week selected for this habit (0 = Mon, 1 = Tue, ..., 6 = Sun).
+   * Only used when frequency is 'weekly'.
+   */
+  weeklyDays?: number[]
+
+  /**
    * Array of ISO date strings when this habit should be hidden.
    * Used for "delete for today" functionality.
    */
