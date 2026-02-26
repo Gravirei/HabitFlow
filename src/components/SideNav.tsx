@@ -16,22 +16,22 @@ export function SideNav({ isOpen, onClose }: SideNavProps) {
 
   const menuItems = [
     { icon: 'dashboard', label: 'Dashboard', path: '/', active: true },
-    { icon: 'checklist', label: 'All Habits', path: '/all-habits', comingSoon: true },
+    { icon: 'checklist', label: 'All Habits', path: '/habits' },
     { icon: 'bar_chart', label: 'Statistics', path: '/progress' },
   ]
 
   const premiumItems = [
-    { icon: 'workspace_premium', label: 'Premium Features', comingSoon: true },
-    { icon: 'integration_instructions', label: 'Integrations', comingSoon: true },
+    { icon: 'workspace_premium', label: 'Premium Features', path: '/premium' },
+    { icon: 'integration_instructions', label: 'Integrations', path: '/integrations' },
     { icon: 'settings', label: 'Settings', path: '/settings' },
   ]
 
   const supportItems = [
-    { icon: 'feedback', label: 'Feedback', comingSoon: true },
-    { icon: 'share', label: 'Share App', comingSoon: true },
-    { icon: 'star', label: 'Rate this App', comingSoon: true },
-    { icon: 'help', label: 'Help & Support', comingSoon: true },
-    { icon: 'info', label: 'About Us', comingSoon: true },
+    { icon: 'feedback', label: 'Feedback', path: '/feedback' },
+    { icon: 'share', label: 'Share App', path: '/share' },
+    { icon: 'star', label: 'Rate this App', action: 'rate' },
+    { icon: 'help', label: 'Help & Support', path: '/help' },
+    { icon: 'info', label: 'About Us', path: '/about' },
   ]
 
   return (
@@ -148,8 +148,24 @@ export function SideNav({ isOpen, onClose }: SideNavProps) {
                     <button
                       key={index}
                       onClick={() => {
-                        if (item.comingSoon) {
-                          toast('Coming soon!', { icon: '🚀' })
+                        if (item.path) {
+                          navigate(item.path)
+                          onClose()
+                        } else if (item.action === 'share') {
+                          if (navigator.share) {
+                            navigator.share({
+                              title: 'HabitFlow - Build Better Habits',
+                              text: 'Check out HabitFlow! A beautiful habit tracking app to build better habits and stay consistent.',
+                              url: window.location.origin,
+                            }).catch(() => {})
+                          } else {
+                            navigator.clipboard.writeText(window.location.origin)
+                            toast.success('Link copied to clipboard!')
+                          }
+                          onClose()
+                        } else if (item.action === 'rate') {
+                          toast('Thank you! App store rating coming soon 🌟', { icon: '⭐' })
+                          onClose()
                         }
                       }}
                       className="flex h-12 w-full items-center gap-4 rounded-2xl px-4 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all active:scale-95"

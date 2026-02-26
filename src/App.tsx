@@ -36,6 +36,10 @@ import Export from '@/pages/timer/Export'
 import { AchievementNotifications } from '@/components/timer/sidebar/achievements'
 import { EmailVerificationBanner } from '@/components/auth/EmailVerificationBanner'
 import { SyncOnAuthChange } from '@/components/timer/premium-history/cloud-sync'
+import { AboutUs } from '@/pages/sideNav/AboutUs'
+import { HelpSupport } from '@/pages/sideNav/HelpSupport'
+import { Feedback } from '@/pages/sideNav/Feedback'
+import { ShareApp } from '@/pages/sideNav/ShareApp'
 // ARCHIVED: ThemeProvider import removed (theme module archived)
 
 function App() {
@@ -134,6 +138,10 @@ function App() {
           <Route path="/new-habit" element={<RequireAuth><RequireVerifiedEmail><NewHabit /></RequireVerifiedEmail></RequireAuth>} />
           <Route path="/progress" element={<RequireAuth><RequireVerifiedEmail><ProgressOverview /></RequireVerifiedEmail></RequireAuth>} />
           <Route path="/all-habits" element={<RequireAuth><RequireVerifiedEmail><Habits /></RequireVerifiedEmail></RequireAuth>} />
+          <Route path="/about" element={<RequireAuth><AboutUs /></RequireAuth>} />
+          <Route path="/help" element={<RequireAuth><HelpSupport /></RequireAuth>} />
+          <Route path="/feedback" element={<RequireAuth><Feedback /></RequireAuth>} />
+          <Route path="/share" element={<RequireAuth><ShareApp /></RequireAuth>} />
         </Routes>
         </BrowserRouter>
     </ErrorBoundary>
