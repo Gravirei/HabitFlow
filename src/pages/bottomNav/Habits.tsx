@@ -879,6 +879,10 @@ function HabitList({
     const saved = localStorage.getItem('individualEditEnabled')
     return saved ? JSON.parse(saved) : false
   })
+  const [hideInactiveHabits, setHideInactiveHabits] = useState(() => {
+    const saved = localStorage.getItem('hideInactiveHabits')
+    return saved ? JSON.parse(saved) : false
+  })
   const settingsButtonRef = useRef<HTMLButtonElement>(null)
   const [settingsMenuPosition, setSettingsMenuPosition] = useState<{
     top: number
@@ -930,6 +934,10 @@ function HabitList({
   useEffect(() => {
     localStorage.setItem('individualEditEnabled', JSON.stringify(individualEditEnabled))
   }, [individualEditEnabled])
+
+  useEffect(() => {
+    localStorage.setItem('hideInactiveHabits', JSON.stringify(hideInactiveHabits))
+  }, [hideInactiveHabits])
 
   // Check if all habits are completed today
   const allHabitsComplete = habits.length > 0 && habits.every((h) => isHabitCompletedToday(h.id))
@@ -1022,8 +1030,13 @@ function HabitList({
       {Object.entries(habitsByCategory).map(([category, categoryHabits]) => {
         const info = getCategoryInfo(category)
         
+        // Filter out inactive weekly habits if toggle is ON
+        const visibleHabits = hideInactiveHabits
+          ? categoryHabits.filter((h) => isWeeklyHabitActiveToday(h))
+          : categoryHabits
+
         // Sort habits: pinned first, inactive weekly habits last, then by original order
-        const sortedCategoryHabits = [...categoryHabits].sort((a, b) => {
+        const sortedCategoryHabits = [...visibleHabits].sort((a, b) => {
           const aActive = isWeeklyHabitActiveToday(a)
           const bActive = isWeeklyHabitActiveToday(b)
           // Inactive weekly habits go to bottom
@@ -1058,7 +1071,7 @@ function HabitList({
               <div className="flex-1 text-left">
                 <h4 className="text-sm font-bold text-gray-800 dark:text-white">{info.name}</h4>
                 <p className="mt-0.5 text-[11px] text-gray-500 dark:text-gray-400">
-                  {completedCount}/{categoryHabits.length} completed
+                  {completedCount}/{sortedCategoryHabits.length} completed
                 </p>
               </div>
 
@@ -1338,6 +1351,35 @@ function HabitList({
                       className={clsx(
                         'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out',
                         individualEditEnabled ? 'translate-x-5' : 'translate-x-0'
+                      )}
+                    />
+                  </button>
+                </div>
+
+                {/* Hide Inactive Habits Toggle */}
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                      Hide Inactive Habits
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      Hide weekly habits on off days
+                    </p>
+                  </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setHideInactiveHabits(!hideInactiveHabits)
+                    }}
+                    className={clsx(
+                      'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none',
+                      hideInactiveHabits ? 'bg-teal-500' : 'bg-gray-200 dark:bg-gray-600'
+                    )}
+                  >
+                    <span
+                      className={clsx(
+                        'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out',
+                        hideInactiveHabits ? 'translate-x-5' : 'translate-x-0'
                       )}
                     />
                   </button>
@@ -1640,8 +1682,20 @@ function HabitCard({
 
         {/* Progress ring / check */}
         <motion.button
-          onClick={(e) => onCompletionClick(e, habit)}
-          className="relative flex shrink-0 cursor-pointer items-center justify-center transition-transform hover:scale-105 active:scale-95"
+          onClick={(e) => {
+            if (isInactiveToday) {
+              e.stopPropagation()
+              return
+            }
+            onCompletionClick(e, habit)
+          }}
+          disabled={isInactiveToday}
+          className={clsx(
+            "relative flex shrink-0 items-center justify-center transition-transform",
+            isInactiveToday
+              ? 'cursor-not-allowed'
+              : 'cursor-pointer hover:scale-105 active:scale-95'
+          )}
           animate={{
             marginRight: showEditIcon ? 8 : 0,
             transition: { duration: 0.35, ease: [0.4, 0, 0.2, 1] },
