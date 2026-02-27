@@ -1,10 +1,65 @@
+import { differenceInCalendarDays } from 'date-fns'
 import type { Habit } from '@/types/habit'
+import { calculateCurrentStreak, calculateBestStreak } from '@/utils/streakUtils'
 
 /* ─── Date helpers ──────────────────────────────────────────────────────────── */
 
 /** Return an ISO date string (YYYY-MM-DD) for a given Date */
 export function toDateKey(d: Date): string {
   return d.toISOString().slice(0, 10)
+}
+
+/* ─── Completion Rate ───────────────────────────────────────────────────────── */
+
+/**
+ * Calculate the completion rate (0–100) for a habit based on its frequency,
+ * start date, and completed dates.
+ *
+ * - **Daily**: completions / total days since start
+ * - **Weekly**: completions / (weeks since start × timesPerWeek)
+ * - **Monthly**: completions / (months since start × goal)
+ *
+ * Caps at 100% and returns 0 if the habit hasn't started yet.
+ */
+export function calculateCompletionRate(
+  frequency: Habit['frequency'],
+  startDate: string,
+  completedDatesCount: number,
+  goal: number,
+  weeklyTimesPerWeek?: number,
+  today: Date = new Date(),
+): number {
+  if (completedDatesCount === 0) return 0
+
+  const start = new Date(`${startDate}T00:00:00`)
+  const daysSinceStart = differenceInCalendarDays(today, start) + 1 // inclusive of start day
+
+  if (daysSinceStart <= 0) return 0
+
+  let expectedCompletions: number
+
+  switch (frequency) {
+    case 'daily':
+      expectedCompletions = daysSinceStart
+      break
+    case 'weekly': {
+      const weeksSinceStart = Math.max(1, Math.ceil(daysSinceStart / 7))
+      const timesPerWeek = weeklyTimesPerWeek ?? goal ?? 1
+      expectedCompletions = weeksSinceStart * timesPerWeek
+      break
+    }
+    case 'monthly': {
+      const monthsSinceStart = Math.max(1, Math.ceil(daysSinceStart / 30))
+      expectedCompletions = monthsSinceStart * (goal || 1)
+      break
+    }
+    default:
+      expectedCompletions = daysSinceStart
+  }
+
+  if (expectedCompletions <= 0) return 0
+
+  return Math.min(100, Math.round((completedDatesCount / expectedCompletions) * 100))
 }
 
 /** Get start of the current week (Monday) */
@@ -134,8 +189,11 @@ export interface HabitStrength {
 /**
  * Calculate a strength score (0-100) for a habit based on:
  * - Recency (40%): How recently they completed the habit
- * - Frequency (35%): Completion rate
- * - Streak (25%): Current streak relative to best
+ * - Frequency (35%): Completion rate (dynamically computed)
+ * - Streak (25%): Current streak relative to best (dynamically computed)
+ *
+ * All values are computed fresh from `completedDates` so they are always
+ * accurate — even for habits whose stored fields haven't been updated yet.
  */
 export function calculateHabitStrength(habit: Habit): HabitStrength {
   const today = new Date()
@@ -145,7 +203,7 @@ export function calculateHabitStrength(habit: Habit): HabitStrength {
   if (habit.completedDates.length > 0) {
     const sorted = [...habit.completedDates].sort().reverse()
     const lastDate = new Date(sorted[0] + 'T00:00:00')
-    const daysSince = Math.floor((today.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24))
+    const daysSince = differenceInCalendarDays(today, lastDate)
     if (daysSince === 0) recency = 100
     else if (daysSince === 1) recency = 90
     else if (daysSince <= 3) recency = 70
@@ -153,14 +211,23 @@ export function calculateHabitStrength(habit: Habit): HabitStrength {
     else recency = Math.max(0, 20 - daysSince)
   }
 
-  // Frequency score (0-100): completion rate
-  const frequency = Math.min(100, Math.round(habit.completionRate))
+  // Frequency score (0-100): dynamically computed completion rate
+  const frequency = calculateCompletionRate(
+    habit.frequency,
+    habit.startDate,
+    habit.completedDates.length,
+    habit.goal,
+    habit.weeklyTimesPerWeek,
+    today,
+  )
 
-  // Streak score (0-100): current streak relative to best
+  // Streak score (0-100): dynamically computed current/best ratio
+  const currentStreak = calculateCurrentStreak(habit.completedDates, today)
+  const bestStreak = calculateBestStreak(habit.completedDates)
   const streak =
-    habit.bestStreak > 0
-      ? Math.round((habit.currentStreak / habit.bestStreak) * 100)
-      : habit.currentStreak > 0
+    bestStreak > 0
+      ? Math.round((currentStreak / bestStreak) * 100)
+      : currentStreak > 0
         ? 50
         : 0
 
@@ -184,25 +251,29 @@ const MILESTONE_THRESHOLDS = [7, 14, 21, 30, 50, 75, 100, 150, 200, 365]
 
 /**
  * Find the next upcoming milestone for each habit with an active streak.
+ * Computes current streak dynamically from completedDates.
  */
 export function getUpcomingMilestones(habits: Habit[], limit: number = 3): Milestone[] {
   const milestones: Milestone[] = []
 
   habits
-    .filter((h) => h.currentStreak > 0 && !h.archived)
+    .filter((h) => !h.archived)
     .forEach((h) => {
-      const next = MILESTONE_THRESHOLDS.find((t) => t > h.currentStreak)
+      const streak = calculateCurrentStreak(h.completedDates)
+      if (streak <= 0) return
+
+      const next = MILESTONE_THRESHOLDS.find((t) => t > streak)
       if (next) {
         const prevThreshold = MILESTONE_THRESHOLDS[MILESTONE_THRESHOLDS.indexOf(next) - 1] ?? 0
         const range = next - prevThreshold
-        const done = h.currentStreak - prevThreshold
+        const done = streak - prevThreshold
         milestones.push({
           habitName: h.name,
           habitIcon: h.icon || 'check_circle',
-          currentStreak: h.currentStreak,
+          currentStreak: streak,
           nextMilestone: next,
           progress: Math.round((done / range) * 100),
-          daysRemaining: next - h.currentStreak,
+          daysRemaining: next - streak,
         })
       }
     })
@@ -216,6 +287,7 @@ export function getUpcomingMilestones(habits: Habit[], limit: number = 3): Miles
 export interface TargetVsActual {
   habitName: string
   habitIcon: string
+  habitIconColor: number
   frequency: string
   target: string
   actual: number
@@ -224,6 +296,7 @@ export interface TargetVsActual {
 
 /**
  * Compare each habit's goal frequency to actual completion rate.
+ * Computes completion rate dynamically from completedDates.
  */
 export function getTargetVsActual(habits: Habit[]): TargetVsActual[] {
   return habits
@@ -234,7 +307,13 @@ export function getTargetVsActual(habits: Habit[]): TargetVsActual[] {
       else if (h.frequency === 'weekly') target = `${h.weeklyTimesPerWeek ?? h.goal}x / week`
       else target = `${h.goal}x / month`
 
-      const actual = h.completionRate
+      const actual = calculateCompletionRate(
+        h.frequency,
+        h.startDate,
+        h.completedDates.length,
+        h.goal,
+        h.weeklyTimesPerWeek,
+      )
 
       let status: 'on-track' | 'behind' | 'ahead' = 'on-track'
       if (actual >= 90) status = 'ahead'
@@ -243,6 +322,7 @@ export function getTargetVsActual(habits: Habit[]): TargetVsActual[] {
       return {
         habitName: h.name,
         habitIcon: h.icon || 'check_circle',
+        habitIconColor: h.iconColor ?? 0,
         frequency: h.frequency,
         target,
         actual,

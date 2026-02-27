@@ -4,6 +4,7 @@ import { Habit } from '@/types/habit'
 import { format } from 'date-fns'
 import { SAMPLE_HABITS } from '@/constants/sampleData'
 import { calculateStreaks } from '@/utils/streakUtils'
+import { calculateCompletionRate } from '@/utils/progressUtils'
 
 interface HabitState {
   habits: Habit[]
@@ -121,12 +122,22 @@ export const useHabitStore = create<HabitState>()(
             // Calculate streaks using modern yesterday-tolerant algorithm
             const { currentStreak, bestStreak } = calculateStreaks(completedDates)
             
+            // Recalculate completion rate based on frequency and time elapsed
+            const completionRate = calculateCompletionRate(
+              habit.frequency,
+              habit.startDate,
+              completedDates.length,
+              habit.goal,
+              habit.weeklyTimesPerWeek,
+            )
+            
             return {
               ...habit,
               completedDates,
               totalCompletions,
               currentStreak,
               bestStreak,
+              completionRate,
             }
           })
           
@@ -273,7 +284,7 @@ export const useHabitStore = create<HabitState>()(
     }),
     {
       name: 'habit-storage',
-      version: 1,
+      version: 2,
       storage: {
         getItem: (name) => {
           const value = localStorage.getItem(name)
@@ -291,10 +302,27 @@ export const useHabitStore = create<HabitState>()(
 
         if (version === 0) {
           // Migration v0→v1: Remove orphaned habits that have no categoryId.
-          // These are legacy/sample habits that are already invisible on
-          // Today and Habits pages but still bloat storage and skew stats.
           const habits = (state.habits ?? []) as Habit[]
           state.habits = habits.filter((h) => h.categoryId !== undefined)
+        }
+
+        if (version < 2) {
+          // Migration →v2: Recalculate currentStreak, bestStreak, and
+          // completionRate for every habit using the modern algorithms.
+          // Fixes stale values from the old buggy streak calculation and
+          // the never-updated completionRate.
+          const habits = (state.habits ?? []) as Habit[]
+          state.habits = habits.map((h) => {
+            const { currentStreak, bestStreak } = calculateStreaks(h.completedDates)
+            const completionRate = calculateCompletionRate(
+              h.frequency,
+              h.startDate,
+              h.completedDates.length,
+              h.goal,
+              h.weeklyTimesPerWeek,
+            )
+            return { ...h, currentStreak, bestStreak, completionRate }
+          })
         }
 
         return state as HabitState
