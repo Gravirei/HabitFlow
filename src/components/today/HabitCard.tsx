@@ -204,11 +204,34 @@ export function HabitCard({ habit, isCompleted, index, onToggle, onBodyClick, on
               <span className="material-symbols-outlined text-[14px] text-teal-400/60">keep</span>
             )}
 
-            {/* Streak */}
+            {/* Streak — shows current/goal with color states */}
             {habit.currentStreak > 0 && (
-              <div className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-lg bg-orange-500/10 border border-orange-400/20 backdrop-blur-sm">
-                <span className="material-symbols-outlined text-[13px] text-orange-400">local_fire_department</span>
-                <span className="text-[11px] font-bold text-orange-300/90 tabular-nums">{habit.currentStreak}</span>
+              <div className={cn(
+                "flex items-center gap-0.5 px-1.5 py-0.5 rounded-lg border backdrop-blur-sm",
+                habit.goal > 1 && habit.currentStreak > habit.goal
+                  ? "bg-red-500/10 border-red-400/20"
+                  : habit.goal > 1 && habit.currentStreak >= habit.goal
+                    ? "bg-green-500/10 border-green-400/20"
+                    : "bg-orange-500/10 border-orange-400/20"
+              )}>
+                <span className={cn(
+                  "material-symbols-outlined text-[13px]",
+                  habit.goal > 1 && habit.currentStreak > habit.goal
+                    ? "text-red-400"
+                    : habit.goal > 1 && habit.currentStreak >= habit.goal
+                      ? "text-green-400"
+                      : "text-orange-400"
+                )}>local_fire_department</span>
+                <span className={cn(
+                  "text-[11px] font-bold tabular-nums",
+                  habit.goal > 1 && habit.currentStreak > habit.goal
+                    ? "text-red-300/90 animate-pulse"
+                    : habit.goal > 1 && habit.currentStreak >= habit.goal
+                      ? "text-green-300/90"
+                      : "text-orange-300/90"
+                )}>
+                  {habit.goal > 1 ? `${habit.currentStreak}/${habit.goal}` : habit.currentStreak}
+                </span>
               </div>
             )}
 
