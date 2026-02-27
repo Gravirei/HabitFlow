@@ -41,6 +41,7 @@ import { Feedback } from '@/pages/sideNav/Feedback'
 import { ShareApp } from '@/pages/sideNav/ShareApp'
 import { PremiumFeatures } from '@/pages/sideNav/PremiumFeatures'
 import { Integrations } from '@/pages/sideNav/Integrations'
+import { Social } from '@/pages/Social'
 // ARCHIVED: ThemeProvider import removed (theme module archived)
 
 function App() {
@@ -144,6 +145,7 @@ function App() {
           <Route path="/share" element={<RequireAuth><ShareApp /></RequireAuth>} />
           <Route path="/premium" element={<RequireAuth><PremiumFeatures /></RequireAuth>} />
           <Route path="/integrations" element={<RequireAuth><Integrations /></RequireAuth>} />
+          <Route path="/social" element={<RequireAuth><RequireVerifiedEmail><Social /></RequireVerifiedEmail></RequireAuth>} />
         </Routes>
         </BrowserRouter>
     </ErrorBoundary>

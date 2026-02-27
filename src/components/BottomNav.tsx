@@ -12,6 +12,7 @@ const navItems: NavItem[] = [
   { id: 'today', label: 'Today', icon: 'grid_view', path: '/' },
   { id: 'habits', label: 'Habits', icon: 'check_circle', path: '/habits' },
   { id: 'tasks', label: 'Tasks', icon: 'list_alt', path: '/tasks' },
+  { id: 'social', label: 'Social', icon: 'group', path: '/social' },
   { id: 'categories', label: 'Categories', icon: 'folder', path: '/categories' },
   { id: 'timer', label: 'Timer', icon: 'timer', path: '/timer' },
 ]

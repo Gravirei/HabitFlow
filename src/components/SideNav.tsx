@@ -21,6 +21,7 @@ export function SideNav({ isOpen, onClose }: SideNavProps) {
   const menuItems = [
     { icon: 'dashboard', label: 'Dashboard', path: '/', active: true },
     { icon: 'checklist', label: 'All Habits', path: '/habits' },
+    { icon: 'group', label: 'Social', path: '/social' },
     { icon: 'bar_chart', label: 'Statistics', path: '/progress' },
   ]
 
