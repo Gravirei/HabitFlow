@@ -278,16 +278,18 @@ export function Habits() {
   }
 
   // Stats - Tab-based progress (contextual to active tab)
+  // Exclude inactive weekly habits (not scheduled for today) from progress counts
   const completedToday = habits.filter(
     (h) =>
       h.completedDates.includes(today()) &&
       h.frequency === activeTab &&
       h.isActive === true &&
       h.categoryId !== undefined &&
-      !h.archived
+      !h.archived &&
+      isWeeklyHabitActiveToday(h)
   ).length
   const totalActiveTabHabits = habits.filter(
-    (h) => h.frequency === activeTab && h.isActive === true && h.categoryId !== undefined && !h.archived
+    (h) => h.frequency === activeTab && h.isActive === true && h.categoryId !== undefined && !h.archived && isWeeklyHabitActiveToday(h)
   ).length
   const bestStreak = Math.max(...habits.map((h) => h.bestStreak), 0)
   const completionPct =
@@ -1048,7 +1050,8 @@ function HabitList({
           return 0
         })
         
-        const completedCount = sortedCategoryHabits.filter((h) => isHabitCompletedToday(h.id)).length
+        const activeTodayHabits = sortedCategoryHabits.filter((h) => isWeeklyHabitActiveToday(h))
+        const completedCount = activeTodayHabits.filter((h) => isHabitCompletedToday(h.id)).length
         const isExpanded = expandedCategories.has(category)
 
         return (
@@ -1071,7 +1074,7 @@ function HabitList({
               <div className="flex-1 text-left">
                 <h4 className="text-sm font-bold text-gray-800 dark:text-white">{info.name}</h4>
                 <p className="mt-0.5 text-[11px] text-gray-500 dark:text-gray-400">
-                  {completedCount}/{sortedCategoryHabits.length} completed
+                  {completedCount}/{activeTodayHabits.length} completed
                 </p>
               </div>
 
