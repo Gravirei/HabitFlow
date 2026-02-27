@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware'
 import { Habit } from '@/types/habit'
 import { format } from 'date-fns'
 import { SAMPLE_HABITS } from '@/constants/sampleData'
+import { calculateStreaks } from '@/utils/streakUtils'
 
 interface HabitState {
   habits: Habit[]
@@ -117,23 +118,8 @@ export const useHabitStore = create<HabitState>()(
               ? habit.totalCompletions - 1
               : habit.totalCompletions + 1
             
-            // Calculate streak
-            const sortedDates = [...completedDates].sort().reverse()
-            let currentStreak = 0
-            const today = new Date()
-            
-            for (let i = 0; i < sortedDates.length; i++) {
-              const date = new Date(sortedDates[i])
-              const diffDays = Math.floor((today.getTime() - date.getTime()) / (1000 * 60 * 60 * 24))
-              
-              if (diffDays === i) {
-                currentStreak++
-              } else {
-                break
-              }
-            }
-            
-            const bestStreak = Math.max(habit.bestStreak, currentStreak)
+            // Calculate streaks using modern yesterday-tolerant algorithm
+            const { currentStreak, bestStreak } = calculateStreaks(completedDates)
             
             return {
               ...habit,
