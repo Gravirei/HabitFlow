@@ -591,10 +591,12 @@ interface HabitCardProps {
 function HabitCard({ habit, index, taskCount, onClick, onDelete, onEdit, onArchive, onOpenNotes }: HabitCardProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [showWeeklySchedule, setShowWeeklySchedule] = useState(false)
+  const [showMonthlySchedule, setShowMonthlySchedule] = useState(false)
   const [popupPosition, setPopupPosition] = useState({ top: 0, left: 0 })
   const menuId = `habit-menu-${habit.id}`
   const menuRef = useRef<HTMLDivElement>(null)
   const weeklyBadgeRef = useRef<HTMLButtonElement>(null)
+  const monthlyBadgeRef = useRef<HTMLButtonElement>(null)
   const navigate = useNavigate()
 
   const openWeeklySchedule = useCallback(() => {
@@ -606,6 +608,17 @@ function HabitCard({ habit, index, taskCount, onClick, onDelete, onEdit, onArchi
       })
     }
     setShowWeeklySchedule(true)
+  }, [])
+
+  const openMonthlySchedule = useCallback(() => {
+    if (monthlyBadgeRef.current) {
+      const rect = monthlyBadgeRef.current.getBoundingClientRect()
+      setPopupPosition({
+        top: rect.bottom + 8,
+        left: Math.min(rect.left, window.innerWidth - 280),
+      })
+    }
+    setShowMonthlySchedule(true)
   }, [])
 
   // Close menu when clicking outside
@@ -676,12 +689,16 @@ function HabitCard({ habit, index, taskCount, onClick, onDelete, onEdit, onArchi
             
             {/* Frequency Badge */}
             <button
-              ref={weeklyBadgeRef}
+              ref={habit.frequency === 'monthly' ? monthlyBadgeRef : weeklyBadgeRef}
               type="button"
               onClick={(e) => {
                 if (habit.frequency === 'weekly' && habit.weeklyTimesPerWeek) {
                   e.stopPropagation()
                   showWeeklySchedule ? setShowWeeklySchedule(false) : openWeeklySchedule()
+                }
+                if (habit.frequency === 'monthly' && habit.monthlyTimesPerMonth) {
+                  e.stopPropagation()
+                  showMonthlySchedule ? setShowMonthlySchedule(false) : openMonthlySchedule()
                 }
               }}
               className={clsx(
@@ -689,7 +706,8 @@ function HabitCard({ habit, index, taskCount, onClick, onDelete, onEdit, onArchi
                 habit.frequency === 'daily' && "bg-teal-100 text-teal-700 dark:bg-teal-500/20 dark:text-teal-400",
                 habit.frequency === 'weekly' && "bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-400",
                 habit.frequency === 'monthly' && "bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400",
-                habit.frequency === 'weekly' && habit.weeklyTimesPerWeek && "cursor-pointer hover:ring-2 hover:ring-purple-300 dark:hover:ring-purple-500/40"
+                habit.frequency === 'weekly' && habit.weeklyTimesPerWeek && "cursor-pointer hover:ring-2 hover:ring-purple-300 dark:hover:ring-purple-500/40",
+                habit.frequency === 'monthly' && habit.monthlyTimesPerMonth && "cursor-pointer hover:ring-2 hover:ring-blue-300 dark:hover:ring-blue-500/40"
               )}
             >
               <span className="material-symbols-outlined text-sm">
@@ -698,7 +716,9 @@ function HabitCard({ habit, index, taskCount, onClick, onDelete, onEdit, onArchi
               <span className="capitalize">
                 {habit.frequency === 'weekly' && habit.weeklyTimesPerWeek
                   ? `Weekly · ${habit.weeklyTimesPerWeek} day${habit.weeklyTimesPerWeek > 1 ? 's' : ''}`
-                  : habit.frequency}
+                  : habit.frequency === 'monthly' && habit.monthlyTimesPerMonth
+                    ? `Monthly · ${habit.monthlyTimesPerMonth} date${habit.monthlyTimesPerMonth > 1 ? 's' : ''}`
+                    : habit.frequency}
               </span>
             </button>
 
@@ -767,6 +787,82 @@ function HabitCard({ habit, index, taskCount, onClick, onDelete, onEdit, onArchi
                             )
                           })}
                         </div>
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              </>,
+              document.body
+            )}
+            
+            {/* Monthly Schedule Popup — rendered via portal */}
+            {showMonthlySchedule && habit.frequency === 'monthly' && habit.monthlyTimesPerMonth && createPortal(
+              <>
+                {/* Backdrop */}
+                <div
+                  className="fixed inset-0 z-[9998] bg-black/0"
+                  onMouseDown={(e) => {
+                    e.stopPropagation()
+                    e.preventDefault()
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    e.preventDefault()
+                    setShowMonthlySchedule(false)
+                  }}
+                />
+                <motion.div
+                  initial={{ opacity: 0, y: -8, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -8, scale: 0.95 }}
+                  transition={{ duration: 0.2 }}
+                  className="fixed z-[9999] w-[268px] rounded-xl border border-slate-200 bg-white p-4 shadow-xl dark:border-white/10 dark:bg-slate-800"
+                  style={{ top: popupPosition.top, left: popupPosition.left }}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="text-sm font-bold text-slate-800 dark:text-white">Monthly Schedule</h4>
+                    <button
+                      type="button"
+                      onClick={() => setShowMonthlySchedule(false)}
+                      className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                    >
+                      <span className="material-symbols-outlined text-lg">close</span>
+                    </button>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+                      <span className="material-symbols-outlined text-base text-blue-500">repeat</span>
+                      <span>
+                        <strong className="text-slate-800 dark:text-white">{habit.monthlyTimesPerMonth}</strong> time{habit.monthlyTimesPerMonth > 1 ? 's' : ''} per month
+                      </span>
+                    </div>
+
+                    {habit.monthlyDays && habit.monthlyDays.length > 0 && (
+                      <div>
+                        <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-2">Selected Dates</p>
+                        <div className="grid grid-cols-7 gap-1">
+                          {Array.from({ length: 31 }, (_, i) => i + 1).map((date) => {
+                            const isSelected = habit.monthlyDays!.includes(date)
+                            return (
+                              <div
+                                key={date}
+                                className={clsx(
+                                  'rounded-md py-1 text-center text-[10px] font-bold',
+                                  isSelected
+                                    ? 'bg-blue-500 text-white shadow-sm'
+                                    : 'bg-slate-100 text-slate-300 dark:bg-slate-700 dark:text-slate-600'
+                                )}
+                              >
+                                {date}
+                              </div>
+                            )
+                          })}
+                        </div>
+                        <p className="mt-2 text-[9px] text-slate-400 dark:text-slate-500">
+                          💡 Dates 29-31 roll to last day in shorter months
+                        </p>
                       </div>
                     )}
                   </div>

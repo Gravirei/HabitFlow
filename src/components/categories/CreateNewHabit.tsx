@@ -53,6 +53,9 @@ export function CreateNewHabit({ isOpen, onClose, categoryId, categoryName }: Cr
   const [weeklyTimesPerWeek, setWeeklyTimesPerWeek] = useState('')
   const [weeklyTimesSet, setWeeklyTimesSet] = useState(false)
   const [weeklyDays, setWeeklyDays] = useState<number[]>([])
+  const [monthlyTimesPerMonth, setMonthlyTimesPerMonth] = useState('')
+  const [monthlyTimesSet, setMonthlyTimesSet] = useState(false)
+  const [monthlyDays, setMonthlyDays] = useState<number[]>([])
 
   const [error, setError] = useState<string | undefined>(undefined)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -71,6 +74,9 @@ export function CreateNewHabit({ isOpen, onClose, categoryId, categoryName }: Cr
     setWeeklyTimesPerWeek('')
     setWeeklyTimesSet(false)
     setWeeklyDays([])
+    setMonthlyTimesPerMonth('')
+    setMonthlyTimesSet(false)
+    setMonthlyDays([])
     setError(undefined)
     setIsSubmitting(false)
     setTimeout(() => inputRef.current?.focus(), 100)
@@ -105,6 +111,19 @@ export function CreateNewHabit({ isOpen, onClose, categoryId, categoryName }: Cr
       }
     }
 
+    // Validate monthly date selection
+    if (frequency === 'monthly') {
+      const timesNum = parseInt(monthlyTimesPerMonth, 10)
+      if (!monthlyTimesSet || isNaN(timesNum) || timesNum < 1) {
+        setError('Please set how many times per month')
+        return
+      }
+      if (monthlyDays.length !== timesNum) {
+        setError(`Please select exactly ${timesNum} date${timesNum > 1 ? 's' : ''}`)
+        return
+      }
+    }
+
     setIsSubmitting(true)
 
     try {
@@ -126,6 +145,10 @@ export function CreateNewHabit({ isOpen, onClose, categoryId, categoryName }: Cr
         ...(frequency === 'weekly' && {
           weeklyTimesPerWeek: parseInt(weeklyTimesPerWeek, 10),
           weeklyDays: [...weeklyDays].sort(),
+        }),
+        ...(frequency === 'monthly' && {
+          monthlyTimesPerMonth: parseInt(monthlyTimesPerMonth, 10),
+          monthlyDays: [...monthlyDays].sort((a, b) => a - b),
         }),
       })
 
@@ -371,6 +394,11 @@ export function CreateNewHabit({ isOpen, onClose, categoryId, categoryName }: Cr
                         setWeeklyTimesSet(false)
                         setWeeklyDays([])
                       }
+                      if (opt.value !== 'monthly') {
+                        setMonthlyTimesPerMonth('')
+                        setMonthlyTimesSet(false)
+                        setMonthlyDays([])
+                      }
                     }}
                     disabled={isSubmitting}
                     className={clsx(
@@ -496,6 +524,123 @@ export function CreateNewHabit({ isOpen, onClose, categoryId, categoryName }: Cr
                             {weeklyDays.length === parseInt(weeklyTimesPerWeek, 10) && (
                               <p className="mt-2 text-xs text-emerald-500 font-medium">
                                 ✓ All days selected
+                              </p>
+                            )}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Monthly Date Selector — inline expand */}
+              <AnimatePresence>
+                {frequency === 'monthly' && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.25 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-4 dark:border-white/10 dark:bg-slate-800/50">
+                      {/* Step 1: How many times per month */}
+                      <div>
+                        <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                          How many times do you want to do this habit in a month?
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="number"
+                            value={monthlyTimesPerMonth}
+                            onChange={(e) => {
+                              setMonthlyTimesPerMonth(e.target.value)
+                              setMonthlyTimesSet(false)
+                              setMonthlyDays([])
+                            }}
+                            min="1"
+                            max="31"
+                            placeholder="e.g. 5"
+                            disabled={isSubmitting}
+                            className="w-20 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-center text-sm font-semibold focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-slate-800 dark:text-white"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const n = parseInt(monthlyTimesPerMonth, 10)
+                              if (!isNaN(n) && n >= 1 && n <= 31) {
+                                setMonthlyTimesSet(true)
+                                setMonthlyDays([])
+                              }
+                            }}
+                            disabled={isSubmitting || !monthlyTimesPerMonth || parseInt(monthlyTimesPerMonth, 10) < 1 || parseInt(monthlyTimesPerMonth, 10) > 31}
+                            className={clsx(
+                              'rounded-xl px-4 py-2.5 text-sm font-semibold transition-all',
+                              monthlyTimesPerMonth && parseInt(monthlyTimesPerMonth, 10) >= 1 && parseInt(monthlyTimesPerMonth, 10) <= 31 && !isSubmitting
+                                ? 'bg-primary text-slate-900 hover:bg-primary/90'
+                                : 'bg-slate-200 text-slate-400 cursor-not-allowed dark:bg-slate-700 dark:text-slate-500'
+                            )}
+                          >
+                            Set
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Step 2: Select specific dates */}
+                      <AnimatePresence>
+                        {monthlyTimesSet && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="overflow-hidden"
+                          >
+                            <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                              Select {monthlyTimesPerMonth} specific date{parseInt(monthlyTimesPerMonth, 10) > 1 ? 's' : ''} of the month
+                            </p>
+                            <div className="grid grid-cols-7 gap-1.5">
+                              {Array.from({ length: 31 }, (_, i) => i + 1).map((date) => {
+                                const isSelected = monthlyDays.includes(date)
+                                const maxReached = monthlyDays.length >= parseInt(monthlyTimesPerMonth, 10) && !isSelected
+                                return (
+                                  <button
+                                    key={date}
+                                    type="button"
+                                    onClick={() => {
+                                      if (isSelected) {
+                                        setMonthlyDays(monthlyDays.filter((d) => d !== date))
+                                      } else if (!maxReached) {
+                                        setMonthlyDays([...monthlyDays, date])
+                                      }
+                                    }}
+                                    disabled={isSubmitting || (maxReached && !isSelected)}
+                                    className={clsx(
+                                      'rounded-lg py-2 text-xs font-bold transition-all',
+                                      isSelected
+                                        ? 'bg-primary text-slate-900 shadow-sm ring-2 ring-primary/30'
+                                        : maxReached
+                                          ? 'bg-slate-100 text-slate-300 cursor-not-allowed dark:bg-slate-700 dark:text-slate-600'
+                                          : 'bg-white text-slate-600 border border-slate-200 hover:border-primary hover:text-primary dark:bg-slate-800 dark:text-slate-400 dark:border-white/10 dark:hover:border-primary'
+                                    )}
+                                  >
+                                    {date}
+                                  </button>
+                                )
+                              })}
+                            </div>
+                            <p className="mt-2 text-[10px] text-slate-400 dark:text-slate-500">
+                              💡 Dates like 29, 30, 31 will roll to the last day in shorter months
+                            </p>
+                            {monthlyDays.length > 0 && monthlyDays.length < parseInt(monthlyTimesPerMonth, 10) && (
+                              <p className="mt-1 text-xs text-amber-500">
+                                Select {parseInt(monthlyTimesPerMonth, 10) - monthlyDays.length} more date{parseInt(monthlyTimesPerMonth, 10) - monthlyDays.length > 1 ? 's' : ''}
+                              </p>
+                            )}
+                            {monthlyDays.length === parseInt(monthlyTimesPerMonth, 10) && (
+                              <p className="mt-1 text-xs text-emerald-500 font-medium">
+                                ✓ All dates selected
                               </p>
                             )}
                           </motion.div>

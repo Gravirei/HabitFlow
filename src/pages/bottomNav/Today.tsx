@@ -421,6 +421,15 @@ export function Today() {
       if (h.frequency === 'weekly' && h.weeklyDays && h.weeklyDays.length > 0) {
         return h.weeklyDays.includes(todayDayIndex)
       }
+      // Hide monthly habits on non-matching dates (only if monthlyDays is configured)
+      if (h.frequency === 'monthly' && h.monthlyDays && h.monthlyDays.length > 0) {
+        const dateOfMonth = selectedDate.getDate()
+        const lastDay = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0).getDate()
+        return h.monthlyDays.some(d => {
+          const effective = d > lastDay ? lastDay : d
+          return effective === dateOfMonth
+        })
+      }
       return true
     })
     .filter(h => h.name.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -439,6 +448,14 @@ export function Today() {
     .filter(h => {
       if (h.frequency === 'weekly' && h.weeklyDays && h.weeklyDays.length > 0) {
         return h.weeklyDays.includes(todayDayIndex)
+      }
+      if (h.frequency === 'monthly' && h.monthlyDays && h.monthlyDays.length > 0) {
+        const dateOfMonth = selectedDate.getDate()
+        const lastDay = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0).getDate()
+        return h.monthlyDays.some(d => {
+          const effective = d > lastDay ? lastDay : d
+          return effective === dateOfMonth
+        })
       }
       return true
     })

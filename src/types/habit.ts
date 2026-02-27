@@ -68,6 +68,18 @@ export interface Habit {
   weeklyDays?: number[]
 
   /**
+   * How many times per month the user wants to do this habit (only when frequency is 'monthly').
+   */
+  monthlyTimesPerMonth?: number
+
+  /**
+   * Specific dates of the month selected for this habit (1-31).
+   * Only used when frequency is 'monthly'.
+   * Dates > last day of month (e.g. 31 in Feb) roll to last day.
+   */
+  monthlyDays?: number[]
+
+  /**
    * Array of ISO date strings when this habit should be hidden.
    * Used for "delete for today" functionality.
    */

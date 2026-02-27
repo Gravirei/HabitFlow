@@ -50,6 +50,75 @@ function getNextActiveDay(habit: Habit): string {
   return DAY_NAMES[next]
 }
 
+/**
+ * Get today's date of the month, accounting for end-of-month rollover.
+ * E.g. if a habit has monthlyDays: [31] and current month is Feb (28 days),
+ * the habit is active on the 28th.
+ */
+function getTodayDateOfMonth(): number {
+  return new Date().getDate()
+}
+
+function getLastDayOfCurrentMonth(): number {
+  const now = new Date()
+  return new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()
+}
+
+/** Check if a monthly habit is active today */
+function isMonthlyHabitActiveToday(habit: Habit): boolean {
+  if (habit.frequency !== 'monthly' || !habit.monthlyDays || habit.monthlyDays.length === 0) return true
+  const todayDate = getTodayDateOfMonth()
+  const lastDay = getLastDayOfCurrentMonth()
+  return habit.monthlyDays.some((d) => {
+    // Roll dates beyond last day of month to the last day
+    const effectiveDate = d > lastDay ? lastDay : d
+    return effectiveDate === todayDate
+  })
+}
+
+/** Check if a habit is active today (handles both weekly and monthly) */
+function isHabitActiveToday(habit: Habit): boolean {
+  if (habit.frequency === 'weekly') return isWeeklyHabitActiveToday(habit)
+  if (habit.frequency === 'monthly') return isMonthlyHabitActiveToday(habit)
+  return true // daily habits are always active
+}
+
+/** Get the next active date for a monthly habit */
+function getNextActiveDate(habit: Habit): string {
+  if (!habit.monthlyDays || habit.monthlyDays.length === 0) return ''
+  const now = new Date()
+  const todayDate = now.getDate()
+  const lastDay = getLastDayOfCurrentMonth()
+  const sorted = [...habit.monthlyDays].sort((a, b) => a - b)
+
+  // Find next date this month (skip dates that roll to today or earlier)
+  const seenEffective = new Set<number>()
+  for (const d of sorted) {
+    const effective = d > lastDay ? lastDay : d
+    if (seenEffective.has(effective)) continue // avoid duplicates from rollover (e.g. 29,30,31 → all 28 in Feb)
+    seenEffective.add(effective)
+    if (effective > todayDate) {
+      return `${getOrdinal(effective)} ${getMonthName(now.getMonth())}`
+    }
+  }
+
+  // All dates this month have passed → next month's first date
+  const nextMonthDate = new Date(now.getFullYear(), now.getMonth() + 1, 1)
+  const nextMonthLastDay = new Date(nextMonthDate.getFullYear(), nextMonthDate.getMonth() + 1, 0).getDate()
+  const firstDate = sorted[0] > nextMonthLastDay ? nextMonthLastDay : sorted[0]
+  return `${getMonthName(nextMonthDate.getMonth())} ${getOrdinal(firstDate)}`
+}
+
+function getOrdinal(n: number): string {
+  const s = ['th', 'st', 'nd', 'rd']
+  const v = n % 100
+  return n + (s[(v - 20) % 10] || s[v] || s[0])
+}
+
+function getMonthName(month: number): string {
+  return ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][month]
+}
+
 /** Returns ISO date strings for the last 7 days (Mon→Sun of current week) */
 function getLast7Days(): string[] {
   const now = new Date()
@@ -278,7 +347,7 @@ export function Habits() {
   }
 
   // Stats - Tab-based progress (contextual to active tab)
-  // Exclude inactive weekly habits (not scheduled for today) from progress counts
+  // Exclude inactive weekly/monthly habits (not scheduled for today) from progress counts
   const completedToday = habits.filter(
     (h) =>
       h.completedDates.includes(today()) &&
@@ -286,10 +355,10 @@ export function Habits() {
       h.isActive === true &&
       h.categoryId !== undefined &&
       !h.archived &&
-      isWeeklyHabitActiveToday(h)
+      isHabitActiveToday(h)
   ).length
   const totalActiveTabHabits = habits.filter(
-    (h) => h.frequency === activeTab && h.isActive === true && h.categoryId !== undefined && !h.archived && isWeeklyHabitActiveToday(h)
+    (h) => h.frequency === activeTab && h.isActive === true && h.categoryId !== undefined && !h.archived && isHabitActiveToday(h)
   ).length
   const bestStreak = Math.max(...habits.map((h) => h.bestStreak), 0)
   const completionPct =
@@ -1034,13 +1103,13 @@ function HabitList({
         
         // Filter out inactive weekly habits if toggle is ON
         const visibleHabits = hideInactiveHabits
-          ? categoryHabits.filter((h) => isWeeklyHabitActiveToday(h))
+          ? categoryHabits.filter((h) => isHabitActiveToday(h))
           : categoryHabits
 
-        // Sort habits: pinned first, inactive weekly habits last, then by original order
+        // Sort habits: pinned first, inactive weekly/monthly habits last, then by original order
         const sortedCategoryHabits = [...visibleHabits].sort((a, b) => {
-          const aActive = isWeeklyHabitActiveToday(a)
-          const bActive = isWeeklyHabitActiveToday(b)
+          const aActive = isHabitActiveToday(a)
+          const bActive = isHabitActiveToday(b)
           // Inactive weekly habits go to bottom
           if (aActive && !bActive) return -1
           if (!aActive && bActive) return 1
@@ -1050,7 +1119,7 @@ function HabitList({
           return 0
         })
         
-        const activeTodayHabits = sortedCategoryHabits.filter((h) => isWeeklyHabitActiveToday(h))
+        const activeTodayHabits = sortedCategoryHabits.filter((h) => isHabitActiveToday(h))
         const completedCount = activeTodayHabits.filter((h) => isHabitCompletedToday(h.id)).length
         const isExpanded = expandedCategories.has(category)
 
@@ -1256,8 +1325,8 @@ function HabitList({
                         onTogglePin={onTogglePin}
                         onArchive={onArchive}
                         onDeleteToday={onDeleteToday}
-                        isInactiveToday={!isWeeklyHabitActiveToday(habit)}
-                        nextActiveDay={getNextActiveDay(habit)}
+                        isInactiveToday={!isHabitActiveToday(habit)}
+                        nextActiveDay={habit.frequency === 'monthly' ? getNextActiveDate(habit) : getNextActiveDay(habit)}
                       />
                     </motion.div>
                   ))}
@@ -1642,14 +1711,35 @@ function HabitCard({
               </div>
             )}
 
-            {/* Streak badge */}
+            {/* Streak badge — shows current/goal with color states */}
             {habit.currentStreak > 0 && (
-              <div className="flex shrink-0 items-center gap-0.5 rounded-full bg-orange-100 px-1.5 py-0.5 dark:bg-orange-500/15">
-                <span className="material-symbols-outlined icon-filled text-[11px] text-orange-500 dark:text-orange-400">
+              <div className={clsx(
+                "flex shrink-0 items-center gap-0.5 rounded-full px-1.5 py-0.5",
+                habit.goal > 1 && habit.currentStreak > habit.goal
+                  ? "bg-red-100 dark:bg-red-500/15"
+                  : habit.goal > 1 && habit.currentStreak >= habit.goal
+                    ? "bg-green-100 dark:bg-green-500/15"
+                    : "bg-orange-100 dark:bg-orange-500/15"
+              )}>
+                <span className={clsx(
+                  "material-symbols-outlined icon-filled text-[11px]",
+                  habit.goal > 1 && habit.currentStreak > habit.goal
+                    ? "text-red-500 dark:text-red-400"
+                    : habit.goal > 1 && habit.currentStreak >= habit.goal
+                      ? "text-green-500 dark:text-green-400"
+                      : "text-orange-500 dark:text-orange-400"
+                )}>
                   local_fire_department
                 </span>
-                <span className="text-[10px] font-bold text-orange-600 dark:text-orange-400">
-                  {habit.currentStreak}
+                <span className={clsx(
+                  "text-[10px] font-bold",
+                  habit.goal > 1 && habit.currentStreak > habit.goal
+                    ? "text-red-600 dark:text-red-400 animate-pulse"
+                    : habit.goal > 1 && habit.currentStreak >= habit.goal
+                      ? "text-green-600 dark:text-green-400"
+                      : "text-orange-600 dark:text-orange-400"
+                )}>
+                  {habit.goal > 1 ? `${habit.currentStreak}/${habit.goal}` : habit.currentStreak}
                 </span>
               </div>
             )}
@@ -1657,9 +1747,7 @@ function HabitCard({
 
           <div className="mt-0.5 flex items-center gap-2">
             <p className="truncate text-xs text-gray-500 dark:text-gray-400">
-              {habit.goal > 1
-                ? `${habit.goal} ${habit.goalPeriod}`
-                : habit.description || habit.goalPeriod}
+              {habit.description || habit.goalPeriod}
             </p>
             {taskCount > 0 && (
               <span className="flex shrink-0 items-center gap-0.5 text-[10px] font-medium text-gray-400 dark:text-gray-500">
