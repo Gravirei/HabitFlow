@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import toast from 'react-hot-toast'
 import { logout } from '@/lib/auth/logout'
 import { LogoutConfirmDialog, type LogoutOptions } from '@/components/auth/LogoutConfirmDialog'
+import { useProfileStore, getAvatarFallbackUrl } from '@/store/useProfileStore'
 
 interface SideNavProps {
   isOpen: boolean
@@ -13,6 +14,9 @@ interface SideNavProps {
 export function SideNav({ isOpen, onClose }: SideNavProps) {
   const navigate = useNavigate()
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
+  const { fullName, avatarUrl, bio } = useProfileStore()
+  const truncatedBio = bio && bio.length > 50 ? bio.slice(0, 50) + '…' : bio
+  const displayAvatar = avatarUrl || getAvatarFallbackUrl(fullName)
 
   const menuItems = [
     { icon: 'dashboard', label: 'Dashboard', path: '/', active: true },
@@ -59,22 +63,27 @@ export function SideNav({ isOpen, onClose }: SideNavProps) {
             <div className="flex h-full flex-col">
               {/* Profile Section */}
               <div className="mb-8 flex flex-col items-start gap-4 px-2">
-                <div className="relative">
-                  <img 
-                    alt="User avatar" 
-                    className="size-16 rounded-full border-2 border-primary object-cover shadow-md" 
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuD3O0deTZZmipqTbvQJk-Efv-eRm5SrKc_3YJQ8H36L5aUKYH0OHfZUoes8OCX7oJf_88wzt3l7VsOYB2c6esourN1FwD-Hb6BuFc12glSWyI2o10_RjzgfF1_E7GwREPdravvQsnrzl4nzS4LTxaB0KmxqZufPXTbEq77Lc82AqP_I9F72CioY6ALHnkfDImzl0-PUB9IEtWu9mFbjVICnfbis_QGzgseVrvDDmVmXOgoCpE1kdaC2FHrJ5u3pfhl7RhTajfqpHVkY"
-                  />
-                  <div className="absolute bottom-0 right-0 size-4 rounded-full bg-green-500 border-2 border-white dark:border-slate-900"></div>
+                <div className="relative group">
+                  <div className="absolute -inset-0.5 bg-gradient-to-tr from-violet-500 to-fuchsia-500 rounded-full opacity-75 blur group-hover:opacity-100 transition duration-500"></div>
+                  <div className="relative size-16 rounded-full p-0.5 bg-white dark:bg-slate-950">
+                    <img 
+                      alt="User avatar" 
+                      className="size-full rounded-full object-cover" 
+                      src={displayAvatar}
+                    />
+                  </div>
                 </div>
                 <div>
-                  <p className="text-xl font-bold leading-tight text-slate-900 dark:text-white">Jane Doe</p>
+                  <p className="text-xl font-bold leading-tight text-slate-900 dark:text-white">{fullName}</p>
+                  {truncatedBio && (
+                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-snug mt-0.5">{truncatedBio}</p>
+                  )}
                   <button 
                     onClick={() => {
                       navigate('/profile')
                       onClose()
                     }}
-                    className="text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+                    className="text-sm font-medium text-primary hover:text-primary/80 transition-colors mt-0.5"
                   >
                     View Profile
                   </button>
