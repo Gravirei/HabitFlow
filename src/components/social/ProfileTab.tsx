@@ -108,7 +108,16 @@ export function ProfileTab() {
   const displayAvatar = avatarUrl || getAvatarFallbackUrl(fullName)
   const league = getLeagueConfig(currentLeagueTier)
 
+  const { shouldShowDailySummary, dismissDailySummary, triggerDailySummary, checkSessionEndSummary } = useSocialStore()
   const [showSummary, setShowSummary] = useState(false)
+
+  // Session end trigger (GAP 3 — priority 3)
+  useEffect(() => { checkSessionEndSummary() }, [])
+
+  // Auto-show when store triggers it
+  useEffect(() => {
+    if (shouldShowDailySummary) setShowSummary(true)
+  }, [shouldShowDailySummary])
   const [badgeFilter, setBadgeFilter] = useState<'all' | 'unlocked' | 'locked'>('all')
 
   useEffect(() => { initializeBadges() }, [])
@@ -178,6 +187,18 @@ export function ProfileTab() {
       {/* XP Breakdown */}
       <XPBreakdown events={todayEvents} todayXP={todayXP} />
 
+      {/* Manual summary trigger (GAP 3 — priority 2) */}
+      <button
+        onClick={() => {
+          triggerDailySummary()
+          setShowSummary(true)
+        }}
+        className="w-full flex items-center justify-center gap-2 rounded-2xl bg-white/[0.02] border border-white/[0.04] py-3 text-[12px] font-semibold text-slate-400 cursor-pointer hover:bg-white/[0.04] hover:text-white transition-all duration-200"
+      >
+        <span className="material-symbols-outlined text-sm">summarize</span>
+        See Today's Summary
+      </button>
+
       {/* Badges */}
       <div>
         <div className="flex items-center justify-between mb-3">
@@ -226,7 +247,10 @@ export function ProfileTab() {
             totalXP={totalXP}
             currentStreak={currentStreak}
             isOpen={showSummary}
-            onClose={() => setShowSummary(false)}
+            onClose={() => {
+              setShowSummary(false)
+              dismissDailySummary()
+            }}
           />
         )}
       </AnimatePresence>

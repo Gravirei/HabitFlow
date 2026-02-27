@@ -5,6 +5,280 @@
 
 import type { XPLevel, LeagueConfig, SocialBadge, Friend } from './types'
 
+// ─── Design Tokens (GAP 1) ──────────────────────────────────────────────────
+// Single source of truth for all social system colors, surfaces, and borders.
+// Primary brand color: #13ec5b — HabitFlow's vibrant emerald-green.
+// Chosen because it provides 10.8:1 contrast on dark backgrounds, harmonizes
+// with all 5 league tier colors (warm metals + cool gems), and matches the
+// app-wide Tailwind `primary` token already defined in tailwind.config.js.
+
+export const SOCIAL_DESIGN_TOKENS = {
+  /** Brand */
+  brand: {
+    primary: '#13ec5b',
+    primaryFocus: '#0ebf49',
+    primaryContent: '#003811',
+  },
+
+  /** League tier colors — hex values matching LEAGUE_CONFIGS */
+  league: {
+    bronze: '#CD7F32',
+    silver: '#C0C0C0',
+    gold: '#FFD700',
+    platinum: '#E5E4E2',
+    diamond: '#B9F2FF',
+  },
+
+  /** Badge rarity colors — start/end of each gradient */
+  rarity: {
+    common: { from: '#64748b', to: '#94a3b8' },   // slate-500 → slate-400
+    rare: { from: '#3b82f6', to: '#22d3ee' },       // blue-500 → cyan-400
+    epic: { from: '#a855f7', to: '#f472b6' },       // purple-500 → pink-400
+    legendary: { from: '#f59e0b', to: '#fb923c' },  // amber-500 → orange-400
+  },
+
+  /** Surface card backgrounds — use with `bg-white/[value]` */
+  surface: {
+    subtle: 0.015,    // barely visible — hero ambient areas
+    default: 0.025,   // standard card background
+    raised: 0.04,     // hover state or elevated cards
+  },
+
+  /** Border opacities — use with `border-white/[value]` */
+  border: {
+    subtle: 0.04,     // default card border
+    default: 0.06,    // elevated card / input border
+  },
+} as const
+
+// ─── Animation Catalogue (GAP 2) ────────────────────────────────────────────
+// Complete micro-interaction timing definitions for every interactive moment.
+// Each entry provides Framer Motion transition props and a reducedMotion fallback.
+
+export const SOCIAL_ANIMATIONS = {
+  /** XP bar fills from 0% to current on screen mount */
+  xpBarFillMount: {
+    trigger: 'Screen mount (Leaderboard, Profile)',
+    duration: 800,
+    easing: 'easeOut',
+    framerProps: { initial: { width: 0 }, animate: { width: 'auto' }, transition: { duration: 0.8, ease: 'easeOut' } },
+    reducedMotion: { initial: { width: 'auto' }, animate: { width: 'auto' }, transition: { duration: 0 } },
+    notes: 'Width is set dynamically via percentage. Shine sweep starts after fill.',
+  },
+
+  /** XP bar updates when new XP is awarded mid-session */
+  xpBarFillUpdate: {
+    trigger: 'awardXP() called while XPProgressBar is mounted',
+    duration: 600,
+    easing: 'easeOut',
+    framerProps: { transition: { duration: 0.6, ease: 'easeOut' } },
+    reducedMotion: { transition: { duration: 0 } },
+    notes: 'Shorter than mount because user expects immediate feedback.',
+  },
+
+  /** Badge unlock — locked card morphs into unlocked rarity gradient */
+  badgeUnlock: {
+    trigger: 'checkAndUnlockBadges() unlocks a new badge',
+    duration: 600,
+    easing: 'spring',
+    framerProps: { initial: { scale: 0, opacity: 0 }, animate: { scale: 1, opacity: 1 }, transition: { type: 'spring', damping: 15, stiffness: 300 } },
+    reducedMotion: { initial: { scale: 1, opacity: 1 }, animate: { scale: 1, opacity: 1 }, transition: { duration: 0 } },
+    notes: 'Slight overshoot (damping 15) for celebratory feel. Glow pulse overlay follows.',
+  },
+
+  /** Badge card hover — subtle lift */
+  badgeHover: {
+    trigger: 'Mouse hover on SocialBadgeCard',
+    duration: 200,
+    easing: 'ease-out',
+    framerProps: { whileHover: { scale: 1.02, y: -2 }, transition: { duration: 0.2, ease: 'easeOut' } },
+    reducedMotion: { whileHover: {}, transition: { duration: 0 } },
+    notes: 'CSS transition-all duration-200 as fallback for non-Framer hover.',
+  },
+
+  /** Nudge button tap — press feedback */
+  nudgeButtonTap: {
+    trigger: 'User taps nudge bell button',
+    duration: 200,
+    easing: 'default',
+    framerProps: { whileTap: { scale: 0.88 }, transition: { duration: 0.2 } },
+    reducedMotion: { whileTap: {}, transition: { duration: 0 } },
+    notes: 'Scale only, no translateY to avoid layout shift.',
+  },
+
+  /** Nudge button disabled — cooldown state appearance */
+  nudgeButtonDisabled: {
+    trigger: 'Nudge sent within last 24h to this friend',
+    duration: 300,
+    easing: 'easeOut',
+    framerProps: { initial: { opacity: 0.4 }, animate: { opacity: 0.4 }, transition: { duration: 0.3, ease: 'easeOut' } },
+    reducedMotion: { initial: { opacity: 0.4 }, animate: { opacity: 0.4 }, transition: { duration: 0 } },
+    notes: 'Icon swaps to schedule (clock). cursor-not-allowed applied via CSS.',
+  },
+
+  /** Podium bars rise on leaderboard mount */
+  podiumBarsRise: {
+    trigger: 'LeaderboardScreen mounts with data',
+    duration: 400,
+    easing: 'easeOut',
+    framerProps: { initial: { height: 0 }, animate: { height: 'auto' }, transition: { duration: 0.4, ease: 'easeOut' } },
+    reducedMotion: { initial: { height: 'auto' }, animate: { height: 'auto' }, transition: { duration: 0 } },
+    notes: 'Delays: 1st=200ms, 2nd=350ms, 3rd=450ms. Staggered after avatar entrance.',
+  },
+
+  /** Rank rows stagger entrance */
+  rankRowStagger: {
+    trigger: 'LeaderboardScreen list rows mount',
+    duration: 250,
+    easing: 'easeOut',
+    framerProps: { initial: { opacity: 0, x: -16 }, animate: { opacity: 1, x: 0 }, transition: { ease: 'easeOut' } },
+    reducedMotion: { initial: { opacity: 1, x: 0 }, animate: { opacity: 1, x: 0 }, transition: { duration: 0 } },
+    notes: 'Delay per row: 300ms base + index * 35ms.',
+  },
+
+  /** Rank change number count-up animation */
+  rankChangeCountUp: {
+    trigger: 'Rank number appears on leaderboard row',
+    duration: 500,
+    easing: 'easeOut',
+    framerProps: { initial: { opacity: 0, y: 8 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.5, ease: 'easeOut' } },
+    reducedMotion: { initial: { opacity: 1, y: 0 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0 } },
+    notes: 'Applied to rank change badge (+N / -N / NEW). Staggered with parent row.',
+  },
+
+  /** League tier badge shine sweep */
+  tierBadgeShineSweep: {
+    trigger: 'TierBadge component mounts (League screen)',
+    duration: 2500,
+    easing: 'easeInOut',
+    framerProps: { initial: { x: '-100%' }, animate: { x: '200%' }, transition: { duration: 2.5, ease: 'easeInOut', repeat: Infinity, repeatDelay: 4 } },
+    reducedMotion: { initial: { x: '-100%' }, animate: { x: '-100%' }, transition: { duration: 0 } },
+    notes: 'Skewed gradient (skewX -20deg). via-white/20. Disabled entirely in reduced motion.',
+  },
+
+  /** League promotion full-screen celebration */
+  leaguePromotion: {
+    trigger: 'User finishes week in top 5 of their league',
+    duration: 1200,
+    easing: 'spring',
+    framerProps: { initial: { scale: 0.8, opacity: 0 }, animate: { scale: 1, opacity: 1 }, transition: { type: 'spring', damping: 20, stiffness: 200, duration: 1.2 } },
+    reducedMotion: { initial: { scale: 1, opacity: 1 }, animate: { scale: 1, opacity: 1 }, transition: { duration: 0 } },
+    notes: 'Full-screen modal with confetti dots. New tier badge grows in with spring. Manual dismiss only.',
+  },
+
+  /** League demotion warning toast */
+  leagueDemotionWarning: {
+    trigger: 'User in bottom 5 with <=2 days remaining',
+    duration: 400,
+    easing: 'easeOut',
+    framerProps: { initial: { opacity: 0, y: -20 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.4, ease: 'easeOut' } },
+    reducedMotion: { initial: { opacity: 1, y: 0 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0 } },
+    notes: 'Amber-toned toast. Encouraging tone, not punishing. Max once per day.',
+  },
+
+  /** Tab switch in SocialHub */
+  tabSwitch: {
+    trigger: 'User taps a different tab (Rankings/Friends/League/Profile)',
+    duration: 220,
+    easing: 'easeOut',
+    framerProps: {
+      exit: { opacity: 0, y: -8, transition: { duration: 0.22, ease: 'easeOut' } },
+      enter: { initial: { opacity: 0, y: 12 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.22, ease: 'easeOut' } },
+    },
+    reducedMotion: {
+      exit: { opacity: 0, transition: { duration: 0 } },
+      enter: { initial: { opacity: 1, y: 0 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0 } },
+    },
+    notes: 'AnimatePresence mode="wait". Old exits up, new enters from below.',
+  },
+
+  /** Friend card expand/collapse */
+  friendCardExpand: {
+    trigger: 'User taps a friend card to reveal actions',
+    duration: 200,
+    easing: 'easeOut',
+    framerProps: {
+      expand: { initial: { height: 0, opacity: 0 }, animate: { height: 'auto', opacity: 1 }, transition: { duration: 0.2, ease: 'easeOut' } },
+      collapse: { initial: { height: 'auto', opacity: 1 }, animate: { height: 0, opacity: 0 }, transition: { duration: 0.2, ease: 'easeOut' } },
+    },
+    reducedMotion: {
+      expand: { initial: { height: 'auto', opacity: 1 }, animate: { height: 'auto', opacity: 1 }, transition: { duration: 0 } },
+      collapse: { initial: { height: 0, opacity: 0 }, animate: { height: 0, opacity: 0 }, transition: { duration: 0 } },
+    },
+    notes: 'AnimatePresence wraps action panel. overflow-hidden on container.',
+  },
+
+  /** DailyXPSummaryCard modal entrance */
+  dailySummaryEntrance: {
+    trigger: 'triggerDailySummary() or manual "Summary" button tap',
+    duration: 500,
+    easing: 'spring',
+    framerProps: {
+      backdrop: { initial: { opacity: 0 }, animate: { opacity: 1 }, transition: { duration: 0.3 } },
+      card: { initial: { opacity: 0, scale: 0.9, y: 20 }, animate: { opacity: 1, scale: 1, y: 0 }, transition: { type: 'spring', damping: 25, stiffness: 300 } },
+    },
+    reducedMotion: {
+      backdrop: { initial: { opacity: 1 }, animate: { opacity: 1 }, transition: { duration: 0 } },
+      card: { initial: { opacity: 1, scale: 1, y: 0 }, animate: { opacity: 1, scale: 1, y: 0 }, transition: { duration: 0 } },
+    },
+    notes: 'Spring-bounce card with backdrop fade. Trophy icon has additional 200ms delay.',
+  },
+
+  /** DailyXPSummaryCard modal exit */
+  dailySummaryExit: {
+    trigger: 'User taps "Awesome!" or backdrop',
+    duration: 250,
+    easing: 'easeIn',
+    framerProps: {
+      backdrop: { exit: { opacity: 0 }, transition: { duration: 0.25 } },
+      card: { exit: { opacity: 0, scale: 0.9, y: 20 }, transition: { duration: 0.25, ease: 'easeIn' } },
+    },
+    reducedMotion: {
+      backdrop: { exit: { opacity: 0 }, transition: { duration: 0 } },
+      card: { exit: { opacity: 0 }, transition: { duration: 0 } },
+    },
+    notes: 'Reverse of entrance but faster. No spring on exit.',
+  },
+
+  /** Level-up moment — XP bar overflows into next level */
+  levelUp: {
+    trigger: 'awardXP() causes level to increase',
+    duration: 1200,
+    easing: 'spring',
+    framerProps: {
+      bar: { animate: { width: '100%' }, transition: { duration: 0.4, ease: 'easeOut' } },
+      flash: { animate: { opacity: [0, 1, 0] }, transition: { duration: 0.6, delay: 0.4 } },
+      newBar: { initial: { width: 0 }, animate: { width: 'auto' }, transition: { duration: 0.4, ease: 'easeOut', delay: 0.8 } },
+    },
+    reducedMotion: {
+      bar: { animate: { width: 'auto' }, transition: { duration: 0 } },
+      flash: { animate: { opacity: 0 }, transition: { duration: 0 } },
+      newBar: { initial: { width: 'auto' }, animate: { width: 'auto' }, transition: { duration: 0 } },
+    },
+    notes: '3-phase: fill to 100%, white flash, reset and fill new level progress. Total 1200ms.',
+  },
+
+  /** Toast notification entrance */
+  toastEntrance: {
+    trigger: 'Any toast notification (nudge, badge, level-up, etc.)',
+    duration: 300,
+    easing: 'spring',
+    framerProps: { initial: { opacity: 0, y: -20, scale: 0.95 }, animate: { opacity: 1, y: 0, scale: 1 }, transition: { type: 'spring', damping: 25, stiffness: 350, duration: 0.3 } },
+    reducedMotion: { initial: { opacity: 1, y: 0, scale: 1 }, animate: { opacity: 1, y: 0, scale: 1 }, transition: { duration: 0 } },
+    notes: 'react-hot-toast handles this, but custom styling uses these values.',
+  },
+
+  /** Toast notification exit */
+  toastExit: {
+    trigger: 'Toast auto-dismisses or user swipes',
+    duration: 200,
+    easing: 'easeIn',
+    framerProps: { exit: { opacity: 0, y: -10, scale: 0.95 }, transition: { duration: 0.2, ease: 'easeIn' } },
+    reducedMotion: { exit: { opacity: 0 }, transition: { duration: 0 } },
+    notes: 'Slides up and fades. Faster than entrance for snappy feel.',
+  },
+} as const
+
 // ─── XP Award Values ────────────────────────────────────────────────────────
 
 export const XP_VALUES = {

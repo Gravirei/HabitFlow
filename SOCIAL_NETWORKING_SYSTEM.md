@@ -1577,3 +1577,235 @@ The DailyXPSummaryCard modal implements focus trapping:
 *Document created: 2026-02-27*
 *Last updated: 2026-02-27*
 *Status: v2.0 — Full design system specification with interaction documentation*
+
+---
+
+# Part 3: Production Quality Patches (v1.1)
+
+---
+
+## Design Tokens
+
+All social system colors, surfaces, and borders are now defined in a single `SOCIAL_DESIGN_TOKENS` export in `constants.ts`. This is the single source of truth for any developer styling social components.
+
+### Brand
+
+| Token | Hex | Rationale |
+|-------|-----|-----------|
+| `brand.primary` | `#13ec5b` | HabitFlow's vibrant emerald-green. 10.8:1 contrast on dark backgrounds, harmonizes with all 5 league tier colors (warm metals + cool gems), matches the app-wide Tailwind `primary` token. |
+| `brand.primaryFocus` | `#0ebf49` | Slightly darker for hover/pressed states |
+| `brand.primaryContent` | `#003811` | Dark text on primary backgrounds |
+
+### League Tiers
+
+| Token | Hex |
+|-------|-----|
+| `league.bronze` | `#CD7F32` |
+| `league.silver` | `#C0C0C0` |
+| `league.gold` | `#FFD700` |
+| `league.platinum` | `#E5E4E2` |
+| `league.diamond` | `#B9F2FF` |
+
+### Badge Rarities
+
+| Token | From | To |
+|-------|------|----|
+| `rarity.common` | `#64748b` | `#94a3b8` |
+| `rarity.rare` | `#3b82f6` | `#22d3ee` |
+| `rarity.epic` | `#a855f7` | `#f472b6` |
+| `rarity.legendary` | `#f59e0b` | `#fb923c` |
+
+### Surfaces & Borders
+
+| Token | Value | Usage |
+|-------|-------|-------|
+| `surface.subtle` | `0.015` | Barely visible — hero ambient areas |
+| `surface.default` | `0.025` | Standard card background |
+| `surface.raised` | `0.04` | Hover state or elevated cards |
+| `border.subtle` | `0.04` | Default card border |
+| `border.default` | `0.06` | Elevated card / input border |
+
+Usage: `bg-white/[${SOCIAL_DESIGN_TOKENS.surface.default}]`
+
+---
+
+## Micro-Interaction Catalogue
+
+All 18 interactive moments are now defined in `SOCIAL_ANIMATIONS` export in `constants.ts`. Each entry includes:
+
+| Key | Trigger | Duration | Easing | Reduced Motion |
+|-----|---------|----------|--------|----------------|
+| `xpBarFillMount` | Screen mount | 800ms | easeOut | Instant render at final width |
+| `xpBarFillUpdate` | awardXP() mid-session | 600ms | easeOut | Instant update |
+| `badgeUnlock` | Badge criteria met | 600ms | spring (d:15 s:300) | Instant appear |
+| `badgeHover` | Mouse hover on badge | 200ms | ease-out | No movement |
+| `nudgeButtonTap` | Tap nudge bell | 200ms | default | No scale change |
+| `nudgeButtonDisabled` | Within 24hr cooldown | 300ms | easeOut | Instant mute |
+| `podiumBarsRise` | Leaderboard data loads | 400ms | easeOut (staggered) | Instant render |
+| `rankRowStagger` | List rows mount | 250ms | easeOut (35ms/row) | All appear at once |
+| `rankChangeCountUp` | Rank badge appears | 500ms | easeOut | Instant appear |
+| `tierBadgeShineSweep` | TierBadge mounts | 2500ms | easeInOut (loop) | Disabled |
+| `leaguePromotion` | Week ends in top 5 | 1200ms | spring (d:20 s:200) | Instant modal |
+| `leagueDemotionWarning` | Bottom 5, <=2 days left | 400ms | easeOut | Instant toast |
+| `tabSwitch` | Tab tap | 220ms | easeOut | Instant swap |
+| `friendCardExpand` | Card tap to expand | 200ms | easeOut | Instant toggle |
+| `dailySummaryEntrance` | Summary triggered | 500ms | spring (d:25 s:300) | Instant appear |
+| `dailySummaryExit` | Dismiss tap | 250ms | easeIn | Instant hide |
+| `levelUp` | Level increases | 1200ms | spring (3-phase) | Instant render |
+| `toastEntrance` | Any toast | 300ms | spring (d:25 s:350) | Instant appear |
+| `toastExit` | Toast dismisses | 200ms | easeIn | Instant hide |
+
+Every entry includes full Framer Motion `framerProps` and `reducedMotion` fallback variant objects.
+
+---
+
+## DailyXPSummaryCard Trigger Logic (Updated Feature 1)
+
+### Trigger Priority (all 3 implemented)
+
+**Priority 1 — Perfect Day**: Fires automatically when user completes 100% of habits. External caller invokes `triggerDailySummary()`.
+
+**Priority 2 — Manual**: "See Today's Summary" button in ProfileTab below XP breakdown. Always visible. Calls `triggerDailySummary()` directly.
+
+**Priority 3 — Session End (fallback)**: On SocialHub mount, `checkSessionEndSummary()` checks if XP was earned on the last active date but the summary was never shown. If so, triggers the modal.
+
+### Guards
+
+- `dailySummaryShownDate: string | null` prevents showing more than once per calendar day (auto-trigger only; manual always works but marks as shown)
+- Never shows if `totalXP === 0` (first-time user with no data)
+- `dismissDailySummary()` sets `dailySummaryShownDate` to today and hides modal
+
+### Store Fields Added
+
+```typescript
+dailySummaryShownDate: string | null  // ISO date, prevents duplicate auto-show
+shouldShowDailySummary: boolean       // reactive flag for component display
+```
+
+### Store Actions Added
+
+```typescript
+triggerDailySummary(): void     // Main trigger (checks guards, sets flag)
+dismissDailySummary(): void     // Hides modal, records shown date
+checkSessionEndSummary(): void  // Fallback check on mount
+```
+
+---
+
+## Nudge Cooldown UX (Updated Feature 3)
+
+### Cooldown Rules
+
+- 24-hour cooldown per friend after sending a nudge
+- Tracked in `nudgeCooldowns: Record<string, string>` (userId to ISO timestamp)
+- `sendNudge()` now checks `canNudge()` before proceeding
+
+### Button State Machine (4 states)
+
+| State | Condition | Icon | Appearance | Cursor | Interaction |
+|-------|-----------|------|------------|--------|-------------|
+| `available` | Friend hasn't logged, no cooldown | `notifications_active` | Primary tint, 44px | pointer | Tap sends nudge |
+| `sent` | Within 24hr cooldown | `schedule` | Opacity 0.4, slate | not-allowed | Shows cooldown tooltip |
+| `completed` | Friend logged today | `check_circle` | Emerald tint | default | No action |
+| `loading` | API call in flight | `progress_activity` | Spinning, slate | default | Disabled |
+
+### Cooldown Tooltip
+
+On tap of disabled nudge button (touch devices), a glass morphism tooltip appears:
+- Position: Below button, right-aligned
+- Content: "Nudge in {X}h {Y}m" (dynamically calculated)
+- Style: `bg-slate-800/95 border border-white/[0.06] backdrop-blur-sm rounded-lg`
+- Duration: Fades in, auto-hides after 2 seconds
+- Animation: `opacity 0 to 1 to 0` over 2000ms
+
+### Expanded Card Actions
+
+The "Send Nudge" button in the expanded card also respects cooldown:
+- When on cooldown: shows `schedule` icon + "In {X}h {Y}m" text, disabled styling
+- When available: shows `notifications_active` icon + "Send Nudge" text
+
+### Store Actions Added
+
+```typescript
+canNudge(userId: string): boolean
+getNudgeCooldownRemaining(userId: string): { hours: number; minutes: number } | null
+nudgeCooldowns: Record<string, string>  // persisted in localStorage
+```
+
+---
+
+## First-Time User Flow
+
+### Component: `SocialOnboarding.tsx`
+
+### Trigger Condition
+
+Shows ONLY when ALL are true:
+- `friends.length === 0`
+- `totalXP === 0`
+- `badges.filter(b => b.unlocked).length === 0`
+- `hasSeenSocialOnboarding === false`
+
+Once dismissed, `hasSeenSocialOnboarding: true` is persisted in the Zustand store and the onboarding never shows again.
+
+### Screen Layout (single scrollable screen)
+
+#### Section 1 — Welcome Hero
+- Large `group` Material Symbol (40px) in a 80px rounded container
+- Slow pulse glow animation in primary color (`opacity [0.4, 1, 0.4]` over 3s, infinite)
+- Ambient `blur-3xl` glow behind icon
+- Headline: "Meet Your Social Hub" (`text-xl font-bold text-white`)
+- Subtext: "Compete, connect, and stay accountable with friends" (`text-[13px] text-slate-400`)
+
+#### Section 2 — Feature Preview Cards (horizontal scroll)
+3 cards, each 160px wide, `rounded-2xl`, glass morphism:
+
+| Card | Icon | Title | Subtitle |
+|------|------|-------|----------|
+| 1 | `shield` | Join a League | Compete with 30 users in weekly leagues |
+| 2 | `leaderboard` | Climb the Rankings | Earn XP for every habit you complete |
+| 3 | `group` | Streak with Friends | Nudge friends to keep them on track |
+
+Snap scrolling with `snap-x snap-mandatory`. Staggered entrance: 300ms, 400ms, 500ms.
+
+#### Section 3 — Quick Start Checklist (3 items)
+Each item: empty checkbox circle + label + right arrow. Tap to act:
+
+| Item | Action on Tap |
+|------|---------------|
+| "Complete your first habit today" | Navigates to Today tab (`/`) |
+| "Add your first friend" | Shows "Coming soon!" toast |
+| "Reach Level 2" | Dismisses onboarding, shows ProfileTab |
+
+#### Section 4 — Dismiss CTA
+- Full-width primary button: "Let's Go →"
+- `shadow-lg shadow-primary/25`, `active:scale-[0.98]`
+- Sets `hasSeenSocialOnboarding: true` on tap
+
+#### Demo Data Notice
+Bottom of onboarding: "Leaderboard and league previews use sample data until you connect with friends." in `text-[11px] text-slate-500 text-center`.
+
+### Demo Data Banners
+
+Dismissible amber-toned banners appear at the top of `LeaderboardScreen` and `LeagueScreen` when `friends.length === 0`:
+
+```
+[info icon] Preview uses sample data until you connect with friends. [X]
+```
+
+- Style: `bg-amber-500/[0.08] border border-amber-500/20 rounded-xl`
+- Dismiss: per-session only (not persisted), `AnimatePresence` exit
+- Text: `text-[11px] text-amber-300/80 font-medium`
+
+### Store Fields Added
+
+```typescript
+hasSeenSocialOnboarding: boolean  // persisted, default false
+dismissOnboarding(): void         // sets to true
+```
+
+---
+
+*Document created: 2026-02-27*
+*Last updated: 2026-02-27*
+*Status: v1.1 — Production quality patches (design tokens, animations, triggers, cooldown, onboarding)*

@@ -9,6 +9,8 @@ import { useSocialStore } from './socialStore'
 import { getLeagueTierColor } from './constants'
 import type { LeaderboardEntry, LeaderboardPeriod } from './types'
 
+// ─── Demo Data Banner ───────────────────────────────────────────────────────
+
 // ─── Rank Change Badge ──────────────────────────────────────────────────────
 
 function RankBadge({ entry }: { entry: LeaderboardEntry }) {
@@ -175,15 +177,40 @@ function LeaderboardRow({ entry, index }: { entry: LeaderboardEntry; index: numb
 
 // ─── Main ───────────────────────────────────────────────────────────────────
 
+function DemoDataBanner({ onDismiss }: { onDismiss: () => void }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -8 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, height: 0 }}
+      className="flex items-center gap-2.5 rounded-xl bg-amber-500/[0.08] border border-amber-500/20 px-3.5 py-2.5"
+    >
+      <span className="material-symbols-outlined text-sm text-amber-400">info</span>
+      <p className="flex-1 text-[11px] text-amber-300/80 font-medium">
+        Preview uses sample data until you connect with friends.
+      </p>
+      <button
+        onClick={onDismiss}
+        className="flex size-6 items-center justify-center rounded-md hover:bg-white/[0.05] cursor-pointer transition-colors duration-200"
+        aria-label="Dismiss notice"
+      >
+        <span className="material-symbols-outlined text-sm text-amber-400/60">close</span>
+      </button>
+    </motion.div>
+  )
+}
+
 export function LeaderboardScreen() {
   const {
     leaderboardPeriod,
     leaderboardEntries,
     setLeaderboardPeriod,
     refreshLeaderboard,
+    friends,
   } = useSocialStore()
 
   const [isLoading, setIsLoading] = useState(true)
+  const [showDemoBanner, setShowDemoBanner] = useState(true)
 
   useEffect(() => {
     setIsLoading(true)
@@ -224,6 +251,13 @@ export function LeaderboardScreen() {
           </button>
         ))}
       </div>
+
+      {/* Demo data banner (GAP 5) */}
+      <AnimatePresence>
+        {showDemoBanner && friends.length === 0 && (
+          <DemoDataBanner onDismiss={() => setShowDemoBanner(false)} />
+        )}
+      </AnimatePresence>
 
       {/* Content */}
       {isLoading ? (

@@ -31,18 +31,118 @@ const statusColor: Record<FriendStatus, string> = {
 
 // ─── Friend Card ────────────────────────────────────────────────────────────
 
+/**
+ * Nudge Button — 4 states:
+ * 1. `available`  — friend hasn't logged, no recent nudge → bell icon, primary tint
+ * 2. `sent`       — nudge sent, within 24hr cooldown → clock icon, muted, cursor-not-allowed
+ * 3. `completed`  — friend already logged today → green check, no nudge
+ * 4. `loading`    — API call in flight → spinner, disabled
+ */
+type NudgeState = 'available' | 'sent' | 'completed' | 'loading'
+
+function NudgeButton({
+  state,
+  friendName,
+  cooldown,
+  onNudge,
+}: {
+  state: NudgeState
+  friendName: string
+  cooldown: { hours: number; minutes: number } | null
+  onNudge: () => void
+}) {
+  const [showCooldownHint, setShowCooldownHint] = useState(false)
+
+  useEffect(() => {
+    if (showCooldownHint) {
+      const t = setTimeout(() => setShowCooldownHint(false), 2000)
+      return () => clearTimeout(t)
+    }
+  }, [showCooldownHint])
+
+  if (state === 'completed') {
+    return (
+      <div className="flex size-11 items-center justify-center rounded-xl bg-emerald-500/10">
+        <span
+          className="material-symbols-outlined text-[18px] text-emerald-400"
+          style={{ fontVariationSettings: "'FILL' 1" }}
+        >
+          check_circle
+        </span>
+      </div>
+    )
+  }
+
+  if (state === 'loading') {
+    return (
+      <div className="flex size-11 items-center justify-center rounded-xl bg-white/[0.03]">
+        <span className="material-symbols-outlined text-[18px] text-slate-500 animate-spin">progress_activity</span>
+      </div>
+    )
+  }
+
+  if (state === 'sent') {
+    return (
+      <div className="relative">
+        <button
+          onClick={() => setShowCooldownHint(true)}
+          className="flex size-11 items-center justify-center rounded-xl bg-white/[0.03] opacity-40 cursor-not-allowed"
+          title={cooldown ? `You already nudged ${friendName}. Come back in ${cooldown.hours}h ${cooldown.minutes}m` : undefined}
+          aria-label={`Nudge on cooldown for ${friendName}`}
+        >
+          <span className="material-symbols-outlined text-[18px] text-slate-400">schedule</span>
+        </button>
+        {/* Cooldown hint on tap (touch devices) */}
+        <AnimatePresence>
+          {showCooldownHint && cooldown && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="absolute -bottom-7 right-0 whitespace-nowrap rounded-lg bg-slate-800/95 border border-white/[0.06] backdrop-blur-sm px-2 py-1 z-10"
+            >
+              <span className="text-[10px] text-slate-400 font-medium">
+                Nudge in {cooldown.hours}h {cooldown.minutes}m
+              </span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    )
+  }
+
+  // available
+  return (
+    <motion.button
+      whileTap={{ scale: 0.88 }}
+      onClick={onNudge}
+      className="flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary cursor-pointer transition-colors duration-200 hover:bg-primary/20 active:bg-primary/30"
+      title={`Nudge ${friendName}`}
+      aria-label={`Send nudge to ${friendName}`}
+    >
+      <span className="material-symbols-outlined text-[18px]">notifications_active</span>
+    </motion.button>
+  )
+}
+
 function FriendCard({
   friend,
   index,
+  nudgeState,
+  cooldown,
   onNudge,
   onRemove,
 }: {
   friend: Friend
   index: number
+  nudgeState: NudgeState
+  cooldown: { hours: number; minutes: number } | null
   onNudge: (id: string) => void
   onRemove: (id: string) => void
 }) {
   const [expanded, setExpanded] = useState(false)
+  const canSendNudge = nudgeState === 'available'
 
   return (
     <motion.div
@@ -103,29 +203,13 @@ function FriendCard({
           </div>
         )}
 
-        {/* Nudge or check */}
-        {!friend.todayCompleted ? (
-          <motion.button
-            whileTap={{ scale: 0.88 }}
-            onClick={(e) => {
-              e.stopPropagation()
-              onNudge(friend.userId)
-            }}
-            className="flex size-9 items-center justify-center rounded-xl bg-primary/10 text-primary cursor-pointer transition-colors duration-200 hover:bg-primary/20 active:bg-primary/30"
-            title={`Nudge ${friend.displayName}`}
-          >
-            <span className="material-symbols-outlined text-[18px]">notifications_active</span>
-          </motion.button>
-        ) : (
-          <div className="flex size-9 items-center justify-center rounded-xl bg-emerald-500/10">
-            <span
-              className="material-symbols-outlined text-[18px] text-emerald-400"
-              style={{ fontVariationSettings: "'FILL' 1" }}
-            >
-              check_circle
-            </span>
-          </div>
-        )}
+        {/* Nudge button with all 4 states */}
+        <NudgeButton
+          state={nudgeState}
+          friendName={friend.displayName}
+          cooldown={cooldown}
+          onNudge={() => onNudge(friend.userId)}
+        />
       </div>
 
       {/* Expanded actions */}
@@ -141,13 +225,20 @@ function FriendCard({
             <div className="flex gap-2 px-3.5 pb-3.5 pt-0.5">
               <button
                 onClick={() => {
-                  onNudge(friend.userId)
+                  if (canSendNudge) onNudge(friend.userId)
                   setExpanded(false)
                 }}
-                className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-primary/10 py-2.5 text-xs font-semibold text-primary cursor-pointer hover:bg-primary/20 transition-colors duration-200"
+                disabled={!canSendNudge}
+                className={`flex-1 flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-semibold transition-colors duration-200 ${
+                  canSendNudge
+                    ? 'bg-primary/10 text-primary cursor-pointer hover:bg-primary/20'
+                    : 'bg-white/[0.02] text-slate-500 cursor-not-allowed'
+                }`}
               >
-                <span className="material-symbols-outlined text-sm">notifications_active</span>
-                Send Nudge
+                <span className="material-symbols-outlined text-sm">
+                  {canSendNudge ? 'notifications_active' : 'schedule'}
+                </span>
+                {canSendNudge ? 'Send Nudge' : cooldown ? `In ${cooldown.hours}h ${cooldown.minutes}m` : 'Sent'}
               </button>
               <button
                 onClick={() => {
@@ -155,6 +246,7 @@ function FriendCard({
                   setExpanded(false)
                 }}
                 className="flex items-center justify-center gap-1.5 rounded-xl bg-red-500/10 px-4 py-2.5 text-xs font-semibold text-red-400 cursor-pointer hover:bg-red-500/20 transition-colors duration-200"
+                aria-label="Remove friend"
               >
                 <span className="material-symbols-outlined text-sm">person_remove</span>
               </button>
@@ -169,7 +261,7 @@ function FriendCard({
 // ─── Main ───────────────────────────────────────────────────────────────────
 
 export function FriendsScreen() {
-  const { friends, loadDemoFriends, sendNudge, removeFriend } = useSocialStore()
+  const { friends, loadDemoFriends, sendNudge, removeFriend, canNudge, getNudgeCooldownRemaining } = useSocialStore()
   const [filter, setFilter] = useState<'all' | 'active' | 'streak'>('all')
   const [search, setSearch] = useState('')
 
@@ -189,9 +281,19 @@ export function FriendsScreen() {
     })
 
   const handleNudge = (id: string) => {
+    if (!canNudge(id)) return
     sendNudge(id)
     const f = friends.find((x) => x.userId === id)
-    toast.success(`Nudge sent to ${f?.displayName}!`, { icon: '🔔' })
+    toast.success(`Nudge sent to ${f?.displayName}!`, {
+      icon: '🔔',
+      style: { background: '#1f2937', color: '#fff', borderRadius: '12px', border: '1px solid rgba(19, 236, 91, 0.3)' },
+    })
+  }
+
+  const getNudgeState = (friend: Friend): NudgeState => {
+    if (friend.todayCompleted) return 'completed'
+    if (!canNudge(friend.userId)) return 'sent'
+    return 'available'
   }
 
   const handleRemove = (id: string) => {
@@ -302,6 +404,8 @@ export function FriendsScreen() {
               key={friend.userId}
               friend={friend}
               index={i}
+              nudgeState={getNudgeState(friend)}
+              cooldown={getNudgeCooldownRemaining(friend.userId)}
               onNudge={handleNudge}
               onRemove={handleRemove}
             />

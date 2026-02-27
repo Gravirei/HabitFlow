@@ -4,7 +4,7 @@
  */
 
 import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useSocialStore } from './socialStore'
 import { getLeagueConfig, getLeagueTierColor, getLeagueTierGradient } from './constants'
 import type { LeagueTier, LeagueMember } from './types'
@@ -167,10 +167,34 @@ function MemberRow({ member, index }: { member: LeagueMember; index: number }) {
 
 // ─── Main ───────────────────────────────────────────────────────────────────
 
+function DemoDataBanner({ onDismiss }: { onDismiss: () => void }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -8 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, height: 0 }}
+      className="flex items-center gap-2.5 rounded-xl bg-amber-500/[0.08] border border-amber-500/20 px-3.5 py-2.5"
+    >
+      <span className="material-symbols-outlined text-sm text-amber-400">info</span>
+      <p className="flex-1 text-[11px] text-amber-300/80 font-medium">
+        Preview uses sample data until you connect with friends.
+      </p>
+      <button
+        onClick={onDismiss}
+        className="flex size-6 items-center justify-center rounded-md hover:bg-white/[0.05] cursor-pointer transition-colors duration-200"
+        aria-label="Dismiss notice"
+      >
+        <span className="material-symbols-outlined text-sm text-amber-400/60">close</span>
+      </button>
+    </motion.div>
+  )
+}
+
 export function LeagueScreen() {
-  const { currentLeagueTier, leagueMembers, refreshLeague, getLeagueDaysRemaining } = useSocialStore()
+  const { currentLeagueTier, leagueMembers, refreshLeague, getLeagueDaysRemaining, friends } = useSocialStore()
   const [loading, setLoading] = useState(true)
   const [showAll, setShowAll] = useState(false)
+  const [showDemoBanner, setShowDemoBanner] = useState(true)
 
   useEffect(() => {
     refreshLeague()
@@ -217,6 +241,13 @@ export function LeagueScreen() {
           )}
         </div>
       </div>
+
+      {/* Demo data banner (GAP 5) */}
+      <AnimatePresence>
+        {showDemoBanner && friends.length === 0 && (
+          <DemoDataBanner onDismiss={() => setShowDemoBanner(false)} />
+        )}
+      </AnimatePresence>
 
       {/* Zone legend */}
       <div className="flex items-center justify-center gap-4 text-[10px] font-medium">

@@ -11,6 +11,7 @@ import { LeaderboardScreen } from './LeaderboardScreen'
 import { FriendsScreen } from './FriendsScreen'
 import { LeagueScreen } from './LeagueScreen'
 import { ProfileTab } from './ProfileTab'
+import { SocialOnboarding } from './SocialOnboarding'
 import { getLevelForXP, getLevelProgress } from './constants'
 
 // ─── Tab types ──────────────────────────────────────────────────────────────
@@ -175,13 +176,31 @@ function TabBar({
 
 export function SocialHub() {
   const [activeTab, setActiveTab] = useState<SocialTab>('leaderboard')
-  const { getUnreadNudges, initializeBadges } = useSocialStore()
+  const {
+    getUnreadNudges,
+    initializeBadges,
+    hasSeenSocialOnboarding,
+    friends,
+    totalXP,
+    getUnlockedBadges,
+  } = useSocialStore()
 
   useEffect(() => {
     initializeBadges()
   }, [])
 
   const unreadCount = getUnreadNudges().length
+
+  // GAP 5: Show onboarding when user has no social data and hasn't dismissed
+  const showOnboarding =
+    !hasSeenSocialOnboarding &&
+    friends.length === 0 &&
+    totalXP === 0 &&
+    getUnlockedBadges().length === 0
+
+  if (showOnboarding) {
+    return <SocialOnboarding />
+  }
 
   return (
     <div className="space-y-4">

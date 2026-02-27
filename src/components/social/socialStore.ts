@@ -116,6 +116,25 @@ interface SocialState {
 
   recordActivity: () => void
 
+  // ─── Daily Summary (GAP 3) ─────────────────────────────────────────────
+
+  dailySummaryShownDate: string | null
+  shouldShowDailySummary: boolean
+  triggerDailySummary: () => void
+  dismissDailySummary: () => void
+  checkSessionEndSummary: () => void
+
+  // ─── Nudge Cooldown (GAP 4) ────────────────────────────────────────────
+
+  nudgeCooldowns: Record<string, string>  // userId → ISO timestamp of last nudge
+  canNudge: (userId: string) => boolean
+  getNudgeCooldownRemaining: (userId: string) => { hours: number; minutes: number } | null
+
+  // ─── Onboarding (GAP 5) ────────────────────────────────────────────────
+
+  hasSeenSocialOnboarding: boolean
+  dismissOnboarding: () => void
+
   // ─── Reset ──────────────────────────────────────────────────────────────
 
   resetSocial: () => void
@@ -150,6 +169,11 @@ export const useSocialStore = create<SocialState>()(
       leagueWeekEnd: null,
 
       badges: [],
+
+      dailySummaryShownDate: null,
+      shouldShowDailySummary: false,
+      hasSeenSocialOnboarding: false,
+      nudgeCooldowns: {},
 
       // ─── XP Actions ───────────────────────────────────────────────────
 
@@ -341,20 +365,26 @@ export const useSocialStore = create<SocialState>()(
         const friend = get().friends.find((f) => f.userId === toUserId)
         if (!friend) return
 
+        // GAP 4: Check cooldown before sending
+        if (!get().canNudge(toUserId)) return
+
         const nudge: Nudge = {
           id: generateId(),
           fromUserId: 'current-user',
           fromDisplayName: 'You',
           fromAvatarUrl: '',
           toUserId,
-          message: `Hey ${friend.displayName}! Don't forget to log your habits today 💪`,
+          message: `Hey ${friend.displayName}! Don't forget to log your habits today`,
           sentAt: new Date().toISOString(),
           read: false,
         }
 
+        const now = new Date().toISOString()
+
         set((state) => ({
           nudges: [...state.nudges, nudge],
           sentNudgesCount: state.sentNudgesCount + 1,
+          nudgeCooldowns: { ...state.nudgeCooldowns, [toUserId]: now },
         }))
 
         get().checkAndUnlockBadges()
@@ -525,6 +555,101 @@ export const useSocialStore = create<SocialState>()(
         get().checkAndUnlockBadges()
       },
 
+      // ─── Daily Summary (GAP 3) ────────────────────────────────────────
+
+      /**
+       * triggerDailySummary()
+       *
+       * Trigger priority (highest to lowest):
+       * 1. Perfect Day — called when user completes 100% of habits for the day.
+       *    External caller (habit store integration) invokes this directly.
+       * 2. Manual — user taps "See Today's Summary" button in ProfileTab.
+       *    Calls this method via button onClick.
+       * 3. Session End (fallback) — if XP was earned today but modal hasn't
+       *    been shown, fires on next app open after midnight.
+       *    checkSessionEndSummary() handles this case.
+       *
+       * Guard: modal only shows once per calendar day (tracked by dailySummaryShownDate).
+       * Guard: never shows if totalXP === 0 (first-time user with no data).
+       */
+      triggerDailySummary: () => {
+        const state = get()
+        const today = todayKey()
+
+        // Never show if no XP has ever been earned
+        if (state.totalXP === 0) return
+
+        // Don't auto-show more than once per day
+        if (state.dailySummaryShownDate === today) return
+
+        set({ shouldShowDailySummary: true })
+      },
+
+      dismissDailySummary: () => {
+        set({
+          shouldShowDailySummary: false,
+          dailySummaryShownDate: todayKey(),
+        })
+      },
+
+      /**
+       * checkSessionEndSummary() — Fallback trigger (priority 3).
+       * Called on app mount / SocialHub mount. If the user earned XP
+       * yesterday but never saw the summary, shows it now.
+       */
+      checkSessionEndSummary: () => {
+        const state = get()
+        const today = todayKey()
+
+        // Never show on first-ever session
+        if (state.totalXP === 0) return
+
+        // Already shown today
+        if (state.dailySummaryShownDate === today) return
+
+        // Check if there's a summary for the last active date that wasn't shown
+        if (
+          state.lastActiveDate &&
+          state.lastActiveDate !== today &&
+          state.dailySummaryShownDate !== state.lastActiveDate
+        ) {
+          const lastSummary = state.dailySummaries.find(
+            (s) => s.date === state.lastActiveDate
+          )
+          if (lastSummary && lastSummary.totalXP > 0) {
+            set({ shouldShowDailySummary: true })
+          }
+        }
+      },
+
+      // ─── Nudge Cooldown (GAP 4) ──────────────────────────────────────
+
+      canNudge: (userId) => {
+        const lastNudge = get().nudgeCooldowns[userId]
+        if (!lastNudge) return true
+        const elapsed = Date.now() - new Date(lastNudge).getTime()
+        const COOLDOWN_MS = 24 * 60 * 60 * 1000 // 24 hours
+        return elapsed >= COOLDOWN_MS
+      },
+
+      getNudgeCooldownRemaining: (userId) => {
+        const lastNudge = get().nudgeCooldowns[userId]
+        if (!lastNudge) return null
+        const elapsed = Date.now() - new Date(lastNudge).getTime()
+        const COOLDOWN_MS = 24 * 60 * 60 * 1000
+        const remaining = COOLDOWN_MS - elapsed
+        if (remaining <= 0) return null
+        const hours = Math.floor(remaining / (60 * 60 * 1000))
+        const minutes = Math.floor((remaining % (60 * 60 * 1000)) / (60 * 1000))
+        return { hours, minutes }
+      },
+
+      // ─── Onboarding (GAP 5) ──────────────────────────────────────────
+
+      dismissOnboarding: () => {
+        set({ hasSeenSocialOnboarding: true })
+      },
+
       // ─── Reset ────────────────────────────────────────────────────────
 
       resetSocial: () => {
@@ -548,6 +673,10 @@ export const useSocialStore = create<SocialState>()(
           leagueWeekStart: null,
           leagueWeekEnd: null,
           badges: [],
+          dailySummaryShownDate: null,
+          shouldShowDailySummary: false,
+          hasSeenSocialOnboarding: false,
+          nudgeCooldowns: {},
         })
       },
     }),
