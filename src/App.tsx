@@ -14,18 +14,17 @@ import { ResetPassword } from '@/pages/auth/ResetPassword'
 import { TwoFactorVerification } from '@/pages/auth/TwoFactorVerification'
 import { TermsOfService } from '@/pages/legal/TermsOfService'
 import { PrivacyPolicy } from '@/pages/legal/PrivacyPolicy'
-import { Settings } from '@/pages/Settings'
-import { EditProfile } from '@/pages/EditProfile'
+import { Settings } from '@/pages/sideNav/Settings'
+import { EditProfile } from '@/pages/sideNav/EditProfile'
 import { Calendar } from '@/pages/Calendar'
 import { NewHabit } from '@/pages/NewHabit'
-import { ProgressOverview } from '@/pages/ProgressOverview'
+import { ProgressOverview } from '@/pages/sideNav/ProgressOverview'
 import { Today } from '@/pages/bottomNav/Today'
 import { Habits } from '@/pages/bottomNav/Habits'
 import { Tasks } from '@/pages/bottomNav/Tasks'
 import { Categories } from '@/pages/bottomNav/Categories'
 import { CategoryDetail } from '@/components/categories/CategoryDetail'
 import { Timer } from '@/pages/bottomNav/Timer'
-import { Statistics } from '@/pages/Statistics'
 import { PremiumHistory } from '@/pages/timer/PremiumHistory'
 import { Achievements } from '@/pages/timer/Achievements'
 import { Timeline } from '@/pages/timer/Timeline'
@@ -136,7 +135,6 @@ function App() {
           <Route path="/timer/ai-insights" element={<RequireAuth><RequireVerifiedEmail><AIInsights /></RequireVerifiedEmail></RequireAuth>} />
           <Route path="/timer/timeline" element={<RequireAuth><RequireVerifiedEmail><Timeline /></RequireVerifiedEmail></RequireAuth>} />
           <Route path="/timer/export" element={<RequireAuth><RequireVerifiedEmail><Export /></RequireVerifiedEmail></RequireAuth>} />
-          <Route path="/statistics" element={<RequireAuth><RequireVerifiedEmail><Statistics /></RequireVerifiedEmail></RequireAuth>} />
           <Route path="/new-habit" element={<RequireAuth><RequireVerifiedEmail><NewHabit /></RequireVerifiedEmail></RequireAuth>} />
           <Route path="/progress" element={<RequireAuth><RequireVerifiedEmail><ProgressOverview /></RequireVerifiedEmail></RequireAuth>} />
           <Route path="/all-habits" element={<RequireAuth><RequireVerifiedEmail><Habits /></RequireVerifiedEmail></RequireAuth>} />

@@ -12,12 +12,26 @@ import {
   getSparklineData,
   getDayOfWeekPatterns,
   calculateHabitStrength,
+  calculateCompletionRate,
   getUpcomingMilestones,
   getTargetVsActual,
   getMotivation,
 } from '@/utils/progressUtils'
+import { calculateCurrentStreak, calculateBestStreak } from '@/utils/streakUtils'
 
 type TimePeriod = 'week' | 'month' | 'all'
+
+/** Map a habit's iconColor index (0-5) to a Tailwind gradient pair. */
+const ICON_GRADIENTS = [
+  'from-blue-500 to-cyan-500',      // 0: Blue
+  'from-purple-500 to-pink-500',    // 1: Purple
+  'from-emerald-500 to-teal-500',   // 2: Green
+  'from-orange-500 to-amber-500',   // 3: Orange
+  'from-red-500 to-rose-500',       // 4: Red
+  'from-teal-500 to-cyan-500',      // 5: Teal
+]
+const getIconGradient = (iconColor: number = 0) =>
+  ICON_GRADIENTS[iconColor] || ICON_GRADIENTS[0]
 
 const periodLabels: Record<TimePeriod, string> = {
   week: 'This Week',
@@ -133,29 +147,169 @@ function Sparkline({ data }: { data: boolean[] }) {
   )
 }
 
-/* ─── Strength Bar ──────────────────────────────────────────────────────────── */
-function StrengthBar({
-  label,
-  value,
-  gradient,
+/* ─── Habit Strength — Interactive Donut + List ─────────────────────────────── */
+interface HabitStrengthEntry {
+  habit: { id: string; name: string; icon?: string; iconColor?: number }
+  strength: { overall: number; recency: number; frequency: number; streak: number }
+  sparkline: boolean[]
+}
+
+function DonutChart({
+  recency,
+  frequency,
+  streak,
+  overall,
 }: {
-  label: string
-  value: number
-  gradient: string
+  recency: number
+  frequency: number
+  streak: number
+  overall: number
 }) {
+  const total = recency + frequency + streak || 1
+  const radius = 40
+  const circumference = 2 * Math.PI * radius
+
+  // Calculate arc lengths for each segment
+  const recencyArc = (recency / total) * circumference
+  const frequencyArc = (frequency / total) * circumference
+  const streakArc = (streak / total) * circumference
+
+  // Gap between segments
+  const gap = total > 0 ? 4 : 0
+  const recencyDash = Math.max(0, recencyArc - gap)
+  const frequencyDash = Math.max(0, frequencyArc - gap)
+  const streakDash = Math.max(0, streakArc - gap)
+
+  const scoreColor =
+    overall >= 70 ? 'text-green-400' : overall >= 40 ? 'text-blue-400' : 'text-amber-400'
+
   return (
-    <div className="flex items-center gap-2">
-      <span className="text-[10px] sm:text-xs text-slate-500 w-16 sm:w-20 shrink-0">{label}</span>
-      <div className="flex-1 bg-slate-800 rounded-full h-1.5">
-        <div
-          className={`h-full rounded-full bg-gradient-to-r ${gradient} transition-all duration-500`}
-          style={{ width: `${value}%` }}
+    <div className="relative w-full aspect-square max-w-[180px] sm:max-w-[200px] md:max-w-[220px] lg:max-w-[260px]">
+      <svg className="w-full h-full -rotate-90" viewBox="0 0 96 96">
+        {/* Background ring */}
+        <circle cx="48" cy="48" r={radius} fill="none" stroke="currentColor" strokeWidth="8" className="text-slate-800" />
+
+        {/* Recency arc (cyan) */}
+        <circle
+          cx="48" cy="48" r={radius} fill="none"
+          strokeWidth="8"
+          strokeLinecap="round"
+          className="stroke-cyan-400 transition-all duration-700"
+          strokeDasharray={`${recencyDash} ${circumference - recencyDash}`}
+          strokeDashoffset={0}
         />
+
+        {/* Frequency arc (green) */}
+        <circle
+          cx="48" cy="48" r={radius} fill="none"
+          strokeWidth="8"
+          strokeLinecap="round"
+          className="stroke-green-400 transition-all duration-700"
+          strokeDasharray={`${frequencyDash} ${circumference - frequencyDash}`}
+          strokeDashoffset={-(recencyArc)}
+        />
+
+        {/* Streak arc (orange) */}
+        <circle
+          cx="48" cy="48" r={radius} fill="none"
+          strokeWidth="8"
+          strokeLinecap="round"
+          className="stroke-orange-400 transition-all duration-700"
+          strokeDasharray={`${streakDash} ${circumference - streakDash}`}
+          strokeDashoffset={-(recencyArc + frequencyArc)}
+        />
+      </svg>
+      {/* Center score */}
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <span className={`text-2xl sm:text-3xl font-black ${scoreColor}`}>{overall}</span>
+        <span className="text-[9px] sm:text-[10px] text-slate-500 font-medium -mt-0.5">score</span>
       </div>
-      <span className="text-[10px] sm:text-xs font-bold text-slate-400 w-8 text-right">
-        {value}
-      </span>
     </div>
+  )
+}
+
+function HabitStrengthCard({ habitStrengths }: { habitStrengths: HabitStrengthEntry[] }) {
+  const [selectedIdx, setSelectedIdx] = useState(0)
+  const selected = habitStrengths[selectedIdx]
+
+  return (
+    <Card className="p-4 sm:p-6">
+      <SectionHeader
+        title="Habit Strength"
+        subtitle="Tap a habit to see its breakdown"
+      />
+      <div className="grid grid-cols-2 gap-4 sm:gap-6">
+        {/* Left column: donut chart + legend */}
+        <div className="flex flex-col items-center gap-3 sm:gap-4">
+          <DonutChart
+            recency={selected.strength.recency}
+            frequency={selected.strength.frequency}
+            streak={selected.strength.streak}
+            overall={selected.strength.overall}
+          />
+          {/* Legend */}
+          <div className="flex flex-col gap-1.5">
+            <span className="flex items-center gap-1.5 text-[10px] sm:text-xs font-semibold text-cyan-400">
+              <span className="w-2 h-2 rounded-full bg-cyan-400 shrink-0"></span>
+              Recency <span className="text-slate-500 ml-auto pl-2">{selected.strength.recency}%</span>
+            </span>
+            <span className="flex items-center gap-1.5 text-[10px] sm:text-xs font-semibold text-green-400">
+              <span className="w-2 h-2 rounded-full bg-green-400 shrink-0"></span>
+              Frequency <span className="text-slate-500 ml-auto pl-2">{selected.strength.frequency}%</span>
+            </span>
+            <span className="flex items-center gap-1.5 text-[10px] sm:text-xs font-semibold text-orange-400">
+              <span className="w-2 h-2 rounded-full bg-orange-400 shrink-0"></span>
+              Streak <span className="text-slate-500 ml-auto pl-2">{selected.strength.streak}%</span>
+            </span>
+          </div>
+        </div>
+
+        {/* Right column: habit list */}
+        <div className="min-w-0 space-y-1.5 sm:space-y-2">
+          {habitStrengths.map(({ habit, strength, sparkline }, idx) => {
+            const isActive = idx === selectedIdx
+            const scoreColor =
+              strength.overall >= 70
+                ? 'text-green-400'
+                : strength.overall >= 40
+                  ? 'text-blue-400'
+                  : 'text-amber-400'
+
+            return (
+              <button
+                key={habit.id}
+                onClick={() => setSelectedIdx(idx)}
+                className={`w-full flex items-center gap-2.5 sm:gap-3 p-2 sm:p-2.5 rounded-xl cursor-pointer transition-all duration-200 text-left ${
+                  isActive
+                    ? 'bg-slate-700/60 border border-slate-600/60 shadow-sm'
+                    : 'bg-transparent border border-transparent hover:bg-slate-800/50'
+                }`}
+              >
+                <div className={`flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br ${getIconGradient(habit.iconColor)} shadow-md`}>
+                  <span className="material-symbols-outlined text-white text-sm sm:text-base">
+                    {habit.icon || 'check_circle'}
+                  </span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs sm:text-sm font-semibold text-white truncate">{habit.name}</p>
+                  <div className="mt-0.5">
+                    <Sparkline data={sparkline} />
+                  </div>
+                </div>
+                <span className={`text-sm sm:text-base font-black shrink-0 ${scoreColor}`}>
+                  {strength.overall}
+                </span>
+                {isActive && (
+                  <span className="material-symbols-outlined text-slate-400 text-sm shrink-0">
+                    chevron_right
+                  </span>
+                )}
+              </button>
+            )
+          })}
+        </div>
+      </div>
+    </Card>
   )
 }
 
@@ -197,16 +351,25 @@ export function ProgressOverview() {
   const { getActiveHabits } = useHabitStore()
   const [timePeriod, setTimePeriod] = useState<TimePeriod>('week')
 
-  // ── Computed data ──
+  // ── Computed data (all dynamically calculated from completedDates) ──
   const activeHabits = useMemo(() => getActiveHabits(), [getActiveHabits])
   const totalHabits = activeHabits.length
-  const totalCompletions = activeHabits.reduce((s, h) => s + h.totalCompletions, 0)
-  const avgCompletion =
-    totalHabits > 0
-      ? Math.round(activeHabits.reduce((s, h) => s + h.completionRate, 0) / totalHabits)
-      : 0
-  const longestStreak = Math.max(...activeHabits.map((h) => h.currentStreak), 0)
-  const bestStreak = Math.max(...activeHabits.map((h) => h.bestStreak), 0)
+  const totalCompletions = activeHabits.reduce((s, h) => s + h.completedDates.length, 0)
+  const avgCompletion = useMemo(() => {
+    if (totalHabits === 0) return 0
+    const sum = activeHabits.reduce((s, h) => s + calculateCompletionRate(
+      h.frequency, h.startDate, h.completedDates.length, h.goal, h.weeklyTimesPerWeek
+    ), 0)
+    return Math.round(sum / totalHabits)
+  }, [activeHabits, totalHabits])
+  const longestStreak = useMemo(
+    () => Math.max(...activeHabits.map((h) => calculateCurrentStreak(h.completedDates)), 0),
+    [activeHabits]
+  )
+  const bestStreak = useMemo(
+    () => Math.max(...activeHabits.map((h) => calculateBestStreak(h.completedDates)), 0),
+    [activeHabits]
+  )
 
   const heatmapData = useMemo(() => buildHeatmapData(activeHabits, 12), [activeHabits])
   const dayPatterns = useMemo(() => getDayOfWeekPatterns(activeHabits), [activeHabits])
@@ -218,7 +381,11 @@ export function ProgressOverview() {
   )
 
   const sortedHabits = useMemo(
-    () => [...activeHabits].sort((a, b) => b.completionRate - a.completionRate),
+    () => [...activeHabits].sort((a, b) => {
+      const rateA = calculateCompletionRate(a.frequency, a.startDate, a.completedDates.length, a.goal, a.weeklyTimesPerWeek)
+      const rateB = calculateCompletionRate(b.frequency, b.startDate, b.completedDates.length, b.goal, b.weeklyTimesPerWeek)
+      return rateB - rateA
+    }),
     [activeHabits]
   )
 
@@ -443,7 +610,7 @@ export function ProgressOverview() {
                             {day.day}
                           </span>
                           <span className="text-xs font-bold text-slate-400">
-                            {day.completions}
+                            {day.completions} {day.completions === 1 ? 'completion' : 'completions'}
                           </span>
                         </div>
                         <div className="w-full bg-slate-800 rounded-full h-1.5">
@@ -510,65 +677,9 @@ export function ProgressOverview() {
             </Card>
           )}
 
-          {/* ── Habit Strength + Sparklines ────────────────────────────── */}
+          {/* ── Habit Strength — Interactive Donut + List ────────────── */}
           {habitStrengths.length > 0 && (
-            <Card className="p-4 sm:p-6">
-              <SectionHeader
-                title="Habit Strength"
-                subtitle="Based on recency, frequency & streak"
-              />
-              <div className="space-y-4 sm:space-y-5">
-                {habitStrengths.map(({ habit, strength, sparkline }) => (
-                  <div key={habit.id} className="space-y-2">
-                    {/* Habit header */}
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl bg-slate-800">
-                        <span className="material-symbols-outlined text-slate-300 text-base sm:text-lg">
-                          {habit.icon || 'check_circle'}
-                        </span>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between">
-                          <p className="text-sm font-semibold text-white truncate">{habit.name}</p>
-                          <div className="flex items-center gap-3 shrink-0 ml-2">
-                            <Sparkline data={sparkline} />
-                            <span
-                              className={`text-lg sm:text-xl font-black ${
-                                strength.overall >= 70
-                                  ? 'text-green-400'
-                                  : strength.overall >= 40
-                                    ? 'text-blue-400'
-                                    : 'text-amber-400'
-                              }`}
-                            >
-                              {strength.overall}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    {/* Breakdown bars */}
-                    <div className="pl-12 sm:pl-[52px] space-y-1.5">
-                      <StrengthBar
-                        label="Recency"
-                        value={strength.recency}
-                        gradient="from-cyan-500 to-blue-500"
-                      />
-                      <StrengthBar
-                        label="Frequency"
-                        value={strength.frequency}
-                        gradient="from-green-500 to-emerald-500"
-                      />
-                      <StrengthBar
-                        label="Streak"
-                        value={strength.streak}
-                        gradient="from-orange-500 to-red-500"
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </Card>
+            <HabitStrengthCard habitStrengths={habitStrengths} />
           )}
 
           {/* ── Target vs Actual ───────────────────────────────────────── */}
@@ -581,8 +692,8 @@ export function ProgressOverview() {
                     key={item.habitName}
                     className="flex items-center gap-3 sm:gap-4 p-3 rounded-xl bg-slate-800/40"
                   >
-                    <div className="flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl bg-slate-800">
-                      <span className="material-symbols-outlined text-slate-300 text-base sm:text-lg">
+                    <div className={`flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${getIconGradient(item.habitIconColor)} shadow-md`}>
+                      <span className="material-symbols-outlined text-white text-base sm:text-lg">
                         {item.habitIcon}
                       </span>
                     </div>
