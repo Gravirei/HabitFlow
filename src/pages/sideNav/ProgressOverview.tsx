@@ -419,7 +419,7 @@ export function ProgressOverview() {
         <div className="flex flex-col gap-2 px-4 pt-4 pb-3 sm:px-6 lg:px-8">
           <div className="flex h-12 items-center justify-between">
             <button
-              onClick={() => navigate('/')}
+              onClick={() => navigate('/today')}
               aria-label="Go back"
               className="flex size-10 cursor-pointer items-center justify-center rounded-xl text-slate-400 hover:text-white hover:bg-white/5 active:scale-95 transition-all"
             >

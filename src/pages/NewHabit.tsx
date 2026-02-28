@@ -58,7 +58,7 @@ export function NewHabit() {
     })
 
     toast.success('🎉 Habit created successfully!')
-    navigate('/')
+    navigate('/today')
   }
 
   const onError = (errors: any) => {
@@ -77,7 +77,7 @@ export function NewHabit() {
       {/* Top App Bar */}
       <div className="flex items-center p-4 pb-2 justify-between pt-safe shrink-0">
         <button
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/today')}
           className="text-gray-900 dark:text-white flex size-12 shrink-0 items-center justify-center rounded-full active:scale-95 transition-transform touch-manipulation"
         >
           <span className="material-symbols-outlined text-2xl">close</span>

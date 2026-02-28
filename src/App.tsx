@@ -110,7 +110,7 @@ function App() {
         />
 
         <Routes>
-          <Route path="/splash" element={<SplashScreen />} />
+          {/* Splash screen is now at root route "/" */}
           <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/welcome" element={<Welcome />} />
           <Route path="/login" element={<Login />} />
@@ -123,7 +123,8 @@ function App() {
           <Route path="/settings" element={<RequireAuth><Settings /></RequireAuth>} />
           <Route path="/profile" element={<RequireAuth><EditProfile /></RequireAuth>} />
           <Route path="/calendar" element={<RequireAuth><RequireVerifiedEmail><Calendar /></RequireVerifiedEmail></RequireAuth>} />
-          <Route path="/" element={<RequireAuth><RequireVerifiedEmail><Today /></RequireVerifiedEmail></RequireAuth>} />
+          <Route path="/" element={<SplashScreen />} />
+          <Route path="/today" element={<RequireAuth><RequireVerifiedEmail><Today /></RequireVerifiedEmail></RequireAuth>} />
           <Route path="/habits" element={<RequireAuth><RequireVerifiedEmail><Habits /></RequireVerifiedEmail></RequireAuth>} />
           <Route path="/tasks" element={<RequireAuth><RequireVerifiedEmail><Tasks /></RequireVerifiedEmail></RequireAuth>} />
           <Route path="/categories" element={<RequireAuth><RequireVerifiedEmail><Categories /></RequireVerifiedEmail></RequireAuth>} />

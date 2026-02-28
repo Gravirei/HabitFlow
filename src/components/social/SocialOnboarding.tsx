@@ -169,7 +169,7 @@ export function SocialOnboarding() {
         <div className="space-y-2">
           <ChecklistItem
             label="Complete your first habit today"
-            onTap={() => navigate('/')}
+            onTap={() => navigate('/today')}
             delay={0.5}
           />
           <ChecklistItem

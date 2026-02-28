@@ -93,7 +93,7 @@ export function EditProfile() {
       {/* Glassmorphism Header */}
       <div className="sticky top-0 z-20 flex h-16 items-center justify-between px-4 sm:px-6 pb-2 pt-safe shrink-0 bg-white/70 dark:bg-slate-950/70 backdrop-blur-xl">
         <button
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/today')}
           className="group flex size-10 items-center justify-center transition-all active:scale-95"
         >
           <span className="material-symbols-outlined text-slate-700 dark:text-slate-200 group-hover:scale-110 transition-transform">arrow_back</span>

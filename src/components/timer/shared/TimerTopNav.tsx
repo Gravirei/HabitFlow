@@ -99,7 +99,7 @@ export const TimerTopNav: React.FC = () => {
         {/* Left: Back Button + Hamburger Menu */}
         <div className="flex items-center gap-2">
           <button
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/today')}
             className="flex size-10 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-white/5 active:scale-95 transition-all duration-150"
             aria-label="Go back"
           >

@@ -9,7 +9,7 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { id: 'today', label: 'Today', icon: 'grid_view', path: '/' },
+  { id: 'today', label: 'Today', icon: 'grid_view', path: '/today' },
   { id: 'habits', label: 'Habits', icon: 'check_circle', path: '/habits' },
   { id: 'tasks', label: 'Tasks', icon: 'list_alt', path: '/tasks' },
   { id: 'social', label: 'Social', icon: 'group', path: '/social' },

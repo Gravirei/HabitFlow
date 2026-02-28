@@ -102,7 +102,7 @@ export function Login() {
       // No MFA — apply full session and navigate
       await applySupabaseSessionFromGateway(res.data)
       toast.success('Signed in successfully')
-      navigate('/')
+      navigate('/today')
     } catch (error: any) {
       console.error('Login error:', error)
       toast.error(error.message || 'Login failed')
@@ -157,7 +157,7 @@ export function Login() {
         setMfaFactorId(null)
         setMfaAal1Token(null)
         toast.success('Signed in successfully')
-        navigate('/')
+        navigate('/today')
       }}
     />
       {/* Back Button */}

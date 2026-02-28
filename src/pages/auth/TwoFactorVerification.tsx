@@ -77,7 +77,7 @@ export function TwoFactorVerification() {
       // Creates TOTP challenge + verifies code + returns full aal2 session
       await verifyMfaWithGateway({ aal1AccessToken, factorId, code })
       toast.success('Signed in successfully')
-      navigate('/', { replace: true })
+      navigate('/today', { replace: true })
     } catch (error: any) {
       console.error('2FA verification failed:', error)
       toast.error(error?.message || 'Invalid code. Please try again.')
