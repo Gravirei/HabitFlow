@@ -11,6 +11,7 @@ import type {
   MessageType,
   DeliveryStatus,
   TypingUser,
+  PresenceState,
   HabitCardPayload,
   BadgeCardPayload,
   NudgeCardPayload,
@@ -18,6 +19,14 @@ import type {
 } from './types'
 import { MESSAGING_LIMITS } from './constants'
 import { useSocialStore } from '../social/socialStore'
+import {
+  subscribeToConversation as rtSubscribe,
+  subscribeToTyping,
+  subscribeToPresence,
+  sendTypingIndicator,
+  unsubscribeFromConversation as rtUnsubscribe,
+  unsubscribeAll,
+} from './realtimeService'
 
 // ─── Helper ─────────────────────────────────────────────────────────────────
 
@@ -40,6 +49,7 @@ interface MessagingState {
   // Real-time
   typingUsers: Record<string, TypingUser[]> // keyed by conversationId
   onlineUsers: Record<string, boolean>      // keyed by userId
+  currentUserId: string | null
 
   // Loading
   isLoadingMessages: boolean
@@ -72,11 +82,19 @@ interface MessagingState {
   addReaction: (messageId: string, emoji: string) => Promise<void>
   removeReaction: (messageId: string, emoji: string) => Promise<void>
 
-  // ─── Real-time Actions ───────────────────────────────────────────────
-  subscribeToConversation: (conversationId: string) => void
-  unsubscribeFromConversation: (conversationId: string) => void
-  emitTyping: (conversationId: string) => void
-  updateOnlineStatus: (userId: string, isOnline: boolean) => void
+  // ─── Real-time Callback Actions ──────────────────────────────────────
+  onMessageReceived: (conversationId: string, message: Message) => void
+  onStatusUpdate: (conversationId: string, messageId: string, status: DeliveryStatus) => void
+  onTypingUpdate: (conversationId: string, user: TypingUser, isTyping: boolean) => void
+  onPresenceSync: (conversationId: string, presenceStates: PresenceState[]) => void
+
+  // ─── Real-time Lifecycle Actions ───────────────────────────────────────
+  startRealtimeForConversation: (conversationId: string) => void
+  stopRealtimeForConversation: (conversationId: string) => void
+  stopAllRealtime: () => void
+
+  // ─── Typing Send Action ────────────────────────────────────────────────
+  sendTyping: (conversationId: string, isTyping: boolean) => void
 
   // ─── Group Management Actions ────────────────────────────────────────
   updateGroupName: (conversationId: string, name: string) => Promise<void>
@@ -107,6 +125,7 @@ export const useMessagingStore = create<MessagingState>()(
       totalUnread: 0,
       typingUsers: {},
       onlineUsers: {},
+      currentUserId: null,
       isLoadingMessages: false,
       hasMoreMessages: {},
       shareTrayOpen: false,
@@ -665,24 +684,182 @@ export const useMessagingStore = create<MessagingState>()(
         })
       },
 
-      // ─── Real-time Actions ─────────────────────────────────────────────
+      // ─── Real-time Callback Actions ─────────────────────────────────────
 
-      subscribeToConversation: (_conversationId) => {
-        // TODO: Phase 3 — wire to realtimeService
+      onMessageReceived: (conversationId, message) => {
+        set((state) => {
+          const existingMessages = state.messages[conversationId] ?? []
+          const updatedMessages = [...existingMessages, message]
+
+          // Update conversation: lastMessage, updatedAt, unread
+          const isFromOther = message.senderId !== state.currentUserId
+          const updatedConversations = state.conversations.map((c) =>
+            c.id === conversationId
+              ? {
+                  ...c,
+                  lastMessage: message,
+                  updatedAt: message.createdAt,
+                  unreadCount: isFromOther ? c.unreadCount + 1 : c.unreadCount,
+                }
+              : c
+          )
+
+          // Move conversation to top (most recent first)
+          const convIndex = updatedConversations.findIndex((c) => c.id === conversationId)
+          if (convIndex > 0) {
+            const [conv] = updatedConversations.splice(convIndex, 1)
+            updatedConversations.unshift(conv)
+          }
+
+          return {
+            messages: { ...state.messages, [conversationId]: updatedMessages },
+            conversations: updatedConversations,
+            totalUnread: isFromOther ? state.totalUnread + 1 : state.totalUnread,
+          }
+        })
       },
 
-      unsubscribeFromConversation: (_conversationId) => {
-        // TODO: Phase 3 — wire to realtimeService
+      onStatusUpdate: (conversationId, messageId, status) => {
+        const statusPriority: Record<DeliveryStatus, number> = {
+          sending: 0,
+          sent: 1,
+          delivered: 2,
+          read: 3,
+        }
+
+        set((state) => {
+          const msgs = state.messages[conversationId]
+          if (!msgs) return state
+
+          const msgIndex = msgs.findIndex((m) => m.id === messageId)
+          if (msgIndex === -1) return state
+
+          const existing = msgs[msgIndex]
+          // Only upgrade status, never downgrade
+          if (statusPriority[status] <= statusPriority[existing.deliveryStatus]) {
+            return state
+          }
+
+          const updatedMessages = [...msgs]
+          updatedMessages[msgIndex] = { ...existing, deliveryStatus: status }
+
+          return {
+            messages: { ...state.messages, [conversationId]: updatedMessages },
+          }
+        })
       },
 
-      emitTyping: (_conversationId) => {
-        // TODO: Phase 3 — broadcast via Supabase Realtime
+      onTypingUpdate: (conversationId, user, isTyping) => {
+        set((state) => {
+          const current = state.typingUsers[conversationId] ?? []
+
+          if (isTyping) {
+            // Add user if not already present
+            const alreadyTyping = current.some((u) => u.userId === user.userId)
+            if (alreadyTyping) return state
+
+            return {
+              typingUsers: {
+                ...state.typingUsers,
+                [conversationId]: [...current, user],
+              },
+            }
+          } else {
+            // Remove user
+            const filtered = current.filter((u) => u.userId !== user.userId)
+            if (filtered.length === current.length) return state
+
+            const updatedTyping = { ...state.typingUsers }
+            if (filtered.length === 0) {
+              delete updatedTyping[conversationId]
+            } else {
+              updatedTyping[conversationId] = filtered
+            }
+
+            return { typingUsers: updatedTyping }
+          }
+        })
       },
 
-      updateOnlineStatus: (userId, isOnline) => {
-        set((state) => ({
-          onlineUsers: { ...state.onlineUsers, [userId]: isOnline },
-        }))
+      onPresenceSync: (conversationId, presenceStates) => {
+        set((state) => {
+          const updatedOnline = { ...state.onlineUsers }
+          for (const ps of presenceStates) {
+            updatedOnline[ps.userId] = ps.isOnline
+          }
+
+          // Update conversation online count
+          const updatedConversations = state.conversations.map((c) => {
+            if (c.id !== conversationId) return c
+            const onlineCount = c.memberIds.filter((id) => updatedOnline[id]).length
+            return { ...c, onlineCount }
+          })
+
+          return {
+            onlineUsers: updatedOnline,
+            conversations: updatedConversations,
+          }
+        })
+
+        // Cross-sync with socialStore: update Friend.status
+        const socialState = useSocialStore.getState()
+        let needsUpdate = false
+
+        const updatedFriends = socialState.friends.map((friend) => {
+          const presence = presenceStates.find((ps) => ps.userId === friend.userId)
+          if (!presence) return friend
+
+          const newStatus = presence.isOnline ? 'active' as const : 'away' as const
+          if (friend.status === newStatus) return friend
+
+          needsUpdate = true
+          return { ...friend, status: newStatus }
+        })
+
+        if (needsUpdate) {
+          useSocialStore.setState({ friends: updatedFriends })
+        }
+      },
+
+      // ─── Real-time Lifecycle Actions ───────────────────────────────────
+
+      startRealtimeForConversation: (conversationId) => {
+        rtSubscribe(conversationId, {
+          onMessage: (msg) => get().onMessageReceived(conversationId, msg),
+          onStatusUpdate: (msgId, status) =>
+            get().onStatusUpdate(conversationId, msgId, status),
+        })
+        subscribeToTyping(conversationId, (user, isTyping) =>
+          get().onTypingUpdate(conversationId, user, isTyping)
+        )
+        subscribeToPresence(
+          conversationId,
+          (states) => get().onPresenceSync(conversationId, states),
+          get().currentUserId ?? undefined
+        )
+      },
+
+      stopRealtimeForConversation: (conversationId) => {
+        rtUnsubscribe(conversationId)
+        set((state) => {
+          const updatedTyping = { ...state.typingUsers }
+          delete updatedTyping[conversationId]
+          return { typingUsers: updatedTyping }
+        })
+      },
+
+      stopAllRealtime: () => {
+        unsubscribeAll()
+        set({ typingUsers: {} })
+      },
+
+      // ─── Typing Send Action ────────────────────────────────────────────
+
+      sendTyping: (conversationId, isTyping) => {
+        const { currentUserId } = get()
+        if (!currentUserId) return
+        // Use current user info — displayName and avatarUrl could be enriched from profile store
+        sendTypingIndicator(conversationId, currentUserId, 'You', '', isTyping)
       },
 
       // ─── Group Management Actions ──────────────────────────────────────
@@ -777,6 +954,7 @@ export const useMessagingStore = create<MessagingState>()(
       // ─── Reset ─────────────────────────────────────────────────────────
 
       resetMessaging: () => {
+        get().stopAllRealtime()
         set({
           conversations: [],
           activeConversationId: null,
@@ -785,6 +963,7 @@ export const useMessagingStore = create<MessagingState>()(
           totalUnread: 0,
           typingUsers: {},
           onlineUsers: {},
+          currentUserId: null,
           isLoadingMessages: false,
           hasMoreMessages: {},
           shareTrayOpen: false,
@@ -794,6 +973,12 @@ export const useMessagingStore = create<MessagingState>()(
     {
       name: 'messaging-store',
       version: 1,
+      partialize: (state) => {
+        // Exclude ephemeral realtime state from persistence
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { typingUsers, onlineUsers, currentUserId, ...persisted } = state
+        return persisted as MessagingState
+      },
     }
   )
 )
