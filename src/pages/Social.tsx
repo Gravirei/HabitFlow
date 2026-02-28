@@ -70,7 +70,7 @@ export function Social() {
 
         {/* Content */}
         <div className="px-4 sm:px-6 lg:px-8 mt-4 max-w-3xl mx-auto">
-          <SocialHub activeTab={activeTab} />
+          <SocialHub activeTab={activeTab} onNavigateToMessages={() => setActiveTab('messages')} />
         </div>
       </main>
 

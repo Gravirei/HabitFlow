@@ -110,9 +110,10 @@ function HeroHeader() {
 
 interface SocialHubProps {
   activeTab: SocialTab
+  onNavigateToMessages?: () => void
 }
 
-export function SocialHub({ activeTab }: SocialHubProps) {
+export function SocialHub({ activeTab, onNavigateToMessages }: SocialHubProps) {
   const {
     initializeBadges,
     hasSeenSocialOnboarding,
@@ -158,7 +159,7 @@ export function SocialHub({ activeTab }: SocialHubProps) {
           transition={{ duration: 0.22, ease: 'easeOut' }}
         >
           {activeTab === 'leaderboard' && <LeaderboardScreen />}
-          {activeTab === 'friends' && <FriendsScreen />}
+          {activeTab === 'friends' && <FriendsScreen onNavigateToMessages={onNavigateToMessages} />}
           {activeTab === 'league' && <LeagueScreen />}
           {activeTab === 'messages' && (
             activeConversationId ? (

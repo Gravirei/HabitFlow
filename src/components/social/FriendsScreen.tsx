@@ -9,6 +9,7 @@ import { useSocialStore } from './socialStore'
 import { getLeagueTierColor } from './constants'
 import type { Friend, FriendStatus } from './types'
 import toast from 'react-hot-toast'
+import { useMessagingStore } from '../messaging/messagingStore'
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -133,6 +134,7 @@ function FriendCard({
   cooldown,
   onNudge,
   onRemove,
+  onMessage,
 }: {
   friend: Friend
   index: number
@@ -140,6 +142,7 @@ function FriendCard({
   cooldown: { hours: number; minutes: number } | null
   onNudge: (id: string) => void
   onRemove: (id: string) => void
+  onMessage: (id: string) => void
 }) {
   const [expanded, setExpanded] = useState(false)
   const canSendNudge = nudgeState === 'available'
@@ -203,6 +206,20 @@ function FriendCard({
           </div>
         )}
 
+        {/* Message button */}
+        <motion.button
+          whileTap={{ scale: 0.88 }}
+          onClick={(e) => {
+            e.stopPropagation()
+            onMessage(friend.userId)
+          }}
+          className="flex size-11 items-center justify-center rounded-xl bg-cyan-500/10 text-cyan-400 cursor-pointer transition-colors duration-200 hover:bg-cyan-500/20 active:bg-cyan-500/30"
+          title={`Message ${friend.displayName}`}
+          aria-label={`Send message to ${friend.displayName}`}
+        >
+          <span className="material-symbols-outlined text-[18px]">chat_bubble</span>
+        </motion.button>
+
         {/* Nudge button with all 4 states */}
         <NudgeButton
           state={nudgeState}
@@ -242,6 +259,16 @@ function FriendCard({
               </button>
               <button
                 onClick={() => {
+                  onMessage(friend.userId)
+                  setExpanded(false)
+                }}
+                className="flex-1 flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-semibold bg-cyan-500/10 text-cyan-400 cursor-pointer hover:bg-cyan-500/20 transition-colors duration-200"
+              >
+                <span className="material-symbols-outlined text-sm">chat_bubble</span>
+                Message
+              </button>
+              <button
+                onClick={() => {
                   onRemove(friend.userId)
                   setExpanded(false)
                 }}
@@ -260,8 +287,13 @@ function FriendCard({
 
 // ─── Main ───────────────────────────────────────────────────────────────────
 
-export function FriendsScreen() {
+interface FriendsScreenProps {
+  onNavigateToMessages?: () => void
+}
+
+export function FriendsScreen({ onNavigateToMessages }: FriendsScreenProps) {
   const { friends, loadDemoFriends, sendNudge, removeFriend, canNudge, getNudgeCooldownRemaining } = useSocialStore()
+  const { createDirectConversation } = useMessagingStore()
   const [filter, setFilter] = useState<'all' | 'active' | 'streak'>('all')
   const [search, setSearch] = useState('')
 
@@ -299,6 +331,13 @@ export function FriendsScreen() {
   const handleRemove = (id: string) => {
     removeFriend(id)
     toast.success('Friend removed')
+  }
+
+  const handleMessage = async (friendUserId: string) => {
+    const conversationId = await createDirectConversation(friendUserId)
+    if (conversationId && onNavigateToMessages) {
+      onNavigateToMessages()
+    }
   }
 
   const activeCount = friends.filter((f) => f.status === 'active').length
@@ -408,6 +447,7 @@ export function FriendsScreen() {
               cooldown={getNudgeCooldownRemaining(friend.userId)}
               onNudge={handleNudge}
               onRemove={handleRemove}
+              onMessage={handleMessage}
             />
           ))}
         </div>
