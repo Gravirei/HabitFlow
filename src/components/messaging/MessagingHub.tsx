@@ -4,9 +4,10 @@
  */
 
 import { useState } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
 import { useMessagingStore } from './messagingStore'
+import { GroupCreationFlow } from './GroupCreationFlow'
 import type { Conversation } from './types'
 
 // ─── Props ──────────────────────────────────────────────────────────────────
@@ -219,11 +220,14 @@ function ConversationRow({
 
 export function MessagingHub({ onSelectConversation, onCompose }: MessagingHubProps) {
   const [search, setSearch] = useState('')
+  const [showComposeMenu, setShowComposeMenu] = useState(false)
+  const [showGroupCreation, setShowGroupCreation] = useState(false)
   const prefersReducedMotion = useReducedMotion()
   const {
     conversations,
     conversationFilter,
     setConversationFilter,
+    setActiveConversation,
     onlineUsers,
     totalUnread,
   } = useMessagingStore()
@@ -270,15 +274,62 @@ export function MessagingHub({ onSelectConversation, onCompose }: MessagingHubPr
             </span>
           )}
         </div>
-        <button
-          onClick={onCompose}
-          className="cursor-pointer"
-          aria-label="New conversation"
-        >
-          <span className="material-symbols-outlined text-[22px] text-slate-400 hover:text-teal-400 transition-colors">
-            edit_square
-          </span>
-        </button>
+        <div className="relative">
+          <button
+            onClick={() => setShowComposeMenu((prev) => !prev)}
+            className="cursor-pointer"
+            aria-label="New conversation"
+          >
+            <span className="material-symbols-outlined text-[22px] text-slate-400 hover:text-teal-400 transition-colors">
+              edit_square
+            </span>
+          </button>
+
+          {/* Compose menu dropdown */}
+          <AnimatePresence>
+            {showComposeMenu && (
+              <>
+                {/* Backdrop */}
+                <div
+                  className="fixed inset-0 z-20"
+                  onClick={() => setShowComposeMenu(false)}
+                />
+                <motion.div
+                  className="absolute right-0 top-10 z-30 bg-[#1a1b23] border border-white/[0.08] rounded-xl shadow-xl overflow-hidden min-w-[200px]"
+                  {...(prefersReducedMotion
+                    ? {}
+                    : {
+                        initial: { opacity: 0, scale: 0.9, y: -8 },
+                        animate: { opacity: 1, scale: 1, y: 0 },
+                        exit: { opacity: 0, scale: 0.9, y: -8 },
+                        transition: { type: 'spring', damping: 25, stiffness: 400, duration: 0.2 },
+                      })}
+                >
+                  <button
+                    onClick={() => {
+                      setShowComposeMenu(false)
+                      onCompose()
+                    }}
+                    className="w-full flex items-center gap-3 px-4 py-3 hover:bg-white/[0.04] transition-colors cursor-pointer text-left"
+                  >
+                    <span className="material-symbols-outlined text-xl text-teal-400">chat_bubble</span>
+                    <span className="text-sm text-white">New Message</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowGroupCreation(true)
+                      setShowComposeMenu(false)
+                    }}
+                    className="w-full flex items-center gap-3 px-4 py-3 hover:bg-white/[0.04] transition-colors cursor-pointer text-left"
+                  >
+                    <span className="material-symbols-outlined text-xl text-emerald-400">group_add</span>
+                    <span className="text-sm text-white">New Group</span>
+                  </button>
+                </motion.div>
+              </>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
 
       {/* Search */}
@@ -360,6 +411,16 @@ export function MessagingHub({ onSelectConversation, onCompose }: MessagingHubPr
           ))}
         </div>
       )}
+
+      {/* Group Creation Flow */}
+      <GroupCreationFlow
+        isOpen={showGroupCreation}
+        onClose={() => setShowGroupCreation(false)}
+        onGroupCreated={(id) => {
+          setActiveConversation(id)
+          onSelectConversation(id)
+        }}
+      />
     </div>
   )
 }

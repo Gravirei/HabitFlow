@@ -4,13 +4,14 @@
  * date separators, typing indicator, and auto-scroll
  */
 
-import { useEffect, useRef, useCallback } from 'react'
-import { motion } from 'framer-motion'
+import { useState, useEffect, useRef, useCallback } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
 import { useMessagingStore } from './messagingStore'
 import { useSocialStore } from '../social/socialStore'
 import { MessageBubble } from './MessageBubble'
 import { MessageInputBar } from './MessageInputBar'
+import { GroupInfoScreen } from './GroupInfoScreen'
 import toast from 'react-hot-toast'
 import type { Message } from './types'
 
@@ -86,6 +87,25 @@ function groupMessages(messages: Message[]): GroupedMessage[] {
   return result
 }
 
+// ─── Sender Color Helper ────────────────────────────────────────────────────
+
+/**
+ * Generate a deterministic HSL color from a userId string.
+ * Same userId always produces same color. Avoids near-white and near-black
+ * by constraining saturation (60-80%) and lightness (55-75%).
+ */
+function getSenderColor(userId: string): string {
+  let hash = 0
+  for (let i = 0; i < userId.length; i++) {
+    hash = userId.charCodeAt(i) + ((hash << 5) - hash)
+    hash = hash & hash // Convert to 32-bit int
+  }
+  const hue = Math.abs(hash) % 360
+  const saturation = 60 + (Math.abs(hash >> 8) % 21)  // 60-80%
+  const lightness = 55 + (Math.abs(hash >> 16) % 21)   // 55-75%
+  return `hsl(${hue}, ${saturation}%, ${lightness}%)`
+}
+
 // ─── Typing Indicator ───────────────────────────────────────────────────────
 
 function TypingIndicator({ name, prefersReducedMotion }: { name: string; prefersReducedMotion: boolean }) {
@@ -137,11 +157,15 @@ export function ConversationScreen({ conversationId, onBack }: ConversationScree
     markConversationRead,
   } = useMessagingStore()
 
-  // Social store — nudge delegation
-  const { canNudge, sendNudge } = useSocialStore()
+  // Social store — nudge delegation + friends for group avatars
+  const { canNudge, sendNudge, friends } = useSocialStore()
+
+  // Group info panel state
+  const [showGroupInfo, setShowGroupInfo] = useState(false)
 
   // Find conversation
   const conversation = conversations.find((c) => c.id === conversationId)
+  const isGroupChat = conversation?.type === 'group'
   const conversationMessages = messages[conversationId] ?? []
   const typingList = typingUsers[conversationId] ?? []
   const hasMore = hasMoreMessages[conversationId] ?? false
@@ -213,53 +237,96 @@ export function ConversationScreen({ conversationId, onBack }: ConversationScree
           </span>
         </button>
 
-        {/* Avatar */}
-        <img
-          src={conversation.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${conversation.name}`}
-          alt={conversation.name}
-          className="size-8 rounded-full object-cover flex-shrink-0"
-        />
+        {isGroupChat ? (
+          <>
+            {/* Group stacked avatars */}
+            <div className="flex items-center -space-x-2 flex-shrink-0">
+              {conversation.memberIds.slice(0, 3).map((memberId) => {
+                const friend = friends.find((f) => f.userId === memberId)
+                return (
+                  <img
+                    key={memberId}
+                    src={friend?.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${memberId}`}
+                    alt=""
+                    className="w-8 h-8 rounded-full border-2 border-[#0F1117] object-cover"
+                  />
+                )
+              })}
+              {conversation.memberIds.length > 3 && (
+                <div className="w-8 h-8 rounded-full bg-white/[0.06] border-2 border-[#0F1117] flex items-center justify-center text-[10px] text-slate-400 font-medium">
+                  +{conversation.memberIds.length - 3}
+                </div>
+              )}
+            </div>
 
-        {/* Name + status */}
-        <div className="flex-1 min-w-0">
-          <p className="text-[14px] font-semibold text-white truncate">{conversation.name}</p>
-          <div className="flex items-center gap-1 text-[11px] font-medium">
-            <span
-              className={`inline-block size-1.5 rounded-full ${
-                isParticipantOnline ? 'bg-emerald-400' : 'bg-slate-500'
-              }`}
+            {/* Group name + member count */}
+            <div className="flex-1 min-w-0">
+              <p className="text-[14px] font-semibold text-white truncate">{conversation.name}</p>
+              <p className="text-xs text-slate-400">{conversation.memberCount} members</p>
+            </div>
+
+            {/* Info icon for group */}
+            <div className="flex gap-1 flex-shrink-0">
+              <button
+                onClick={() => setShowGroupInfo(true)}
+                className="cursor-pointer p-1 text-slate-400 hover:text-white transition-colors"
+                aria-label="Group info"
+              >
+                <span className="material-symbols-outlined text-[20px]">info</span>
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            {/* Direct message avatar */}
+            <img
+              src={conversation.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${conversation.name}`}
+              alt={conversation.name}
+              className="size-8 rounded-full object-cover flex-shrink-0"
             />
-            <span className={isParticipantOnline ? 'text-emerald-400' : 'text-slate-500'}>
-              {isParticipantOnline ? 'Online' : 'Offline'}
-            </span>
-          </div>
-        </div>
 
-        {/* Right side icons */}
-        <div className="flex gap-1 flex-shrink-0">
-          {/* Nudge */}
-          <button
-            onClick={handleNudge}
-            disabled={!participantId || !canNudge(participantId ?? '')}
-            className={`cursor-pointer p-1 ${
-              participantId && canNudge(participantId)
-                ? 'text-amber-400 hover:text-amber-300'
-                : 'text-slate-600 cursor-not-allowed opacity-40'
-            }`}
-            aria-label="Send nudge"
-          >
-            <span className="material-symbols-outlined text-[20px]">notifications</span>
-          </button>
+            {/* Name + status */}
+            <div className="flex-1 min-w-0">
+              <p className="text-[14px] font-semibold text-white truncate">{conversation.name}</p>
+              <div className="flex items-center gap-1 text-[11px] font-medium">
+                <span
+                  className={`inline-block size-1.5 rounded-full ${
+                    isParticipantOnline ? 'bg-emerald-400' : 'bg-slate-500'
+                  }`}
+                />
+                <span className={isParticipantOnline ? 'text-emerald-400' : 'text-slate-500'}>
+                  {isParticipantOnline ? 'Online' : 'Offline'}
+                </span>
+              </div>
+            </div>
 
-          {/* Info */}
-          <button
-            onClick={() => console.log('Info panel:', conversationId)}
-            className="cursor-pointer p-1 text-slate-400 hover:text-white transition-colors"
-            aria-label="Conversation info"
-          >
-            <span className="material-symbols-outlined text-[20px]">info</span>
-          </button>
-        </div>
+            {/* Right side icons for DM */}
+            <div className="flex gap-1 flex-shrink-0">
+              {/* Nudge */}
+              <button
+                onClick={handleNudge}
+                disabled={!participantId || !canNudge(participantId ?? '')}
+                className={`cursor-pointer p-1 ${
+                  participantId && canNudge(participantId)
+                    ? 'text-amber-400 hover:text-amber-300'
+                    : 'text-slate-600 cursor-not-allowed opacity-40'
+                }`}
+                aria-label="Send nudge"
+              >
+                <span className="material-symbols-outlined text-[20px]">notifications</span>
+              </button>
+
+              {/* Info */}
+              <button
+                onClick={() => setShowGroupInfo(true)}
+                className="cursor-pointer p-1 text-slate-400 hover:text-white transition-colors"
+                aria-label="Conversation info"
+              >
+                <span className="material-symbols-outlined text-[20px]">info</span>
+              </button>
+            </div>
+          </>
+        )}
       </div>
 
       {/* Messages Area */}
@@ -296,6 +363,8 @@ export function ConversationScreen({ conversationId, onBack }: ConversationScree
               senderName={message.senderName}
               senderAvatarUrl={message.senderAvatarUrl}
               isLastInGroup={isLastInGroup}
+              showSenderName={isGroupChat && message.senderId !== CURRENT_USER_ID}
+              senderColor={isGroupChat ? getSenderColor(message.senderId) : undefined}
             />
           </div>
         ))}
@@ -324,6 +393,16 @@ export function ConversationScreen({ conversationId, onBack }: ConversationScree
           }
         }}
       />
+
+      {/* Group Info Panel */}
+      <AnimatePresence>
+        {showGroupInfo && conversation && (
+          <GroupInfoScreen
+            conversationId={conversation.id}
+            onClose={() => setShowGroupInfo(false)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   )
 }

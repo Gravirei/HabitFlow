@@ -30,6 +30,5 @@ export { ReactionRow } from './ReactionRow'
 export { TypingIndicator } from './TypingIndicator'
 
 // Group Chat (Phase 6)
-// TODO: uncomment after Phase 6 execution
-// export { GroupCreationFlow } from './GroupCreationFlow'
-// export { GroupInfoScreen } from './GroupInfoScreen'
+export { GroupCreationFlow } from './GroupCreationFlow'
+export { GroupInfoScreen } from './GroupInfoScreen'

@@ -16,6 +16,8 @@ interface MessageBubbleProps {
   senderName?: string
   senderAvatarUrl?: string
   isLastInGroup: boolean
+  showSenderName?: boolean   // true for received messages in group chats
+  senderColor?: string       // HSL color string from getSenderColor()
 }
 
 // ─── Delivery Status Icon Map ───────────────────────────────────────────────
@@ -67,6 +69,8 @@ export function MessageBubble({
   senderName,
   senderAvatarUrl,
   isLastInGroup,
+  showSenderName,
+  senderColor,
 }: MessageBubbleProps) {
   const prefersReducedMotion = useReducedMotion()
 
@@ -104,31 +108,42 @@ export function MessageBubble({
         {!isSent && !showAvatar && <div className="w-10 flex-shrink-0" />}
 
         {/* Bubble */}
-        <div
-          className={`max-w-[75%] ${
-            isSent
-              ? 'bg-gradient-to-br from-teal-600 to-emerald-500 text-white rounded-2xl rounded-br-md'
-              : 'bg-white/[0.06] border border-white/[0.04] text-slate-200 rounded-2xl rounded-bl-md'
-          }`}
-          onContextMenu={handleContextMenu}
-        >
-          <div className="px-3.5 py-2.5">
-            {isTextMessage ? (
-              <p className="text-[14px] leading-relaxed whitespace-pre-wrap break-words">
-                {message.text}
-              </p>
-            ) : (
-              <RichCardPlaceholder type={message.type} />
-            )}
+        <div className="max-w-[75%]">
+          {/* Sender name for group messages */}
+          {showSenderName && !isSent && (
+            <span
+              className="text-xs font-medium ml-1 mb-0.5 block"
+              style={{ color: senderColor ?? '#94a3b8' }}
+            >
+              {senderName}
+            </span>
+          )}
+          <div
+            className={`${
+              isSent
+                ? 'bg-gradient-to-br from-teal-600 to-emerald-500 text-white rounded-2xl rounded-br-md'
+                : 'bg-white/[0.06] border border-white/[0.04] text-slate-200 rounded-2xl rounded-bl-md'
+            }`}
+            onContextMenu={handleContextMenu}
+          >
+            <div className="px-3.5 py-2.5">
+              {isTextMessage ? (
+                <p className="text-[14px] leading-relaxed whitespace-pre-wrap break-words">
+                  {message.text}
+                </p>
+              ) : (
+                <RichCardPlaceholder type={message.type} />
+              )}
 
-            {/* Delivery receipt (sent only) */}
-            {isSent && (
-              <div className="flex justify-end mt-1">
-                <span className={`material-symbols-outlined text-[12px] ${statusConfig.className}`}>
-                  {statusConfig.icon}
-                </span>
-              </div>
-            )}
+              {/* Delivery receipt (sent only) */}
+              {isSent && (
+                <div className="flex justify-end mt-1">
+                  <span className={`material-symbols-outlined text-[12px] ${statusConfig.className}`}>
+                    {statusConfig.icon}
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
