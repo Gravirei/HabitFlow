@@ -1,8 +1,10 @@
 /**
  * MessageBubble — Single message bubble for conversation threads
  * Sent messages: right-aligned teal gradient, received: left-aligned glass
+ * Wrapped in React.memo with custom comparison for performance
  */
 
+import React from 'react'
 import { motion } from 'framer-motion'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
 import type { Message, DeliveryStatus } from './types'
@@ -16,23 +18,34 @@ interface MessageBubbleProps {
   senderName?: string
   senderAvatarUrl?: string
   isLastInGroup: boolean
-  showSenderName?: boolean   // true for received messages in group chats
-  senderColor?: string       // HSL color string from getSenderColor()
+  showSenderName?: boolean
+  senderColor?: string
 }
 
 // ─── Delivery Status Icon Map ───────────────────────────────────────────────
 
-const deliveryStatusConfig: Record<DeliveryStatus, { icon: string; className: string }> = {
-  sending: { icon: 'schedule', className: 'text-white/40' },
-  sent: { icon: 'check', className: 'text-white/60' },
-  delivered: { icon: 'done_all', className: 'text-white/60' },
-  read: { icon: 'done_all', className: 'text-teal-200' },
+const deliveryStatusConfig: Record<DeliveryStatus, { icon: string; className: string; label: string }> = {
+  sending: { icon: 'schedule', className: 'text-white/40', label: 'Sending' },
+  sent: { icon: 'check', className: 'text-white/60', label: 'Sent' },
+  delivered: { icon: 'done_all', className: 'text-white/60', label: 'Delivered' },
+  read: { icon: 'done_all', className: 'text-teal-200', label: 'Read' },
 }
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
 function formatMessageTime(iso: string): string {
   return new Date(iso).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+}
+
+function formatRelativeTime(iso: string): string {
+  const now = Date.now()
+  const diff = now - new Date(iso).getTime()
+  const mins = Math.floor(diff / 60000)
+  if (mins < 1) return 'just now'
+  if (mins < 60) return `${mins}m ago`
+  const hours = Math.floor(mins / 60)
+  if (hours < 24) return `${hours}h ago`
+  return formatMessageTime(iso)
 }
 
 // ─── Non-text placeholder ───────────────────────────────────────────────────
@@ -60,9 +73,31 @@ function RichCardPlaceholder({ type }: { type: string }) {
   )
 }
 
+// ─── ARIA Label Builder ─────────────────────────────────────────────────────
+
+function buildAriaLabel(message: Message, isSent: boolean, senderName?: string): string {
+  const who = isSent ? 'You' : (senderName || 'Someone')
+  const time = formatRelativeTime(message.createdAt)
+
+  if (message.type === 'text') {
+    const statusSuffix = isSent ? `, ${deliveryStatusConfig[message.deliveryStatus].label}` : ''
+    return `${who}: ${message.text}, ${time}${statusSuffix}`
+  }
+
+  const typeLabels: Record<string, string> = {
+    habit_card: 'shared a habit completion',
+    badge_card: 'shared a badge',
+    xp_card: 'shared an XP milestone',
+    nudge: 'sent a nudge',
+    system: 'system message',
+  }
+  const action = typeLabels[message.type] ?? message.type
+  return `${who} ${action}, ${time}`
+}
+
 // ─── Component ──────────────────────────────────────────────────────────────
 
-export function MessageBubble({
+const MessageBubbleInner = ({
   message,
   isSent,
   showAvatar,
@@ -71,7 +106,7 @@ export function MessageBubble({
   isLastInGroup,
   showSenderName,
   senderColor,
-}: MessageBubbleProps) {
+}: MessageBubbleProps) => {
   const prefersReducedMotion = useReducedMotion()
 
   const motionProps = prefersReducedMotion
@@ -84,6 +119,7 @@ export function MessageBubble({
 
   const statusConfig = deliveryStatusConfig[message.deliveryStatus]
   const isTextMessage = message.type === 'text'
+  const ariaLabel = buildAriaLabel(message, isSent, senderName)
 
   const handleContextMenu = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -91,10 +127,22 @@ export function MessageBubble({
     console.log('Context menu:', message.id)
   }
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      // Open reaction picker on keyboard activation
+      console.log('Keyboard activate:', message.id)
+    }
+  }
+
   return (
     <motion.div {...motionProps}>
       {/* Row container */}
-      <div className={`flex ${isSent ? 'justify-end' : 'justify-start'}`}>
+      <div
+        className={`flex ${isSent ? 'justify-end' : 'justify-start'}`}
+        role="article"
+        aria-label={ariaLabel}
+      >
         {/* Avatar for received messages */}
         {!isSent && showAvatar && senderAvatarUrl && (
           <img
@@ -125,6 +173,9 @@ export function MessageBubble({
                 : 'bg-white/[0.06] border border-white/[0.04] text-slate-200 rounded-2xl rounded-bl-md'
             }`}
             onContextMenu={handleContextMenu}
+            onKeyDown={handleKeyDown}
+            tabIndex={0}
+            aria-haspopup="true"
           >
             <div className="px-3.5 py-2.5">
               {isTextMessage ? (
@@ -161,3 +212,18 @@ export function MessageBubble({
     </motion.div>
   )
 }
+
+// ─── Memoized Export ────────────────────────────────────────────────────────
+
+export const MessageBubble = React.memo(MessageBubbleInner, (prev, next) => {
+  return (
+    prev.message.id === next.message.id &&
+    prev.message.deliveryStatus === next.message.deliveryStatus &&
+    prev.message.reactions === next.message.reactions &&
+    prev.isSent === next.isSent &&
+    prev.showAvatar === next.showAvatar &&
+    prev.isLastInGroup === next.isLastInGroup &&
+    prev.showSenderName === next.showSenderName &&
+    prev.senderColor === next.senderColor
+  )
+})

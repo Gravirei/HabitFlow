@@ -1,10 +1,11 @@
 /**
  * ConversationScreen — Full direct message thread view
  * Composes MessageBubble and MessageInputBar with scroll management,
- * date separators, typing indicator, and auto-scroll
+ * date separators, typing indicator, scroll-to-bottom FAB, loading
+ * skeletons, empty state, and auto-scroll
  */
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
 import { useMessagingStore } from './messagingStore'
@@ -19,6 +20,9 @@ import type { Message } from './types'
 
 // TODO: Replace with actual auth user ID
 const CURRENT_USER_ID = 'current-user'
+
+// Scroll-to-bottom threshold in px
+const SCROLL_FAB_THRESHOLD = 200
 
 // ─── Props ──────────────────────────────────────────────────────────────────
 
@@ -38,7 +42,7 @@ function formatDateSeparator(iso: string): string {
   if (date.toDateString() === today.toDateString()) return 'Today'
   if (date.toDateString() === yesterday.toDateString()) return 'Yesterday'
 
-  return date.toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric' })
+  return date.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })
 }
 
 function isSameDay(a: string, b: string): boolean {
@@ -106,11 +110,68 @@ function getSenderColor(userId: string): string {
   return `hsl(${hue}, ${saturation}%, ${lightness}%)`
 }
 
-// ─── Typing Indicator ───────────────────────────────────────────────────────
+// ─── Loading Skeleton ───────────────────────────────────────────────────────
 
-function TypingIndicator({ name, prefersReducedMotion }: { name: string; prefersReducedMotion: boolean }) {
+function MessagesSkeleton({ prefersReducedMotion }: { prefersReducedMotion: boolean }) {
+  const skeletons = [
+    { width: '60%', height: 40, align: 'left' },
+    { width: '45%', height: 60, align: 'right' },
+    { width: '70%', height: 40, align: 'left' },
+    { width: '50%', height: 60, align: 'right' },
+    { width: '65%', height: 40, align: 'left' },
+    { width: '40%', height: 40, align: 'right' },
+  ]
+
   return (
-    <div className="px-4 py-2">
+    <div className="space-y-3 py-4">
+      {skeletons.map((s, i) => (
+        <div
+          key={i}
+          className={`flex ${s.align === 'right' ? 'justify-end' : 'justify-start'}`}
+        >
+          <div
+            className={`rounded-2xl bg-white/[0.04] ${prefersReducedMotion ? '' : 'animate-pulse'}`}
+            style={{ width: s.width, height: s.height }}
+          />
+        </div>
+      ))}
+    </div>
+  )
+}
+
+// ─── Empty State ────────────────────────────────────────────────────────────
+
+function EmptyConversationState({ isGroup }: { isGroup: boolean }) {
+  return (
+    <div className="flex flex-col items-center justify-center gap-4 py-20 text-center">
+      <div className="flex size-20 items-center justify-center rounded-3xl bg-white/[0.025] border border-dashed border-white/[0.05]">
+        <span className="material-symbols-outlined text-4xl text-slate-600">chat_bubble_outline</span>
+      </div>
+      <div>
+        <p className="text-sm font-semibold text-slate-400">No messages yet</p>
+        <p className="text-xs text-slate-500 mt-1 max-w-[220px] mx-auto">
+          {isGroup
+            ? 'Be the first to say something!'
+            : 'Send a message to start the conversation'}
+        </p>
+      </div>
+    </div>
+  )
+}
+
+// ─── Failed Message Retry ───────────────────────────────────────────────────
+
+interface FailedMessage {
+  id: string
+  text: string
+}
+
+// ─── Inline Typing Indicator ────────────────────────────────────────────────
+
+function InlineTypingIndicator({ name, prefersReducedMotion }: { name: string; prefersReducedMotion: boolean }) {
+  return (
+    <div className="px-4 py-2" role="status" aria-live="polite">
+      <span className="sr-only">{name} is typing</span>
       <span className="text-[12px] text-slate-400 italic">
         {name} is typing
         {prefersReducedMotion ? (
@@ -163,6 +224,13 @@ export function ConversationScreen({ conversationId, onBack }: ConversationScree
   // Group info panel state
   const [showGroupInfo, setShowGroupInfo] = useState(false)
 
+  // Scroll-to-bottom FAB state
+  const [showScrollFab, setShowScrollFab] = useState(false)
+  const [unreadBelow, setUnreadBelow] = useState(0)
+
+  // Failed messages tracking (optimistic send retry)
+  const [failedMessages, setFailedMessages] = useState<FailedMessage[]>([])
+
   // Find conversation
   const conversation = conversations.find((c) => c.id === conversationId)
   const isGroupChat = conversation?.type === 'group'
@@ -173,6 +241,9 @@ export function ConversationScreen({ conversationId, onBack }: ConversationScree
   // Participant info (for direct conversations)
   const participantId = conversation?.memberIds.find((id) => id !== CURRENT_USER_ID)
   const isParticipantOnline = participantId ? !!onlineUsers[participantId] : false
+
+  // Memoize message grouping
+  const grouped = useMemo(() => groupMessages(conversationMessages), [conversationMessages])
 
   // Mount / unmount — set active conversation
   useEffect(() => {
@@ -185,19 +256,52 @@ export function ConversationScreen({ conversationId, onBack }: ConversationScree
 
   // Auto-scroll to latest message
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({
-      behavior: prefersReducedMotion ? 'auto' : 'smooth',
-    })
-  }, [conversationMessages.length, prefersReducedMotion])
+    if (!showScrollFab) {
+      messagesEndRef.current?.scrollIntoView({
+        behavior: prefersReducedMotion ? 'auto' : 'smooth',
+      })
+    }
+  }, [conversationMessages.length, prefersReducedMotion, showScrollFab])
 
-  // Scroll-up pagination
+  // Scroll handler — pagination + FAB visibility
   const handleScroll = useCallback(() => {
     const container = scrollContainerRef.current
     if (!container) return
+
+    // Scroll-up pagination
     if (container.scrollTop < 50 && hasMore && !isLoadingMessages) {
       loadMoreMessages(conversationId)
     }
+
+    // Scroll-to-bottom FAB
+    const distanceFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight
+    setShowScrollFab(distanceFromBottom > SCROLL_FAB_THRESHOLD)
+
+    // Clear unread-below count when at bottom
+    if (distanceFromBottom <= 10) {
+      setUnreadBelow(0)
+    }
   }, [hasMore, isLoadingMessages, conversationId, loadMoreMessages])
+
+  // Track new messages arriving while scrolled up
+  useEffect(() => {
+    if (showScrollFab && conversationMessages.length > 0) {
+      const lastMsg = conversationMessages[conversationMessages.length - 1]
+      if (lastMsg.senderId !== CURRENT_USER_ID) {
+        setUnreadBelow((prev) => prev + 1)
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [conversationMessages.length])
+
+  // Scroll to bottom handler
+  const scrollToBottom = useCallback(() => {
+    messagesEndRef.current?.scrollIntoView({
+      behavior: prefersReducedMotion ? 'auto' : 'smooth',
+    })
+    setShowScrollFab(false)
+    setUnreadBelow(0)
+  }, [prefersReducedMotion])
 
   // Nudge handler
   const handleNudge = () => {
@@ -215,8 +319,32 @@ export function ConversationScreen({ conversationId, onBack }: ConversationScree
     })
   }
 
-  // Group messages for rendering
-  const grouped = groupMessages(conversationMessages)
+  // Optimistic send with retry
+  const handleSendText = useCallback(async (text: string) => {
+    try {
+      await sendTextMessage(conversationId, text)
+    } catch {
+      // Track failed message for retry
+      const failedId = `failed-${Date.now()}`
+      setFailedMessages((prev) => [...prev, { id: failedId, text }])
+      toast.error('Message failed to send', {
+        style: { background: '#1f2937', color: '#fff', borderRadius: '12px', border: '1px solid rgba(239,68,68,0.3)' },
+      })
+    }
+  }, [conversationId, sendTextMessage])
+
+  // Retry failed message
+  const handleRetry = useCallback(async (failedMsg: FailedMessage) => {
+    setFailedMessages((prev) => prev.filter((m) => m.id !== failedMsg.id))
+    try {
+      await sendTextMessage(conversationId, failedMsg.text)
+    } catch {
+      setFailedMessages((prev) => [...prev, failedMsg])
+      toast.error('Message failed to send', {
+        style: { background: '#1f2937', color: '#fff', borderRadius: '12px', border: '1px solid rgba(239,68,68,0.3)' },
+      })
+    }
+  }, [conversationId, sendTextMessage])
 
   if (!conversation) {
     return (
@@ -225,6 +353,9 @@ export function ConversationScreen({ conversationId, onBack }: ConversationScree
       </div>
     )
   }
+
+  const isEmptyConversation = conversationMessages.length === 0 && !isLoadingMessages
+  const showLoadingSkeleton = isLoadingMessages && conversationMessages.length === 0
 
   return (
     <div className="flex flex-col h-full">
@@ -330,13 +461,17 @@ export function ConversationScreen({ conversationId, onBack }: ConversationScree
       </div>
 
       {/* Messages Area */}
+      {/* TODO: Consider react-window or @tanstack/virtual for virtual scrolling on conversations with 500+ messages */}
       <div
         ref={scrollContainerRef}
         onScroll={handleScroll}
-        className="flex-1 overflow-y-auto px-3 py-4 space-y-1"
+        className="relative flex-1 overflow-y-auto px-3 py-4 space-y-1"
+        role="log"
+        aria-live="polite"
+        aria-label="Messages"
       >
         {/* Loading spinner for pagination */}
-        {isLoadingMessages && (
+        {isLoadingMessages && conversationMessages.length > 0 && (
           <div className="flex justify-center py-4">
             <span className="material-symbols-outlined text-[24px] text-slate-500 animate-spin">
               progress_activity
@@ -344,15 +479,21 @@ export function ConversationScreen({ conversationId, onBack }: ConversationScree
           </div>
         )}
 
+        {/* Loading skeleton for initial load */}
+        {showLoadingSkeleton && <MessagesSkeleton prefersReducedMotion={prefersReducedMotion} />}
+
+        {/* Empty state */}
+        {isEmptyConversation && <EmptyConversationState isGroup={!!isGroupChat} />}
+
         {/* Messages */}
         {grouped.map(({ message, showAvatar, isLastInGroup, showDateSeparator, dateSeparatorLabel }) => (
           <div key={message.id}>
             {/* Date separator */}
             {showDateSeparator && (
-              <div className="flex items-center justify-center my-4">
-                <span className="rounded-full bg-white/[0.04] px-3 py-1 text-[10px] font-semibold text-slate-500">
-                  {dateSeparatorLabel}
-                </span>
+              <div className="flex items-center gap-3 py-4">
+                <div className="h-px flex-1 bg-white/[0.06]" />
+                <span className="text-xs text-white/40 font-medium">{dateSeparatorLabel}</span>
+                <div className="h-px flex-1 bg-white/[0.06]" />
               </div>
             )}
 
@@ -369,13 +510,61 @@ export function ConversationScreen({ conversationId, onBack }: ConversationScree
           </div>
         ))}
 
+        {/* Failed messages with retry */}
+        {failedMessages.map((fm) => (
+          <div key={fm.id} className="flex justify-end">
+            <div className="max-w-[75%]">
+              <div className="rounded-2xl rounded-br-md bg-red-500/20 border border-red-500/30 px-3.5 py-2.5">
+                <p className="text-[14px] leading-relaxed text-white/80 whitespace-pre-wrap break-words">
+                  {fm.text}
+                </p>
+                <div className="flex items-center justify-end gap-1 mt-1">
+                  <span className="material-symbols-outlined text-[12px] text-red-400">error</span>
+                  <span className="text-[10px] text-red-400">Failed</span>
+                </div>
+              </div>
+              <button
+                onClick={() => handleRetry(fm)}
+                className="mt-1 text-[11px] text-red-400 hover:text-red-300 flex items-center gap-1 ml-auto cursor-pointer active:scale-95 transition-transform"
+                aria-label="Tap to retry sending message"
+              >
+                <span className="material-symbols-outlined text-[12px]">refresh</span>
+                Tap to retry
+              </button>
+            </div>
+          </div>
+        ))}
+
         {/* Scroll target */}
         <div ref={messagesEndRef} />
+
+        {/* Scroll-to-bottom FAB */}
+        <AnimatePresence>
+          {showScrollFab && (
+            <motion.button
+              initial={prefersReducedMotion ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.8 }}
+              transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.2 }}
+              onClick={scrollToBottom}
+              className="absolute bottom-20 right-4 flex size-10 items-center justify-center rounded-full bg-teal-600 shadow-lg shadow-teal-600/20 cursor-pointer active:scale-95 transition-transform z-20"
+              aria-label={unreadBelow > 0 ? `Scroll to bottom, ${unreadBelow} new messages` : 'Scroll to bottom'}
+            >
+              <span className="material-symbols-outlined text-[20px] text-white">keyboard_arrow_down</span>
+              {/* Unread count badge */}
+              {unreadBelow > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 flex items-center justify-center min-w-[18px] h-[18px] rounded-full bg-red-500 px-1 text-[9px] font-bold text-white">
+                  {unreadBelow > 99 ? '99+' : unreadBelow}
+                </span>
+              )}
+            </motion.button>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Typing indicator */}
       {typingList.length > 0 && (
-        <TypingIndicator
+        <InlineTypingIndicator
           name={typingList[0].displayName}
           prefersReducedMotion={prefersReducedMotion}
         />
@@ -384,7 +573,7 @@ export function ConversationScreen({ conversationId, onBack }: ConversationScree
       {/* Message Input */}
       <MessageInputBar
         recipientName={conversation.name}
-        onSend={(text) => sendTextMessage(conversationId, text)}
+        onSend={handleSendText}
         onShareHabit={() => sendHabitCard(conversationId, '')}
         onShareBadge={() => sendBadgeCard(conversationId, '')}
         onSendNudge={() => {

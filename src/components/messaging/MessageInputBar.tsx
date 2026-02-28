@@ -1,6 +1,7 @@
 /**
  * MessageInputBar — Bottom input bar with share tray
- * Sticky bottom bar with auto-expanding textarea and share tray for rich content
+ * Sticky bottom bar with auto-expanding textarea, share tray for rich content,
+ * and full accessibility support
  */
 
 import { useState, useRef, useEffect } from 'react'
@@ -21,9 +22,9 @@ interface MessageInputBarProps {
 // ─── Share Tray Items ───────────────────────────────────────────────────────
 
 const SHARE_TRAY_ITEMS = [
-  { id: 'habit', label: 'Habit', icon: 'check_circle', color: 'text-emerald-400' },
-  { id: 'badge', label: 'Badge', icon: 'military_tech', color: 'text-amber-400' },
-  { id: 'nudge', label: 'Nudge', icon: 'notifications', color: 'text-orange-400' },
+  { id: 'habit', label: 'Habit', icon: 'check_circle', color: 'text-emerald-400', ariaLabel: 'Share a habit completion' },
+  { id: 'badge', label: 'Badge', icon: 'military_tech', color: 'text-amber-400', ariaLabel: 'Share a badge' },
+  { id: 'nudge', label: 'Nudge', icon: 'notifications', color: 'text-orange-400', ariaLabel: 'Send a nudge' },
 ] as const
 
 // ─── Component ──────────────────────────────────────────────────────────────
@@ -90,12 +91,18 @@ export function MessageInputBar({
             transition={trayTransition}
             className="overflow-hidden border-t border-white/[0.04]"
           >
-            <div className="grid grid-cols-3 gap-3 p-4">
+            <div
+              className="grid grid-cols-3 gap-3 p-4"
+              role="menu"
+              aria-label="Share options"
+            >
               {SHARE_TRAY_ITEMS.map((item) => (
                 <button
                   key={item.id}
+                  role="menuitem"
                   onClick={() => handleShareAction(item.id)}
-                  className="flex flex-col items-center gap-2 rounded-2xl bg-white/[0.025] border border-white/[0.04] py-4 hover:bg-white/[0.04] transition-colors cursor-pointer"
+                  aria-label={item.ariaLabel}
+                  className="flex flex-col items-center gap-2 rounded-2xl bg-white/[0.025] border border-white/[0.04] py-4 hover:bg-white/[0.04] transition-colors cursor-pointer active:scale-95"
                 >
                   <span
                     className={`material-symbols-outlined text-[24px] ${item.color}`}
@@ -118,8 +125,9 @@ export function MessageInputBar({
           animate={{ rotate: shareTrayOpen ? 45 : 0 }}
           transition={{ duration: 0.2 }}
           onClick={toggleShareTray}
-          className="flex items-center justify-center size-10 flex-shrink-0 cursor-pointer"
-          aria-label={shareTrayOpen ? 'Close share tray' : 'Open share tray'}
+          className="flex items-center justify-center size-10 flex-shrink-0 cursor-pointer active:scale-95 transition-transform"
+          aria-label={shareTrayOpen ? 'Close share options' : 'Open share options'}
+          aria-expanded={shareTrayOpen}
         >
           <span className="material-symbols-outlined text-[24px] text-slate-400 hover:text-teal-400 transition-colors">
             add_circle
@@ -134,6 +142,9 @@ export function MessageInputBar({
           onKeyDown={handleKeyDown}
           placeholder={`Message ${recipientName}...`}
           rows={1}
+          role="textbox"
+          aria-label="Type a message"
+          aria-multiline="true"
           className="flex-1 rounded-2xl bg-white/[0.04] border border-white/[0.06] px-4 py-2.5 text-[14px] text-white placeholder:text-slate-500 resize-none focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500/30 transition-all duration-200 min-h-[40px] max-h-[120px]"
         />
 
@@ -141,12 +152,13 @@ export function MessageInputBar({
         <button
           onClick={handleSend}
           disabled={!hasContent}
-          className={`flex items-center justify-center size-10 rounded-full flex-shrink-0 transition-all duration-200 ${
+          className={`flex items-center justify-center size-10 rounded-full flex-shrink-0 transition-all duration-200 active:scale-95 ${
             hasContent
               ? 'bg-gradient-to-br from-teal-500 to-emerald-500 text-white shadow-lg shadow-teal-500/25 cursor-pointer'
               : 'bg-white/[0.04] text-slate-500 cursor-not-allowed'
           }`}
           aria-label="Send message"
+          aria-disabled={!hasContent}
         >
           <span className="material-symbols-outlined text-[20px]">send</span>
         </button>
