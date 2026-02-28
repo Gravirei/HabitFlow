@@ -3,8 +3,9 @@
  * Appears with bouncy spring animation when entering the Social page
  */
 
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useSocialStore } from './socialStore'
+import { useMessagingStore } from '../messaging/messagingStore'
 
 export type SocialTab = 'profile' | 'leaderboard' | 'friends' | 'league' | 'messages'
 
@@ -24,6 +25,7 @@ interface SocialBottomNavProps {
 export function SocialBottomNav({ activeTab, onChange }: SocialBottomNavProps) {
   const { getUnreadNudges } = useSocialStore()
   const unreadCount = getUnreadNudges().length
+  const totalUnread = useMessagingStore((s) => s.totalUnread)
 
   return (
     <motion.nav
@@ -41,7 +43,12 @@ export function SocialBottomNav({ activeTab, onChange }: SocialBottomNavProps) {
       <div className="flex items-center justify-center rounded-full border border-white/20 bg-white/95 px-6 py-2 shadow-2xl backdrop-blur-xl">
         {SOCIAL_NAV_ITEMS.map((item, index) => {
           const active = activeTab === item.id
-          const hasBadge = item.id === 'friends' && unreadCount > 0
+          const hasBadge = (item.id === 'friends' && unreadCount > 0) || (item.id === 'messages' && totalUnread > 0)
+          const badgeCount = item.id === 'friends' ? unreadCount : totalUnread
+          const badgeDisplay = badgeCount > 99 ? '99+' : `${badgeCount}`
+          const badgeColor = item.id === 'messages'
+            ? 'bg-teal-500 shadow-teal-500/30'
+            : 'bg-red-500 shadow-red-500/30'
 
           return (
             <motion.button
@@ -84,15 +91,18 @@ export function SocialBottomNav({ activeTab, onChange }: SocialBottomNavProps) {
                 {item.label}
               </span>
 
-              {hasBadge && (
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  className="absolute -top-0.5 right-1 flex size-4 items-center justify-center rounded-full bg-red-500 shadow-lg shadow-red-500/30"
-                >
-                  <span className="text-[8px] font-bold text-white">{unreadCount}</span>
-                </motion.div>
-              )}
+              <AnimatePresence>
+                {hasBadge && (
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    exit={{ scale: 0 }}
+                    className={`absolute -top-0.5 right-1 flex ${badgeCount > 99 ? 'h-4 px-1 min-w-[16px]' : 'size-4'} items-center justify-center rounded-full ${badgeColor} shadow-lg`}
+                  >
+                    <span className="text-[8px] font-bold text-white">{badgeDisplay}</span>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </motion.button>
           )
         })}
