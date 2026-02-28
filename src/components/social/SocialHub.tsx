@@ -13,6 +13,9 @@ import { LeagueScreen } from './LeagueScreen'
 import { ProfileTab } from './ProfileTab'
 import { SocialOnboarding } from './SocialOnboarding'
 import { getLevelForXP, getLevelProgress } from './constants'
+import { MessagingHub } from '../messaging/MessagingHub'
+import { ConversationScreen } from '../messaging/ConversationScreen'
+import { useMessagingStore } from '../messaging/messagingStore'
 
 // ─── Tab types ──────────────────────────────────────────────────────────────
 
@@ -118,9 +121,18 @@ export function SocialHub({ activeTab }: SocialHubProps) {
     getUnlockedBadges,
   } = useSocialStore()
 
+  const { activeConversationId, setActiveConversation } = useMessagingStore()
+
   useEffect(() => {
     initializeBadges()
   }, [])
+
+  // Reset active conversation when switching away from messages tab
+  useEffect(() => {
+    if (activeTab !== 'messages') {
+      setActiveConversation(null)
+    }
+  }, [activeTab, setActiveConversation])
 
   // GAP 5: Show onboarding when user has no social data and hasn't dismissed
   const showOnboarding =
@@ -149,15 +161,17 @@ export function SocialHub({ activeTab }: SocialHubProps) {
           {activeTab === 'friends' && <FriendsScreen />}
           {activeTab === 'league' && <LeagueScreen />}
           {activeTab === 'messages' && (
-            <div className="flex flex-col items-center justify-center py-16 text-center">
-              <div className="flex size-16 items-center justify-center rounded-2xl bg-primary/10 border border-primary/20 mb-4">
-                <span className="material-symbols-outlined text-primary text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>
-                  chat_bubble
-                </span>
-              </div>
-              <h3 className="text-lg font-bold text-white mb-1">Messages</h3>
-              <p className="text-sm text-slate-400 max-w-xs">Coming soon! You'll be able to chat with your friends and share your progress here.</p>
-            </div>
+            activeConversationId ? (
+              <ConversationScreen
+                conversationId={activeConversationId}
+                onBack={() => setActiveConversation(null)}
+              />
+            ) : (
+              <MessagingHub
+                onSelectConversation={(id) => setActiveConversation(id)}
+                onCompose={() => console.log('Compose new conversation')}
+              />
+            )
           )}
           {activeTab === 'profile' && <ProfileTab />}
         </motion.div>
