@@ -84,6 +84,8 @@ export interface Conversation {
   unreadCount: number
   isPinned: boolean
   isMuted: boolean
+  isHidden?: boolean
+  isArchived?: boolean
   createdBy: string
   createdAt: string // ISO string
   updatedAt: string // ISO string

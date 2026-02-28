@@ -370,6 +370,9 @@ interface MessagingState {
   pinConversation: (id: string) => void
   muteConversation: (id: string) => void
   deleteConversation: (id: string) => void
+  markConversationUnread: (id: string) => void
+  hideConversation: (id: string) => void
+  archiveConversation: (id: string) => void
 
   // ─── Message Actions ─────────────────────────────────────────────────
   loadMessages: (conversationId: string) => Promise<void>
@@ -569,6 +572,32 @@ export const useMessagingStore = create<MessagingState>()(
                 : state.activeConversationId,
           }
         })
+        get().recomputeUnread()
+      },
+
+      markConversationUnread: (id) => {
+        set((state) => ({
+          conversations: state.conversations.map((c) =>
+            c.id === id ? { ...c, unreadCount: c.unreadCount > 0 ? 0 : 1 } : c
+          ),
+        }))
+        get().recomputeUnread()
+      },
+
+      hideConversation: (id) => {
+        set((state) => ({
+          conversations: state.conversations.map((c) =>
+            c.id === id ? { ...c, isHidden: true } : c
+          ),
+        }))
+      },
+
+      archiveConversation: (id) => {
+        set((state) => ({
+          conversations: state.conversations.map((c) =>
+            c.id === id ? { ...c, isArchived: true } : c
+          ),
+        }))
         get().recomputeUnread()
       },
 
