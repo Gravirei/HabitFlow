@@ -682,7 +682,7 @@ export const useSocialStore = create<SocialState>()(
     }),
     {
       name: 'social-store',
-      version: 1,
+      version: 2, // Bumped to refresh avatar URLs to local paths
     }
   )
 )

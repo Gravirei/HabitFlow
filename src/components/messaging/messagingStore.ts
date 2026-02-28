@@ -19,6 +19,8 @@ import type {
 } from './types'
 import { MESSAGING_LIMITS } from './constants'
 import { useSocialStore } from '../social/socialStore'
+import { useHabitStore } from '@/store/useHabitStore'
+import { useProfileStore } from '@/store/useProfileStore'
 import {
   subscribeToConversation as rtSubscribe,
   subscribeToTyping,
@@ -32,6 +34,307 @@ import {
 
 function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+}
+
+// ─── Dummy Data (for UI preview — remove before production) ─────────────────
+
+const DUMMY_USERS = {
+  alex: { id: 'user-alex', name: 'Alex Chen', avatar: '/images/avatars/avatar1.jpg' },
+  sarah: { id: 'user-sarah', name: 'Sarah Kim', avatar: '/images/avatars/avatar2.jpg' },
+  mike: { id: 'user-mike', name: 'Mike Johnson', avatar: '/images/avatars/avatar3.jpg' },
+  emma: { id: 'user-emma', name: 'Emma Davis', avatar: '/images/avatars/avatar4.jpg' },
+  jay: { id: 'user-jay', name: 'Jay Patel', avatar: '/images/avatars/avatar5.jpg' },
+}
+
+const now = new Date()
+const mins = (n: number) => new Date(now.getTime() - n * 60000).toISOString()
+const hours = (n: number) => new Date(now.getTime() - n * 3600000).toISOString()
+
+const DUMMY_CONVERSATIONS: Conversation[] = [
+  {
+    id: 'conv-1',
+    type: 'direct',
+    name: 'Alex Chen',
+    avatarUrl: DUMMY_USERS.alex.avatar,
+    memberIds: ['current-user', DUMMY_USERS.alex.id],
+    memberCount: 2,
+    onlineCount: 1,
+    createdBy: 'current-user',
+    createdAt: hours(48),
+    updatedAt: mins(2),
+    unreadCount: 3,
+    isPinned: true,
+    isMuted: false,
+    lastMessage: {
+      id: 'msg-1-5',
+      conversationId: 'conv-1',
+      senderId: DUMMY_USERS.alex.id,
+      senderName: 'Alex Chen',
+      senderAvatarUrl: DUMMY_USERS.alex.avatar,
+      type: 'text',
+      text: 'Just finished my morning workout! 💪 Are you keeping up with yours?',
+      reactions: [],
+      deliveryStatus: 'delivered',
+      createdAt: mins(2),
+      isDeleted: false,
+    },
+  },
+  {
+    id: 'conv-2',
+    type: 'direct',
+    name: 'Sarah Kim',
+    avatarUrl: DUMMY_USERS.sarah.avatar,
+    memberIds: ['current-user', DUMMY_USERS.sarah.id],
+    memberCount: 2,
+    onlineCount: 1,
+    createdBy: DUMMY_USERS.sarah.id,
+    createdAt: hours(72),
+    updatedAt: mins(45),
+    unreadCount: 1,
+    isPinned: false,
+    isMuted: false,
+    lastMessage: {
+      id: 'msg-2-3',
+      conversationId: 'conv-2',
+      senderId: DUMMY_USERS.sarah.id,
+      senderName: 'Sarah Kim',
+      senderAvatarUrl: DUMMY_USERS.sarah.avatar,
+      type: 'nudge',
+      text: 'Sent you a nudge!',
+      nudgeCard: { nudgeId: 'nudge-1', message: 'Time to get back on track!', cooldownExpiry: hours(-23) },
+      reactions: [],
+      deliveryStatus: 'delivered',
+      createdAt: mins(45),
+      isDeleted: false,
+    },
+  },
+  {
+    id: 'conv-3',
+    type: 'group',
+    name: 'Morning Accountability',
+    memberIds: ['current-user', DUMMY_USERS.alex.id, DUMMY_USERS.sarah.id, DUMMY_USERS.mike.id, DUMMY_USERS.emma.id],
+    memberCount: 5,
+    onlineCount: 3,
+    createdBy: 'current-user',
+    createdAt: hours(120),
+    updatedAt: hours(1),
+    unreadCount: 0,
+    isPinned: false,
+    isMuted: false,
+    lastMessage: {
+      id: 'msg-3-4',
+      conversationId: 'conv-3',
+      senderId: DUMMY_USERS.mike.id,
+      senderName: 'Mike Johnson',
+      senderAvatarUrl: DUMMY_USERS.mike.avatar,
+      type: 'habit_card',
+      text: '',
+      habitCard: { habitId: 'h-1', habitName: 'Meditation', habitIcon: 'self_improvement', streakCount: 14, xpEarned: 50, completedAt: hours(1) },
+      reactions: [{ emoji: '🔥', count: 3, userIds: ['current-user', DUMMY_USERS.alex.id, DUMMY_USERS.emma.id], hasCurrentUser: true }],
+      deliveryStatus: 'read',
+      createdAt: hours(1),
+      isDeleted: false,
+    },
+  },
+  {
+    id: 'conv-4',
+    type: 'direct',
+    name: 'Mike Johnson',
+    avatarUrl: DUMMY_USERS.mike.avatar,
+    memberIds: ['current-user', DUMMY_USERS.mike.id],
+    memberCount: 2,
+    onlineCount: 0,
+    createdBy: 'current-user',
+    createdAt: hours(24),
+    updatedAt: hours(3),
+    unreadCount: 0,
+    isPinned: false,
+    isMuted: false,
+    lastMessage: {
+      id: 'msg-4-2',
+      conversationId: 'conv-4',
+      senderId: 'current-user',
+      senderName: 'You',
+      senderAvatarUrl: '',
+      type: 'text',
+      text: 'See you at the gym tomorrow!',
+      reactions: [],
+      deliveryStatus: 'read',
+      createdAt: hours(3),
+      isDeleted: false,
+    },
+  },
+  {
+    id: 'conv-5',
+    type: 'direct',
+    name: 'Emma Davis',
+    avatarUrl: DUMMY_USERS.emma.avatar,
+    memberIds: ['current-user', DUMMY_USERS.emma.id],
+    memberCount: 2,
+    onlineCount: 0,
+    createdBy: DUMMY_USERS.emma.id,
+    createdAt: hours(96),
+    updatedAt: hours(18),
+    unreadCount: 0,
+    isPinned: false,
+    isMuted: true,
+    lastMessage: {
+      id: 'msg-5-1',
+      conversationId: 'conv-5',
+      senderId: 'current-user',
+      senderName: 'You',
+      senderAvatarUrl: '',
+      type: 'badge_card',
+      text: 'Early Bird',
+      badgeCard: { badgeId: 'b-1', badgeName: 'Early Bird', badgeIcon: 'wb_sunny', badgeRarity: 'rare', badgeDescription: 'Complete a habit before 7am for 7 days', isLevelUp: false },
+      reactions: [{ emoji: '👏', count: 1, userIds: [DUMMY_USERS.emma.id], hasCurrentUser: false }],
+      deliveryStatus: 'read',
+      createdAt: hours(18),
+      isDeleted: false,
+    },
+  },
+  {
+    id: 'conv-6',
+    type: 'group',
+    name: 'Study Squad',
+    memberIds: ['current-user', DUMMY_USERS.jay.id, DUMMY_USERS.sarah.id],
+    memberCount: 3,
+    onlineCount: 1,
+    createdBy: DUMMY_USERS.jay.id,
+    createdAt: hours(200),
+    updatedAt: hours(26),
+    unreadCount: 0,
+    isPinned: false,
+    isMuted: false,
+    lastMessage: {
+      id: 'msg-6-1',
+      conversationId: 'conv-6',
+      senderId: DUMMY_USERS.jay.id,
+      senderName: 'Jay Patel',
+      senderAvatarUrl: DUMMY_USERS.jay.avatar,
+      type: 'text',
+      text: 'Great session today everyone! Let\'s keep the streak going 🎯',
+      reactions: [],
+      deliveryStatus: 'read',
+      createdAt: hours(26),
+      isDeleted: false,
+    },
+  },
+]
+
+const DUMMY_MESSAGES: Record<string, Message[]> = {
+  'conv-1': [
+    {
+      id: 'msg-1-1', conversationId: 'conv-1', senderId: 'current-user', senderName: 'You', senderAvatarUrl: '',
+      type: 'text', text: 'Hey Alex! How\'s the new habit plan going?', reactions: [],
+      deliveryStatus: 'read', createdAt: hours(2), isDeleted: false,
+    },
+    {
+      id: 'msg-1-2', conversationId: 'conv-1', senderId: DUMMY_USERS.alex.id, senderName: 'Alex Chen', senderAvatarUrl: DUMMY_USERS.alex.avatar,
+      type: 'text', text: 'Going great! I\'ve been sticking to it for 5 days now.', reactions: [{ emoji: '🔥', count: 1, userIds: ['current-user'], hasCurrentUser: true }],
+      deliveryStatus: 'read', createdAt: hours(2) + '1', isDeleted: false,
+    },
+    {
+      id: 'msg-1-3', conversationId: 'conv-1', senderId: DUMMY_USERS.alex.id, senderName: 'Alex Chen', senderAvatarUrl: DUMMY_USERS.alex.avatar,
+      type: 'habit_card', text: '',
+      habitCard: { habitId: 'h-2', habitName: 'Read 30 minutes', habitIcon: 'menu_book', streakCount: 5, xpEarned: 35, completedAt: hours(1.5) },
+      reactions: [{ emoji: '👏', count: 1, userIds: ['current-user'], hasCurrentUser: true }, { emoji: '⭐', count: 1, userIds: ['current-user'], hasCurrentUser: true }],
+      deliveryStatus: 'read', createdAt: mins(90), isDeleted: false,
+    },
+    {
+      id: 'msg-1-4', conversationId: 'conv-1', senderId: 'current-user', senderName: 'You', senderAvatarUrl: '',
+      type: 'text', text: 'That\'s amazing! Keep it up! 🙌',
+      reactions: [], deliveryStatus: 'read', createdAt: mins(30), isDeleted: false,
+    },
+    {
+      id: 'msg-1-5', conversationId: 'conv-1', senderId: DUMMY_USERS.alex.id, senderName: 'Alex Chen', senderAvatarUrl: DUMMY_USERS.alex.avatar,
+      type: 'text', text: 'Just finished my morning workout! 💪 Are you keeping up with yours?',
+      reactions: [], deliveryStatus: 'delivered', createdAt: mins(2), isDeleted: false,
+    },
+  ],
+  'conv-2': [
+    {
+      id: 'msg-2-1', conversationId: 'conv-2', senderId: 'current-user', senderName: 'You', senderAvatarUrl: '',
+      type: 'text', text: 'Hi Sarah! Want to be accountability partners?',
+      reactions: [], deliveryStatus: 'read', createdAt: hours(5), isDeleted: false,
+    },
+    {
+      id: 'msg-2-2', conversationId: 'conv-2', senderId: DUMMY_USERS.sarah.id, senderName: 'Sarah Kim', senderAvatarUrl: DUMMY_USERS.sarah.avatar,
+      type: 'badge_card', text: 'Consistency Champion',
+      badgeCard: { badgeId: 'b-2', badgeName: 'Consistency Champion', badgeIcon: 'emoji_events', badgeRarity: 'epic', badgeDescription: 'Maintain a 30-day streak', isLevelUp: true, levelFrom: 4, levelTo: 5, xpEarned: 200 },
+      reactions: [{ emoji: '🔥', count: 1, userIds: ['current-user'], hasCurrentUser: true }, { emoji: '🙌', count: 1, userIds: ['current-user'], hasCurrentUser: true }],
+      deliveryStatus: 'read', createdAt: hours(3), isDeleted: false,
+    },
+    {
+      id: 'msg-2-3', conversationId: 'conv-2', senderId: DUMMY_USERS.sarah.id, senderName: 'Sarah Kim', senderAvatarUrl: DUMMY_USERS.sarah.avatar,
+      type: 'nudge', text: 'Sent you a nudge!',
+      nudgeCard: { nudgeId: 'nudge-1', message: 'Time to get back on track!', cooldownExpiry: hours(-23) },
+      reactions: [], deliveryStatus: 'delivered', createdAt: mins(45), isDeleted: false,
+    },
+  ],
+  'conv-3': [
+    {
+      id: 'msg-3-1', conversationId: 'conv-3', senderId: DUMMY_USERS.emma.id, senderName: 'Emma Davis', senderAvatarUrl: DUMMY_USERS.emma.avatar,
+      type: 'text', text: 'Good morning everyone! Who\'s done their morning routine?',
+      reactions: [], deliveryStatus: 'read', createdAt: hours(3), isDeleted: false,
+    },
+    {
+      id: 'msg-3-2', conversationId: 'conv-3', senderId: 'current-user', senderName: 'You', senderAvatarUrl: '',
+      type: 'text', text: 'Already done! ✅ Meditation + journaling',
+      reactions: [{ emoji: '🔥', count: 2, userIds: [DUMMY_USERS.alex.id, DUMMY_USERS.emma.id], hasCurrentUser: false }],
+      deliveryStatus: 'read', createdAt: hours(2.5), isDeleted: false,
+    },
+    {
+      id: 'msg-3-3', conversationId: 'conv-3', senderId: DUMMY_USERS.alex.id, senderName: 'Alex Chen', senderAvatarUrl: DUMMY_USERS.alex.avatar,
+      type: 'text', text: 'Nice! I just finished my yoga session',
+      reactions: [], deliveryStatus: 'read', createdAt: hours(2), isDeleted: false,
+    },
+    {
+      id: 'msg-3-4', conversationId: 'conv-3', senderId: DUMMY_USERS.mike.id, senderName: 'Mike Johnson', senderAvatarUrl: DUMMY_USERS.mike.avatar,
+      type: 'habit_card', text: '',
+      habitCard: { habitId: 'h-1', habitName: 'Meditation', habitIcon: 'self_improvement', streakCount: 14, xpEarned: 50, completedAt: hours(1) },
+      reactions: [{ emoji: '🔥', count: 3, userIds: ['current-user', DUMMY_USERS.alex.id, DUMMY_USERS.emma.id], hasCurrentUser: true }],
+      deliveryStatus: 'read', createdAt: hours(1), isDeleted: false,
+    },
+  ],
+  'conv-4': [
+    {
+      id: 'msg-4-1', conversationId: 'conv-4', senderId: DUMMY_USERS.mike.id, senderName: 'Mike Johnson', senderAvatarUrl: DUMMY_USERS.mike.avatar,
+      type: 'text', text: 'Want to hit the gym together tomorrow?',
+      reactions: [], deliveryStatus: 'read', createdAt: hours(4), isDeleted: false,
+    },
+    {
+      id: 'msg-4-2', conversationId: 'conv-4', senderId: 'current-user', senderName: 'You', senderAvatarUrl: '',
+      type: 'text', text: 'See you at the gym tomorrow!',
+      reactions: [{ emoji: '💪', count: 1, userIds: [DUMMY_USERS.mike.id], hasCurrentUser: false }],
+      deliveryStatus: 'read', createdAt: hours(3), isDeleted: false,
+    },
+  ],
+  'conv-5': [
+    {
+      id: 'msg-5-1', conversationId: 'conv-5', senderId: 'current-user', senderName: 'You', senderAvatarUrl: '',
+      type: 'badge_card', text: 'Early Bird',
+      badgeCard: { badgeId: 'b-1', badgeName: 'Early Bird', badgeIcon: 'wb_sunny', badgeRarity: 'rare', badgeDescription: 'Complete a habit before 7am for 7 days', isLevelUp: false },
+      reactions: [{ emoji: '👏', count: 1, userIds: [DUMMY_USERS.emma.id], hasCurrentUser: false }],
+      deliveryStatus: 'read', createdAt: hours(18), isDeleted: false,
+    },
+  ],
+  'conv-6': [
+    {
+      id: 'msg-6-1', conversationId: 'conv-6', senderId: DUMMY_USERS.jay.id, senderName: 'Jay Patel', senderAvatarUrl: DUMMY_USERS.jay.avatar,
+      type: 'text', text: 'Great session today everyone! Let\'s keep the streak going 🎯',
+      reactions: [{ emoji: '🎯', count: 2, userIds: ['current-user', DUMMY_USERS.sarah.id], hasCurrentUser: true }],
+      deliveryStatus: 'read', createdAt: hours(26), isDeleted: false,
+    },
+  ],
+}
+
+const DUMMY_ONLINE: Record<string, boolean> = {
+  [DUMMY_USERS.alex.id]: true,
+  [DUMMY_USERS.sarah.id]: true,
+  [DUMMY_USERS.mike.id]: false,
+  [DUMMY_USERS.emma.id]: false,
+  [DUMMY_USERS.jay.id]: true,
 }
 
 // ─── State Interface ────────────────────────────────────────────────────────
@@ -117,18 +420,20 @@ interface MessagingState {
 export const useMessagingStore = create<MessagingState>()(
   persist(
     (set, get) => ({
-      // Initial state
-      conversations: [],
+      // Initial state — dummy data is only used when localStorage has no persisted state
+      // (i.e. first launch / cleared storage). Once persisted, partialize controls what's saved.
+      conversations: DUMMY_CONVERSATIONS,
       activeConversationId: null,
       conversationFilter: 'all',
-      messages: {},
-      totalUnread: 0,
+      messages: DUMMY_MESSAGES,
+      totalUnread: 4,
       typingUsers: {},
-      onlineUsers: {},
-      currentUserId: null,
+      onlineUsers: DUMMY_ONLINE,
+      currentUserId: 'current-user',
       isLoadingMessages: false,
       hasMoreMessages: {},
       shareTrayOpen: false,
+
 
       // ─── Conversation Actions ──────────────────────────────────────────
 
@@ -139,12 +444,15 @@ export const useMessagingStore = create<MessagingState>()(
       },
 
       createDirectConversation: async (friendId) => {
+        const { currentUserId } = get()
+        const myId = currentUserId ?? 'current-user'
+
         // Check if a direct conversation with this friendId already exists
         const existing = get().conversations.find(
           (c) =>
             c.type === 'direct' &&
             c.memberIds.includes(friendId) &&
-            c.memberIds.includes('current-user')
+            c.memberIds.includes(myId)
         )
         if (existing) return existing.id
 
@@ -160,10 +468,10 @@ export const useMessagingStore = create<MessagingState>()(
           id: newId,
           type: 'direct',
           name: friend?.displayName ?? 'Unknown',
-          memberIds: ['current-user', friendId],
+          memberIds: [myId, friendId],
           memberCount: 2,
           onlineCount: 0,
-          createdBy: 'current-user',
+          createdBy: myId,
           createdAt: now,
           updatedAt: now,
           unreadCount: 0,
@@ -181,6 +489,8 @@ export const useMessagingStore = create<MessagingState>()(
       },
 
       createGroupConversation: async (name, memberIds) => {
+        const myId = get().currentUserId ?? 'current-user'
+
         // Enforce max members
         const cappedMemberIds = memberIds.slice(
           0,
@@ -194,10 +504,10 @@ export const useMessagingStore = create<MessagingState>()(
           id: newId,
           type: 'group',
           name,
-          memberIds: ['current-user', ...cappedMemberIds],
+          memberIds: [myId, ...cappedMemberIds],
           memberCount: 1 + cappedMemberIds.length,
           onlineCount: 0,
-          createdBy: 'current-user',
+          createdBy: myId,
           createdAt: now,
           updatedAt: now,
           unreadCount: 0,
@@ -291,13 +601,18 @@ export const useMessagingStore = create<MessagingState>()(
 
         const now = new Date().toISOString()
         const messageId = generateId()
+        const { currentUserId } = get()
+        const myId = currentUserId ?? 'current-user'
+        const profile = useProfileStore.getState()
+        const myName = profile.fullName || profile.username || 'You'
+        const myAvatar = profile.avatarUrl ?? ''
 
         const message: Message = {
           id: messageId,
           conversationId,
-          senderId: 'current-user',
-          senderName: 'You',
-          senderAvatarUrl: '',
+          senderId: myId,
+          senderName: myName,
+          senderAvatarUrl: myAvatar,
           type: 'text' as MessageType,
           text,
           reactions: [],
@@ -340,23 +655,29 @@ export const useMessagingStore = create<MessagingState>()(
       sendHabitCard: async (conversationId, habitId) => {
         const now = new Date().toISOString()
         const messageId = generateId()
+        const { currentUserId } = get()
+        const myId = currentUserId ?? 'current-user'
+        const profile = useProfileStore.getState()
+        const myName = profile.fullName || profile.username || 'You'
+        const myAvatar = profile.avatarUrl ?? ''
 
-        // Placeholder payload — will be enriched in Phase 5 when HabitShareCard reads from useHabitStore
+        // Read habit data from useHabitStore
+        const habit = useHabitStore.getState().habits.find((h) => h.id === habitId)
         const habitCard: HabitCardPayload = {
           habitId,
-          habitName: '',
-          habitIcon: '',
-          streakCount: 0,
-          xpEarned: 0,
+          habitName: habit?.name ?? '',
+          habitIcon: habit?.icon ?? '',
+          streakCount: habit?.currentStreak ?? 0,
+          xpEarned: (habit?.currentStreak ?? 0) * 10,
           completedAt: now,
         }
 
         const message: Message = {
           id: messageId,
           conversationId,
-          senderId: 'current-user',
-          senderName: 'You',
-          senderAvatarUrl: '',
+          senderId: myId,
+          senderName: myName,
+          senderAvatarUrl: myAvatar,
           type: 'habit_card' as MessageType,
           text: '',
           habitCard,
@@ -400,6 +721,11 @@ export const useMessagingStore = create<MessagingState>()(
       sendBadgeCard: async (conversationId, badgeId) => {
         const now = new Date().toISOString()
         const messageId = generateId()
+        const { currentUserId } = get()
+        const myId = currentUserId ?? 'current-user'
+        const profile = useProfileStore.getState()
+        const myName = profile.fullName || profile.username || 'You'
+        const myAvatar = profile.avatarUrl ?? ''
 
         // Read badge data from socialStore
         const badges = useSocialStore.getState().badges
@@ -417,9 +743,9 @@ export const useMessagingStore = create<MessagingState>()(
         const message: Message = {
           id: messageId,
           conversationId,
-          senderId: 'current-user',
-          senderName: 'You',
-          senderAvatarUrl: '',
+          senderId: myId,
+          senderName: myName,
+          senderAvatarUrl: myAvatar,
           type: 'badge_card' as MessageType,
           text: badge?.name ?? '',
           badgeCard,
@@ -465,11 +791,16 @@ export const useMessagingStore = create<MessagingState>()(
         const canNudge = useSocialStore.getState().canNudge(userId)
         if (!canNudge) return
 
-        // Register the nudge in socialStore
+        // Register the nudge in socialStore (once — caller must NOT call sendNudge separately)
         useSocialStore.getState().sendNudge(userId)
 
         const now = new Date().toISOString()
         const messageId = generateId()
+        const { currentUserId } = get()
+        const myId = currentUserId ?? 'current-user'
+        const profile = useProfileStore.getState()
+        const myName = profile.fullName || profile.username || 'You'
+        const myAvatar = profile.avatarUrl ?? ''
 
         const nudgeCard: NudgeCardPayload = {
           nudgeId: generateId(),
@@ -482,9 +813,9 @@ export const useMessagingStore = create<MessagingState>()(
         const message: Message = {
           id: messageId,
           conversationId,
-          senderId: 'current-user',
-          senderName: 'You',
-          senderAvatarUrl: '',
+          senderId: myId,
+          senderName: myName,
+          senderAvatarUrl: myAvatar,
           type: 'nudge' as MessageType,
           text: 'Sent you a nudge!',
           nudgeCard,
@@ -526,11 +857,9 @@ export const useMessagingStore = create<MessagingState>()(
       },
 
       deleteMessage: async (messageId) => {
-        const state = get()
-
         // Find which conversation contains this message
         let targetConversationId: string | null = null
-        for (const [convId, msgs] of Object.entries(state.messages)) {
+        for (const [convId, msgs] of Object.entries(get().messages)) {
           if (msgs.some((m) => m.id === messageId)) {
             targetConversationId = convId
             break
@@ -539,25 +868,30 @@ export const useMessagingStore = create<MessagingState>()(
         if (!targetConversationId) return
 
         const conversationId = targetConversationId
-        const updatedMessages = (state.messages[conversationId] ?? []).filter(
-          (m) => m.id !== messageId
-        )
-        const newLastMessage =
-          updatedMessages.length > 0
-            ? updatedMessages[updatedMessages.length - 1]
-            : undefined
 
-        set((state) => ({
-          messages: {
-            ...state.messages,
-            [conversationId]: updatedMessages,
-          },
-          conversations: state.conversations.map((c) =>
-            c.id === conversationId
-              ? { ...c, lastMessage: newLastMessage }
-              : c
-          ),
-        }))
+        // Soft-delete: mark isDeleted=true so MessageBubble can show a placeholder.
+        // Hard removal would break conversation history and reply threading.
+        set((state) => {
+          const updatedMessages = (state.messages[conversationId] ?? []).map(
+            (m) => m.id === messageId ? { ...m, isDeleted: true } : m
+          )
+          // Update lastMessage only if the deleted message was the last one
+          const lastVisible = [...updatedMessages]
+            .reverse()
+            .find((m) => !m.isDeleted)
+
+          return {
+            messages: {
+              ...state.messages,
+              [conversationId]: updatedMessages,
+            },
+            conversations: state.conversations.map((c) =>
+              c.id === conversationId
+                ? { ...c, lastMessage: lastVisible }
+                : c
+            ),
+          }
+        })
       },
 
       markConversationRead: async (conversationId) => {
@@ -568,7 +902,8 @@ export const useMessagingStore = create<MessagingState>()(
           messages: {
             ...state.messages,
             [conversationId]: (state.messages[conversationId] ?? []).map((m) =>
-              m.deliveryStatus === 'delivered'
+              // Upgrade both 'sent' and 'delivered' to 'read'
+              m.deliveryStatus === 'delivered' || m.deliveryStatus === 'sent'
                 ? { ...m, deliveryStatus: 'read' as DeliveryStatus }
                 : m
             ),
@@ -858,8 +1193,11 @@ export const useMessagingStore = create<MessagingState>()(
       sendTyping: (conversationId, isTyping) => {
         const { currentUserId } = get()
         if (!currentUserId) return
-        // Use current user info — displayName and avatarUrl could be enriched from profile store
-        sendTypingIndicator(conversationId, currentUserId, 'You', '', isTyping)
+        // Pull real display name and avatar from profile store
+        const profile = useProfileStore.getState()
+        const displayName = profile.fullName || profile.username || 'You'
+        const avatarUrl = profile.avatarUrl ?? ''
+        sendTypingIndicator(conversationId, currentUserId, displayName, avatarUrl, isTyping)
       },
 
       // ─── Group Management Actions ──────────────────────────────────────
@@ -972,13 +1310,22 @@ export const useMessagingStore = create<MessagingState>()(
     }),
     {
       name: 'messaging-store',
-      version: 1,
-      partialize: (state) => {
-        // Exclude ephemeral realtime state from persistence
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { typingUsers, onlineUsers, currentUserId, ...persisted } = state
-        return persisted as MessagingState
-      },
+      // Exclude ephemeral/runtime-only state from localStorage persistence
+      partialize: (state) => ({
+        conversations: state.conversations,
+        activeConversationId: state.activeConversationId,
+        conversationFilter: state.conversationFilter,
+        messages: state.messages,
+        totalUnread: state.totalUnread,
+        onlineUsers: state.onlineUsers,
+        currentUserId: state.currentUserId,
+        hasMoreMessages: state.hasMoreMessages,
+        // Deliberately excluded (ephemeral):
+        //   typingUsers       — cleared on every mount
+        //   isLoadingMessages — transient loading flag
+        //   shareTrayOpen     — UI-only toggle, always starts closed
+      }),
+      version: 3, // Bumped to refresh avatar URLs to local paths
     }
   )
 )

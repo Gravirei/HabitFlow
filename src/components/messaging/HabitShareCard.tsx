@@ -1,6 +1,6 @@
 /**
- * HabitShareCard
- * Glass morphism card displaying a habit completion share with streak and XP info
+ * HabitShareCard — Modern rich habit completion card
+ * Styled to match habitflow-messaging-v2.html (header label + tags + actions)
  */
 
 import { motion } from 'framer-motion'
@@ -14,58 +14,90 @@ interface HabitShareCardProps {
 }
 
 export function HabitShareCard({ payload }: HabitShareCardProps) {
-  const prefersReducedMotion = useReducedMotion()
-  const animProps = prefersReducedMotion
+  const reduced = useReducedMotion()
+  const anim = reduced
     ? MESSAGING_ANIMATIONS.messageEntrance.reducedMotion
     : MESSAGING_ANIMATIONS.messageEntrance.framerProps
 
   return (
     <motion.div
-      {...animProps}
-      className="rounded-2xl overflow-hidden bg-white/[0.025] border border-white/[0.05] border-l-[3px] border-l-teal-400"
+      {...anim}
+      className="group w-full max-w-[310px] overflow-hidden rounded-[18px] border border-white/[0.08] bg-white/[0.025] backdrop-blur-xl shadow-[0_18px_50px_rgba(0,0,0,0.35)] transition-all duration-200 hover:-translate-y-0.5 hover:border-white/[0.12]"
+      role="article"
+      aria-label={`Habit completed: ${payload.habitName}`}
     >
-      <div className="p-3">
-        {/* Row 1: Habit icon + name */}
+      {/* Header */}
+      <div className="flex items-center gap-2 border-b border-teal-300/15 bg-gradient-to-br from-teal-300/[0.14] to-emerald-300/[0.06] px-4 py-3">
+        <span
+          className="material-symbols-outlined text-[16px] text-teal-200"
+          style={{ fontVariationSettings: "'FILL' 1" }}
+          aria-hidden="true"
+        >
+          check_circle
+        </span>
+        <span className="text-[10px] font-extrabold tracking-[0.14em] uppercase text-teal-200/90">
+          Habit completed
+        </span>
+      </div>
+
+      {/* Body */}
+      <div className="px-4 py-4">
         <div className="flex items-center gap-3">
-          <div className="size-10 rounded-xl bg-teal-500/20 flex items-center justify-center flex-shrink-0">
+          <div className="size-11 rounded-2xl border border-teal-300/15 bg-teal-300/[0.08] flex items-center justify-center">
             <span
-              className="material-symbols-outlined text-teal-400 text-xl"
+              className="material-symbols-outlined text-[20px] text-teal-200"
               style={{ fontVariationSettings: "'FILL' 1" }}
+              aria-hidden="true"
             >
-              {payload.habitIcon}
+              {payload.habitIcon || 'task_alt'}
             </span>
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-white truncate">
+          <div className="min-w-0 flex-1">
+            <div className="truncate text-[15px] font-extrabold tracking-tight text-white">
               {payload.habitName}
-            </p>
-            <p className="text-xs text-white/50">Habit completed</p>
+            </div>
+            <div className="mt-0.5 text-[11px] text-white/35">Completed</div>
           </div>
         </div>
 
-        {/* Row 2: Streak + XP */}
-        <div className="flex items-center gap-3 mt-2 pt-2 border-t border-white/[0.05]">
-          <div className="flex items-center gap-1 text-xs">
-            <span
-              className="material-symbols-outlined text-orange-400 text-sm"
-              style={{ fontVariationSettings: "'FILL' 1" }}
-            >
+        <div className="mt-4 flex flex-wrap gap-2">
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-amber-300/20 bg-amber-300/[0.07] px-3 py-1 text-[11px] font-semibold text-amber-200">
+            <span className="material-symbols-outlined text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>
               local_fire_department
             </span>
-            <span className="text-white/70">
-              {payload.streakCount} day streak
-            </span>
+            {payload.streakCount}-day streak
           </div>
-          <div className="flex items-center gap-1 text-xs">
-            <span
-              className="material-symbols-outlined text-amber-400 text-sm"
-              style={{ fontVariationSettings: "'FILL' 1" }}
-            >
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-teal-300/20 bg-teal-300/[0.07] px-3 py-1 text-[11px] font-semibold text-teal-200">
+            <span className="material-symbols-outlined text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>
               star
             </span>
-            <span className="text-white/70">+{payload.xpEarned} XP</span>
+            +{payload.xpEarned} XP
           </div>
         </div>
+      </div>
+
+      {/* Actions */}
+      <div className="grid grid-cols-2 gap-2 border-t border-white/[0.08] px-4 py-3">
+        <button
+          type="button"
+          className="flex items-center justify-center gap-2 rounded-xl border border-teal-300/25 bg-teal-300/[0.10] px-3 py-2 text-[12px] font-semibold text-teal-200 hover:bg-teal-300/[0.16] transition-colors cursor-pointer"
+          aria-label="React to habit completion"
+        >
+          <span className="material-symbols-outlined text-[16px]" style={{ fontVariationSettings: "'FILL' 1" }}>
+            mood
+          </span>
+          React
+        </button>
+        <button
+          type="button"
+          className="flex items-center justify-center gap-2 rounded-xl border border-white/[0.10] bg-white/[0.03] px-3 py-2 text-[12px] font-semibold text-white/65 hover:bg-white/[0.06] hover:text-white transition-colors cursor-pointer"
+          aria-label="Send a nudge"
+        >
+          <span className="material-symbols-outlined text-[16px]" style={{ fontVariationSettings: "'FILL' 1" }}>
+            notifications_active
+          </span>
+          Nudge
+        </button>
       </div>
     </motion.div>
   )

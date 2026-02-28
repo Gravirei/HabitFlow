@@ -10,12 +10,17 @@
 6. [Feature 3: Friend Streaks & Nudges](#feature-3-friend-streaks--nudges)
 7. [Feature 4: Leagues / Competitive Groups](#feature-4-leagues--competitive-groups)
 8. [Design System & UI/UX](#design-system--uiux)
-9. [Navigation Integration](#navigation-integration)
-10. [Store & State Management](#store--state-management)
-11. [Component Details](#component-details)
-12. [Type System](#type-system)
-13. [Constants & Configuration](#constants--configuration)
-14. [Future Enhancements](#future-enhancements)
+9. [Design Tokens](#design-tokens)
+10. [Navigation Integration](#navigation-integration)
+11. [Store & State Management](#store--state-management)
+12. [Component Details](#component-details)
+13. [Type System](#type-system)
+14. [Constants & Configuration](#constants--configuration)
+15. [Micro-Interaction Catalogue](#micro-interaction-catalogue)
+16. [DailyXPSummaryCard Trigger Logic](#dailyxpsummarycard-trigger-logic-updated-feature-1)
+17. [Nudge Cooldown UX](#nudge-cooldown-ux-updated-feature-3)
+18. [First-Time User Flow](#first-time-user-flow)
+19. [Future Enhancements](#future-enhancements)
 
 ---
 
@@ -44,23 +49,26 @@ The Social Networking System is a complete gamification and social layer for the
 src/
 ├── components/social/          # All social networking components
 │   ├── types.ts                # Complete type system
-│   ├── constants.ts            # XP values, levels, league configs, badges, demo data
+│   ├── constants.ts            # XP values, levels, league configs, badges, demo data, design tokens, animations
 │   ├── socialStore.ts          # Zustand store for all social state
 │   ├── index.ts                # Barrel exports
-│   ├── SocialHub.tsx           # Main container with tabs and hero header
-│   ├── ProfileTab.tsx          # XP breakdown, stats, and badges tab
-│   ├── LeaderboardScreen.tsx   # Weekly/All-Time rankings with podium
-│   ├── FriendsScreen.tsx       # Friends list with streaks and nudges
-│   ├── LeagueScreen.tsx        # Competitive league tiers
-│   ├── XPProgressBar.tsx       # Reusable animated XP progress bar
-│   ├── XPBreakdownCard.tsx     # Today's XP breakdown by source
 │   ├── DailyXPSummaryCard.tsx  # End-of-day summary modal
-│   └── SocialBadgeCard.tsx     # Individual badge display card
+│   ├── FriendsScreen.tsx       # Friends list with streaks and nudges
+│   ├── LeaderboardScreen.tsx   # Weekly/All-Time rankings with podium
+│   ├── LeagueScreen.tsx        # Competitive league tiers
+│   ├── ProfileTab.tsx          # XP breakdown, stats, and badges tab
+│   ├── SocialBadgeCard.tsx     # Individual badge display card
+│   ├── SocialOnboarding.tsx    # First-time user onboarding screen
+│   ├── SocialHub.tsx           # Main container with tabs and hero header
+│   ├── XPBreakdownCard.tsx     # Today's XP breakdown by source
+│   └── XPProgressBar.tsx       # Reusable animated XP progress bar
 └── pages/
     └── Social.tsx              # Top-level page with app bar and navigation
 ```
 
 ### Data Flow
+
+#### Flow 1 — XP Award (v1.0)
 ```
 User completes habit
   → awardXP('habit_complete', habitId, habitName)
@@ -71,6 +79,32 @@ User completes habit
       → Unlocks badges with timestamp
 ```
 
+#### Flow 2 — Daily Summary Trigger (v1.1)
+```
+User completes last habit of the day (100% completion)
+  → triggerDailySummary()
+    → Checks dailySummaryShownDate (guard: once per day)
+    → Checks totalXP > 0 (guard: never on empty state)
+    → Sets shouldShowDailySummary: true
+      → DailyXPSummaryCard renders as full-screen modal
+        → User taps "Awesome!"
+          → dismissDailySummary()
+            → Sets dailySummaryShownDate to today
+            → Sets shouldShowDailySummary: false
+```
+
+#### Flow 3 — Nudge Cooldown (v1.1)
+```
+User taps nudge button
+  → canNudge(userId) checks nudgeCooldowns[userId]
+    → If cooldown active: show tooltip, block send
+    → If no cooldown: sendNudge(userId)
+      → Creates Nudge record
+      → Sets nudgeCooldowns[userId] = now ISO string
+      → Increments sentNudgesCount
+      → Triggers checkAndUnlockBadges()
+```
+
 ---
 
 ## Files Created
@@ -78,14 +112,15 @@ User completes habit
 | File | Lines | Purpose |
 |------|-------|---------|
 | `src/components/social/types.ts` | ~150 | Complete TypeScript type definitions |
-| `src/components/social/constants.ts` | ~300 | XP values, 50 levels, league configs, 22 badges, demo generators |
-| `src/components/social/socialStore.ts` | ~350 | Zustand store with persist — all social state and actions |
+| `src/components/social/constants.ts` | ~550 | XP values, 50 levels, league configs, 22 badges, demo generators, design tokens, animation catalogue |
+| `src/components/social/socialStore.ts` | ~450 | Zustand store with persist — all social state and actions including triggers, cooldowns, onboarding |
 | `src/components/social/index.ts` | ~25 | Barrel exports |
-| `src/components/social/SocialHub.tsx` | ~180 | Main tabbed container with hero header |
-| `src/components/social/ProfileTab.tsx` | ~200 | XP/Badges profile tab |
-| `src/components/social/LeaderboardScreen.tsx` | ~250 | Leaderboard with podium and ranked list |
-| `src/components/social/FriendsScreen.tsx` | ~220 | Friends list with search, filters, nudges |
-| `src/components/social/LeagueScreen.tsx` | ~250 | League tiers with zone highlighting |
+| `src/components/social/SocialHub.tsx` | ~200 | Main tabbed container with hero header and onboarding integration |
+| `src/components/social/ProfileTab.tsx` | ~220 | XP/Badges profile tab with manual summary trigger and session-end check |
+| `src/components/social/LeaderboardScreen.tsx` | ~280 | Leaderboard with podium, ranked list, and demo data banner |
+| `src/components/social/FriendsScreen.tsx` | ~340 | Friends list with search, filters, 4-state nudge cooldown UX |
+| `src/components/social/LeagueScreen.tsx` | ~280 | League tiers with zone highlighting and demo data banner |
+| `src/components/social/SocialOnboarding.tsx` | ~180 | First-time user onboarding screen with feature preview cards, quick start checklist, and demo data notice |
 | `src/components/social/XPProgressBar.tsx` | ~60 | Reusable animated XP bar |
 | `src/components/social/XPBreakdownCard.tsx` | ~80 | Today's XP breakdown card |
 | `src/components/social/DailyXPSummaryCard.tsx` | ~120 | End-of-day summary modal |
@@ -99,6 +134,17 @@ User completes habit
 | `src/App.tsx` | Added `Social` import and `/social` route (protected with `RequireAuth` + `RequireVerifiedEmail`) |
 | `src/components/BottomNav.tsx` | Added `Social` tab with `group` icon (6 total nav items now) |
 | `src/components/SideNav.tsx` | Added `Social` menu item with `group` icon |
+
+### Files Modified (v1.1 patches)
+
+| File | v1.1 Change Summary |
+|------|---------------------|
+| `constants.ts` | Added `SOCIAL_DESIGN_TOKENS` and `SOCIAL_ANIMATIONS` exports |
+| `socialStore.ts` | Added 5 new state fields and 6 new actions for summary triggers, nudge cooldowns, and onboarding flag |
+| `FriendsScreen.tsx` | Full nudge cooldown UX — 4-state button machine, cooldown tooltip, inline feedback text |
+| `DailyXPSummaryCard.tsx` | Wired to store trigger flags and dismiss action |
+| `SocialHub.tsx` | Integrated SocialOnboarding component and session-end summary check |
+| `ProfileTab.tsx` | Added "See Today's Summary" manual trigger button and session-end check on mount |
 
 ---
 
@@ -1808,4 +1854,5 @@ dismissOnboarding(): void         // sets to true
 
 *Document created: 2026-02-27*
 *Last updated: 2026-02-27*
-*Status: v1.1 — Production quality patches (design tokens, animations, triggers, cooldown, onboarding)*
+*Version: v1.1 — Complete*
+*Status: Production-ready — All design, logic, and documentation finalized*

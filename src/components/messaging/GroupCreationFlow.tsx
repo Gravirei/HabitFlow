@@ -227,7 +227,7 @@ export function GroupCreationFlow({ isOpen, onClose, onGroupCreated }: GroupCrea
                         className="bg-white/[0.06] border border-white/[0.05] rounded-full px-3 py-1.5 flex items-center gap-2 flex-shrink-0"
                       >
                         <img
-                          src={friend.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${friend.displayName}`}
+                          src={friend.avatarUrl || '/images/avatars/avatar1.jpg'}
                           alt={friend.displayName}
                           className="size-4 rounded-full object-cover"
                         />
@@ -300,7 +300,7 @@ export function GroupCreationFlow({ isOpen, onClose, onGroupCreated }: GroupCrea
                           {/* Avatar with status dot */}
                           <div className="relative flex-shrink-0">
                             <img
-                              src={friend.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${friend.displayName}`}
+                              src={friend.avatarUrl || '/images/avatars/avatar1.jpg'}
                               alt={friend.displayName}
                               className="size-9 rounded-full object-cover"
                             />
@@ -365,7 +365,7 @@ export function GroupCreationFlow({ isOpen, onClose, onGroupCreated }: GroupCrea
                     {selectedFriends.slice(0, 5).map((friend, i) => (
                       <img
                         key={friend.userId}
-                        src={friend.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${friend.displayName}`}
+                        src={friend.avatarUrl || '/images/avatars/avatar1.jpg'}
                         alt={friend.displayName}
                         className={`w-10 h-10 rounded-full border-2 border-[#0F1117] object-cover ${i > 0 ? '-ml-3' : ''}`}
                       />

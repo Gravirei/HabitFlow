@@ -160,7 +160,7 @@ export function GroupInfoScreen({ conversationId, onClose }: GroupInfoScreenProp
               return (
                 <img
                   key={member.userId}
-                  src={member.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${member.displayName}`}
+                  src={member.avatarUrl || '/images/avatars/avatar1.jpg'}
                   alt={member.displayName}
                   className="w-9 h-9 rounded-full object-cover"
                 />
@@ -277,7 +277,7 @@ export function GroupInfoScreen({ conversationId, onClose }: GroupInfoScreenProp
               {/* Avatar with status dot */}
               <div className="relative flex-shrink-0">
                 <img
-                  src={member.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${member.displayName}`}
+                  src={member.avatarUrl || '/images/avatars/avatar1.jpg'}
                   alt={member.displayName}
                   className="w-10 h-10 rounded-full object-cover"
                 />
@@ -453,7 +453,7 @@ export function GroupInfoScreen({ conversationId, onClose }: GroupInfoScreenProp
                     {/* Avatar */}
                     <div className="relative flex-shrink-0">
                       <img
-                        src={friend.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${friend.displayName}`}
+                        src={friend.avatarUrl || '/images/avatars/avatar1.jpg'}
                         alt={friend.displayName}
                         className="w-9 h-9 rounded-full object-cover"
                       />

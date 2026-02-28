@@ -1,37 +1,27 @@
 /**
- * ConversationScreen — Full direct message thread view
- * Composes MessageBubble and MessageInputBar with scroll management,
- * date separators, typing indicator, scroll-to-bottom FAB, loading
- * skeletons, empty state, and auto-scroll
+ * ConversationScreen — Full message thread view
+ * Modern messaging-app UI inspired by habitflow-messaging-v2.html
  */
 
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
 import { useMessagingStore } from './messagingStore'
 import { useSocialStore } from '../social/socialStore'
 import { MessageBubble } from './MessageBubble'
 import { MessageInputBar } from './MessageInputBar'
 import { GroupInfoScreen } from './GroupInfoScreen'
+import { TypingIndicator } from './TypingIndicator'
 import toast from 'react-hot-toast'
 import type { Message } from './types'
 
-// ─── Constants ──────────────────────────────────────────────────────────────
-
-// TODO: Replace with actual auth user ID
 const CURRENT_USER_ID = 'current-user'
-
-// Scroll-to-bottom threshold in px
 const SCROLL_FAB_THRESHOLD = 200
-
-// ─── Props ──────────────────────────────────────────────────────────────────
 
 interface ConversationScreenProps {
   conversationId: string
   onBack: () => void
 }
-
-// ─── Date Separator Helper ──────────────────────────────────────────────────
 
 function formatDateSeparator(iso: string): string {
   const date = new Date(iso)
@@ -49,8 +39,6 @@ function isSameDay(a: string, b: string): boolean {
   return new Date(a).toDateString() === new Date(b).toDateString()
 }
 
-// ─── Message Grouping ───────────────────────────────────────────────────────
-
 interface GroupedMessage {
   message: Message
   showAvatar: boolean
@@ -64,144 +52,53 @@ function groupMessages(messages: Message[]): GroupedMessage[] {
 
   for (let i = 0; i < messages.length; i++) {
     const msg = messages[i]
-    const prevMsg = i > 0 ? messages[i - 1] : null
-    const nextMsg = i < messages.length - 1 ? messages[i + 1] : null
+    const prev = i > 0 ? messages[i - 1] : null
+    const next = i < messages.length - 1 ? messages[i + 1] : null
 
-    // Date separator: show if first message or different day from previous
-    const showDateSeparator = !prevMsg || !isSameDay(prevMsg.createdAt, msg.createdAt)
+    const showDateSeparator = !prev || !isSameDay(prev.createdAt, msg.createdAt)
     const dateSeparatorLabel = showDateSeparator ? formatDateSeparator(msg.createdAt) : ''
 
-    // Avatar: show on first message in a consecutive sequence from same sender (received only)
     const isSent = msg.senderId === CURRENT_USER_ID
-    const isFirstInSequence = !prevMsg || prevMsg.senderId !== msg.senderId || showDateSeparator
+    const isFirstInSequence = !prev || prev.senderId !== msg.senderId || showDateSeparator
     const showAvatar = !isSent && isFirstInSequence
 
-    // Timestamp: show on last message in group (next is different sender or different day)
-    const isLastInGroup = !nextMsg || nextMsg.senderId !== msg.senderId || !isSameDay(msg.createdAt, nextMsg.createdAt)
+    const isLastInGroup = !next || next.senderId !== msg.senderId || !isSameDay(msg.createdAt, next.createdAt)
 
-    result.push({
-      message: msg,
-      showAvatar,
-      isLastInGroup,
-      showDateSeparator,
-      dateSeparatorLabel,
-    })
+    result.push({ message: msg, showAvatar, isLastInGroup, showDateSeparator, dateSeparatorLabel })
   }
 
   return result
 }
 
-// ─── Sender Color Helper ────────────────────────────────────────────────────
-
-/**
- * Generate a deterministic HSL color from a userId string.
- * Same userId always produces same color. Avoids near-white and near-black
- * by constraining saturation (60-80%) and lightness (55-75%).
- */
 function getSenderColor(userId: string): string {
   let hash = 0
   for (let i = 0; i < userId.length; i++) {
     hash = userId.charCodeAt(i) + ((hash << 5) - hash)
-    hash = hash & hash // Convert to 32-bit int
+    hash = hash & hash
   }
   const hue = Math.abs(hash) % 360
-  const saturation = 60 + (Math.abs(hash >> 8) % 21)  // 60-80%
-  const lightness = 55 + (Math.abs(hash >> 16) % 21)   // 55-75%
+  const saturation = 60 + (Math.abs(hash >> 8) % 21)
+  const lightness = 58 + (Math.abs(hash >> 16) % 16)
   return `hsl(${hue}, ${saturation}%, ${lightness}%)`
 }
 
-// ─── Loading Skeleton ───────────────────────────────────────────────────────
-
-function MessagesSkeleton({ prefersReducedMotion }: { prefersReducedMotion: boolean }) {
-  const skeletons = [
-    { width: '60%', height: 40, align: 'left' },
-    { width: '45%', height: 60, align: 'right' },
-    { width: '70%', height: 40, align: 'left' },
-    { width: '50%', height: 60, align: 'right' },
-    { width: '65%', height: 40, align: 'left' },
-    { width: '40%', height: 40, align: 'right' },
-  ]
-
+function DateSeparator({ label }: { label: string }) {
   return (
-    <div className="space-y-3 py-4">
-      {skeletons.map((s, i) => (
-        <div
-          key={i}
-          className={`flex ${s.align === 'right' ? 'justify-end' : 'justify-start'}`}
-        >
-          <div
-            className={`rounded-2xl bg-white/[0.04] ${prefersReducedMotion ? '' : 'animate-pulse'}`}
-            style={{ width: s.width, height: s.height }}
-          />
-        </div>
-      ))}
-    </div>
-  )
-}
-
-// ─── Empty State ────────────────────────────────────────────────────────────
-
-function EmptyConversationState({ isGroup }: { isGroup: boolean }) {
-  return (
-    <div className="flex flex-col items-center justify-center gap-4 py-20 text-center">
-      <div className="flex size-20 items-center justify-center rounded-3xl bg-white/[0.025] border border-dashed border-white/[0.05]">
-        <span className="material-symbols-outlined text-4xl text-slate-600">chat_bubble_outline</span>
+    <div className="my-5 flex items-center gap-3">
+      <div className="h-px flex-1 bg-gradient-to-r from-transparent via-white/[0.14] to-transparent" />
+      <div className="rounded-full border border-white/[0.07] bg-white/[0.03] px-3 py-1 text-[10px] font-extrabold tracking-[0.14em] text-white/40 uppercase">
+        {label}
       </div>
-      <div>
-        <p className="text-sm font-semibold text-slate-400">No messages yet</p>
-        <p className="text-xs text-slate-500 mt-1 max-w-[220px] mx-auto">
-          {isGroup
-            ? 'Be the first to say something!'
-            : 'Send a message to start the conversation'}
-        </p>
-      </div>
+      <div className="h-px flex-1 bg-gradient-to-r from-transparent via-white/[0.14] to-transparent" />
     </div>
   )
 }
-
-// ─── Failed Message Retry ───────────────────────────────────────────────────
-
-interface FailedMessage {
-  id: string
-  text: string
-}
-
-// ─── Inline Typing Indicator ────────────────────────────────────────────────
-
-function InlineTypingIndicator({ name, prefersReducedMotion }: { name: string; prefersReducedMotion: boolean }) {
-  return (
-    <div className="px-4 py-2" role="status" aria-live="polite">
-      <span className="sr-only">{name} is typing</span>
-      <span className="text-[12px] text-slate-400 italic">
-        {name} is typing
-        {prefersReducedMotion ? (
-          '...'
-        ) : (
-          <>
-            {[0, 1, 2].map((i) => (
-              <motion.span
-                key={i}
-                animate={{ opacity: [0.3, 1, 0.3] }}
-                transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.15 }}
-              >
-                .
-              </motion.span>
-            ))}
-          </>
-        )}
-      </span>
-    </div>
-  )
-}
-
-// ─── Component ──────────────────────────────────────────────────────────────
 
 export function ConversationScreen({ conversationId, onBack }: ConversationScreenProps) {
-  const prefersReducedMotion = useReducedMotion()
+  const reduced = useReducedMotion()
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const scrollRef = useRef<HTMLDivElement>(null)
 
-  // Messaging store
   const {
     conversations,
     messages,
@@ -216,376 +113,299 @@ export function ConversationScreen({ conversationId, onBack }: ConversationScree
     sendBadgeCard,
     sendNudgeMessage,
     markConversationRead,
+    shareTrayOpen,
+    toggleShareTray,
+    sendTyping,
   } = useMessagingStore()
 
-  // Social store — nudge delegation + friends for group avatars
-  const { canNudge, sendNudge, friends } = useSocialStore()
+  const { canNudge, friends } = useSocialStore()
 
-  // Group info panel state
   const [showGroupInfo, setShowGroupInfo] = useState(false)
-
-  // Scroll-to-bottom FAB state
   const [showScrollFab, setShowScrollFab] = useState(false)
   const [unreadBelow, setUnreadBelow] = useState(0)
 
-  // Failed messages tracking (optimistic send retry)
-  const [failedMessages, setFailedMessages] = useState<FailedMessage[]>([])
-
-  // Find conversation
   const conversation = conversations.find((c) => c.id === conversationId)
   const isGroupChat = conversation?.type === 'group'
   const conversationMessages = messages[conversationId] ?? []
   const typingList = typingUsers[conversationId] ?? []
   const hasMore = hasMoreMessages[conversationId] ?? false
 
-  // Participant info (for direct conversations)
   const participantId = conversation?.memberIds.find((id) => id !== CURRENT_USER_ID)
   const isParticipantOnline = participantId ? !!onlineUsers[participantId] : false
 
-  // Memoize message grouping
   const grouped = useMemo(() => groupMessages(conversationMessages), [conversationMessages])
 
-  // Mount / unmount — set active conversation
   useEffect(() => {
     setActiveConversation(conversationId)
     markConversationRead(conversationId)
-    return () => {
-      setActiveConversation(null)
-    }
+    return () => setActiveConversation(null)
   }, [conversationId, setActiveConversation, markConversationRead])
 
-  // Auto-scroll to latest message
   useEffect(() => {
     if (!showScrollFab) {
-      messagesEndRef.current?.scrollIntoView({
-        behavior: prefersReducedMotion ? 'auto' : 'smooth',
-      })
+      messagesEndRef.current?.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth' })
     }
-  }, [conversationMessages.length, prefersReducedMotion, showScrollFab])
+  }, [conversationMessages.length, reduced, showScrollFab])
 
-  // Scroll handler — pagination + FAB visibility
   const handleScroll = useCallback(() => {
-    const container = scrollContainerRef.current
+    const container = scrollRef.current
     if (!container) return
 
-    // Scroll-up pagination
     if (container.scrollTop < 50 && hasMore && !isLoadingMessages) {
       loadMoreMessages(conversationId)
     }
 
-    // Scroll-to-bottom FAB
     const distanceFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight
     setShowScrollFab(distanceFromBottom > SCROLL_FAB_THRESHOLD)
 
-    // Clear unread-below count when at bottom
-    if (distanceFromBottom <= 10) {
-      setUnreadBelow(0)
-    }
+    if (distanceFromBottom <= 10) setUnreadBelow(0)
   }, [hasMore, isLoadingMessages, conversationId, loadMoreMessages])
 
-  // Track new messages arriving while scrolled up
   useEffect(() => {
     if (showScrollFab && conversationMessages.length > 0) {
-      const lastMsg = conversationMessages[conversationMessages.length - 1]
-      if (lastMsg.senderId !== CURRENT_USER_ID) {
-        setUnreadBelow((prev) => prev + 1)
-      }
+      const last = conversationMessages[conversationMessages.length - 1]
+      if (last.senderId !== CURRENT_USER_ID) setUnreadBelow((p) => p + 1)
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conversationMessages.length])
 
-  // Scroll to bottom handler
   const scrollToBottom = useCallback(() => {
-    messagesEndRef.current?.scrollIntoView({
-      behavior: prefersReducedMotion ? 'auto' : 'smooth',
-    })
+    messagesEndRef.current?.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth' })
     setShowScrollFab(false)
     setUnreadBelow(0)
-  }, [prefersReducedMotion])
+  }, [reduced])
 
-  // Nudge handler
   const handleNudge = () => {
-    if (!participantId) return
+    if (!participantId || !conversation) return
     if (!canNudge(participantId)) {
       toast.error('Nudge on cooldown', {
-        style: { background: '#1f2937', color: '#fff', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' },
+        style: { background: '#0f1628', color: '#fff', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.1)' },
       })
       return
     }
-    sendNudge(participantId)
+    // sendNudgeMessage handles the socialStore.sendNudge call internally — do NOT call it here too
     sendNudgeMessage(conversationId, participantId)
-    toast.success(`Nudge sent to ${conversation?.name}!`, {
-      style: { background: '#1f2937', color: '#fff', borderRadius: '12px', border: '1px solid rgba(19, 236, 91, 0.3)' },
+    toast.success(`Nudge sent to ${conversation.name}`, {
+      style: { background: '#0f1628', color: '#fff', borderRadius: '14px', border: '1px solid rgba(0,229,204,0.2)' },
     })
   }
 
-  // Optimistic send with retry
-  const handleSendText = useCallback(async (text: string) => {
-    try {
-      await sendTextMessage(conversationId, text)
-    } catch {
-      // Track failed message for retry
-      const failedId = `failed-${Date.now()}`
-      setFailedMessages((prev) => [...prev, { id: failedId, text }])
-      toast.error('Message failed to send', {
-        style: { background: '#1f2937', color: '#fff', borderRadius: '12px', border: '1px solid rgba(239,68,68,0.3)' },
-      })
-    }
-  }, [conversationId, sendTextMessage])
-
-  // Retry failed message
-  const handleRetry = useCallback(async (failedMsg: FailedMessage) => {
-    setFailedMessages((prev) => prev.filter((m) => m.id !== failedMsg.id))
-    try {
-      await sendTextMessage(conversationId, failedMsg.text)
-    } catch {
-      setFailedMessages((prev) => [...prev, failedMsg])
-      toast.error('Message failed to send', {
-        style: { background: '#1f2937', color: '#fff', borderRadius: '12px', border: '1px solid rgba(239,68,68,0.3)' },
-      })
-    }
-  }, [conversationId, sendTextMessage])
+  const handleSendText = useCallback(
+    async (text: string) => {
+      try {
+        await sendTextMessage(conversationId, text)
+      } catch {
+        toast.error('Message failed to send', {
+          style: { background: '#0f1628', color: '#fff', borderRadius: '14px', border: '1px solid rgba(255,77,109,0.3)' },
+        })
+      }
+    },
+    [conversationId, sendTextMessage]
+  )
 
   if (!conversation) {
     return (
       <div className="flex items-center justify-center py-20">
-        <p className="text-sm text-slate-500">Conversation not found</p>
+        <p className="text-sm text-white/45">Conversation not found</p>
       </div>
     )
   }
 
-  const isEmptyConversation = conversationMessages.length === 0 && !isLoadingMessages
-  const showLoadingSkeleton = isLoadingMessages && conversationMessages.length === 0
-
   return (
-    <div className="flex flex-col h-full">
-      {/* App Bar */}
-      <div className="sticky top-0 z-10 flex items-center gap-3 px-3 py-3 border-b border-white/[0.05] bg-[#0F1117]/95 backdrop-blur-xl">
-        {/* Back */}
-        <button onClick={onBack} className="cursor-pointer" aria-label="Back to conversations">
-          <span className="material-symbols-outlined text-[22px] text-slate-300 hover:text-white transition-colors">
-            arrow_back
-          </span>
-        </button>
+    <div className="flex h-full flex-col">
+      {/* Header */}
+      <div className="sticky top-0 z-10 border-b border-white/[0.06] bg-[#0a0f1c]/65 backdrop-blur-2xl">
+        <div className="flex items-center gap-3 px-3.5 py-3">
+          <button
+            type="button"
+            onClick={onBack}
+            className="flex size-9 items-center justify-center rounded-xl border border-transparent text-white/70 hover:bg-white/[0.04] hover:text-white transition-colors cursor-pointer"
+            aria-label="Back to conversations"
+          >
+            <span className="material-symbols-outlined text-[20px]">arrow_back</span>
+          </button>
 
-        {isGroupChat ? (
-          <>
-            {/* Group stacked avatars */}
-            <div className="flex items-center -space-x-2 flex-shrink-0">
-              {conversation.memberIds.slice(0, 3).map((memberId) => {
-                const friend = friends.find((f) => f.userId === memberId)
-                return (
-                  <img
-                    key={memberId}
-                    src={friend?.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${memberId}`}
-                    alt=""
-                    className="w-8 h-8 rounded-full border-2 border-[#0F1117] object-cover"
-                  />
-                )
-              })}
-              {conversation.memberIds.length > 3 && (
-                <div className="w-8 h-8 rounded-full bg-white/[0.06] border-2 border-[#0F1117] flex items-center justify-center text-[10px] text-slate-400 font-medium">
-                  +{conversation.memberIds.length - 3}
-                </div>
-              )}
-            </div>
-
-            {/* Group name + member count */}
-            <div className="flex-1 min-w-0">
-              <p className="text-[14px] font-semibold text-white truncate">{conversation.name}</p>
-              <p className="text-xs text-slate-400">{conversation.memberCount} members</p>
-            </div>
-
-            {/* Info icon for group */}
-            <div className="flex gap-1 flex-shrink-0">
-              <button
-                onClick={() => setShowGroupInfo(true)}
-                className="cursor-pointer p-1 text-slate-400 hover:text-white transition-colors"
-                aria-label="Group info"
-              >
-                <span className="material-symbols-outlined text-[20px]">info</span>
-              </button>
-            </div>
-          </>
-        ) : (
-          <>
-            {/* Direct message avatar */}
-            <img
-              src={conversation.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${conversation.name}`}
-              alt={conversation.name}
-              className="size-8 rounded-full object-cover flex-shrink-0"
-            />
-
-            {/* Name + status */}
-            <div className="flex-1 min-w-0">
-              <p className="text-[14px] font-semibold text-white truncate">{conversation.name}</p>
-              <div className="flex items-center gap-1 text-[11px] font-medium">
-                <span
-                  className={`inline-block size-1.5 rounded-full ${
-                    isParticipantOnline ? 'bg-emerald-400' : 'bg-slate-500'
-                  }`}
-                />
-                <span className={isParticipantOnline ? 'text-emerald-400' : 'text-slate-500'}>
-                  {isParticipantOnline ? 'Online' : 'Offline'}
-                </span>
+          {/* Avatar */}
+          <div className="relative flex-shrink-0">
+            {isGroupChat ? (
+              <div className="flex items-center -space-x-2">
+                {conversation.memberIds.slice(0, 3).map((id) => {
+                  const friend = friends.find((f) => f.userId === id)
+                  return (
+                    <img
+                      key={id}
+                      src={friend?.avatarUrl || '/images/avatars/avatar1.jpg'}
+                      alt=""
+                      className="size-8 rounded-xl border-2 border-[#0F1117] object-cover"
+                      onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/images/avatars/avatar1.jpg' }}
+                    />
+                  )
+                })}
               </div>
-            </div>
+            ) : (
+              <>
+                <img
+                  src={conversation.avatarUrl || '/images/avatars/avatar1.jpg'}
+                  alt={conversation.name}
+                  className="size-10 rounded-2xl object-cover border border-white/[0.06]"
+                  onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/images/avatars/avatar1.jpg' }}
+                />
+                <span
+                  className={
+                    `absolute -bottom-0.5 -right-0.5 size-[10px] rounded-full ring-2 ring-[#0F1117] ` +
+                    (isParticipantOnline ? 'bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.5)]' : 'bg-white/25')
+                  }
+                  aria-hidden="true"
+                />
+              </>
+            )}
+          </div>
 
-            {/* Right side icons for DM */}
-            <div className="flex gap-1 flex-shrink-0">
-              {/* Nudge */}
+          {/* Name + status */}
+          <div className="min-w-0 flex-1">
+            <div className="truncate text-[14px] font-extrabold tracking-tight text-white">
+              {conversation.name}
+            </div>
+            <div className="mt-0.5 text-[11px] text-white/35">
+              {isGroupChat
+                ? `${conversation.memberCount} members · ${conversation.onlineCount} online`
+                : isParticipantOnline
+                  ? 'Active now'
+                  : 'Offline'}
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex items-center gap-2">
+            {!isGroupChat && (
               <button
+                type="button"
                 onClick={handleNudge}
-                disabled={!participantId || !canNudge(participantId ?? '')}
-                className={`cursor-pointer p-1 ${
-                  participantId && canNudge(participantId)
-                    ? 'text-amber-400 hover:text-amber-300'
-                    : 'text-slate-600 cursor-not-allowed opacity-40'
-                }`}
+                className="flex size-9 items-center justify-center rounded-xl border border-white/[0.06] bg-white/[0.03] text-white/60 hover:bg-white/[0.06] hover:text-amber-200 transition-colors cursor-pointer"
                 aria-label="Send nudge"
               >
-                <span className="material-symbols-outlined text-[20px]">notifications</span>
+                <span className="material-symbols-outlined text-[18px]">notifications_active</span>
               </button>
-
-              {/* Info */}
-              <button
-                onClick={() => setShowGroupInfo(true)}
-                className="cursor-pointer p-1 text-slate-400 hover:text-white transition-colors"
-                aria-label="Conversation info"
-              >
-                <span className="material-symbols-outlined text-[20px]">info</span>
-              </button>
-            </div>
-          </>
-        )}
-      </div>
-
-      {/* Messages Area */}
-      {/* TODO: Consider react-window or @tanstack/virtual for virtual scrolling on conversations with 500+ messages */}
-      <div
-        ref={scrollContainerRef}
-        onScroll={handleScroll}
-        className="relative flex-1 overflow-y-auto px-3 py-4 space-y-1"
-        role="log"
-        aria-live="polite"
-        aria-label="Messages"
-      >
-        {/* Loading spinner for pagination */}
-        {isLoadingMessages && conversationMessages.length > 0 && (
-          <div className="flex justify-center py-4">
-            <span className="material-symbols-outlined text-[24px] text-slate-500 animate-spin">
-              progress_activity
-            </span>
-          </div>
-        )}
-
-        {/* Loading skeleton for initial load */}
-        {showLoadingSkeleton && <MessagesSkeleton prefersReducedMotion={prefersReducedMotion} />}
-
-        {/* Empty state */}
-        {isEmptyConversation && <EmptyConversationState isGroup={!!isGroupChat} />}
-
-        {/* Messages */}
-        {grouped.map(({ message, showAvatar, isLastInGroup, showDateSeparator, dateSeparatorLabel }) => (
-          <div key={message.id}>
-            {/* Date separator */}
-            {showDateSeparator && (
-              <div className="flex items-center gap-3 py-4">
-                <div className="h-px flex-1 bg-white/[0.06]" />
-                <span className="text-xs text-white/40 font-medium">{dateSeparatorLabel}</span>
-                <div className="h-px flex-1 bg-white/[0.06]" />
-              </div>
             )}
 
-            <MessageBubble
-              message={message}
-              isSent={message.senderId === CURRENT_USER_ID}
-              showAvatar={showAvatar}
-              senderName={message.senderName}
-              senderAvatarUrl={message.senderAvatarUrl}
-              isLastInGroup={isLastInGroup}
-              showSenderName={isGroupChat && message.senderId !== CURRENT_USER_ID}
-              senderColor={isGroupChat ? getSenderColor(message.senderId) : undefined}
-            />
-          </div>
-        ))}
-
-        {/* Failed messages with retry */}
-        {failedMessages.map((fm) => (
-          <div key={fm.id} className="flex justify-end">
-            <div className="max-w-[75%]">
-              <div className="rounded-2xl rounded-br-md bg-red-500/20 border border-red-500/30 px-3.5 py-2.5">
-                <p className="text-[14px] leading-relaxed text-white/80 whitespace-pre-wrap break-words">
-                  {fm.text}
-                </p>
-                <div className="flex items-center justify-end gap-1 mt-1">
-                  <span className="material-symbols-outlined text-[12px] text-red-400">error</span>
-                  <span className="text-[10px] text-red-400">Failed</span>
-                </div>
-              </div>
-              <button
-                onClick={() => handleRetry(fm)}
-                className="mt-1 text-[11px] text-red-400 hover:text-red-300 flex items-center gap-1 ml-auto cursor-pointer active:scale-95 transition-transform"
-                aria-label="Tap to retry sending message"
-              >
-                <span className="material-symbols-outlined text-[12px]">refresh</span>
-                Tap to retry
-              </button>
-            </div>
-          </div>
-        ))}
-
-        {/* Scroll target */}
-        <div ref={messagesEndRef} />
-
-        {/* Scroll-to-bottom FAB */}
-        <AnimatePresence>
-          {showScrollFab && (
-            <motion.button
-              initial={prefersReducedMotion ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.8 }}
-              transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.2 }}
-              onClick={scrollToBottom}
-              className="absolute bottom-20 right-4 flex size-10 items-center justify-center rounded-full bg-teal-600 shadow-lg shadow-teal-600/20 cursor-pointer active:scale-95 transition-transform z-20"
-              aria-label={unreadBelow > 0 ? `Scroll to bottom, ${unreadBelow} new messages` : 'Scroll to bottom'}
+            <button
+              type="button"
+              onClick={() => setShowGroupInfo(true)}
+              className="flex size-9 items-center justify-center rounded-xl border border-white/[0.06] bg-white/[0.03] text-white/60 hover:bg-white/[0.06] hover:text-white transition-colors cursor-pointer"
+              aria-label={isGroupChat ? 'Group info' : 'Conversation info'}
             >
-              <span className="material-symbols-outlined text-[20px] text-white">keyboard_arrow_down</span>
-              {/* Unread count badge */}
-              {unreadBelow > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 flex items-center justify-center min-w-[18px] h-[18px] rounded-full bg-red-500 px-1 text-[9px] font-bold text-white">
-                  {unreadBelow > 99 ? '99+' : unreadBelow}
-                </span>
-              )}
-            </motion.button>
-          )}
-        </AnimatePresence>
+              <span className="material-symbols-outlined text-[18px]">info</span>
+            </button>
+          </div>
+        </div>
       </div>
 
-      {/* Typing indicator */}
-      {typingList.length > 0 && (
-        <InlineTypingIndicator
-          name={typingList[0].displayName}
-          prefersReducedMotion={prefersReducedMotion}
-        />
-      )}
+      {/* Messages */}
+      <div
+        ref={scrollRef}
+        onScroll={handleScroll}
+        className="flex-1 overflow-y-auto px-3.5 py-4"
+        role="log"
+        aria-live="polite"
+        aria-label="Message list"
+      >
+        {isLoadingMessages && conversationMessages.length === 0 ? (
+          <div className="space-y-3 py-8">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div
+                key={i}
+                className={`h-12 rounded-2xl bg-white/[0.03] border border-white/[0.05] ${reduced ? '' : 'animate-pulse'}`}
+              />
+            ))}
+          </div>
+        ) : conversationMessages.length === 0 ? (
+          <div className="flex flex-col items-center justify-center gap-3 py-16 text-center">
+            <div className="size-16 rounded-3xl border border-white/[0.06] bg-white/[0.028] flex items-center justify-center">
+              <span className="material-symbols-outlined text-[28px] text-white/20">chat_bubble_outline</span>
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-white/70">No messages yet</p>
+              <p className="mt-1 text-xs text-white/35">Send a message to start the conversation.</p>
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-1">
+            {grouped.map((g) => {
+              const isSent = g.message.senderId === CURRENT_USER_ID
+              const showSender = isGroupChat && !isSent
+              const color = showSender ? getSenderColor(g.message.senderId) : undefined
 
-      {/* Message Input */}
+              return (
+                <div key={g.message.id}>
+                  {g.showDateSeparator && <DateSeparator label={g.dateSeparatorLabel} />}
+
+                  <MessageBubble
+                    message={g.message}
+                    isSent={isSent}
+                    showAvatar={g.showAvatar}
+                    senderName={g.message.senderName}
+                    senderAvatarUrl={g.message.senderAvatarUrl}
+                    isLastInGroup={g.isLastInGroup}
+                    showSenderName={showSender}
+                    senderColor={color}
+                  />
+                </div>
+              )
+            })}
+
+            <div ref={messagesEndRef} />
+          </div>
+        )}
+
+        {/* Typing indicator (bottom, above input) */}
+        {typingList.length > 0 && (
+          <div className="mt-2">
+            <TypingIndicator conversationId={conversationId} />
+          </div>
+        )}
+      </div>
+
+      {/* Scroll-to-bottom FAB */}
+      <AnimatePresence>
+        {showScrollFab && (
+          <motion.button
+            type="button"
+            onClick={scrollToBottom}
+            initial={reduced ? { opacity: 1 } : { opacity: 0, y: 10, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={reduced ? { opacity: 0 } : { opacity: 0, y: 10, scale: 0.98 }}
+            transition={reduced ? { duration: 0 } : { type: 'spring', damping: 24, stiffness: 320 }}
+            className="fixed bottom-28 right-4 z-20 flex items-center gap-2 rounded-full border border-white/[0.08] bg-[#0f1628]/80 px-3.5 py-2 text-[12px] font-semibold text-white/80 backdrop-blur-2xl shadow-[0_24px_64px_rgba(0,0,0,0.55)] cursor-pointer"
+            aria-label="Scroll to latest messages"
+          >
+            {unreadBelow > 0 && (
+              <span className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-teal-300 px-2 text-[10px] font-extrabold text-[#050810]">
+                {unreadBelow > 99 ? '99+' : unreadBelow}
+              </span>
+            )}
+            <span className="material-symbols-outlined text-[18px]">south</span>
+          </motion.button>
+        )}
+      </AnimatePresence>
+
+      {/* Input */}
       <MessageInputBar
         recipientName={conversation.name}
         onSend={handleSendText}
-        onShareHabit={() => sendHabitCard(conversationId, '')}
-        onShareBadge={() => sendBadgeCard(conversationId, '')}
+        onShareHabit={(habitId) => sendHabitCard(conversationId, habitId)}
+        onShareBadge={(badgeId) => sendBadgeCard(conversationId, badgeId)}
         onSendNudge={() => {
-          if (participantId && canNudge(participantId)) {
-            sendNudgeMessage(conversationId, participantId)
-          }
+          const other = conversation.memberIds.find((id) => id !== CURRENT_USER_ID)
+          if (other) sendNudgeMessage(conversationId, other)
         }}
+        onTyping={(isTyping) => sendTyping(conversationId, isTyping)}
+        shareTrayOpen={shareTrayOpen}
+        onToggleShareTray={toggleShareTray}
       />
 
-      {/* Group Info Panel */}
+      {/* Group info panel */}
       <AnimatePresence>
-        {showGroupInfo && conversation && (
+        {showGroupInfo && (
           <GroupInfoScreen
             conversationId={conversation.id}
             onClose={() => setShowGroupInfo(false)}

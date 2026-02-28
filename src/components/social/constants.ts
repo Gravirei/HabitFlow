@@ -520,7 +520,7 @@ export function generateDemoLeaderboard(currentUserName: string, currentUserXP: 
     return {
       userId: `demo-${i}`,
       displayName: name,
-      avatarUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&size=128&background=random&color=fff&bold=true`,
+      avatarUrl: `/images/avatars/avatar${(i % 15) + 1}.jpg`,
       xp,
       rank: i + 1,
       previousRank: Math.random() > 0.2 ? prevRank : null,
@@ -536,7 +536,7 @@ export function generateDemoLeaderboard(currentUserName: string, currentUserXP: 
   const userEntry = {
     userId: 'current-user',
     displayName: currentUserName,
-    avatarUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUserName)}&size=128&background=13ec5b&color=fff&bold=true`,
+    avatarUrl: `/images/avatars/avatar15.jpg`,
     xp: currentUserXP,
     rank: userRank,
     previousRank: userRank + 2,
@@ -559,7 +559,7 @@ export function generateDemoFriends(): Friend[] {
     return {
       userId: `friend-${i}`,
       displayName: name,
-      avatarUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&size=128&background=random&color=fff&bold=true`,
+      avatarUrl: `/images/avatars/avatar${(i % 15) + 1}.jpg`,
       level: Math.floor(Math.random() * 30) + 1,
       xp: Math.floor(Math.random() * 5000),
       mutualStreak: Math.floor(Math.random() * 20),
@@ -579,7 +579,7 @@ export function generateDemoLeagueMembers(currentUserName: string): any[] {
     return {
       userId: isCurrentUser ? 'current-user' : `league-${i}`,
       displayName: isCurrentUser ? currentUserName : name,
-      avatarUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(isCurrentUser ? currentUserName : name)}&size=128&background=${isCurrentUser ? '13ec5b' : 'random'}&color=fff&bold=true`,
+      avatarUrl: isCurrentUser ? `/images/avatars/avatar15.jpg` : `/images/avatars/avatar${(i % 14) + 1}.jpg`,
       weeklyXP,
       rank: i + 1,
       level: Math.max(1, Math.floor(weeklyXP / 50)),

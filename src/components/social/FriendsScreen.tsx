@@ -164,6 +164,7 @@ function FriendCard({
             src={friend.avatarUrl}
             alt={friend.displayName}
             className="size-11 rounded-xl object-cover"
+            onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/images/avatars/avatar1.jpg' }}
           />
           <div
             className={`absolute -bottom-0.5 -right-0.5 size-3 rounded-full border-[1.5px] border-slate-900 shadow-sm ${statusColor[friend.status]}`}

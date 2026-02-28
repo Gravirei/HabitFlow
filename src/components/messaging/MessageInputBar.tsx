@@ -1,33 +1,23 @@
 /**
- * MessageInputBar — Bottom input bar with share tray
- * Sticky bottom bar with auto-expanding textarea, share tray for rich content,
- * and full accessibility support
+ * MessageInputBar — modern input area with share tray and send affordances
+ * Inspired by habitflow-messaging-v2.html input zone.
  */
 
-import { useState, useRef, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
-import { useMessagingStore } from './messagingStore'
-
-// ─── Props ──────────────────────────────────────────────────────────────────
+import { MESSAGING_ANIMATIONS } from './constants'
 
 interface MessageInputBarProps {
   recipientName: string
-  onSend: (content: string) => void
-  onShareHabit: () => void
-  onShareBadge: () => void
+  onSend: (text: string) => void
+  onShareHabit: (habitId: string) => void
+  onShareBadge: (badgeId: string) => void
   onSendNudge: () => void
+  onTyping: (isTyping: boolean) => void
+  shareTrayOpen: boolean
+  onToggleShareTray: () => void
 }
-
-// ─── Share Tray Items ───────────────────────────────────────────────────────
-
-const SHARE_TRAY_ITEMS = [
-  { id: 'habit', label: 'Habit', icon: 'check_circle', color: 'text-emerald-400', ariaLabel: 'Share a habit completion' },
-  { id: 'badge', label: 'Badge', icon: 'military_tech', color: 'text-amber-400', ariaLabel: 'Share a badge' },
-  { id: 'nudge', label: 'Nudge', icon: 'notifications', color: 'text-orange-400', ariaLabel: 'Send a nudge' },
-] as const
-
-// ─── Component ──────────────────────────────────────────────────────────────
 
 export function MessageInputBar({
   recipientName,
@@ -35,132 +25,174 @@ export function MessageInputBar({
   onShareHabit,
   onShareBadge,
   onSendNudge,
+  onTyping,
+  shareTrayOpen,
+  onToggleShareTray,
 }: MessageInputBarProps) {
-  const [inputValue, setInputValue] = useState('')
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
-  const prefersReducedMotion = useReducedMotion()
-  const { shareTrayOpen, toggleShareTray } = useMessagingStore()
+  const reduced = useReducedMotion()
+  const [text, setText] = useState('')
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null)
+  const isTypingRef = useRef(false)
 
-  const hasContent = inputValue.trim().length > 0
+  const canSend = text.trim().length > 0
 
-  // Auto-resize textarea
+  const trayAnim = reduced
+    ? MESSAGING_ANIMATIONS.shareTrayEntrance.reducedMotion
+    : MESSAGING_ANIMATIONS.shareTrayEntrance.framerProps
+
+  // Auto-grow up to ~4 lines
   useEffect(() => {
-    const textarea = textareaRef.current
-    if (!textarea) return
-    textarea.style.height = 'auto'
-    textarea.style.height = `${Math.min(textarea.scrollHeight, 120)}px`
-  }, [inputValue])
+    const el = textareaRef.current
+    if (!el) return
+    el.style.height = 'auto'
+    el.style.height = `${Math.min(el.scrollHeight, 90)}px`
+  }, [text])
 
-  const handleSend = () => {
-    const trimmed = inputValue.trim()
-    if (!trimmed) return
-    onSend(trimmed)
-    setInputValue('')
-    if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto'
+  const sendBtnClass = useMemo(() => {
+    if (canSend) {
+      return (
+        'bg-gradient-to-br from-teal-300 to-emerald-300 text-[#050810] ' +
+        'shadow-[0_10px_30px_rgba(0,229,204,0.25)] hover:shadow-[0_12px_36px_rgba(0,229,204,0.33)] '
+      )
+    }
+    return 'bg-white/[0.06] border border-white/[0.08] text-white/25 cursor-not-allowed'
+  }, [canSend])
+
+  const send = () => {
+    const t = text.trim()
+    if (!t) return
+    // Stop typing indicator before sending
+    if (isTypingRef.current) {
+      isTypingRef.current = false
+      onTyping(false)
+    }
+    onSend(t)
+    setText('')
+  }
+
+  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setText(e.target.value)
+    const hasText = e.target.value.length > 0
+    if (hasText && !isTypingRef.current) {
+      isTypingRef.current = true
+      onTyping(true)
+    } else if (!hasText && isTypingRef.current) {
+      isTypingRef.current = false
+      onTyping(false)
     }
   }
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      handleSend()
-    }
-  }
-
-  const handleShareAction = (id: string) => {
-    if (id === 'habit') onShareHabit()
-    else if (id === 'badge') onShareBadge()
-    else if (id === 'nudge') onSendNudge()
-    toggleShareTray()
-  }
-
-  const trayTransition = prefersReducedMotion
-    ? { duration: 0 }
-    : { type: 'spring' as const, damping: 25, stiffness: 300 }
 
   return (
-    <div className="sticky bottom-0 z-10 border-t border-white/[0.05] bg-[#0F1117]/95 backdrop-blur-xl">
-      {/* Share Tray */}
+    <div className="border-t border-white/[0.06] bg-[#0a0f1c]/75 backdrop-blur-2xl px-3.5 py-3">
       <AnimatePresence>
         {shareTrayOpen && (
           <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={trayTransition}
-            className="overflow-hidden border-t border-white/[0.04]"
+            {...trayAnim}
+            className="mb-3 grid grid-cols-3 gap-2 rounded-2xl border border-white/[0.06] bg-white/[0.028] p-2 shadow-[0_18px_50px_rgba(0,0,0,0.35)]"
+            role="menu"
+            aria-label="Share options"
           >
-            <div
-              className="grid grid-cols-3 gap-3 p-4"
-              role="menu"
-              aria-label="Share options"
+            <button
+              type="button"
+              onClick={() => onShareHabit('')}
+              className="group flex flex-col items-center justify-center gap-1.5 rounded-2xl border border-white/[0.06] bg-transparent p-3 text-left transition-all duration-200 hover:bg-white/[0.05] hover:border-teal-300/30 cursor-pointer"
+              aria-label="Share habit completion"
             >
-              {SHARE_TRAY_ITEMS.map((item) => (
-                <button
-                  key={item.id}
-                  role="menuitem"
-                  onClick={() => handleShareAction(item.id)}
-                  aria-label={item.ariaLabel}
-                  className="flex flex-col items-center gap-2 rounded-2xl bg-white/[0.025] border border-white/[0.04] py-4 hover:bg-white/[0.04] transition-colors cursor-pointer active:scale-95"
-                >
-                  <span
-                    className={`material-symbols-outlined text-[24px] ${item.color}`}
-                    style={{ fontVariationSettings: "'FILL' 1" }}
-                  >
-                    {item.icon}
-                  </span>
-                  <span className="text-[11px] text-slate-400 font-medium">{item.label}</span>
-                </button>
-              ))}
-            </div>
+              <span
+                className="material-symbols-outlined text-[22px] text-teal-300"
+                style={{ fontVariationSettings: "'FILL' 1" }}
+              >
+                check_circle
+              </span>
+              <span className="text-[10px] font-semibold tracking-wide text-white/60 group-hover:text-white/80">
+                Habit
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => onShareBadge('')}
+              className="group flex flex-col items-center justify-center gap-1.5 rounded-2xl border border-white/[0.06] bg-transparent p-3 transition-all duration-200 hover:bg-white/[0.05] hover:border-violet-300/30 cursor-pointer"
+              aria-label="Share badge"
+            >
+              <span
+                className="material-symbols-outlined text-[22px] text-violet-300"
+                style={{ fontVariationSettings: "'FILL' 1" }}
+              >
+                military_tech
+              </span>
+              <span className="text-[10px] font-semibold tracking-wide text-white/60 group-hover:text-white/80">
+                Badge
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={onSendNudge}
+              className="group flex flex-col items-center justify-center gap-1.5 rounded-2xl border border-white/[0.06] bg-transparent p-3 transition-all duration-200 hover:bg-white/[0.05] hover:border-amber-300/30 cursor-pointer"
+              aria-label="Send nudge"
+            >
+              <span
+                className="material-symbols-outlined text-[22px] text-amber-300"
+                style={{ fontVariationSettings: "'FILL' 1" }}
+              >
+                notifications_active
+              </span>
+              <span className="text-[10px] font-semibold tracking-wide text-white/60 group-hover:text-white/80">
+                Nudge
+              </span>
+            </button>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Input Row */}
-      <div className="flex items-end gap-2 px-3 py-2.5">
-        {/* Plus / Attachment button */}
-        <motion.button
-          animate={{ rotate: shareTrayOpen ? 45 : 0 }}
-          transition={{ duration: 0.2 }}
-          onClick={toggleShareTray}
-          className="flex items-center justify-center size-10 flex-shrink-0 cursor-pointer active:scale-95 transition-transform"
-          aria-label={shareTrayOpen ? 'Close share options' : 'Open share options'}
-          aria-expanded={shareTrayOpen}
-        >
-          <span className="material-symbols-outlined text-[24px] text-slate-400 hover:text-teal-400 transition-colors">
-            add_circle
-          </span>
-        </motion.button>
+      <div className="flex items-end gap-2.5">
+        <div className="flex flex-1 items-end gap-2 rounded-2xl border border-white/[0.06] bg-white/[0.028] px-3.5 py-2.5 backdrop-blur-xl focus-within:border-teal-300/30 focus-within:bg-teal-300/[0.04] focus-within:shadow-[0_0_0_4px_rgba(0,229,204,0.06)] transition-all duration-200">
+          <button
+            type="button"
+            onClick={onToggleShareTray}
+            className="flex size-8 items-center justify-center rounded-xl text-white/30 hover:text-teal-200 transition-colors cursor-pointer"
+            aria-label={shareTrayOpen ? 'Close share tray' : 'Open share tray'}
+          >
+            <span
+              className={`material-symbols-outlined text-[20px] ${shareTrayOpen ? 'rotate-45' : ''}`}
+              style={{ fontVariationSettings: "'FILL' 1", transition: reduced ? 'none' : 'transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1)' }}
+            >
+              add
+            </span>
+          </button>
 
-        {/* Textarea */}
-        <textarea
-          ref={textareaRef}
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder={`Message ${recipientName}...`}
-          rows={1}
-          role="textbox"
-          aria-label="Type a message"
-          aria-multiline="true"
-          className="flex-1 rounded-2xl bg-white/[0.04] border border-white/[0.06] px-4 py-2.5 text-[14px] text-white placeholder:text-slate-500 resize-none focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500/30 transition-all duration-200 min-h-[40px] max-h-[120px]"
-        />
+          <textarea
+            ref={textareaRef}
+            value={text}
+            onChange={handleTextChange}
+            placeholder={`Message ${recipientName}…`}
+            rows={1}
+            className="flex-1 resize-none bg-transparent text-[13.5px] leading-relaxed text-white placeholder:text-white/25 outline-none max-h-[90px]"
+            aria-label="Message input"
+            role="textbox"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault()
+                if (canSend) send()
+              }
+            }}
+          />
+        </div>
 
-        {/* Send button */}
         <button
-          onClick={handleSend}
-          disabled={!hasContent}
-          className={`flex items-center justify-center size-10 rounded-full flex-shrink-0 transition-all duration-200 active:scale-95 ${
-            hasContent
-              ? 'bg-gradient-to-br from-teal-500 to-emerald-500 text-white shadow-lg shadow-teal-500/25 cursor-pointer'
-              : 'bg-white/[0.04] text-slate-500 cursor-not-allowed'
-          }`}
-          aria-label="Send message"
-          aria-disabled={!hasContent}
+          type="button"
+          onClick={send}
+          disabled={!canSend}
+          className={`flex size-11 items-center justify-center rounded-2xl transition-all duration-200 active:scale-95 ${sendBtnClass}`}
+          aria-label={canSend ? 'Send message' : 'Type a message to send'}
         >
-          <span className="material-symbols-outlined text-[20px]">send</span>
+          <span
+            className="material-symbols-outlined text-[19px]"
+            style={{ fontVariationSettings: "'FILL' 1" }}
+          >
+            arrow_upward
+          </span>
         </button>
       </div>
     </div>
