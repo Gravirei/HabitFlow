@@ -23,7 +23,18 @@ export {
   getConnectionStatus,
 } from './realtimeService'
 
-// Components (added in later phases)
-// Phase 4: MessagingHub, ConversationScreen, MessageBubble, MessageInputBar
-// Phase 5: HabitShareCard, BadgeShareCard, NudgeMessageCard, ReactionPicker, ReactionRow, TypingIndicator
+// Components — Phase 4
+export { MessagingHub } from './MessagingHub'
+export { ConversationScreen } from './ConversationScreen'
+export { MessageBubble } from './MessageBubble'
+export { MessageInputBar } from './MessageInputBar'
+
 // Phase 6: GroupCreationFlow, GroupInfoScreen
+
+// Phase 5: Rich Message Cards & Reactions
+export { HabitShareCard } from './HabitShareCard'
+export { BadgeShareCard } from './BadgeShareCard'
+export { NudgeMessageCard } from './NudgeMessageCard'
+export { ReactionPicker } from './ReactionPicker'
+export { ReactionRow } from './ReactionRow'
+export { TypingIndicator } from './TypingIndicator'
