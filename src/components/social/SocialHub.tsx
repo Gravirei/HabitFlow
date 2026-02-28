@@ -16,12 +16,13 @@ import { getLevelForXP, getLevelProgress } from './constants'
 
 // ─── Tab types ──────────────────────────────────────────────────────────────
 
-type SocialTab = 'leaderboard' | 'friends' | 'league' | 'profile'
+type SocialTab = 'leaderboard' | 'friends' | 'league' | 'messages' | 'profile'
 
 const TABS: { id: SocialTab; label: string; icon: string }[] = [
   { id: 'leaderboard', label: 'Rankings', icon: 'leaderboard' },
   { id: 'friends', label: 'Friends', icon: 'group' },
   { id: 'league', label: 'League', icon: 'shield' },
+  { id: 'messages', label: 'Messages', icon: 'chat_bubble' },
   { id: 'profile', label: 'Profile', icon: 'military_tech' },
 ]
 
@@ -218,6 +219,17 @@ export function SocialHub() {
           {activeTab === 'leaderboard' && <LeaderboardScreen />}
           {activeTab === 'friends' && <FriendsScreen />}
           {activeTab === 'league' && <LeagueScreen />}
+          {activeTab === 'messages' && (
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <div className="flex size-16 items-center justify-center rounded-2xl bg-primary/10 border border-primary/20 mb-4">
+                <span className="material-symbols-outlined text-primary text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>
+                  chat_bubble
+                </span>
+              </div>
+              <h3 className="text-lg font-bold text-white mb-1">Messages</h3>
+              <p className="text-sm text-slate-400 max-w-xs">Coming soon! You'll be able to chat with your friends and share your progress here.</p>
+            </div>
+          )}
           {activeTab === 'profile' && <ProfileTab />}
         </motion.div>
       </AnimatePresence>
