@@ -3,7 +3,7 @@
  * Polished tabbed interface with animated hero header
  */
 
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useSocialStore } from './socialStore'
 import { useProfileStore, getAvatarFallbackUrl } from '@/store/useProfileStore'
@@ -16,15 +16,7 @@ import { getLevelForXP, getLevelProgress } from './constants'
 
 // ─── Tab types ──────────────────────────────────────────────────────────────
 
-type SocialTab = 'leaderboard' | 'friends' | 'league' | 'messages' | 'profile'
-
-const TABS: { id: SocialTab; label: string; icon: string }[] = [
-  { id: 'leaderboard', label: 'Rankings', icon: 'leaderboard' },
-  { id: 'friends', label: 'Friends', icon: 'group' },
-  { id: 'league', label: 'League', icon: 'shield' },
-  { id: 'messages', label: 'Messages', icon: 'chat_bubble' },
-  { id: 'profile', label: 'Profile', icon: 'military_tech' },
-]
+import type { SocialTab } from './SocialBottomNav'
 
 // ─── Hero Header ────────────────────────────────────────────────────────────
 
@@ -111,74 +103,14 @@ function HeroHeader() {
   )
 }
 
-// ─── Tab Bar ────────────────────────────────────────────────────────────────
-
-function TabBar({
-  activeTab,
-  onChange,
-  friendNotifications,
-}: {
-  activeTab: SocialTab
-  onChange: (tab: SocialTab) => void
-  friendNotifications: number
-}) {
-  return (
-    <div className="flex rounded-2xl bg-slate-800/60 border border-white/[0.04] p-1 gap-1">
-      {TABS.map((tab) => {
-        const isActive = activeTab === tab.id
-        const hasBadge = tab.id === 'friends' && friendNotifications > 0
-
-        return (
-          <button
-            key={tab.id}
-            onClick={() => onChange(tab.id)}
-            className={`
-              relative flex-1 flex flex-col items-center gap-0.5 rounded-xl py-2 cursor-pointer
-              transition-all duration-200 ease-out
-              ${isActive
-                ? 'bg-primary shadow-lg shadow-primary/25'
-                : 'hover:bg-white/[0.04] active:scale-95'
-              }
-            `}
-          >
-            <span
-              className={`material-symbols-outlined text-[18px] transition-colors duration-200 ${
-                isActive ? 'text-primary-content' : 'text-slate-400'
-              }`}
-              style={{ fontVariationSettings: isActive ? "'FILL' 1, 'wght' 600" : "'FILL' 0, 'wght' 400" }}
-            >
-              {tab.icon}
-            </span>
-            <span
-              className={`text-[10px] font-semibold transition-colors duration-200 ${
-                isActive ? 'text-primary-content' : 'text-slate-500'
-              }`}
-            >
-              {tab.label}
-            </span>
-
-            {hasBadge && (
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                className="absolute -top-0.5 right-1 flex size-4 items-center justify-center rounded-full bg-red-500 shadow-lg shadow-red-500/30"
-              >
-                <span className="text-[8px] font-bold text-white">{friendNotifications}</span>
-              </motion.div>
-            )}
-          </button>
-        )
-      })}
-    </div>
-  )
-}
-
 // ─── Main Component ─────────────────────────────────────────────────────────
 
-export function SocialHub() {
-  const [activeTab, setActiveTab] = useState<SocialTab>('leaderboard')
+interface SocialHubProps {
+  activeTab: SocialTab
+}
+
+export function SocialHub({ activeTab }: SocialHubProps) {
   const {
-    getUnreadNudges,
     initializeBadges,
     hasSeenSocialOnboarding,
     friends,
@@ -189,8 +121,6 @@ export function SocialHub() {
   useEffect(() => {
     initializeBadges()
   }, [])
-
-  const unreadCount = getUnreadNudges().length
 
   // GAP 5: Show onboarding when user has no social data and hasn't dismissed
   const showOnboarding =
@@ -206,7 +136,6 @@ export function SocialHub() {
   return (
     <div className="space-y-4">
       <HeroHeader />
-      <TabBar activeTab={activeTab} onChange={setActiveTab} friendNotifications={unreadCount} />
 
       <AnimatePresence mode="wait">
         <motion.div

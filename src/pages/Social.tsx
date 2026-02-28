@@ -4,14 +4,19 @@
  */
 
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { AnimatePresence } from 'framer-motion'
 import { BottomNav } from '@/components/BottomNav'
 import { SideNav } from '@/components/SideNav'
 import { SocialHub } from '@/components/social/SocialHub'
+import { SocialBottomNav, type SocialTab } from '@/components/social/SocialBottomNav'
 import { useSocialStore } from '@/components/social/socialStore'
 import { getLevelForXP } from '@/components/social/constants'
 
 export function Social() {
+  const navigate = useNavigate()
   const [isSideNavOpen, setIsSideNavOpen] = useState(false)
+  const [activeTab, setActiveTab] = useState<SocialTab>('profile')
   const { totalXP } = useSocialStore()
   const level = getLevelForXP(totalXP)
 
@@ -21,14 +26,23 @@ export function Social() {
         {/* Top App Bar */}
         <header className="sticky top-0 z-30 backdrop-blur-md bg-gray-950/80 border-b border-white/[0.04] shrink-0">
           <div className="flex items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
-            {/* Menu */}
-            <button
-              onClick={() => setIsSideNavOpen(true)}
-              aria-label="Open navigation menu"
-              className="flex size-10 cursor-pointer items-center justify-center rounded-xl text-slate-400 hover:text-white hover:bg-white/5 active:scale-95 transition-all duration-200"
-            >
-              <span className="material-symbols-outlined text-xl">menu</span>
-            </button>
+            {/* Back + Menu */}
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => navigate('/today')}
+                aria-label="Go back to Today"
+                className="flex size-10 cursor-pointer items-center justify-center rounded-xl text-slate-400 hover:text-white hover:bg-white/5 active:scale-95 transition-all duration-200"
+              >
+                <span className="material-symbols-outlined text-xl">arrow_back</span>
+              </button>
+              <button
+                onClick={() => setIsSideNavOpen(true)}
+                aria-label="Open navigation menu"
+                className="flex size-10 cursor-pointer items-center justify-center rounded-xl text-slate-400 hover:text-white hover:bg-white/5 active:scale-95 transition-all duration-200"
+              >
+                <span className="material-symbols-outlined text-xl">menu</span>
+              </button>
+            </div>
 
             {/* Title */}
             <div className="flex items-center gap-2">
@@ -56,12 +70,15 @@ export function Social() {
 
         {/* Content */}
         <div className="px-4 sm:px-6 lg:px-8 mt-4 max-w-3xl mx-auto">
-          <SocialHub />
+          <SocialHub activeTab={activeTab} />
         </div>
       </main>
 
       <SideNav isOpen={isSideNavOpen} onClose={() => setIsSideNavOpen(false)} />
       <BottomNav />
+      <AnimatePresence>
+        <SocialBottomNav activeTab={activeTab} onChange={setActiveTab} />
+      </AnimatePresence>
     </div>
   )
 }
