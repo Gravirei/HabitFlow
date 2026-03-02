@@ -7,7 +7,8 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useSocialStore } from './socialStore'
 import { getLeagueConfig, getLeagueTierColor, getLeagueTierGradient } from './constants'
-import type { LeagueTier, LeagueMember } from './types'
+import type { LeagueTier, LeagueMember, ProfilePreviewData } from './types'
+import { ProfilePreviewModal, generateProfilePreview } from './ProfilePreviewModal'
 
 // ─── Tier Badge ─────────────────────────────────────────────────────────────
 
@@ -85,7 +86,7 @@ function TierProgress({ current }: { current: LeagueTier }) {
 
 // ─── Member Row ─────────────────────────────────────────────────────────────
 
-function MemberRow({ member, index }: { member: LeagueMember; index: number }) {
+function MemberRow({ member, index, onRowClick }: { member: LeagueMember; index: number; onRowClick: (member: LeagueMember) => void }) {
   const zoneBorder = {
     promotion: 'border-l-emerald-500/60',
     safe: 'border-l-transparent',
@@ -103,8 +104,9 @@ function MemberRow({ member, index }: { member: LeagueMember; index: number }) {
       initial={{ opacity: 0, x: -8 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.02, ease: 'easeOut' }}
+      onClick={() => onRowClick(member)}
       className={`
-        flex items-center gap-2.5 rounded-xl px-3 py-2 border-l-2
+        flex items-center gap-2.5 rounded-xl px-3 py-2 border-l-2 cursor-pointer
         transition-all duration-200
         ${zoneBorder} ${zoneBg}
         ${member.isCurrentUser
@@ -195,6 +197,20 @@ export function LeagueScreen() {
   const [loading, setLoading] = useState(true)
   const [showAll, setShowAll] = useState(false)
   const [showDemoBanner, setShowDemoBanner] = useState(true)
+  const [previewProfile, setPreviewProfile] = useState<ProfilePreviewData | null>(null)
+
+  const handleMemberClick = (member: LeagueMember) => {
+    if (member.isCurrentUser) return
+    setPreviewProfile(
+      generateProfilePreview(member.userId, member.displayName, member.avatarUrl, {
+        level: member.level,
+        xp: member.weeklyXP,
+        weeklyXP: member.weeklyXP,
+        leagueTier: currentLeagueTier,
+        isCurrentUser: false,
+      })
+    )
+  }
 
   useEffect(() => {
     refreshLeague()
@@ -293,7 +309,7 @@ export function LeagueScreen() {
         <>
           <div className="space-y-1">
             {visible.map((m, i) => (
-              <MemberRow key={m.userId} member={m} index={i} />
+              <MemberRow key={m.userId} member={m} index={i} onRowClick={handleMemberClick} />
             ))}
           </div>
 
@@ -329,6 +345,15 @@ export function LeagueScreen() {
           ))}
         </div>
       </div>
+
+      {/* Profile Preview Modal */}
+      <ProfilePreviewModal
+        profile={previewProfile}
+        isOpen={!!previewProfile}
+        onClose={() => setPreviewProfile(null)}
+        showAddFriend={previewProfile ? !friends.some((f) => f.userId === previewProfile.userId) : false}
+        onAddFriend={() => setPreviewProfile(null)}
+      />
     </div>
   )
 }

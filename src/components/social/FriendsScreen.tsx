@@ -12,6 +12,8 @@ import toast from 'react-hot-toast'
 import { useMessagingStore } from '../messaging/messagingStore'
 import { AddFriendsModal } from './AddFriendsModal'
 import { FriendRequestInbox } from './FriendRequestInbox'
+import { ProfilePreviewModal, generateProfilePreview } from './ProfilePreviewModal'
+import type { ProfilePreviewData } from './types'
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -137,6 +139,7 @@ function FriendCard({
   onNudge,
   onRemove,
   onMessage,
+  onShowDetails,
 }: {
   friend: Friend
   index: number
@@ -145,6 +148,7 @@ function FriendCard({
   onNudge: (id: string) => void
   onRemove: (id: string) => void
   onMessage: (id: string) => void
+  onShowDetails: (friend: Friend) => void
 }) {
   const [expanded, setExpanded] = useState(false)
   const canSendNudge = nudgeState === 'available'
@@ -272,6 +276,16 @@ function FriendCard({
               </button>
               <button
                 onClick={() => {
+                  onShowDetails(friend)
+                  setExpanded(false)
+                }}
+                className="flex items-center justify-center gap-1.5 rounded-xl bg-violet-500/10 px-4 py-2.5 text-xs font-semibold text-violet-400 cursor-pointer hover:bg-violet-500/20 transition-colors duration-200"
+                aria-label="Show details"
+              >
+                <span className="material-symbols-outlined text-sm">info</span>
+              </button>
+              <button
+                onClick={() => {
                   onRemove(friend.userId)
                   setExpanded(false)
                 }}
@@ -300,6 +314,22 @@ export function FriendsScreen({ onNavigateToMessages }: FriendsScreenProps) {
   const [filter, setFilter] = useState<'all' | 'active' | 'streak'>('all')
   const [search, setSearch] = useState('')
   const [showAddFriends, setShowAddFriends] = useState(false)
+  const [previewProfile, setPreviewProfile] = useState<ProfilePreviewData | null>(null)
+
+  const handleShowDetails = (friend: Friend) => {
+    setPreviewProfile(
+      generateProfilePreview(friend.userId, friend.displayName, friend.avatarUrl, {
+        level: friend.level,
+        xp: friend.xp,
+        leagueTier: friend.leagueTier,
+        isCurrentUser: false,
+        friendSince: friend.friendSince,
+        mutualStreak: friend.mutualStreak,
+        lastActive: friend.lastActive,
+        todayCompleted: friend.todayCompleted,
+      })
+    )
+  }
 
   useEffect(() => {
     loadDemoFriends()
@@ -472,6 +502,7 @@ export function FriendsScreen({ onNavigateToMessages }: FriendsScreenProps) {
               onNudge={handleNudge}
               onRemove={handleRemove}
               onMessage={handleMessage}
+              onShowDetails={handleShowDetails}
             />
           ))}
         </div>
@@ -479,6 +510,18 @@ export function FriendsScreen({ onNavigateToMessages }: FriendsScreenProps) {
 
       {/* Add Friends Modal */}
       <AddFriendsModal isOpen={showAddFriends} onClose={() => setShowAddFriends(false)} />
+
+      {/* Profile Preview Modal */}
+      <ProfilePreviewModal
+        profile={previewProfile}
+        isOpen={!!previewProfile}
+        onClose={() => setPreviewProfile(null)}
+        showMessage
+        onMessage={(userId) => {
+          handleMessage(userId)
+          setPreviewProfile(null)
+        }}
+      />
     </div>
   )
 }

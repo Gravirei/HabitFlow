@@ -7,7 +7,8 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useSocialStore } from './socialStore'
 import { getLeagueTierColor } from './constants'
-import type { LeaderboardEntry, LeaderboardPeriod } from './types'
+import type { LeaderboardEntry, LeaderboardPeriod, ProfilePreviewData } from './types'
+import { ProfilePreviewModal, generateProfilePreview } from './ProfilePreviewModal'
 import toast from 'react-hot-toast'
 
 // ─── Demo Data Banner ───────────────────────────────────────────────────────
@@ -125,18 +126,20 @@ function Podium({ entries }: { entries: LeaderboardEntry[] }) {
 
 // ─── List Row ───────────────────────────────────────────────────────────────
 
-function LeaderboardRow({ entry, index, isFriend, isPending, onAddFriend }: {
+function LeaderboardRow({ entry, index, isFriend, isPending, onAddFriend, onRowClick }: {
   entry: LeaderboardEntry
   index: number
   isFriend: boolean
   isPending: boolean
   onAddFriend: (entry: LeaderboardEntry) => void
+  onRowClick: (entry: LeaderboardEntry) => void
 }) {
   return (
     <motion.div
       initial={{ opacity: 0, x: -16 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: 0.3 + index * 0.035, ease: 'easeOut' }}
+      onClick={() => onRowClick(entry)}
       className={`
         flex items-center gap-3 rounded-2xl px-3.5 py-3 cursor-pointer
         transition-all duration-200 ease-out
@@ -245,6 +248,7 @@ export function LeaderboardScreen() {
 
   const [isLoading, setIsLoading] = useState(true)
   const [showDemoBanner, setShowDemoBanner] = useState(true)
+  const [previewProfile, setPreviewProfile] = useState<ProfilePreviewData | null>(null)
 
   const friendUserIds = new Set(friends.map((f) => f.userId))
   const pendingRequestUserIds = new Set(
@@ -259,6 +263,18 @@ export function LeaderboardScreen() {
       icon: '📨',
       style: { background: '#0f1628', color: '#fff', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.1)' },
     })
+  }
+
+  const handleRowClick = (entry: LeaderboardEntry) => {
+    if (entry.isCurrentUser) return
+    setPreviewProfile(
+      generateProfilePreview(entry.userId, entry.displayName, entry.avatarUrl, {
+        level: entry.level,
+        xp: entry.xp,
+        leagueTier: entry.leagueTier,
+        isCurrentUser: false,
+      })
+    )
   }
 
   useEffect(() => {
@@ -370,6 +386,7 @@ export function LeaderboardScreen() {
                   isFriend={friendUserIds.has(entry.userId)}
                   isPending={pendingRequestUserIds.has(entry.userId)}
                   onAddFriend={handleAddFriend}
+                  onRowClick={handleRowClick}
                 />
               ))}
             </div>
@@ -388,12 +405,26 @@ export function LeaderboardScreen() {
                   isFriend={false}
                   isPending={false}
                   onAddFriend={handleAddFriend}
+                  onRowClick={handleRowClick}
                 />
               </>
             )}
           </motion.div>
         </AnimatePresence>
       )}
+
+      {/* Profile Preview Modal */}
+      <ProfilePreviewModal
+        profile={previewProfile}
+        isOpen={!!previewProfile}
+        onClose={() => setPreviewProfile(null)}
+        showAddFriend={previewProfile ? !friendUserIds.has(previewProfile.userId) && !pendingRequestUserIds.has(previewProfile.userId) : false}
+        onAddFriend={(userId) => {
+          const entry = leaderboardEntries.find((e) => e.userId === userId)
+          if (entry) handleAddFriend(entry)
+          setPreviewProfile(null)
+        }}
+      />
     </div>
   )
 }

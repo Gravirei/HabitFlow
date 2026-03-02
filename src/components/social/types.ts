@@ -177,6 +177,43 @@ export interface DiscoverableUser {
   requestStatus: 'none' | 'pending' | 'friend'
 }
 
+// ─── Profile Preview ────────────────────────────────────────────────────
+
+export interface ProfilePreviewHabit {
+  name: string
+  streak: number
+  completionRate: number // 0-100
+  icon: string
+}
+
+export interface ProfilePreviewBadge {
+  name: string
+  icon: string
+  rarity: BadgeRarity
+}
+
+export interface ProfilePreviewData {
+  userId: string
+  displayName: string
+  avatarUrl: string
+  bio: string
+  level: number
+  xp: number
+  weeklyXP: number
+  leagueTier: LeagueTier
+  joinedAt: string // ISO date string
+  topHabits: ProfilePreviewHabit[]
+  badges: ProfilePreviewBadge[]
+  currentStreak: number
+  activeHabitsCount: number
+  todayCompleted: boolean
+  weeklyActivity: boolean[] // 7 booleans (Mon-Sun)
+  isCurrentUser: boolean
+  // Friend-only fields
+  mutualStreak?: number
+  lastActive?: string // ISO date string
+}
+
 // ─── Social Profile ─────────────────────────────────────────────────────────
 
 export interface SocialProfile {
