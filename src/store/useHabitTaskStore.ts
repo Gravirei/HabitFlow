@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
 import type { HabitTask } from '@/types/habitTask'
+import { getLocalToday, toLocalDateString } from '@/utils/dateUtils'
 
 interface HabitTaskStore {
   tasks: HabitTask[]
@@ -18,6 +19,9 @@ interface HabitTaskStore {
   
   // Reset tasks based on frequency
   resetTasksIfNeeded: (habitId: string, frequency: 'daily' | 'weekly' | 'monthly') => void
+  
+  // Batch reset all tasks for a new day (called by day-change detector)
+  resetAllTasksForNewDay: () => void
 }
 
 export const useHabitTaskStore = create<HabitTaskStore>()(
@@ -42,9 +46,9 @@ export const useHabitTaskStore = create<HabitTaskStore>()(
             if (task.id === id) {
               const updatedTask = { ...task, ...updates, updatedAt: new Date().toISOString() }
               
-              // If marking as completed, set completedDate to today
+              // If marking as completed, set completedDate (use provided date or default to today)
               if (updates.completed === true && !task.completed) {
-                updatedTask.completedDate = new Date().toISOString().split('T')[0]
+                updatedTask.completedDate = updates.completedDate || getLocalToday()
               }
               
               // If marking as uncompleted, clear completedDate
@@ -78,7 +82,7 @@ export const useHabitTaskStore = create<HabitTaskStore>()(
       },
 
       resetTasksIfNeeded: (habitId, frequency) => {
-        const today = new Date().toISOString().split('T')[0]
+        const today = getLocalToday()
         
         set((state) => ({
           tasks: state.tasks.map((task) => {
@@ -97,9 +101,11 @@ export const useHabitTaskStore = create<HabitTaskStore>()(
                 
                 // Get Monday of the week for both dates
                 const getMonday = (d: Date) => {
-                  const day = d.getDay()
-                  const diff = d.getDate() - day + (day === 0 ? -6 : 1)
-                  return new Date(d.setDate(diff)).toISOString().split('T')[0]
+                  const clone = new Date(d.getTime())
+                  const day = clone.getDay()
+                  const diff = clone.getDate() - day + (day === 0 ? -6 : 1)
+                  clone.setDate(diff)
+                  return toLocalDateString(clone)
                 }
                 
                 return getMonday(completedDate) !== getMonday(todayDate)
@@ -122,6 +128,25 @@ export const useHabitTaskStore = create<HabitTaskStore>()(
             }
             
             return task
+          }),
+        }))
+      },
+
+      resetAllTasksForNewDay: () => {
+        const today = getLocalToday()
+        
+        set((state) => ({
+          tasks: state.tasks.map((task) => {
+            // Only reset completed tasks from previous days
+            if (!task.completed || !task.completedDate) return task
+            if (task.completedDate === today) return task
+            
+            return {
+              ...task,
+              completed: false,
+              completedDate: undefined,
+              updatedAt: new Date().toISOString(),
+            }
           }),
         }))
       },

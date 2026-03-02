@@ -18,6 +18,7 @@ import type {
   LeagueMember,
   SocialBadge,
   SocialProfile,
+  DiscoverableUser,
 } from './types'
 import {
   XP_VALUES,
@@ -25,6 +26,7 @@ import {
   STREAK_BONUS_CAP,
   getLevelForXP,
   SOCIAL_BADGE_DEFINITIONS,
+  DEMO_NAMES,
   generateDemoLeaderboard,
   generateDemoFriends,
   generateDemoLeagueMembers,
@@ -95,6 +97,20 @@ interface SocialState {
   markNudgeRead: (nudgeId: string) => void
   getUnreadNudges: () => Nudge[]
   loadDemoFriends: () => void
+
+  // ─── Friend Discovery & Requests ─────────────────────────────────────
+
+  getDiscoverableUsers: () => DiscoverableUser[]
+  getSuggestedFriends: () => DiscoverableUser[]
+  searchUsers: (query: string) => DiscoverableUser[]
+  dismissSuggestion: (userId: string) => void
+  getInviteCode: () => string
+  redeemInviteCode: (code: string) => boolean
+  getIncomingRequests: () => FriendRequest[]
+  getOutgoingRequests: () => FriendRequest[]
+  getPendingRequestCount: () => number
+  simulateIncomingRequests: () => void
+  dismissedSuggestions: string[]
 
   // ─── League Actions ─────────────────────────────────────────────────────
 
@@ -174,6 +190,7 @@ export const useSocialStore = create<SocialState>()(
       shouldShowDailySummary: false,
       hasSeenSocialOnboarding: false,
       nudgeCooldowns: {},
+      dismissedSuggestions: [],
 
       // ─── XP Actions ───────────────────────────────────────────────────
 
@@ -652,6 +669,146 @@ export const useSocialStore = create<SocialState>()(
 
       // ─── Reset ────────────────────────────────────────────────────────
 
+      // ─── Friend Discovery & Requests ────────────────────────────────────
+
+      getDiscoverableUsers: () => {
+        const { friends, friendRequests } = get()
+        const friendIds = new Set(friends.map((f) => f.userId))
+        const outgoingRequestIds = new Set(
+          friendRequests
+            .filter((r) => r.fromUserId === 'current-user' && r.status === 'pending')
+            .map((r) => r.toUserId)
+        )
+        const tiers: LeagueTier[] = ['bronze', 'silver', 'gold', 'platinum', 'diamond']
+
+        return DEMO_NAMES.slice(8).map((name, i): DiscoverableUser => {
+          const userId = `discover-${i}`
+          return {
+            userId,
+            displayName: name,
+            avatarUrl: `/images/avatars/avatar${((i + 8) % 15) + 1}.jpg`,
+            level: Math.floor(Math.random() * 30) + 1,
+            leagueTier: tiers[Math.floor(Math.random() * tiers.length)],
+            requestStatus: friendIds.has(userId)
+              ? 'friend'
+              : outgoingRequestIds.has(userId)
+                ? 'pending'
+                : 'none',
+          }
+        })
+      },
+
+      getSuggestedFriends: () => {
+        const discoverable = get().getDiscoverableUsers()
+        const dismissed = new Set(get().dismissedSuggestions)
+        const reasons = [
+          'Similar streak pattern',
+          'Same league tier',
+          'Active this week',
+          'Popular in your league',
+          'Joined recently',
+        ]
+        return discoverable
+          .filter((u) => u.requestStatus === 'none' && !dismissed.has(u.userId))
+          .slice(0, 5)
+          .map((u, i) => ({ ...u, suggestionReason: reasons[i % reasons.length] }))
+      },
+
+      searchUsers: (query) => {
+        if (!query.trim()) return []
+        const discoverable = get().getDiscoverableUsers()
+        const q = query.toLowerCase()
+        return discoverable.filter((u) =>
+          u.displayName.toLowerCase().includes(q)
+        )
+      },
+
+      dismissSuggestion: (userId) => {
+        set((state) => ({
+          dismissedSuggestions: [...state.dismissedSuggestions, userId],
+        }))
+      },
+
+      getInviteCode: () => {
+        // Deterministic code based on store existence
+        return 'HABIT-X7K9-2M4P'
+      },
+
+      redeemInviteCode: (code) => {
+        const trimmed = code.trim().toUpperCase()
+        if (!/^HABIT-[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(trimmed)) return false
+
+        // Generate a friend from unused names
+        const discoverable = get().getDiscoverableUsers()
+        const available = discoverable.filter((u) => u.requestStatus === 'none')
+        if (available.length === 0) return false
+
+        // Pick a pseudo-random user based on the code
+        const codeHash = trimmed.split('').reduce((a, c) => a + c.charCodeAt(0), 0)
+        const user = available[codeHash % available.length]
+
+        // Create the friend directly (instant add via code)
+        const newFriend: Friend = {
+          userId: user.userId,
+          displayName: user.displayName,
+          avatarUrl: user.avatarUrl,
+          level: user.level,
+          xp: Math.floor(Math.random() * 3000),
+          mutualStreak: 0,
+          lastActive: new Date().toISOString(),
+          status: 'active',
+          leagueTier: user.leagueTier,
+          todayCompleted: Math.random() > 0.5,
+          friendSince: new Date().toISOString(),
+        }
+
+        set((state) => ({
+          friends: [...state.friends, newFriend],
+        }))
+        return true
+      },
+
+      getIncomingRequests: () => {
+        return get().friendRequests.filter(
+          (r) => r.toUserId === 'current-user' && r.status === 'pending'
+        )
+      },
+
+      getOutgoingRequests: () => {
+        return get().friendRequests.filter(
+          (r) => r.fromUserId === 'current-user' && r.status === 'pending'
+        )
+      },
+
+      getPendingRequestCount: () => {
+        return get().getIncomingRequests().length
+      },
+
+      simulateIncomingRequests: () => {
+        // Only simulate once — skip if incoming requests already exist
+        const existing = get().getIncomingRequests()
+        if (existing.length > 0) return
+
+        const discoverable = get().getDiscoverableUsers()
+        const available = discoverable.filter((u) => u.requestStatus === 'none')
+        const toAdd = available.slice(0, 2)
+
+        const requests: FriendRequest[] = toAdd.map((u) => ({
+          id: generateId(),
+          fromUserId: u.userId,
+          fromDisplayName: u.displayName,
+          fromAvatarUrl: u.avatarUrl,
+          fromLevel: u.level,
+          toUserId: 'current-user',
+          status: 'pending' as const,
+          sentAt: new Date(Date.now() - Math.floor(Math.random() * 7200000)).toISOString(),
+        }))
+
+        set((state) => ({
+          friendRequests: [...state.friendRequests, ...requests],
+        }))
+      },
+
       resetSocial: () => {
         set({
           totalXP: 0,
@@ -677,6 +834,7 @@ export const useSocialStore = create<SocialState>()(
           shouldShowDailySummary: false,
           hasSeenSocialOnboarding: false,
           nudgeCooldowns: {},
+          dismissedSuggestions: [],
         })
       },
     }),

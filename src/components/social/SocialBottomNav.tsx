@@ -23,8 +23,8 @@ interface SocialBottomNavProps {
 }
 
 export function SocialBottomNav({ activeTab, onChange }: SocialBottomNavProps) {
-  const { getUnreadNudges } = useSocialStore()
-  const unreadCount = getUnreadNudges().length
+  const { getUnreadNudges, getPendingRequestCount } = useSocialStore()
+  const unreadCount = getUnreadNudges().length + getPendingRequestCount()
   const totalUnread = useMessagingStore((s) => s.totalUnread)
 
   return (

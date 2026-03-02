@@ -112,7 +112,6 @@ export function ConversationScreen({ conversationId, onBack }: ConversationScree
     sendHabitCard,
     sendBadgeCard,
     sendNudgeMessage,
-    markConversationRead,
     shareTrayOpen,
     toggleShareTray,
     sendTyping,
@@ -136,10 +135,9 @@ export function ConversationScreen({ conversationId, onBack }: ConversationScree
   const grouped = useMemo(() => groupMessages(conversationMessages), [conversationMessages])
 
   useEffect(() => {
-    setActiveConversation(conversationId)
-    markConversationRead(conversationId)
+    setActiveConversation(conversationId) // Also calls markConversationRead internally
     return () => setActiveConversation(null)
-  }, [conversationId, setActiveConversation, markConversationRead])
+  }, [conversationId, setActiveConversation])
 
   useEffect(() => {
     if (!showScrollFab) {
@@ -161,11 +159,15 @@ export function ConversationScreen({ conversationId, onBack }: ConversationScree
     if (distanceFromBottom <= 10) setUnreadBelow(0)
   }, [hasMore, isLoadingMessages, conversationId, loadMoreMessages])
 
+  const prevMessageCountRef = useRef(conversationMessages.length)
   useEffect(() => {
-    if (showScrollFab && conversationMessages.length > 0) {
-      const last = conversationMessages[conversationMessages.length - 1]
-      if (last.senderId !== CURRENT_USER_ID) setUnreadBelow((p) => p + 1)
+    if (showScrollFab && conversationMessages.length > prevMessageCountRef.current) {
+      // Count all new messages from other users since last check
+      const newMessages = conversationMessages.slice(prevMessageCountRef.current)
+      const newFromOthers = newMessages.filter((m) => m.senderId !== CURRENT_USER_ID).length
+      if (newFromOthers > 0) setUnreadBelow((p) => p + newFromOthers)
     }
+    prevMessageCountRef.current = conversationMessages.length
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conversationMessages.length])
 
@@ -394,10 +396,7 @@ export function ConversationScreen({ conversationId, onBack }: ConversationScree
         onSend={handleSendText}
         onShareHabit={(habitId) => sendHabitCard(conversationId, habitId)}
         onShareBadge={(badgeId) => sendBadgeCard(conversationId, badgeId)}
-        onSendNudge={() => {
-          const other = conversation.memberIds.find((id) => id !== CURRENT_USER_ID)
-          if (other) sendNudgeMessage(conversationId, other)
-        }}
+        onSendNudge={handleNudge}
         onTyping={(isTyping) => sendTyping(conversationId, isTyping)}
         shareTrayOpen={shareTrayOpen}
         onToggleShareTray={toggleShareTray}

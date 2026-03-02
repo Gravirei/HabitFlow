@@ -42,12 +42,24 @@ import { ShareApp } from '@/pages/sideNav/ShareApp'
 import { PremiumFeatures } from '@/pages/sideNav/PremiumFeatures'
 import { Integrations } from '@/pages/sideNav/Integrations'
 import { Social } from '@/pages/Social'
+import { useDayChangeDetector } from '@/hooks/useDayChangeDetector'
+import { useHabitTaskStore } from '@/store/useHabitTaskStore'
 // ARCHIVED: ThemeProvider import removed (theme module archived)
+
+/** Detects midnight rollover and resets all habit tasks for the new day */
+function DayChangeDetector() {
+  const resetAllTasksForNewDay = useHabitTaskStore((s) => s.resetAllTasksForNewDay)
+  useDayChangeDetector(resetAllTasksForNewDay)
+  return null
+}
 
 function App() {
   return (
     <ErrorBoundary>
       <BrowserRouter>
+        {/* Day change detection — resets habit tasks at midnight */}
+        <DayChangeDetector />
+
         {/* Onboarding Modal - Shows on first visit */}
         <OnboardingModal />
 

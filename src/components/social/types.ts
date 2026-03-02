@@ -165,6 +165,18 @@ export interface SocialBadge {
   unlocked: boolean
 }
 
+// ─── Discoverable Users ─────────────────────────────────────────────────
+
+export interface DiscoverableUser {
+  userId: string
+  displayName: string
+  avatarUrl: string
+  level: number
+  leagueTier: LeagueTier
+  suggestionReason?: string
+  requestStatus: 'none' | 'pending' | 'friend'
+}
+
 // ─── Social Profile ─────────────────────────────────────────────────────────
 
 export interface SocialProfile {

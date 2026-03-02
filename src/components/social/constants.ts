@@ -504,7 +504,7 @@ export const SOCIAL_BADGE_DEFINITIONS: Omit<SocialBadge, 'earnedAt' | 'unlocked'
 
 // ─── Mock/Demo Data Generators ──────────────────────────────────────────────
 
-const DEMO_NAMES = [
+export const DEMO_NAMES = [
   'Sarah Chen', 'Marcus Rivera', 'Aisha Patel', 'Liam O\'Brien', 'Yuki Tanaka',
   'Zara Okafor', 'Noah Schmidt', 'Priya Sharma', 'Ethan Kim', 'Fatima Al-Hassan',
   'Oliver James', 'Isabella Santos', 'Ahmed Khan', 'Emma Wilson', 'David Park',

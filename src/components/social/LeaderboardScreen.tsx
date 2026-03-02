@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useSocialStore } from './socialStore'
 import { getLeagueTierColor } from './constants'
 import type { LeaderboardEntry, LeaderboardPeriod } from './types'
+import toast from 'react-hot-toast'
 
 // ─── Demo Data Banner ───────────────────────────────────────────────────────
 
@@ -124,7 +125,13 @@ function Podium({ entries }: { entries: LeaderboardEntry[] }) {
 
 // ─── List Row ───────────────────────────────────────────────────────────────
 
-function LeaderboardRow({ entry, index }: { entry: LeaderboardEntry; index: number }) {
+function LeaderboardRow({ entry, index, isFriend, isPending, onAddFriend }: {
+  entry: LeaderboardEntry
+  index: number
+  isFriend: boolean
+  isPending: boolean
+  onAddFriend: (entry: LeaderboardEntry) => void
+}) {
   return (
     <motion.div
       initial={{ opacity: 0, x: -16 }}
@@ -162,6 +169,31 @@ function LeaderboardRow({ entry, index }: { entry: LeaderboardEntry; index: numb
         </p>
         <p className="text-[10px] text-slate-500 font-medium">Level {entry.level}</p>
       </div>
+
+      {/* Add Friend / Status */}
+      {!entry.isCurrentUser && (
+        <div className="flex-shrink-0 mr-1">
+          {isFriend ? (
+            <span className="flex items-center gap-0.5 text-[10px] text-emerald-400 font-medium px-2 py-1 rounded-lg bg-emerald-400/10">
+              <span className="material-symbols-outlined text-xs" style={{ fontVariationSettings: "'FILL' 1" }}>group</span>
+              Friend
+            </span>
+          ) : isPending ? (
+            <span className="flex items-center gap-0.5 text-[10px] text-amber-400 font-medium px-2 py-1 rounded-lg bg-amber-400/10">
+              <span className="material-symbols-outlined text-xs">schedule</span>
+              Pending
+            </span>
+          ) : (
+            <button
+              onClick={(e) => { e.stopPropagation(); onAddFriend(entry) }}
+              className="flex items-center gap-0.5 text-[10px] font-semibold text-primary px-2 py-1 rounded-lg bg-primary/10 hover:bg-primary/20 transition-colors cursor-pointer"
+            >
+              <span className="material-symbols-outlined text-xs">person_add</span>
+              Add
+            </button>
+          )}
+        </div>
+      )}
 
       {/* XP + Change */}
       <div className="flex flex-col items-end gap-0.5 flex-shrink-0">
@@ -207,10 +239,27 @@ export function LeaderboardScreen() {
     setLeaderboardPeriod,
     refreshLeaderboard,
     friends,
+    friendRequests,
+    sendFriendRequest,
   } = useSocialStore()
 
   const [isLoading, setIsLoading] = useState(true)
   const [showDemoBanner, setShowDemoBanner] = useState(true)
+
+  const friendUserIds = new Set(friends.map((f) => f.userId))
+  const pendingRequestUserIds = new Set(
+    friendRequests
+      .filter((r) => r.fromUserId === 'current-user' && r.status === 'pending')
+      .map((r) => r.toUserId)
+  )
+
+  const handleAddFriend = (entry: LeaderboardEntry) => {
+    sendFriendRequest(entry.userId, entry.displayName, entry.avatarUrl)
+    toast(`Friend request sent to ${entry.displayName}!`, {
+      icon: '📨',
+      style: { background: '#0f1628', color: '#fff', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.1)' },
+    })
+  }
 
   useEffect(() => {
     setIsLoading(true)
@@ -314,7 +363,14 @@ export function LeaderboardScreen() {
             {/* Remaining entries (4–10) */}
             <div className="space-y-1.5">
               {rest.map((entry, i) => (
-                <LeaderboardRow key={entry.userId} entry={entry} index={i} />
+                <LeaderboardRow
+                  key={entry.userId}
+                  entry={entry}
+                  index={i}
+                  isFriend={friendUserIds.has(entry.userId)}
+                  isPending={pendingRequestUserIds.has(entry.userId)}
+                  onAddFriend={handleAddFriend}
+                />
               ))}
             </div>
 
@@ -326,7 +382,13 @@ export function LeaderboardScreen() {
                   <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">You</span>
                   <div className="flex-1 h-px bg-slate-700/40" />
                 </div>
-                <LeaderboardRow entry={currentUser} index={0} />
+                <LeaderboardRow
+                  entry={currentUser}
+                  index={0}
+                  isFriend={false}
+                  isPending={false}
+                  onAddFriend={handleAddFriend}
+                />
               </>
             )}
           </motion.div>

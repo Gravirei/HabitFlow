@@ -10,11 +10,12 @@ import { HabitNotesModal } from '@/components/categories/HabitNotesModal'
 import { HabitTasksModal } from '@/components/categories/HabitTasksModal'
 import { EditHabit } from '@/components/categories/EditHabit'
 import { ConfirmDialog } from '@/components/timer/settings/ConfirmDialog'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { format, isToday, isBefore } from 'date-fns'
 import { motion, AnimatePresence } from 'framer-motion'
 import { GreetingHero, HabitCard, HydrationCard, TaskCard, DateStrip } from '@/components/today'
 import { cn } from '@/utils/cn'
+import { shouldResetTaskForStartFresh } from '@/utils/habitResetUtils'
 import { createPortal } from 'react-dom'
 
 // ─── Mock tasks ───────────────────────────────────────────────────────────────
@@ -230,7 +231,7 @@ export function Today() {
   const navigate = useNavigate()
   const [isSideNavOpen, setIsSideNavOpen] = useState(false)
   const { habits, toggleHabitCompletion, isHabitCompletedOnDate } = useHabitStore()
-  const { getTaskCount, getTasksByHabitId, updateTask } = useHabitTaskStore()
+  const { getTaskCount, getTasksByHabitId, updateTask, resetTasksIfNeeded } = useHabitTaskStore()
   const [selectedDate, setSelectedDate] = useState(new Date())
   const [direction, setDirection] = useState(0)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
@@ -342,16 +343,17 @@ export function Today() {
     setConfirmDialogState({ isOpen: false, type: null, habitId: null })
   }
 
-  // Confirm start fresh - unmark habit and reset all tasks
+  // Confirm start fresh - unmark habit and reset tasks for current period only
   const handleConfirmStartFresh = () => {
     if (confirmDialogState.habitId) {
+      const habit = habits.find((h) => h.id === confirmDialogState.habitId)
       // Unmark habit
       toggleHabitCompletion(confirmDialogState.habitId, formattedDate)
 
-      // Unmark all tasks for this habit
+      // Unmark tasks for the current period (frequency-aware)
       const habitTasksForHabit = getTasksByHabitId(confirmDialogState.habitId)
       habitTasksForHabit.forEach((ht) => {
-        if (ht.completed) {
+        if (habit && shouldResetTaskForStartFresh(ht, habit.frequency, formattedDate)) {
           updateTask(ht.id, { completed: false })
         }
       })
@@ -363,7 +365,10 @@ export function Today() {
   const handleTaskToggle = (taskId: string) => {
     const task = getTasksByHabitId(selectedHabitId || '').find((t) => t.id === taskId)
     if (task) {
-      updateTask(taskId, { completed: !task.completed })
+      updateTask(taskId, {
+        completed: !task.completed,
+        completedDate: !task.completed ? formattedDate : undefined,
+      })
     }
   }
 
@@ -438,6 +443,14 @@ export function Today() {
       if (!a.pinned && b.pinned) return 1
       return 0
     })
+
+  // Reset habit tasks when page mounts or selected date changes
+  useEffect(() => {
+    filteredHabits.forEach((habit) => {
+      resetTasksIfNeeded(habit.id, habit.frequency)
+    })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formattedDate])
 
   const filteredTasks = tasks.filter(t =>
     t.text.toLowerCase().includes(searchQuery.toLowerCase())

@@ -275,7 +275,9 @@ export const useHabitStore = create<HabitState>()(
             habit.id === habitId
               ? {
                   ...habit,
-                  hiddenDates: [...(habit.hiddenDates || []), date],
+                  hiddenDates: (habit.hiddenDates || []).includes(date)
+                    ? habit.hiddenDates
+                    : [...(habit.hiddenDates || []), date],
                 }
               : habit
           ),

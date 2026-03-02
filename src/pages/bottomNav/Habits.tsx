@@ -18,13 +18,15 @@ import { SideNav } from '@/components/SideNav'
 import { ConfirmDialog } from '@/components/timer/settings/ConfirmDialog'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Habit } from '@/types/habit'
+import { shouldResetTaskForStartFresh } from '@/utils/habitResetUtils'
+import { getLocalToday, toLocalDateString } from '@/utils/dateUtils'
 import clsx from 'clsx'
 
 /* ─────────────────────────────────────────────
    Helpers
    ───────────────────────────────────────────── */
 
-const today = () => new Date().toISOString().split('T')[0]
+const today = () => getLocalToday()
 
 const WEEKDAYS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'] as const
 const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] as const
@@ -127,7 +129,7 @@ function getLast7Days(): string[] {
   return Array.from({ length: 7 }, (_, i) => {
     const d = new Date(now)
     d.setDate(now.getDate() + mondayOffset + i)
-    return d.toISOString().split('T')[0]
+    return toLocalDateString(d)
   })
 }
 
@@ -250,15 +252,16 @@ export function Habits() {
 
   const handleConfirmStartFresh = () => {
     if (confirmDialogState.habitId) {
+      const habit = habits.find((h) => h.id === confirmDialogState.habitId)
       // Unmark habit
       toggleHabitCompletion(confirmDialogState.habitId)
 
-      // Unmark all tasks for this habit
+      // Unmark tasks for the current period only (frequency-aware)
       const habitTasksForHabit = habitTasks.filter(
         (ht) => ht.habitId === confirmDialogState.habitId
       )
       habitTasksForHabit.forEach((ht) => {
-        if (ht.completed) {
+        if (habit && shouldResetTaskForStartFresh(ht, habit.frequency, todayDate)) {
           updateTask(ht.id, { completed: false })
         }
       })
@@ -335,10 +338,10 @@ export function Habits() {
         // Unmark the habit
         toggleHabitCompletion(habit.id)
         
-        // Unmark all tasks for this habit
+        // Unmark tasks for the current period only (frequency-aware)
         const tasksForHabit = habitTasks.filter((t) => t.habitId === habit.id)
         tasksForHabit.forEach((task) => {
-          if (task.completed) {
+          if (shouldResetTaskForStartFresh(task, habit.frequency, todayDate)) {
             updateTask(task.id, { completed: false })
           }
         })
@@ -1592,7 +1595,7 @@ function HabitCard({
 
   // Calculate progress based on tasks or habit completion
   const calculateProgress = () => {
-    const today = new Date().toISOString().split('T')[0]
+    const today = getLocalToday()
     
     if (taskCount === 0) {
       // No tasks: binary completion (0 or 1)
@@ -1613,9 +1616,11 @@ function HabitCard({
           const taskDate = new Date(t.completedDate)
           const todayDate = new Date(today)
           const getMonday = (d: Date) => {
-            const day = d.getDay()
-            const diff = d.getDate() - day + (day === 0 ? -6 : 1)
-            return new Date(d.setDate(diff)).toISOString().split('T')[0]
+            const clone = new Date(d.getTime())
+            const day = clone.getDay()
+            const diff = clone.getDate() - day + (day === 0 ? -6 : 1)
+            clone.setDate(diff)
+            return toLocalDateString(clone)
           }
           return getMonday(taskDate) === getMonday(todayDate)
         } else if (habit.frequency === 'monthly') {

@@ -626,7 +626,8 @@ export const useMessagingStore = create<MessagingState>()(
       },
 
       sendTextMessage: async (conversationId, text) => {
-        if (text.trim() === '') return
+        const trimmedText = text.trim().slice(0, MESSAGING_LIMITS.MAX_MESSAGE_LENGTH)
+        if (trimmedText === '') return
 
         const now = new Date().toISOString()
         const messageId = generateId()
@@ -643,7 +644,7 @@ export const useMessagingStore = create<MessagingState>()(
           senderName: myName,
           senderAvatarUrl: myAvatar,
           type: 'text' as MessageType,
-          text,
+          text: trimmedText,
           reactions: [],
           deliveryStatus: 'sending' as DeliveryStatus,
           createdAt: now,
@@ -682,6 +683,7 @@ export const useMessagingStore = create<MessagingState>()(
       },
 
       sendHabitCard: async (conversationId, habitId) => {
+        if (!habitId) return // Guard: don't send with empty ID
         const now = new Date().toISOString()
         const messageId = generateId()
         const { currentUserId } = get()
@@ -748,6 +750,7 @@ export const useMessagingStore = create<MessagingState>()(
       },
 
       sendBadgeCard: async (conversationId, badgeId) => {
+        if (!badgeId) return // Guard: don't send with empty ID
         const now = new Date().toISOString()
         const messageId = generateId()
         const { currentUserId } = get()
@@ -924,6 +927,7 @@ export const useMessagingStore = create<MessagingState>()(
       },
 
       markConversationRead: async (conversationId) => {
+        const myId = get().currentUserId ?? 'current-user'
         set((state) => ({
           conversations: state.conversations.map((c) =>
             c.id === conversationId ? { ...c, unreadCount: 0 } : c
@@ -931,8 +935,9 @@ export const useMessagingStore = create<MessagingState>()(
           messages: {
             ...state.messages,
             [conversationId]: (state.messages[conversationId] ?? []).map((m) =>
-              // Upgrade both 'sent' and 'delivered' to 'read'
-              m.deliveryStatus === 'delivered' || m.deliveryStatus === 'sent'
+              // Only mark OTHER users' messages as 'read' (not our own)
+              m.senderId !== myId &&
+              (m.deliveryStatus === 'delivered' || m.deliveryStatus === 'sent')
                 ? { ...m, deliveryStatus: 'read' as DeliveryStatus }
                 : m
             ),
@@ -1053,6 +1058,12 @@ export const useMessagingStore = create<MessagingState>()(
       onMessageReceived: (conversationId, message) => {
         set((state) => {
           const existingMessages = state.messages[conversationId] ?? []
+
+          // Dedup: skip if message with same ID already exists
+          if (existingMessages.some((m) => m.id === message.id)) {
+            return state
+          }
+
           const updatedMessages = [...existingMessages, message]
 
           // Update conversation: lastMessage, updatedAt, unread
@@ -1340,20 +1351,32 @@ export const useMessagingStore = create<MessagingState>()(
     {
       name: 'messaging-store',
       // Exclude ephemeral/runtime-only state from localStorage persistence
-      partialize: (state) => ({
-        conversations: state.conversations,
-        activeConversationId: state.activeConversationId,
-        conversationFilter: state.conversationFilter,
-        messages: state.messages,
-        totalUnread: state.totalUnread,
-        onlineUsers: state.onlineUsers,
-        currentUserId: state.currentUserId,
-        hasMoreMessages: state.hasMoreMessages,
-        // Deliberately excluded (ephemeral):
-        //   typingUsers       — cleared on every mount
-        //   isLoadingMessages — transient loading flag
-        //   shareTrayOpen     — UI-only toggle, always starts closed
-      }),
+      partialize: (state) => {
+        // Cap messages per conversation to prevent unbounded localStorage growth
+        const MAX_PERSISTED_MESSAGES = 200
+        const cappedMessages: typeof state.messages = {}
+        for (const convId of Object.keys(state.messages)) {
+          const msgs = state.messages[convId]
+          cappedMessages[convId] = msgs.length > MAX_PERSISTED_MESSAGES
+            ? msgs.slice(-MAX_PERSISTED_MESSAGES)
+            : msgs
+        }
+
+        return {
+          conversations: state.conversations,
+          activeConversationId: state.activeConversationId,
+          conversationFilter: state.conversationFilter,
+          messages: cappedMessages,
+          totalUnread: state.totalUnread,
+          onlineUsers: state.onlineUsers,
+          currentUserId: state.currentUserId,
+          hasMoreMessages: state.hasMoreMessages,
+          // Deliberately excluded (ephemeral):
+          //   typingUsers       — cleared on every mount
+          //   isLoadingMessages — transient loading flag
+          //   shareTrayOpen     — UI-only toggle, always starts closed
+        }
+      },
       version: 3, // Bumped to refresh avatar URLs to local paths
     }
   )

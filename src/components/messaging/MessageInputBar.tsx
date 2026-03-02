@@ -6,7 +6,9 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
-import { MESSAGING_ANIMATIONS } from './constants'
+import { useHabitStore } from '@/store/useHabitStore'
+import { useSocialStore } from '../social/socialStore'
+import { MESSAGING_ANIMATIONS, MESSAGING_LIMITS } from './constants'
 
 interface MessageInputBarProps {
   recipientName: string
@@ -34,6 +36,10 @@ export function MessageInputBar({
   const textareaRef = useRef<HTMLTextAreaElement | null>(null)
   const isTypingRef = useRef(false)
 
+  // Get available habits and badges for sharing
+  const habits = useHabitStore((s) => s.habits)
+  const badges = useSocialStore((s) => s.badges)
+
   const canSend = text.trim().length > 0
 
   const trayAnim = reduced
@@ -59,7 +65,7 @@ export function MessageInputBar({
   }, [canSend])
 
   const send = () => {
-    const t = text.trim()
+    const t = text.trim().slice(0, MESSAGING_LIMITS.MAX_MESSAGE_LENGTH)
     if (!t) return
     // Stop typing indicator before sending
     if (isTypingRef.current) {
@@ -94,7 +100,11 @@ export function MessageInputBar({
           >
             <button
               type="button"
-              onClick={() => onShareHabit('')}
+              onClick={() => {
+                const completedHabits = habits.filter((h) => h.completedDates.length > 0)
+                const habitToShare = completedHabits[0] ?? habits[0]
+                if (habitToShare) onShareHabit(habitToShare.id)
+              }}
               className="group flex flex-col items-center justify-center gap-1.5 rounded-2xl border border-white/[0.06] bg-transparent p-3 text-left transition-all duration-200 hover:bg-white/[0.05] hover:border-teal-300/30 cursor-pointer"
               aria-label="Share habit completion"
             >
@@ -111,7 +121,11 @@ export function MessageInputBar({
 
             <button
               type="button"
-              onClick={() => onShareBadge('')}
+              onClick={() => {
+                const unlockedBadges = badges.filter((b) => b.unlockedAt)
+                const badgeToShare = unlockedBadges[0] ?? badges[0]
+                if (badgeToShare) onShareBadge(badgeToShare.id)
+              }}
               className="group flex flex-col items-center justify-center gap-1.5 rounded-2xl border border-white/[0.06] bg-transparent p-3 transition-all duration-200 hover:bg-white/[0.05] hover:border-violet-300/30 cursor-pointer"
               aria-label="Share badge"
             >

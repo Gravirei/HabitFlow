@@ -10,6 +10,8 @@ import { getLeagueTierColor } from './constants'
 import type { Friend, FriendStatus } from './types'
 import toast from 'react-hot-toast'
 import { useMessagingStore } from '../messaging/messagingStore'
+import { AddFriendsModal } from './AddFriendsModal'
+import { FriendRequestInbox } from './FriendRequestInbox'
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -293,12 +295,17 @@ interface FriendsScreenProps {
 }
 
 export function FriendsScreen({ onNavigateToMessages }: FriendsScreenProps) {
-  const { friends, loadDemoFriends, sendNudge, removeFriend, canNudge, getNudgeCooldownRemaining } = useSocialStore()
-  const { createDirectConversation } = useMessagingStore()
+  const { friends, loadDemoFriends, sendNudge, removeFriend, canNudge, getNudgeCooldownRemaining, simulateIncomingRequests } = useSocialStore()
+  const { createDirectConversation, setActiveConversation } = useMessagingStore()
   const [filter, setFilter] = useState<'all' | 'active' | 'streak'>('all')
   const [search, setSearch] = useState('')
+  const [showAddFriends, setShowAddFriends] = useState(false)
 
-  useEffect(() => { loadDemoFriends() }, [])
+  useEffect(() => {
+    loadDemoFriends()
+    simulateIncomingRequests()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const filtered = friends
     .filter((f) => {
@@ -336,8 +343,9 @@ export function FriendsScreen({ onNavigateToMessages }: FriendsScreenProps) {
 
   const handleMessage = async (friendUserId: string) => {
     const conversationId = await createDirectConversation(friendUserId)
-    if (conversationId && onNavigateToMessages) {
-      onNavigateToMessages()
+    if (conversationId) {
+      setActiveConversation(conversationId)
+      onNavigateToMessages?.()
     }
   }
 
@@ -368,6 +376,18 @@ export function FriendsScreen({ onNavigateToMessages }: FriendsScreenProps) {
           </div>
         ))}
       </div>
+
+      {/* Add Friends button */}
+      <button
+        onClick={() => setShowAddFriends(true)}
+        className="w-full flex items-center justify-center gap-2 rounded-xl bg-primary/10 hover:bg-primary/20 py-2.5 text-[13px] font-semibold text-primary transition-colors cursor-pointer"
+      >
+        <span className="material-symbols-outlined text-lg">person_add</span>
+        Add Friends
+      </button>
+
+      {/* Friend Request Inbox */}
+      <FriendRequestInbox />
 
       {/* Search */}
       <div className="relative">
@@ -431,7 +451,10 @@ export function FriendsScreen({ onNavigateToMessages }: FriendsScreenProps) {
             </p>
           </div>
           {!search && (
-            <button className="flex items-center gap-1.5 rounded-xl bg-primary/10 px-4 py-2.5 text-[13px] font-semibold text-primary cursor-pointer hover:bg-primary/20 transition-colors duration-200">
+            <button
+              onClick={() => setShowAddFriends(true)}
+              className="flex items-center gap-1.5 rounded-xl bg-primary/10 px-4 py-2.5 text-[13px] font-semibold text-primary cursor-pointer hover:bg-primary/20 transition-colors duration-200"
+            >
               <span className="material-symbols-outlined text-lg">person_add</span>
               Add Friends
             </button>
@@ -453,6 +476,9 @@ export function FriendsScreen({ onNavigateToMessages }: FriendsScreenProps) {
           ))}
         </div>
       )}
+
+      {/* Add Friends Modal */}
+      <AddFriendsModal isOpen={showAddFriends} onClose={() => setShowAddFriends(false)} />
     </div>
   )
 }

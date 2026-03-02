@@ -11,10 +11,11 @@
  * quick-start checklist, and dismiss CTA.
  */
 
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { useSocialStore } from './socialStore'
+import { AddFriendsModal } from './AddFriendsModal'
 import toast from 'react-hot-toast'
 
 // ─── Feature Preview Card ───────────────────────────────────────────────────
@@ -81,6 +82,7 @@ export function SocialOnboarding() {
   const { dismissOnboarding } = useSocialStore()
   const navigate = useNavigate()
   const scrollRef = useRef<HTMLDivElement>(null)
+  const [showAddFriends, setShowAddFriends] = useState(false)
 
   const handleDismiss = () => {
     dismissOnboarding()
@@ -174,12 +176,7 @@ export function SocialOnboarding() {
           />
           <ChecklistItem
             label="Add your first friend"
-            onTap={() =>
-              toast('Coming soon!', {
-                icon: '🚀',
-                style: { background: '#1f2937', color: '#fff', borderRadius: '12px' },
-              })
-            }
+            onTap={() => setShowAddFriends(true)}
             delay={0.6}
           />
           <ChecklistItem
@@ -210,6 +207,9 @@ export function SocialOnboarding() {
       <p className="text-[11px] text-slate-500 text-center px-4 pb-4">
         Leaderboard and league previews use sample data until you connect with friends.
       </p>
+
+      {/* Add Friends Modal */}
+      <AddFriendsModal isOpen={showAddFriends} onClose={() => setShowAddFriends(false)} />
     </div>
   )
 }
