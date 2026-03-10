@@ -6,6 +6,7 @@ import { useProfileStore, getAvatarFallbackUrl } from '@/store/useProfileStore'
 export function EditProfile() {
   const navigate = useNavigate()
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const bannerInputRef = useRef<HTMLInputElement>(null)
 
   // Read persisted profile
   const profile = useProfileStore()
@@ -16,6 +17,12 @@ export function EditProfile() {
   const [email, setEmail] = useState(profile.email)
   const [bio, setBio] = useState(profile.bio)
   const [avatarPreview, setAvatarPreview] = useState<string | null>(profile.avatarUrl)
+  const [bannerPreview, setBannerPreview] = useState<string | null>(profile.bannerUrl)
+
+  // Hydrate avatar & banner from IndexedDB on mount
+  useEffect(() => {
+    profile.loadImages()
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Keep local state in sync if the store changes externally
   useEffect(() => {
@@ -24,7 +31,8 @@ export function EditProfile() {
     setEmail(profile.email)
     setBio(profile.bio)
     setAvatarPreview(profile.avatarUrl)
-  }, [profile.fullName, profile.username, profile.email, profile.bio, profile.avatarUrl])
+    setBannerPreview(profile.bannerUrl)
+  }, [profile.fullName, profile.username, profile.email, profile.bio, profile.avatarUrl, profile.bannerUrl])
 
   const displayAvatar = avatarPreview || getAvatarFallbackUrl(fullName)
 
@@ -32,38 +40,51 @@ export function EditProfile() {
     fileInputRef.current?.click()
   }
 
-  const handleFileSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-
-    // Validate file type
+  /** Validate and read an image file, returning a base64 data URL via callback. */
+  const processImageFile = (
+    file: File,
+    onSuccess: (base64: string) => void,
+    maxSizeMB = 5,
+  ) => {
     if (!file.type.startsWith('image/')) {
       toast.error('Please select an image file')
       return
     }
-
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('Image must be smaller than 5MB')
+    if (file.size > maxSizeMB * 1024 * 1024) {
+      toast.error(`Image must be smaller than ${maxSizeMB}MB`)
       return
     }
-
     const reader = new FileReader()
-    reader.onload = () => {
-      const base64 = reader.result as string
-      setAvatarPreview(base64)
-    }
-    reader.onerror = () => {
-      toast.error('Failed to read image file')
-    }
+    reader.onload = () => onSuccess(reader.result as string)
+    reader.onerror = () => toast.error('Failed to read image file')
     reader.readAsDataURL(file)
+  }
 
-    // Reset the input so the same file can be re-selected
+  const handleFileSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    processImageFile(file, setAvatarPreview)
     e.target.value = ''
   }
 
   const handleRemovePhoto = () => {
     setAvatarPreview(null)
+  }
+
+  // ── Banner handlers ──────────────────────────────────────────────────
+  const handleChangeBanner = () => {
+    bannerInputRef.current?.click()
+  }
+
+  const handleBannerSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    processImageFile(file, setBannerPreview, 8)
+    e.target.value = ''
+  }
+
+  const handleRemoveBanner = () => {
+    setBannerPreview(null)
   }
 
   const handleSave = () => {
@@ -82,6 +103,7 @@ export function EditProfile() {
       email: email.trim(),
       bio: bio.trim(),
       avatarUrl: avatarPreview,
+      bannerUrl: bannerPreview,
     })
 
     toast.success('Profile saved successfully!')
@@ -106,8 +128,79 @@ export function EditProfile() {
 
       {/* Scrollable Content */}
       <div className="flex flex-1 flex-col overflow-y-auto no-scrollbar">
-        {/* Hero Section with Profile Picture */}
-        <div className="relative flex flex-col items-center pt-6 sm:pt-8 pb-8 sm:pb-10 px-4 sm:px-6">
+        {/* ── Cover Banner ──────────────────────────────────────────── */}
+        <div className="relative w-full h-36 sm:h-44 md:h-52 lg:h-60 shrink-0 overflow-hidden">
+          {/* Banner image or default pattern */}
+          {bannerPreview ? (
+            <img
+              src={bannerPreview}
+              alt="Cover banner"
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+          ) : (
+            /* Default geometric dot-grid pattern */
+            <div className="absolute inset-0 bg-gradient-to-br from-slate-200 via-slate-100 to-slate-200 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+              <div
+                className="absolute inset-0 opacity-[0.35] dark:opacity-[0.18]"
+                style={{
+                  backgroundImage:
+                    'radial-gradient(circle, currentColor 1px, transparent 1px)',
+                  backgroundSize: '18px 18px',
+                  color: '#8b5cf6',
+                }}
+              />
+              {/* Subtle diagonal accent lines */}
+              <div
+                className="absolute inset-0 opacity-[0.06] dark:opacity-[0.05]"
+                style={{
+                  backgroundImage:
+                    'repeating-linear-gradient(135deg, transparent, transparent 40px, currentColor 40px, currentColor 41px)',
+                  color: '#a78bfa',
+                }}
+              />
+            </div>
+          )}
+
+          {/* Bottom fade into background */}
+          <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-slate-50 dark:from-slate-950 to-transparent" />
+
+          {/* Banner action buttons */}
+          <div className="absolute top-3 right-3 flex items-center gap-2">
+            {bannerPreview && (
+              <button
+                onClick={handleRemoveBanner}
+                className="flex h-8 items-center gap-1 rounded-full bg-black/50 px-3 text-white backdrop-blur-md hover:bg-black/70 active:scale-95 transition-all"
+                aria-label="Remove cover photo"
+              >
+                <span className="material-symbols-outlined text-[16px]">delete</span>
+                <span className="text-[11px] font-medium hidden sm:inline">Remove</span>
+              </button>
+            )}
+            <button
+              onClick={handleChangeBanner}
+              className="flex h-8 items-center gap-1 rounded-full bg-black/50 px-3 text-white backdrop-blur-md hover:bg-black/70 active:scale-95 transition-all"
+              aria-label="Change cover photo"
+            >
+              <span className="material-symbols-outlined text-[16px]">add_photo_alternate</span>
+              <span className="text-[11px] font-medium hidden sm:inline">
+                {bannerPreview ? 'Change' : 'Add Cover'}
+              </span>
+            </button>
+          </div>
+
+          {/* Hidden file input for banner upload */}
+          <input
+            ref={bannerInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleBannerSelected}
+            className="hidden"
+            aria-hidden="true"
+          />
+        </div>
+
+        {/* Hero Section with Profile Picture — overlaps the banner */}
+        <div className="relative flex flex-col items-center -mt-16 sm:-mt-18 pb-6 sm:pb-8 px-4 sm:px-6">
           <div className="relative group">
             <div className="absolute -inset-0.5 bg-gradient-to-tr from-violet-500 to-fuchsia-500 rounded-full opacity-75 blur group-hover:opacity-100 transition duration-500"></div>
             <div className="relative h-28 w-28 sm:h-32 sm:w-32 md:h-36 md:w-36 rounded-full p-1 bg-white dark:bg-slate-950">
