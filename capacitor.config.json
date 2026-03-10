@@ -1,0 +1,13 @@
+{
+  "appId": "com.habitflow.app",
+  "appName": "HabitFlow",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 0
+    }
+  }
+}

@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { Turnstile } from '@marsidev/react-turnstile'
 
 interface TurnstileWidgetProps {
@@ -6,12 +7,51 @@ interface TurnstileWidgetProps {
   onExpire?: () => void
 }
 
+/**
+ * Detects if running in a mobile app WebView (Capacitor/Cordova)
+ * Mobile apps don't need CAPTCHA - they have native security
+ */
+function isMobileApp(): boolean {
+  // Check for Capacitor (React Native / mobile)
+  if (typeof window !== 'undefined') {
+    // @ts-expect-error - Capacitor is available at runtime in mobile apps
+    if (window.Capacitor?.isNativePlatform?.()) {
+      return true
+    }
+    // Check for Cordova
+    // @ts-expect-error - Cordova is available at runtime in mobile apps
+    if (window.cordova) {
+      return true
+    }
+    // Check user agent for WebViews
+    const userAgent = navigator.userAgent || ''
+    if (/iPhone|iPad|iPod|Android.*Mobile/i.test(userAgent)) {
+      // Additional WebView check
+      const isWebView =
+        /wv|WebView/i.test(userAgent) ||
+        (/(iPhone|iPad|iPod)/i.test(userAgent) && !/Safari/i.test(userAgent))
+      if (isWebView) {
+        return true
+      }
+    }
+  }
+  return false
+}
+
 export function TurnstileWidget({ onSuccess, onError, onExpire }: TurnstileWidgetProps) {
   const siteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY
+  const forceDisable = import.meta.env.VITE_TURNSTILE_DISABLED === 'true'
 
-  // If no site key is configured, don't render anything
-  if (!siteKey) {
-    console.warn('Turnstile site key not configured. Add VITE_TURNSTILE_SITE_KEY to your .env file.')
+  // Skip Turnstile for mobile apps or when disabled
+  const isMobile = useMemo(() => isMobileApp(), [])
+
+  if (!siteKey || forceDisable || isMobile) {
+    // Auto-pass for mobile apps (no CAPTCHA needed)
+    if (isMobile && siteKey && !forceDisable) {
+      console.info('[Turnstile] Skipped - mobile app detected')
+    }
+    // Return null but still call onSuccess to allow form submission
+    // This lets the login flow continue without CAPTCHA
     return null
   }
 

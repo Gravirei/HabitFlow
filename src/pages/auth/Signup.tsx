@@ -39,6 +39,33 @@ const getStrengthText = (strength: number) => {
   return 'Strong'
 }
 
+/**
+ * Detects if running in a mobile app WebView (Capacitor/Cordova)
+ * Mobile apps don't need CAPTCHA - they have native security
+ */
+function isMobileApp(): boolean {
+  if (typeof window !== 'undefined') {
+    // @ts-expect-error - Capacitor is available at runtime in mobile apps
+    if (window.Capacitor?.isNativePlatform?.()) {
+      return true
+    }
+    // @ts-expect-error - Cordova is available at runtime in mobile apps
+    if (window.cordova) {
+      return true
+    }
+    const userAgent = navigator.userAgent || ''
+    if (/iPhone|iPad|iPod|Android.*Mobile/i.test(userAgent)) {
+      const isWebView =
+        /wv|WebView/i.test(userAgent) ||
+        (/(iPhone|iPad|iPod)/i.test(userAgent) && !/Safari/i.test(userAgent))
+      if (isWebView) {
+        return true
+      }
+    }
+  }
+  return false
+}
+
 export function Signup() {
   const navigate = useNavigate()
   const [username, setUsername] = useState('')
@@ -60,57 +87,65 @@ export function Signup() {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     // Reset errors
     setUsernameError('')
     setEmailError('')
     setPasswordError('')
     setConfirmPasswordError('')
-    
+
     // Validate fields
     let hasError = false
-    
+
     if (!username.trim()) {
       setUsernameError('Username is required')
       hasError = true
     }
-    
+
     if (!email.trim()) {
       setEmailError('Email is required')
       hasError = true
     }
-    
+
     if (!password.trim()) {
       setPasswordError('Password is required')
       hasError = true
     }
-    
+
     if (!confirmPassword.trim()) {
       setConfirmPasswordError('Please confirm your password')
       hasError = true
     }
-    
+
     if (hasError) {
       return
     }
-    
-    // Check if Turnstile is configured and token is required
+
+    // Check if Turnstile is configured and token is required (not needed for mobile)
     const turnstileSiteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY
-    if (turnstileSiteKey && !turnstileToken) {
+    const turnstileDisabled = import.meta.env.VITE_TURNSTILE_DISABLED === 'true'
+    const isMobile = isMobileApp()
+    const isTurnstileRequired = turnstileSiteKey && !turnstileDisabled && !isMobile
+
+    if (isTurnstileRequired && !turnstileToken) {
       setEmailError('Please complete the security check')
       return
     }
-    
+
     // Check if Supabase is configured
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
     const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
-    
+
     if (!supabaseUrl || !supabaseAnonKey) {
-      toast.error('Supabase is not configured. Please add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your .env file.')
-      console.error('Missing Supabase configuration. Check SUPABASE_SETUP.md for setup instructions.')
+      toast.error(
+        'Supabase is not configured. Please add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your .env file.'
+      )
+      console.error(
+        'Missing Supabase configuration. Check SUPABASE_SETUP.md for setup instructions.'
+      )
       return
     }
-    
+
     // Validation
     if (password !== confirmPassword) {
       setConfirmPasswordError('Passwords do not match')
@@ -212,58 +247,77 @@ export function Signup() {
 
   return (
     <div className="relative flex min-h-screen w-full bg-background-dark">
-
       {/* Back Button */}
       <button
         onClick={() => navigate('/welcome')}
-        className="absolute top-6 left-6 z-10 flex items-center gap-2 text-white/80 hover:text-white transition-colors"
+        className="absolute left-6 top-6 z-10 flex items-center gap-2 text-white/80 transition-colors hover:text-white"
       >
         <span className="material-symbols-outlined">arrow_back</span>
         <span className="text-sm font-medium">Back</span>
       </button>
 
       {/* Main Container */}
-      <div className="relative flex flex-col w-full max-w-md mx-auto px-6 py-12 justify-center">
+      <div className="relative mx-auto flex w-full max-w-md flex-col justify-center px-6 py-12">
         {/* Header */}
         <div className="mb-8 text-center">
           {/* Logo - matching Welcome page */}
-          <div className="inline-block mb-4">
-            <div className="relative w-20 h-20">
+          <div className="mb-4 inline-block">
+            <div className="relative h-20 w-20">
               <div className="absolute inset-1 flex items-center justify-center">
-                <svg className="overflow-visible w-full h-full" fill="none" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="50" cy="50" r="46" stroke="#13ec5b" strokeOpacity="0.2" strokeWidth="4"></circle>
-                  <path d="M 50 4 A 46 46 0 1 1 10.7 25.8" stroke="#13ec5b" strokeLinecap="round" strokeWidth="4" fill="none"></path>
+                <svg
+                  className="h-full w-full overflow-visible"
+                  fill="none"
+                  viewBox="0 0 100 100"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="46"
+                    stroke="#13ec5b"
+                    strokeOpacity="0.2"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    d="M 50 4 A 46 46 0 1 1 10.7 25.8"
+                    stroke="#13ec5b"
+                    strokeLinecap="round"
+                    strokeWidth="4"
+                    fill="none"
+                  ></path>
                 </svg>
               </div>
               <div className="absolute inset-0 flex items-center justify-center text-primary">
-                <span 
-                  className="material-symbols-outlined text-[#13ec5b]" 
-                  style={{ fontSize: '40px', fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 48" }}
+                <span
+                  className="material-symbols-outlined text-[#13ec5b]"
+                  style={{
+                    fontSize: '40px',
+                    fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 48",
+                  }}
                 >
                   trending_up
                 </span>
               </div>
             </div>
           </div>
-          
-          <h1 className="text-3xl font-bold text-white mb-2">
-            Create your account
-          </h1>
-          <p className="text-white/80">
-            Join thousands building better habits
-          </p>
+
+          <h1 className="mb-2 text-3xl font-bold text-white">Create your account</h1>
+          <p className="text-white/80">Join thousands building better habits</p>
         </div>
 
         {/* Form Card */}
-        <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-xl p-8 mb-6">
+        <div className="mb-6 rounded-3xl bg-white p-8 shadow-xl dark:bg-slate-800">
           <form onSubmit={handleSignup} className="space-y-5">
             {/* Username Input */}
             <div>
-              <label htmlFor="username" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+              <label
+                htmlFor="username"
+                className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300"
+              >
                 Username
               </label>
               <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400">
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
                   person
                 </span>
                 <input
@@ -280,15 +334,15 @@ export function Signup() {
                   className={`w-full rounded-xl border-2 ${
                     usernameError
                       ? 'border-red-500 bg-red-50 dark:bg-red-950/20'
-                      : focusedField === 'username' 
-                      ? 'border-slate-400 dark:border-slate-500 bg-white dark:bg-slate-800' 
-                      : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900'
-                  } pl-12 pr-4 py-3.5 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 transition-all focus:outline-none focus:ring-0`}
+                      : focusedField === 'username'
+                        ? 'border-slate-400 bg-white dark:border-slate-500 dark:bg-slate-800'
+                        : 'border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-900'
+                  } py-3.5 pl-12 pr-4 text-slate-900 placeholder-slate-400 transition-all focus:outline-none focus:ring-0 dark:text-white dark:placeholder-slate-500`}
                   disabled={isLoading}
                 />
               </div>
               {usernameError && (
-                <p className="mt-2 text-xs text-red-500 flex items-center gap-1">
+                <p className="mt-2 flex items-center gap-1 text-xs text-red-500">
                   <span className="material-symbols-outlined text-sm">error</span>
                   {usernameError}
                 </p>
@@ -297,11 +351,14 @@ export function Signup() {
 
             {/* Email Input */}
             <div>
-              <label htmlFor="email" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+              <label
+                htmlFor="email"
+                className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300"
+              >
                 Email address
               </label>
               <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400">
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
                   mail
                 </span>
                 <input
@@ -318,15 +375,15 @@ export function Signup() {
                   className={`w-full rounded-xl border-2 ${
                     emailError
                       ? 'border-red-500 bg-red-50 dark:bg-red-950/20'
-                      : focusedField === 'email' 
-                      ? 'border-slate-400 dark:border-slate-500 bg-white dark:bg-slate-800' 
-                      : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900'
-                  } pl-12 pr-4 py-3.5 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 transition-all focus:outline-none focus:ring-0`}
+                      : focusedField === 'email'
+                        ? 'border-slate-400 bg-white dark:border-slate-500 dark:bg-slate-800'
+                        : 'border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-900'
+                  } py-3.5 pl-12 pr-4 text-slate-900 placeholder-slate-400 transition-all focus:outline-none focus:ring-0 dark:text-white dark:placeholder-slate-500`}
                   disabled={isLoading}
                 />
               </div>
               {emailError && (
-                <p className="mt-2 text-xs text-red-500 flex items-center gap-1">
+                <p className="mt-2 flex items-center gap-1 text-xs text-red-500">
                   <span className="material-symbols-outlined text-sm">error</span>
                   {emailError}
                 </p>
@@ -335,11 +392,14 @@ export function Signup() {
 
             {/* Password Input */}
             <div>
-              <label htmlFor="password" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+              <label
+                htmlFor="password"
+                className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300"
+              >
                 Password
               </label>
               <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400">
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
                   lock
                 </span>
                 <input
@@ -356,16 +416,16 @@ export function Signup() {
                   className={`w-full rounded-xl border-2 ${
                     passwordError
                       ? 'border-red-500 bg-red-50 dark:bg-red-950/20'
-                      : focusedField === 'password' 
-                      ? 'border-slate-400 dark:border-slate-500 bg-white dark:bg-slate-800' 
-                      : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900'
-                  } pl-12 pr-12 py-3.5 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 transition-all focus:outline-none focus:ring-0`}
+                      : focusedField === 'password'
+                        ? 'border-slate-400 bg-white dark:border-slate-500 dark:bg-slate-800'
+                        : 'border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-900'
+                  } py-3.5 pl-12 pr-12 text-slate-900 placeholder-slate-400 transition-all focus:outline-none focus:ring-0 dark:text-white dark:placeholder-slate-500`}
                   disabled={isLoading}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 transition-colors hover:text-slate-600 dark:hover:text-slate-300"
                   disabled={isLoading}
                 >
                   <span className="material-symbols-outlined text-xl">
@@ -374,7 +434,7 @@ export function Signup() {
                 </button>
               </div>
               {passwordError && (
-                <p className="mt-2 text-xs text-red-500 flex items-center gap-1">
+                <p className="mt-2 flex items-center gap-1 text-xs text-red-500">
                   <span className="material-symbols-outlined text-sm">error</span>
                   {passwordError}
                 </p>
@@ -387,17 +447,22 @@ export function Signup() {
                     <span className="text-xs font-medium text-slate-600 dark:text-slate-400">
                       Password strength
                     </span>
-                    <span className={`text-xs font-semibold ${
-                      passwordStrength.strength < 40 ? 'text-red-500' :
-                      passwordStrength.strength < 60 ? 'text-orange-500' :
-                      passwordStrength.strength < 80 ? 'text-yellow-500' :
-                      'text-green-500'
-                    }`}>
+                    <span
+                      className={`text-xs font-semibold ${
+                        passwordStrength.strength < 40
+                          ? 'text-red-500'
+                          : passwordStrength.strength < 60
+                            ? 'text-orange-500'
+                            : passwordStrength.strength < 80
+                              ? 'text-yellow-500'
+                              : 'text-green-500'
+                      }`}
+                    >
                       {getStrengthText(passwordStrength.strength)}
                     </span>
                   </div>
-                  <div className="h-1.5 w-full bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                    <div 
+                  <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+                    <div
                       className={`h-full transition-all duration-300 ${getStrengthColor(passwordStrength.strength)}`}
                       style={{ width: `${passwordStrength.strength}%` }}
                     />
@@ -405,43 +470,69 @@ export function Signup() {
 
                   {/* Password Requirements */}
                   <div className="grid grid-cols-2 gap-2 pt-2">
-                    <div className={`flex items-center gap-1.5 text-xs ${
-                      passwordStrength.checks.length ? 'text-green-600 dark:text-green-400' : 'text-slate-400'
-                    }`}>
+                    <div
+                      className={`flex items-center gap-1.5 text-xs ${
+                        passwordStrength.checks.length
+                          ? 'text-green-600 dark:text-green-400'
+                          : 'text-slate-400'
+                      }`}
+                    >
                       <span className="material-symbols-outlined text-sm">
                         {passwordStrength.checks.length ? 'check_circle' : 'radio_button_unchecked'}
                       </span>
                       <span>8+ characters</span>
                     </div>
-                    <div className={`flex items-center gap-1.5 text-xs ${
-                      passwordStrength.checks.uppercase ? 'text-green-600 dark:text-green-400' : 'text-slate-400'
-                    }`}>
+                    <div
+                      className={`flex items-center gap-1.5 text-xs ${
+                        passwordStrength.checks.uppercase
+                          ? 'text-green-600 dark:text-green-400'
+                          : 'text-slate-400'
+                      }`}
+                    >
                       <span className="material-symbols-outlined text-sm">
-                        {passwordStrength.checks.uppercase ? 'check_circle' : 'radio_button_unchecked'}
+                        {passwordStrength.checks.uppercase
+                          ? 'check_circle'
+                          : 'radio_button_unchecked'}
                       </span>
                       <span>Uppercase</span>
                     </div>
-                    <div className={`flex items-center gap-1.5 text-xs ${
-                      passwordStrength.checks.lowercase ? 'text-green-600 dark:text-green-400' : 'text-slate-400'
-                    }`}>
+                    <div
+                      className={`flex items-center gap-1.5 text-xs ${
+                        passwordStrength.checks.lowercase
+                          ? 'text-green-600 dark:text-green-400'
+                          : 'text-slate-400'
+                      }`}
+                    >
                       <span className="material-symbols-outlined text-sm">
-                        {passwordStrength.checks.lowercase ? 'check_circle' : 'radio_button_unchecked'}
+                        {passwordStrength.checks.lowercase
+                          ? 'check_circle'
+                          : 'radio_button_unchecked'}
                       </span>
                       <span>Lowercase</span>
                     </div>
-                    <div className={`flex items-center gap-1.5 text-xs ${
-                      passwordStrength.checks.number ? 'text-green-600 dark:text-green-400' : 'text-slate-400'
-                    }`}>
+                    <div
+                      className={`flex items-center gap-1.5 text-xs ${
+                        passwordStrength.checks.number
+                          ? 'text-green-600 dark:text-green-400'
+                          : 'text-slate-400'
+                      }`}
+                    >
                       <span className="material-symbols-outlined text-sm">
                         {passwordStrength.checks.number ? 'check_circle' : 'radio_button_unchecked'}
                       </span>
                       <span>Number</span>
                     </div>
-                    <div className={`flex items-center gap-1.5 text-xs col-span-2 ${
-                      passwordStrength.checks.special ? 'text-green-600 dark:text-green-400' : 'text-slate-400'
-                    }`}>
+                    <div
+                      className={`col-span-2 flex items-center gap-1.5 text-xs ${
+                        passwordStrength.checks.special
+                          ? 'text-green-600 dark:text-green-400'
+                          : 'text-slate-400'
+                      }`}
+                    >
                       <span className="material-symbols-outlined text-sm">
-                        {passwordStrength.checks.special ? 'check_circle' : 'radio_button_unchecked'}
+                        {passwordStrength.checks.special
+                          ? 'check_circle'
+                          : 'radio_button_unchecked'}
                       </span>
                       <span>Special character (!@#$%...)</span>
                     </div>
@@ -452,11 +543,14 @@ export function Signup() {
 
             {/* Confirm Password Input */}
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+              <label
+                htmlFor="confirmPassword"
+                className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300"
+              >
                 Confirm Password
               </label>
               <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400">
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
                   check_circle
                 </span>
                 <input
@@ -473,20 +567,20 @@ export function Signup() {
                   className={`w-full rounded-xl border-2 ${
                     confirmPasswordError
                       ? 'border-red-500 bg-red-50 dark:bg-red-950/20'
-                      : focusedField === 'confirmPassword' 
-                      ? 'border-slate-400 dark:border-slate-500 bg-white dark:bg-slate-800' 
-                      : confirmPassword && password === confirmPassword
-                      ? 'border-green-500 bg-green-50 dark:bg-green-950/20'
-                      : confirmPassword && password !== confirmPassword
-                      ? 'border-red-500 bg-red-50 dark:bg-red-950/20'
-                      : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900'
-                  } pl-12 pr-12 py-3.5 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 transition-all focus:outline-none focus:ring-0`}
+                      : focusedField === 'confirmPassword'
+                        ? 'border-slate-400 bg-white dark:border-slate-500 dark:bg-slate-800'
+                        : confirmPassword && password === confirmPassword
+                          ? 'border-green-500 bg-green-50 dark:bg-green-950/20'
+                          : confirmPassword && password !== confirmPassword
+                            ? 'border-red-500 bg-red-50 dark:bg-red-950/20'
+                            : 'border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-900'
+                  } py-3.5 pl-12 pr-12 text-slate-900 placeholder-slate-400 transition-all focus:outline-none focus:ring-0 dark:text-white dark:placeholder-slate-500`}
                   disabled={isLoading}
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 transition-colors hover:text-slate-600 dark:hover:text-slate-300"
                   disabled={isLoading}
                 >
                   <span className="material-symbols-outlined text-xl">
@@ -495,19 +589,19 @@ export function Signup() {
                 </button>
               </div>
               {confirmPasswordError && (
-                <p className="mt-2 text-xs text-red-500 flex items-center gap-1">
+                <p className="mt-2 flex items-center gap-1 text-xs text-red-500">
                   <span className="material-symbols-outlined text-sm">error</span>
                   {confirmPasswordError}
                 </p>
               )}
               {!confirmPasswordError && confirmPassword && password !== confirmPassword && (
-                <p className="mt-2 text-xs text-red-500 flex items-center gap-1">
+                <p className="mt-2 flex items-center gap-1 text-xs text-red-500">
                   <span className="material-symbols-outlined text-sm">error</span>
                   Passwords do not match
                 </p>
               )}
               {!confirmPasswordError && confirmPassword && password === confirmPassword && (
-                <p className="mt-2 text-xs text-green-600 dark:text-green-400 flex items-center gap-1">
+                <p className="mt-2 flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
                   <span className="material-symbols-outlined text-sm">check_circle</span>
                   Passwords match
                 </p>
@@ -515,24 +609,22 @@ export function Signup() {
             </div>
 
             {/* Remember this device checkbox */}
-            <label className="flex items-center gap-2 cursor-pointer group">
+            <label className="group flex cursor-pointer items-center gap-2">
               <div className="relative">
                 <input
                   type="checkbox"
                   checked={rememberDevice}
                   onChange={(e) => setRememberDevice(e.target.checked)}
-                  className="sr-only peer"
+                  className="peer sr-only"
                   disabled={isLoading}
                 />
-                <div className="w-5 h-5 rounded-md border-2 border-slate-300 dark:border-slate-600 peer-checked:border-primary peer-checked:bg-primary/10 transition-all flex items-center justify-center">
+                <div className="flex h-5 w-5 items-center justify-center rounded-md border-2 border-slate-300 transition-all peer-checked:border-primary peer-checked:bg-primary/10 dark:border-slate-600">
                   {rememberDevice && (
-                    <span className="material-symbols-outlined text-primary text-sm">
-                      check
-                    </span>
+                    <span className="material-symbols-outlined text-sm text-primary">check</span>
                   )}
                 </div>
               </div>
-              <span className="text-sm text-slate-600 dark:text-slate-400 group-hover:text-slate-800 dark:group-hover:text-slate-300 transition-colors">
+              <span className="text-sm text-slate-600 transition-colors group-hover:text-slate-800 dark:text-slate-400 dark:group-hover:text-slate-300">
                 Remember this device
               </span>
             </label>
@@ -551,7 +643,7 @@ export function Signup() {
             <button
               type="submit"
               disabled={isLoading || passwordStrength.strength < 60}
-              className="w-full rounded-full bg-primary px-6 py-3 font-semibold text-white transition-all hover:bg-primary-focus active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full rounded-full bg-primary px-6 py-3 font-semibold text-white transition-all hover:bg-primary-focus active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isLoading ? (
                 <span className="flex items-center justify-center gap-2">
@@ -564,42 +656,41 @@ export function Signup() {
             </button>
 
             {/* Terms */}
-            <p className="text-xs text-center text-slate-500 dark:text-slate-400 pt-2">
+            <p className="pt-2 text-center text-xs text-slate-500 dark:text-slate-400">
               By signing up, you agree to our{' '}
               <Link
                 to="/terms"
                 target="_blank"
-                className="text-primary hover:underline font-medium"
+                className="font-medium text-primary hover:underline"
               >
                 Terms of Service
-              </Link>
-              {' '}and{' '}
+              </Link>{' '}
+              and{' '}
               <Link
                 to="/privacy"
                 target="_blank"
-                className="text-primary hover:underline font-medium"
+                className="font-medium text-primary hover:underline"
               >
                 Privacy Policy
               </Link>
             </p>
           </form>
-
         </div>
 
         {/* Divider */}
-        <div className="flex items-center mb-6">
+        <div className="mb-6 flex items-center">
           <hr className="flex-grow border-t border-white/30" />
           <span className="px-4 text-sm font-medium text-white/80">Or continue with</span>
           <hr className="flex-grow border-t border-white/30" />
         </div>
 
         {/* Social Login Buttons */}
-        <div className="flex gap-4 mb-8">
+        <div className="mb-8 flex gap-4">
           {/* Google Button */}
           <button
             onClick={handleGoogleSignup}
             disabled={isLoading}
-            className="flex-1 flex items-center justify-center gap-3 rounded-xl bg-white dark:bg-slate-800 border-2 border-white/50 px-4 py-3.5 font-semibold text-slate-700 dark:text-slate-200 transition-all hover:border-white hover:shadow-md active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex flex-1 items-center justify-center gap-3 rounded-xl border-2 border-white/50 bg-white px-4 py-3.5 font-semibold text-slate-700 transition-all hover:border-white hover:shadow-md active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 dark:bg-slate-800 dark:text-slate-200"
           >
             <svg className="h-5 w-5" viewBox="0 0 24 24">
               <path
@@ -626,9 +717,13 @@ export function Signup() {
           <button
             onClick={handleAppleSignup}
             disabled={isLoading}
-            className="flex-1 flex items-center justify-center gap-3 rounded-xl bg-white dark:bg-slate-800 border-2 border-white/50 px-4 py-3.5 font-semibold text-slate-700 dark:text-slate-200 transition-all hover:border-white hover:shadow-md active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex flex-1 items-center justify-center gap-3 rounded-xl border-2 border-white/50 bg-white px-4 py-3.5 font-semibold text-slate-700 transition-all hover:border-white hover:shadow-md active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 dark:bg-slate-800 dark:text-slate-200"
           >
-            <svg className="h-5 w-5 text-slate-900 dark:text-white" viewBox="0 0 24 24" fill="currentColor">
+            <svg
+              className="h-5 w-5 text-slate-900 dark:text-white"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
               <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
             </svg>
             <span className="hidden sm:inline">Apple</span>
