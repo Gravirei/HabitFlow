@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { TurnstileWidget } from '@/components/shared/TurnstileWidget'
 import { callAuthGateway } from '@/lib/security/authGatewayClient'
+import { supabase } from '@/lib/supabase'
 
 /**
  * Detects if running in a mobile app WebView (Capacitor/Cordova)
@@ -79,23 +80,38 @@ export function ForgotPassword() {
     setIsLoading(true)
 
     try {
-      const res = await callAuthGateway('forgot-password', {
-        email,
-        turnstileToken,
-      })
+      const useDirectAuth = turnstileDisabled || !turnstileSiteKey
 
-      if (!res.ok) {
-        if (res.error === 'rate_limited') {
-          toast.error('Too many reset requests. Please try again later.')
+      if (useDirectAuth) {
+        // use direct Supabase auth
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/reset-password`,
+        })
+
+        if (error) {
+          toast.error(error.message || 'Failed to send reset email')
+          console.error('Forgot-password error:', error)
           return
         }
-        if (res.error === 'turnstile_failed') {
-          toast.error('Security verification failed. Please try again.')
+      } else {
+        const res = await callAuthGateway('forgot-password', {
+          email,
+          turnstileToken,
+        })
+
+        if (!res.ok) {
+          if (res.error === 'rate_limited') {
+            toast.error('Too many reset requests. Please try again later.')
+            return
+          }
+          if (res.error === 'turnstile_failed') {
+            toast.error('Security verification failed. Please try again.')
+            return
+          }
+          toast.error('Failed to send reset email')
+          console.error('Forgot-password gateway error:', res)
           return
         }
-        toast.error('Failed to send reset email')
-        console.error('Forgot-password gateway error:', res)
-        return
       }
 
       setEmailSent(true)

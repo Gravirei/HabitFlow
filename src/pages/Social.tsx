@@ -21,11 +21,11 @@ export function Social() {
   const level = getLevelForXP(totalXP)
 
   return (
-    <div className="relative mx-auto flex h-auto min-h-screen w-full max-w-md sm:max-w-2xl md:max-w-4xl lg:max-w-6xl xl:max-w-7xl flex-col overflow-hidden bg-gray-950 text-slate-50 selection:bg-teal-500/30">
+    <div className="relative mx-auto flex h-auto min-h-screen w-full max-w-md sm:max-w-2xl md:max-w-4xl lg:max-w-6xl xl:max-w-7xl flex-col overflow-x-hidden bg-gray-950 text-slate-50 selection:bg-teal-500/30">
       <main className="flex-grow pb-32 relative">
         {/* Top App Bar */}
         <header className="sticky top-0 z-30 backdrop-blur-md bg-gray-950/80 border-b border-white/[0.04] shrink-0">
-          <div className="flex items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between px-4 pb-3 pt-safe sm:px-6 lg:px-8">
             {/* Back + Menu */}
             <div className="flex items-center gap-1">
               <button

@@ -3,7 +3,8 @@
   "appName": "HabitFlow",
   "webDir": "dist",
   "server": {
-    "androidScheme": "https"
+    "androidScheme": "https",
+    "allowNavigation": ["*.supabase.co"]
   },
   "plugins": {
     "SplashScreen": {

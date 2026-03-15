@@ -88,6 +88,36 @@ export function Login() {
 
     try {
       setIsLoading(true)
+
+      // When Turnstile is disabled, use direct Supabase auth to avoid the
+      // auth-gateway edge function (which may still enforce Turnstile server-side
+      // until redeployed). See docs/TURNSTILE_SETUP.md for re-enablement.
+      const useDirectAuth = turnstileDisabled || !turnstileSiteKey
+
+      if (useDirectAuth) {
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        })
+
+        if (error) {
+          toast.error(error.message || 'Invalid email or password')
+          return
+        }
+
+        // Save remember device preference
+        if (rememberDevice) {
+          localStorage.setItem('rememberDevice', 'true')
+        } else {
+          localStorage.removeItem('rememberDevice')
+        }
+
+        toast.success('Signed in successfully')
+        navigate('/today')
+        return
+      }
+
+      // Turnstile is enabled — use the auth gateway for server-side verification
       const res = await callAuthGateway('login', {
         email,
         password,

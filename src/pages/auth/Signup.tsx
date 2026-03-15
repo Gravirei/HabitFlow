@@ -160,34 +160,55 @@ export function Signup() {
     setIsLoading(true)
 
     try {
-      const res = await callAuthGateway('signup', {
-        email,
-        password,
-        username,
-        turnstileToken,
-      })
+      const useDirectAuth = turnstileDisabled || !turnstileSiteKey
 
-      if (!res.ok) {
-        if (res.error === 'rate_limited') {
-          toast.error('Too many signup attempts. Please try again later.')
+      if (useDirectAuth) {
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: username ? { data: { username } } : undefined
+        })
+
+        if (error) {
+          if (error.message.toLowerCase().includes('user already registered') || error.message.toLowerCase().includes('already registered')) {
+            toast.error('This email is already registered. Please login instead.')
+            navigate('/login')
+            return
+          }
+          toast.error(error.message || 'Failed to create account')
+          console.error('Signup error:', error)
           return
         }
-        if (res.error === 'turnstile_failed') {
-          toast.error('Security verification failed. Please try again.')
+      } else {
+        const res = await callAuthGateway('signup', {
+          email,
+          password,
+          username,
+          turnstileToken,
+        })
+
+        if (!res.ok) {
+          if (res.error === 'rate_limited') {
+            toast.error('Too many signup attempts. Please try again later.')
+            return
+          }
+          if (res.error === 'turnstile_failed') {
+            toast.error('Security verification failed. Please try again.')
+            return
+          }
+
+          // If Supabase says user already exists
+          const msg = (res.data as any)?.msg || (res.data as any)?.message
+          if (msg && String(msg).toLowerCase().includes('user already registered')) {
+            toast.error('This email is already registered. Please login instead.')
+            navigate('/login')
+            return
+          }
+
+          toast.error('Failed to create account')
+          console.error('Signup gateway error:', res)
           return
         }
-
-        // If Supabase says user already exists
-        const msg = (res.data as any)?.msg || (res.data as any)?.message
-        if (msg && String(msg).toLowerCase().includes('user already registered')) {
-          toast.error('This email is already registered. Please login instead.')
-          navigate('/login')
-          return
-        }
-
-        toast.error('Failed to create account')
-        console.error('Signup gateway error:', res)
-        return
       }
 
       // Save remember device preference for when user logs in

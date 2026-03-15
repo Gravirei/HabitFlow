@@ -95,7 +95,7 @@ export const TimerTopNav: React.FC = () => {
 
   return (
     <>
-      <div className="flex items-center justify-between px-4 py-3 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-sm shrink-0">
+      <div className="flex items-center justify-between px-4 py-3 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-sm shrink-0 pt-safe">
         {/* Left: Back Button + Hamburger Menu */}
         <div className="flex items-center gap-2">
           <button

@@ -217,7 +217,7 @@ export function ConversationScreen({ conversationId, onBack }: ConversationScree
     <div className="flex h-full flex-col">
       {/* Header */}
       <div className="sticky top-0 z-10 border-b border-white/[0.06] bg-[#0a0f1c]/65 backdrop-blur-2xl">
-        <div className="flex items-center gap-3 px-3.5 py-3">
+        <div className="flex items-center gap-3 px-3.5 pb-3 pt-safe">
           <button
             type="button"
             onClick={onBack}

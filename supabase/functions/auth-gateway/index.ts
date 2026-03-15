@@ -16,6 +16,8 @@ function getAllowedOrigins(): string[] {
     "http://localhost:5173",
     "http://127.0.0.1:3000",
     "http://127.0.0.1:5173",
+    // Capacitor Android/iOS WebView uses https://localhost as origin
+    "https://localhost",
   ];
   // Add production domain from APP_BASE_URL secret if set and not localhost
   if (appBaseUrl && !appBaseUrl.includes("localhost") && !appBaseUrl.includes("127.0.0.1")) {
@@ -389,11 +391,24 @@ Deno.serve(async (req) => {
     }
 
     if (!email) return json({ error: "email_required" }, 400, req);
-    if (!turnstileToken) return json({ error: "turnstile_required" }, 400, req);
 
-    // Turnstile verify (fail closed if missing secrets)
-    const ts = await verifyTurnstile(turnstileToken, ip);
-    if (!ts.ok) return json({ error: "turnstile_failed", ...ts }, 403, req);
+    // Capacitor mobile apps send requests from https://localhost — skip Turnstile
+    // for mobile since CAPTCHA widgets don't work reliably in native WebViews.
+    // Web browsers still require a valid Turnstile token.
+    const requestOrigin = req.headers.get("origin") ?? "";
+    const isMobileOrigin = requestOrigin === "https://localhost";
+
+    // Allow disabling Turnstile entirely via env var (e.g. for development or
+    // when Turnstile is temporarily disabled). Rate limiting & lockout still apply.
+    const turnstileDisabled = Deno.env.get("TURNSTILE_DISABLED") === "true";
+
+    if (!isMobileOrigin && !turnstileDisabled) {
+      if (!turnstileToken) return json({ error: "turnstile_required" }, 400, req);
+
+      // Turnstile verify (fail closed if missing secrets)
+      const ts = await verifyTurnstile(turnstileToken, ip);
+      if (!ts.ok) return json({ error: "turnstile_failed", ...ts }, 403, req);
+    }
 
     // lockout check
     const lock = await isLocked(admin, email);

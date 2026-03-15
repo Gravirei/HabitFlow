@@ -390,7 +390,7 @@ export function Habits() {
 
         <div className="relative z-10">
           {/* Top row: Menu / Title / Search */}
-          <div className="flex h-14 items-center justify-between px-4">
+          <div className="flex items-center justify-between px-4 pb-2 pt-safe">
             <motion.button
               whileTap={{ scale: 0.92 }}
               onClick={() => setIsSideNavOpen(true)}

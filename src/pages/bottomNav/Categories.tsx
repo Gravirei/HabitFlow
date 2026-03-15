@@ -508,7 +508,7 @@ export function Categories() {
       </div>
 
       {/* Header - Consistent with Habits Page */}
-      <header className="sticky top-0 z-50 flex shrink-0 flex-col gap-4 border-b border-gray-200/50 bg-background-light/80 p-4 pb-2 backdrop-blur-xl transition-all dark:border-white/5 dark:bg-background-dark/80">
+      <header className="sticky top-0 z-50 flex shrink-0 flex-col gap-4 border-b border-gray-200/50 bg-background-light/80 p-4 pb-2 backdrop-blur-xl transition-all dark:border-white/5 dark:bg-background-dark/80 pt-safe">
         <div className="mx-auto flex w-full max-w-7xl flex-col gap-4">
           <div className="flex h-12 items-center justify-between">
             <div className="flex shrink-0 items-center gap-2">

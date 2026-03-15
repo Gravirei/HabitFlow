@@ -425,10 +425,10 @@ export function Tasks() {
   }
 
   return (
-    <div className="relative mx-auto flex h-auto min-h-screen w-full max-w-md sm:max-w-2xl md:max-w-4xl lg:max-w-6xl xl:max-w-7xl flex-col overflow-hidden bg-gray-50 dark:bg-gray-950">
+    <div className="relative mx-auto flex h-auto min-h-screen w-full max-w-md sm:max-w-2xl md:max-w-4xl lg:max-w-6xl xl:max-w-7xl flex-col overflow-x-hidden bg-gray-50 dark:bg-gray-950">
       {/* Header - Similar to Timer Page */}
       <header className="sticky top-0 z-30 backdrop-blur-sm bg-background-light/95 dark:bg-background-dark/95 shrink-0">
-        <div className="flex items-center justify-between px-4 py-3">
+        <div className="flex items-center justify-between px-4 pb-3 pt-safe">
           {/* Left: Back Button + Hamburger Menu */}
           <div className="flex items-center gap-2">
             <button
