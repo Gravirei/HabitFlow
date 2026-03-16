@@ -20,8 +20,24 @@ import { createPortal } from 'react-dom'
 
 // ─── Mock tasks ───────────────────────────────────────────────────────────────
 const tasks = [
-  { id: '1', text: 'Reply to team emails', description: 'Review Q4 marketing proposal draft attached', time: '2:00 PM', folder: 'Work', priority: 'High', priorityColor: 'orange' },
-  { id: '2', text: 'Buy groceries', description: 'Milk, Eggs, Bread, Spinach, Avocados', time: '6:00 PM', folder: 'Personal', priority: null, priorityColor: 'primary' },
+  {
+    id: '1',
+    text: 'Reply to team emails',
+    description: 'Review Q4 marketing proposal draft attached',
+    time: '2:00 PM',
+    folder: 'Work',
+    priority: 'High',
+    priorityColor: 'orange',
+  },
+  {
+    id: '2',
+    text: 'Buy groceries',
+    description: 'Milk, Eggs, Bread, Spinach, Avocados',
+    time: '6:00 PM',
+    folder: 'Personal',
+    priority: null,
+    priorityColor: 'primary',
+  },
 ]
 
 // ─── Slide variants ───────────────────────────────────────────────────────────
@@ -32,10 +48,10 @@ const slideVariants = {
 }
 
 // ─── View Mode Dropdown ──────────────────────────────────────────────────────
-function ViewModeDropdown({ 
-  currentMode, 
-  onModeChange 
-}: { 
+function ViewModeDropdown({
+  currentMode,
+  onModeChange,
+}: {
   currentMode: 'list' | 'grid'
   onModeChange: (mode: 'list' | 'grid') => void
 }) {
@@ -45,10 +61,13 @@ function ViewModeDropdown({
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex cursor-pointer items-center gap-1.5 text-xs font-semibold text-slate-400 transition-colors hover:text-teal-400 hover:bg-slate-800/50 px-2.5 py-1.5 rounded-lg"
+        className="flex cursor-pointer items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-400 transition-colors hover:bg-slate-800/50 hover:text-teal-400"
       >
         <span>View: {currentMode === 'grid' ? '2 Column' : 'List'}</span>
-        <span className="material-symbols-outlined text-sm transition-transform" style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>
+        <span
+          className="material-symbols-outlined text-sm transition-transform"
+          style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
+        >
           expand_more
         </span>
       </button>
@@ -56,23 +75,20 @@ function ViewModeDropdown({
       {isOpen && (
         <>
           {/* Backdrop */}
-          <div 
-            className="fixed inset-0 z-40" 
-            onClick={() => setIsOpen(false)}
-          />
-          
+          <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
+
           {/* Dropdown menu */}
-          <div className="absolute right-0 top-full mt-2 z-50 w-32 rounded-lg bg-slate-800 border border-slate-700 shadow-xl overflow-hidden">
+          <div className="absolute right-0 top-full z-50 mt-2 w-32 overflow-hidden rounded-lg border border-slate-700 bg-slate-800 shadow-xl">
             <button
               onClick={() => {
                 onModeChange('list')
                 setIsOpen(false)
               }}
               className={cn(
-                "w-full flex items-center justify-between px-3 py-2 text-xs font-medium transition-colors",
-                currentMode === 'list' 
-                  ? "bg-teal-500/10 text-teal-400" 
-                  : "text-slate-300 hover:bg-slate-700/50 hover:text-white"
+                'flex w-full items-center justify-between px-3 py-2 text-xs font-medium transition-colors',
+                currentMode === 'list'
+                  ? 'bg-teal-500/10 text-teal-400'
+                  : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
               )}
             >
               <span>List View</span>
@@ -86,10 +102,10 @@ function ViewModeDropdown({
                 setIsOpen(false)
               }}
               className={cn(
-                "w-full flex items-center justify-between px-3 py-2 text-xs font-medium transition-colors",
-                currentMode === 'grid' 
-                  ? "bg-teal-500/10 text-teal-400" 
-                  : "text-slate-300 hover:bg-slate-700/50 hover:text-white"
+                'flex w-full items-center justify-between px-3 py-2 text-xs font-medium transition-colors',
+                currentMode === 'grid'
+                  ? 'bg-teal-500/10 text-teal-400'
+                  : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
               )}
             >
               <span>2 Column</span>
@@ -105,13 +121,13 @@ function ViewModeDropdown({
 }
 
 // ─── Section Header ───────────────────────────────────────────────────────────
-function SectionHeader({ 
-  title, 
-  count, 
-  onAction, 
+function SectionHeader({
+  title,
+  count,
+  onAction,
   actionLabel,
   viewMode,
-  onViewModeChange
+  onViewModeChange,
 }: {
   title: string
   count?: number
@@ -121,11 +137,11 @@ function SectionHeader({
   onViewModeChange?: (mode: 'list' | 'grid') => void
 }) {
   return (
-    <div className="flex items-center justify-between px-2 mb-4 mt-8">
+    <div className="mb-4 mt-8 flex items-center justify-between px-2">
       <div className="flex items-center gap-3">
-        <h3 className="text-xl font-bold text-white tracking-tight">{title}</h3>
+        <h3 className="text-xl font-bold tracking-tight text-white">{title}</h3>
         {count !== undefined && count > 0 && (
-          <span className="flex items-center justify-center min-w-[24px] h-6 px-1.5 rounded-full text-xs font-bold bg-slate-800 text-teal-400 border border-slate-700">
+          <span className="flex h-6 min-w-[24px] items-center justify-center rounded-full border border-slate-700 bg-slate-800 px-1.5 text-xs font-bold text-teal-400">
             {count}
           </span>
         )}
@@ -137,7 +153,7 @@ function SectionHeader({
         {onAction && (
           <button
             onClick={onAction}
-            className="flex cursor-pointer items-center gap-1 text-xs font-semibold text-slate-400 transition-colors hover:text-teal-400 hover:bg-slate-800/50 px-2 py-1 rounded-lg"
+            className="flex cursor-pointer items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold text-slate-400 transition-colors hover:bg-slate-800/50 hover:text-teal-400"
           >
             {actionLabel ?? 'View All'}
             <span className="material-symbols-outlined text-sm">arrow_forward</span>
@@ -151,49 +167,78 @@ function SectionHeader({
 // ─── Empty State ──────────────────────────────────────────────────────────────
 function EmptyState({ icon, message }: { icon: string; message: string }) {
   return (
-    <div className="flex flex-col items-center justify-center gap-3 py-12 text-center bg-slate-800/20 rounded-3xl border border-dashed border-slate-700/50">
+    <div className="flex flex-col items-center justify-center gap-3 rounded-3xl border border-dashed border-slate-700/50 bg-slate-800/20 py-12 text-center">
       <div className="flex size-16 items-center justify-center rounded-2xl bg-slate-800/50 shadow-inner">
         <span className="material-symbols-outlined text-3xl text-slate-500">{icon}</span>
       </div>
-      <p className="text-sm font-medium text-slate-500 max-w-[200px]">{message}</p>
+      <p className="max-w-[200px] text-sm font-medium text-slate-500">{message}</p>
     </div>
   )
 }
 
 // ─── Habit Context Menu Items (shared between mobile & desktop) ───────────────
-function HabitContextMenuItems({ habit, onClose, onAction }: {
+function HabitContextMenuItems({
+  habit,
+  onClose,
+  onAction,
+}: {
   habit: any
   onClose: () => void
   onAction: (action: string, habit: any) => void
 }) {
   return (
     <div className="py-2">
-      <button onClick={() => onAction('details', habit)} className="flex w-full items-center gap-4 px-5 py-3.5 text-left transition-colors hover:bg-white/[0.04] active:bg-white/[0.08]">
+      <button
+        onClick={() => onAction('details', habit)}
+        className="flex w-full items-center gap-4 px-5 py-3.5 text-left transition-colors hover:bg-white/[0.04] active:bg-white/[0.08]"
+      >
         <span className="material-symbols-outlined text-[20px] text-slate-400">info</span>
         <span className="text-sm font-medium text-slate-200">View Details</span>
       </button>
-      <button onClick={() => onAction('edit', habit)} className="flex w-full items-center gap-4 px-5 py-3.5 text-left transition-colors hover:bg-white/[0.04] active:bg-white/[0.08]">
+      <button
+        onClick={() => onAction('edit', habit)}
+        className="flex w-full items-center gap-4 px-5 py-3.5 text-left transition-colors hover:bg-white/[0.04] active:bg-white/[0.08]"
+      >
         <span className="material-symbols-outlined text-[20px] text-slate-400">edit</span>
         <span className="text-sm font-medium text-slate-200">Edit Habit</span>
       </button>
-      <button onClick={() => onAction('tasks', habit)} className="flex w-full items-center gap-4 px-5 py-3.5 text-left transition-colors hover:bg-white/[0.04] active:bg-white/[0.08]">
+      <button
+        onClick={() => onAction('tasks', habit)}
+        className="flex w-full items-center gap-4 px-5 py-3.5 text-left transition-colors hover:bg-white/[0.04] active:bg-white/[0.08]"
+      >
         <span className="material-symbols-outlined text-[20px] text-slate-400">checklist</span>
         <span className="text-sm font-medium text-slate-200">Manage Tasks</span>
       </button>
-      <button onClick={() => onAction('notes', habit)} className="flex w-full items-center gap-4 px-5 py-3.5 text-left transition-colors hover:bg-white/[0.04] active:bg-white/[0.08]">
+      <button
+        onClick={() => onAction('notes', habit)}
+        className="flex w-full items-center gap-4 px-5 py-3.5 text-left transition-colors hover:bg-white/[0.04] active:bg-white/[0.08]"
+      >
         <span className="material-symbols-outlined text-[20px] text-slate-400">note</span>
         <span className="text-sm font-medium text-slate-200">Notes</span>
       </button>
-      <button onClick={() => onAction('pin', habit)} className="flex w-full items-center gap-4 px-5 py-3.5 text-left transition-colors hover:bg-white/[0.04] active:bg-white/[0.08]">
-        <span className="material-symbols-outlined text-[20px] text-slate-400">{habit.pinned ? 'keep_off' : 'keep'}</span>
-        <span className="text-sm font-medium text-slate-200">{habit.pinned ? 'Unpin Habit' : 'Pin Habit'}</span>
+      <button
+        onClick={() => onAction('pin', habit)}
+        className="flex w-full items-center gap-4 px-5 py-3.5 text-left transition-colors hover:bg-white/[0.04] active:bg-white/[0.08]"
+      >
+        <span className="material-symbols-outlined text-[20px] text-slate-400">
+          {habit.pinned ? 'keep_off' : 'keep'}
+        </span>
+        <span className="text-sm font-medium text-slate-200">
+          {habit.pinned ? 'Unpin Habit' : 'Pin Habit'}
+        </span>
       </button>
       <div className="my-1 border-t border-white/[0.06]" />
-      <button onClick={() => onAction('hide', habit)} className="flex w-full items-center gap-4 px-5 py-3.5 text-left transition-colors hover:bg-white/[0.04] active:bg-white/[0.08]">
+      <button
+        onClick={() => onAction('hide', habit)}
+        className="flex w-full items-center gap-4 px-5 py-3.5 text-left transition-colors hover:bg-white/[0.04] active:bg-white/[0.08]"
+      >
         <span className="material-symbols-outlined text-[20px] text-orange-400">hide_source</span>
         <span className="text-sm font-medium text-orange-300">Hide for Today</span>
       </button>
-      <button onClick={() => onAction('archive', habit)} className="flex w-full items-center gap-4 px-5 py-3.5 text-left transition-colors hover:bg-white/[0.04] active:bg-white/[0.08]">
+      <button
+        onClick={() => onAction('archive', habit)}
+        className="flex w-full items-center gap-4 px-5 py-3.5 text-left transition-colors hover:bg-white/[0.04] active:bg-white/[0.08]"
+      >
         <span className="material-symbols-outlined text-[20px] text-red-400">archive</span>
         <span className="text-sm font-medium text-red-300">Archive Habit</span>
       </button>
@@ -204,23 +249,25 @@ function HabitContextMenuItems({ habit, onClose, onAction }: {
 // ─── Habit Icon Header (shared between mobile & desktop) ─────────────────────
 function HabitSheetHeader({ habit }: { habit: any }) {
   return (
-    <div className="flex items-center gap-3 px-5 py-4 border-b border-white/[0.06]">
-      <div className={cn(
-        "flex size-11 items-center justify-center rounded-xl bg-gradient-to-br shadow-lg",
-        {
-          'from-blue-500 to-cyan-500': (habit.iconColor ?? 0) === 0,
-          'from-purple-500 to-pink-500': habit.iconColor === 1,
-          'from-emerald-500 to-teal-500': habit.iconColor === 2,
-          'from-orange-500 to-amber-500': habit.iconColor === 3,
-          'from-red-500 to-rose-500': habit.iconColor === 4,
-          'from-teal-500 to-cyan-500': habit.iconColor === 5,
-        }
-      )}>
+    <div className="flex items-center gap-3 border-b border-white/[0.06] px-5 py-4">
+      <div
+        className={cn(
+          'flex size-11 items-center justify-center rounded-xl bg-gradient-to-br shadow-lg',
+          {
+            'from-blue-500 to-cyan-500': (habit.iconColor ?? 0) === 0,
+            'from-purple-500 to-pink-500': habit.iconColor === 1,
+            'from-emerald-500 to-teal-500': habit.iconColor === 2,
+            'from-orange-500 to-amber-500': habit.iconColor === 3,
+            'from-red-500 to-rose-500': habit.iconColor === 4,
+            'from-teal-500 to-cyan-500': habit.iconColor === 5,
+          }
+        )}
+      >
         <span className="material-symbols-outlined text-[22px] text-white">{habit.icon}</span>
       </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-bold text-white truncate">{habit.name}</p>
-        <p className="text-xs text-slate-400 mt-0.5">{habit.category || 'General'}</p>
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-sm font-bold text-white">{habit.name}</p>
+        <p className="mt-0.5 text-xs text-slate-400">{habit.category || 'General'}</p>
       </div>
     </div>
   )
@@ -237,7 +284,7 @@ export function Today() {
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [waterCount, setWaterCount] = useState(0)
-  
+
   // Hydration tracking (standalone, not tied to habits)
   const hydrationGoal = 8 // Default goal: 8 cups
   const isHydrationComplete = waterCount >= hydrationGoal
@@ -266,10 +313,15 @@ export function Today() {
   // Modals opened from bottom sheet
   const [detailsModalHabitId, setDetailsModalHabitId] = useState<string | null>(null)
   const [editModalHabitId, setEditModalHabitId] = useState<string | null>(null)
-  const [notesViewModalHabit, setNotesViewModalHabit] = useState<{ id: string; name: string } | null>(null)
+  const [notesViewModalHabit, setNotesViewModalHabit] = useState<{
+    id: string
+    name: string
+  } | null>(null)
   const [notesModalHabit, setNotesModalHabit] = useState<{ id: string; name: string } | null>(null)
   const [manageTasksHabit, setManageTasksHabit] = useState<any | null>(null)
-  const [confirmDeleteToday, setConfirmDeleteToday] = useState<{ id: string; name: string } | null>(null)
+  const [confirmDeleteToday, setConfirmDeleteToday] = useState<{ id: string; name: string } | null>(
+    null
+  )
   const [confirmArchive, setConfirmArchive] = useState<{ id: string; name: string } | null>(null)
 
   // Confirmation dialogs
@@ -298,7 +350,7 @@ export function Today() {
 
   // Habit completion toggle handler
   const handleHabitCompletion = (habitId: string) => {
-    const habit = habits.find(h => h.id === habitId)
+    const habit = habits.find((h) => h.id === habitId)
     if (!habit) return
 
     const isCompleted = isHabitCompletedOnDate(habitId, formattedDate)
@@ -392,10 +444,18 @@ export function Today() {
   const handleBottomSheetAction = (action: string, habit: any) => {
     setLongPressHabit(null)
     switch (action) {
-      case 'details': setDetailsModalHabitId(habit.id); break
-      case 'edit': setEditModalHabitId(habit.id); break
-      case 'tasks': setManageTasksHabit(habit); break
-      case 'notes': setNotesModalHabit({ id: habit.id, name: habit.name }); break
+      case 'details':
+        setDetailsModalHabitId(habit.id)
+        break
+      case 'edit':
+        setEditModalHabitId(habit.id)
+        break
+      case 'tasks':
+        setManageTasksHabit(habit)
+        break
+      case 'notes':
+        setNotesModalHabit({ id: habit.id, name: habit.name })
+        break
       case 'pin':
         // Delay pin state change so the bottom sheet exit animation completes first
         // giving framer-motion a clean stable snapshot before layout reorder
@@ -407,8 +467,12 @@ export function Today() {
           }
         }, 350)
         break
-      case 'hide': setConfirmDeleteToday({ id: habit.id, name: habit.name }); break
-      case 'archive': setConfirmArchive({ id: habit.id, name: habit.name }); break
+      case 'hide':
+        setConfirmDeleteToday({ id: habit.id, name: habit.name })
+        break
+      case 'archive':
+        setConfirmArchive({ id: habit.id, name: habit.name })
+        break
     }
   }
 
@@ -420,8 +484,14 @@ export function Today() {
   })()
 
   const filteredHabits = habits
-    .filter(h => h.isActive === true && h.categoryId !== undefined && !h.archived && !h.hiddenDates?.includes(formattedDate))
-    .filter(h => {
+    .filter(
+      (h) =>
+        h.isActive === true &&
+        h.categoryId !== undefined &&
+        !h.archived &&
+        !h.hiddenDates?.includes(formattedDate)
+    )
+    .filter((h) => {
       // Hide weekly habits on non-matching days (only if weeklyDays is configured)
       if (h.frequency === 'weekly' && h.weeklyDays && h.weeklyDays.length > 0) {
         return h.weeklyDays.includes(todayDayIndex)
@@ -429,15 +499,19 @@ export function Today() {
       // Hide monthly habits on non-matching dates (only if monthlyDays is configured)
       if (h.frequency === 'monthly' && h.monthlyDays && h.monthlyDays.length > 0) {
         const dateOfMonth = selectedDate.getDate()
-        const lastDay = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0).getDate()
-        return h.monthlyDays.some(d => {
+        const lastDay = new Date(
+          selectedDate.getFullYear(),
+          selectedDate.getMonth() + 1,
+          0
+        ).getDate()
+        return h.monthlyDays.some((d) => {
           const effective = d > lastDay ? lastDay : d
           return effective === dateOfMonth
         })
       }
       return true
     })
-    .filter(h => h.name.toLowerCase().includes(searchQuery.toLowerCase()))
+    .filter((h) => h.name.toLowerCase().includes(searchQuery.toLowerCase()))
     .sort((a, b) => {
       if (a.pinned && !b.pinned) return -1
       if (!a.pinned && b.pinned) return 1
@@ -449,35 +523,48 @@ export function Today() {
     filteredHabits.forEach((habit) => {
       resetTasksIfNeeded(habit.id, habit.frequency)
     })
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formattedDate])
 
-  const filteredTasks = tasks.filter(t =>
+  const filteredTasks = tasks.filter((t) =>
     t.text.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
   // Progress
-  const activeHabits = habits.filter(h => h.isActive === true && h.categoryId !== undefined && !h.archived && !h.hiddenDates?.includes(formattedDate))
-    .filter(h => {
+  const activeHabits = habits
+    .filter(
+      (h) =>
+        h.isActive === true &&
+        h.categoryId !== undefined &&
+        !h.archived &&
+        !h.hiddenDates?.includes(formattedDate)
+    )
+    .filter((h) => {
       if (h.frequency === 'weekly' && h.weeklyDays && h.weeklyDays.length > 0) {
         return h.weeklyDays.includes(todayDayIndex)
       }
       if (h.frequency === 'monthly' && h.monthlyDays && h.monthlyDays.length > 0) {
         const dateOfMonth = selectedDate.getDate()
-        const lastDay = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0).getDate()
-        return h.monthlyDays.some(d => {
+        const lastDay = new Date(
+          selectedDate.getFullYear(),
+          selectedDate.getMonth() + 1,
+          0
+        ).getDate()
+        return h.monthlyDays.some((d) => {
           const effective = d > lastDay ? lastDay : d
           return effective === dateOfMonth
         })
       }
       return true
     })
-  const completedHabits = activeHabits.filter(h => isHabitCompletedOnDate(h.id, formattedDate)).length
+  const completedHabits = activeHabits.filter((h) =>
+    isHabitCompletedOnDate(h.id, formattedDate)
+  ).length
   const totalHabits = activeHabits.length
   const progressPercentage = totalHabits > 0 ? (completedHabits / totalHabits) * 100 : 0
 
   const getProgressMessage = () => {
-    if (progressPercentage >= 100) return "Perfect! 🎉"
+    if (progressPercentage >= 100) return 'Perfect! 🎉'
     if (progressPercentage >= 75) return 'Excellent!'
     if (progressPercentage >= 50) return 'Good Job!'
     if (progressPercentage >= 25) return 'Keep Going!'
@@ -504,90 +591,94 @@ export function Today() {
   }
 
   return (
-    <div
-      className="relative mx-auto flex h-auto min-h-screen w-full max-w-md sm:max-w-2xl md:max-w-4xl lg:max-w-6xl xl:max-w-7xl flex-col overflow-x-hidden bg-gray-950 text-slate-50 selection:bg-teal-500/30"
-    >
-      <main className="flex-grow pb-32 relative z-0">
+    <div className="relative mx-auto flex h-auto min-h-screen w-full max-w-md flex-col overflow-x-hidden bg-gray-950 text-slate-50 selection:bg-teal-500/30 sm:max-w-2xl md:max-w-4xl lg:max-w-6xl xl:max-w-7xl">
+      {/* Fixed Header */}
+      <header className="fixed left-0 right-0 top-0 z-30 mx-auto max-w-md shrink-0 bg-background-light/95 backdrop-blur-sm dark:bg-background-dark/95 sm:max-w-2xl md:max-w-4xl lg:max-w-6xl xl:max-w-7xl">
+        <div className="flex flex-col gap-2 px-4 pb-3 pt-4 sm:px-6 lg:px-8">
+          <div className="flex h-12 items-center justify-between">
+            {/* Menu button */}
+            <button
+              onClick={() => setIsSideNavOpen(true)}
+              aria-label="Open navigation menu"
+              className="flex size-10 cursor-pointer items-center justify-center rounded-xl text-slate-400 transition-all hover:bg-white/5 hover:text-white active:scale-95"
+            >
+              <span className="material-symbols-outlined text-xl">menu</span>
+            </button>
 
-        {/* ── Top App Bar ───────────────────────────────────────────── */}
-        <header className="sticky top-0 z-30 backdrop-blur-sm bg-background-light/95 dark:bg-background-dark/95 shrink-0">
-          <div className="flex flex-col gap-2 px-4 pt-safe pb-3 sm:px-6 lg:px-8">
-            <div className="flex h-12 items-center justify-between">
-              {/* Menu button */}
-              <button
-                onClick={() => setIsSideNavOpen(true)}
-                aria-label="Open navigation menu"
-                className="flex size-10 cursor-pointer items-center justify-center rounded-xl text-slate-400 hover:text-white hover:bg-white/5 active:scale-95 transition-all"
-              >
-                <span className="material-symbols-outlined text-xl">menu</span>
-              </button>
-
-              {/* Title / Search */}
-              <div className="flex-1 overflow-hidden px-4 text-center">
-                <AnimatePresence mode="wait">
-                  {isSearchOpen ? (
-                    <motion.div
-                      key="search"
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.95 }}
-                      className="relative max-w-xs mx-auto"
+            {/* Title / Search */}
+            <div className="flex-1 overflow-hidden px-4 text-center">
+              <AnimatePresence mode="wait">
+                {isSearchOpen ? (
+                  <motion.div
+                    key="search"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    className="relative mx-auto max-w-xs"
+                  >
+                    <input
+                      type="text"
+                      placeholder="Search..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      autoFocus
+                      className="w-full rounded-xl border border-slate-700 bg-slate-800/50 px-4 py-2 pl-10 text-sm text-slate-100 placeholder:text-slate-500 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-teal-500/50"
+                    />
+                    <span className="material-symbols-outlined absolute left-3 top-2 text-lg text-slate-500">
+                      search
+                    </span>
+                  </motion.div>
+                ) : (
+                  <AnimatePresence mode="wait" custom={direction}>
+                    <motion.h1
+                      key={selectedDate.toISOString()}
+                      custom={direction}
+                      variants={slideVariants}
+                      initial="enter"
+                      animate="center"
+                      exit="exit"
+                      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                      className="text-lg font-bold tracking-tight text-white"
                     >
-                      <input
-                        type="text"
-                        placeholder="Search..."
-                        value={searchQuery}
-                        onChange={e => setSearchQuery(e.target.value)}
-                        autoFocus
-                        className="w-full rounded-xl px-4 py-2 pl-10 text-sm bg-slate-800/50 border border-slate-700 text-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-transparent placeholder:text-slate-500"
-                      />
-                      <span className="material-symbols-outlined absolute left-3 top-2 text-slate-500 text-lg">search</span>
-                    </motion.div>
-                  ) : (
-                    <AnimatePresence mode="wait" custom={direction}>
-                      <motion.h1
-                        key={selectedDate.toISOString()}
-                        custom={direction}
-                        variants={slideVariants}
-                        initial="enter"
-                        animate="center"
-                        exit="exit"
-                        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                        className="text-lg font-bold text-white tracking-tight"
-                      >
-                        {getPageTitle()}
-                      </motion.h1>
-                    </AnimatePresence>
-                  )}
-                </AnimatePresence>
-              </div>
+                      {getPageTitle()}
+                    </motion.h1>
+                  </AnimatePresence>
+                )}
+              </AnimatePresence>
+            </div>
 
-              {/* Action buttons */}
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => { setIsSearchOpen(!isSearchOpen); if (isSearchOpen) setSearchQuery('') }}
-                  aria-label={isSearchOpen ? 'Close search' : 'Open search'}
-                  className={cn(
-                    "flex size-10 cursor-pointer items-center justify-center rounded-xl transition-all active:scale-95",
-                    isSearchOpen ? "bg-teal-500/10 text-teal-400 ring-2 ring-teal-500/20" : "text-slate-400 hover:text-white hover:bg-white/5"
-                  )}
-                >
-                  <span className="material-symbols-outlined text-xl font-bold">
-                    {isSearchOpen ? 'close' : 'search'}
-                  </span>
-                </button>
-                <button
-                  onClick={() => navigate('/calendar')}
-                  aria-label="Open calendar"
-                  className="flex size-10 cursor-pointer items-center justify-center rounded-xl text-slate-400 hover:text-white hover:bg-white/5 active:scale-95 transition-all"
-                >
-                  <span className="material-symbols-outlined text-xl font-bold">calendar_month</span>
-                </button>
-              </div>
+            {/* Action buttons */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  setIsSearchOpen(!isSearchOpen)
+                  if (isSearchOpen) setSearchQuery('')
+                }}
+                aria-label={isSearchOpen ? 'Close search' : 'Open search'}
+                className={cn(
+                  'flex size-10 cursor-pointer items-center justify-center rounded-xl transition-all active:scale-95',
+                  isSearchOpen
+                    ? 'bg-teal-500/10 text-teal-400 ring-2 ring-teal-500/20'
+                    : 'text-slate-400 hover:bg-white/5 hover:text-white'
+                )}
+              >
+                <span className="material-symbols-outlined text-xl font-bold">
+                  {isSearchOpen ? 'close' : 'search'}
+                </span>
+              </button>
+              <button
+                onClick={() => navigate('/calendar')}
+                aria-label="Open calendar"
+                className="flex size-10 cursor-pointer items-center justify-center rounded-xl text-slate-400 transition-all hover:bg-white/5 hover:text-white active:scale-95"
+              >
+                <span className="material-symbols-outlined text-xl font-bold">calendar_month</span>
+              </button>
             </div>
           </div>
-        </header>
+        </div>
+      </header>
 
+      <main className="relative z-0 flex-grow pb-32 pt-20">
         {/* ── Date Strip ────────────────────────────────────────────── */}
         <div className="pt-1">
           <DateStrip days={days} selectedDate={selectedDate} onDateClick={handleDateClick} />
@@ -603,9 +694,8 @@ export function Today() {
             animate="center"
             exit="exit"
             transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
-            className="px-4 sm:px-6 lg:px-8 space-y-8 mt-6 max-w-3xl mx-auto"
+            className="mx-auto mt-6 max-w-3xl space-y-8 px-4 sm:px-6 lg:px-8"
           >
-
             {/* ── Greeting Hero ────────────────────────────────────── */}
             {!isSearchOpen && (
               <GreetingHero
@@ -628,70 +718,72 @@ export function Today() {
               />
               <div
                 className={cn(
-                  "grid gap-4",
-                  habitViewMode === 'grid' ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1"
+                  'grid gap-4',
+                  habitViewMode === 'grid' ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1'
                 )}
               >
-                  {filteredHabits.length === 0 ? (
-                    <div className="col-span-full">
-                      <EmptyState
-                        icon="checklist"
-                        message={isSearchOpen ? 'No habits match your search.' : 'No habits for today.'}
-                      />
-                    </div>
-                  ) : (
-                    <>
-                      {filteredHabits.map((habit, i) => {
-                        const isCompleted = isHabitCompletedOnDate(habit.id, formattedDate)
-                        const isHydration = habit.icon === 'water_drop'
+                {filteredHabits.length === 0 ? (
+                  <div className="col-span-full">
+                    <EmptyState
+                      icon="checklist"
+                      message={
+                        isSearchOpen ? 'No habits match your search.' : 'No habits for today.'
+                      }
+                    />
+                  </div>
+                ) : (
+                  <>
+                    {filteredHabits.map((habit, i) => {
+                      const isCompleted = isHabitCompletedOnDate(habit.id, formattedDate)
+                      const isHydration = habit.icon === 'water_drop'
 
-                        if (isHydration) {
-                          return (
-                            <motion.div key={habit.id} layout>
-                              <HydrationCard
-                                habit={habit}
-                                isCompleted={isCompleted}
-                                waterCount={waterCount}
-                                index={i}
-                                onAddWater={() => {
-                                  const max = habit.goal || 8
-                                  if (waterCount < max) {
-                                    const next = waterCount + 1
-                                    setWaterCount(next)
-                                    if (next >= max && !isCompleted) toggleHabitCompletion(habit.id, formattedDate)
-                                  }
-                                }}
-                              />
-                            </motion.div>
-                          )
-                        }
-
+                      if (isHydration) {
                         return (
-                          <HabitCard
-                            key={habit.id}
-                            habit={habit}
-                            isCompleted={isCompleted}
-                            index={i}
-                            onToggle={() => handleHabitCompletion(habit.id)}
-                            onBodyClick={() => handleHabitBodyClick(habit)}
-                            onLongPress={() => setLongPressHabit(habit)}
-                            onNotesClick={() => setNotesViewModalHabit({ id: habit.id, name: habit.name })}
-                            enableLayoutAnimation={habitViewMode === 'list'}
-                          />
+                          <motion.div key={habit.id} layout>
+                            <HydrationCard
+                              habit={habit}
+                              isCompleted={isCompleted}
+                              waterCount={waterCount}
+                              index={i}
+                              onAddWater={() => {
+                                const max = habit.goal || 8
+                                if (waterCount < max) {
+                                  const next = waterCount + 1
+                                  setWaterCount(next)
+                                  if (next >= max && !isCompleted)
+                                    toggleHabitCompletion(habit.id, formattedDate)
+                                }
+                              }}
+                            />
+                          </motion.div>
                         )
-                      })}
-                    </>
-                  )}
+                      }
+
+                      return (
+                        <HabitCard
+                          key={habit.id}
+                          habit={habit}
+                          isCompleted={isCompleted}
+                          index={i}
+                          onToggle={() => handleHabitCompletion(habit.id)}
+                          onBodyClick={() => handleHabitBodyClick(habit)}
+                          onLongPress={() => setLongPressHabit(habit)}
+                          onNotesClick={() =>
+                            setNotesViewModalHabit({ id: habit.id, name: habit.name })
+                          }
+                          enableLayoutAnimation={habitViewMode === 'list'}
+                        />
+                      )
+                    })}
+                  </>
+                )}
               </div>
             </section>
 
             {/* ── Tasks Section ────────────────────────────────────── */}
             <section>
-              <SectionHeader
-                title="Pending Tasks"
-                count={filteredTasks.length}
-              />
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <SectionHeader title="Pending Tasks" count={filteredTasks.length} />
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 {/* Hydration Card - Always visible */}
                 <HydrationCard
                   habit={{
@@ -709,7 +801,7 @@ export function Today() {
                     }
                   }}
                 />
-                
+
                 {filteredTasks.length === 0 ? (
                   <div className="col-span-full">
                     <EmptyState icon="task_alt" message="You're all caught up!" />
@@ -721,26 +813,25 @@ export function Today() {
                 )}
               </div>
             </section>
-
           </motion.div>
         </AnimatePresence>
       </main>
 
       {/* ── FAB ──────────────────────────────────────────────────────── */}
-      <div className="fixed bottom-24 right-6 lg:right-10 z-30">
+      <div className="fixed bottom-24 right-6 z-30 lg:right-10">
         <motion.button
           onClick={() => navigate('/new-habit')}
           aria-label="Add new habit"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className="group flex size-14 sm:size-16 cursor-pointer items-center justify-center rounded-2xl shadow-2xl transition-all duration-300 ring-2 ring-white/10"
+          className="group flex size-14 cursor-pointer items-center justify-center rounded-2xl shadow-2xl ring-2 ring-white/10 transition-all duration-300 sm:size-16"
           style={{
             background: 'linear-gradient(135deg, #14B8A6 0%, #0D9488 100%)', // Teal Gradient
             boxShadow: '0 8px 30px rgba(20,184,166,0.4)',
           }}
         >
           <span
-            className="material-symbols-outlined text-3xl sm:text-4xl text-white transition-transform duration-300 group-hover:rotate-90"
+            className="material-symbols-outlined text-3xl text-white transition-transform duration-300 group-hover:rotate-90 sm:text-4xl"
             aria-hidden="true"
           >
             add
@@ -798,61 +889,72 @@ export function Today() {
       />
 
       {/* ── Long-press Bottom Sheet (mobile) / Centered Modal (desktop) ── */}
-      {longPressHabit && createPortal(
-        <AnimatePresence>
-          {/* Backdrop */}
-          <motion.div
-            key="sheet-backdrop"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
-            onClick={() => setLongPressHabit(null)}
-          />
-
-          {/* ── Mobile: slides up from bottom ── */}
-          <motion.div
-            key="sheet-mobile"
-            initial={{ y: '100%' }}
-            animate={{ y: 0 }}
-            exit={{ y: '100%' }}
-            transition={{ type: 'spring', stiffness: 400, damping: 40 }}
-            className="md:hidden fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl bg-slate-900 border-t border-white/10"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex justify-center pt-3 pb-1">
-              <div className="h-1 w-10 rounded-full bg-slate-700" />
-            </div>
-            <HabitSheetHeader habit={longPressHabit} />
-            <HabitContextMenuItems habit={longPressHabit} onClose={() => setLongPressHabit(null)} onAction={handleBottomSheetAction} />
-            <div className="h-6" />
-          </motion.div>
-
-          {/* ── Desktop/Tablet: centered modal ── */}
-          <div className="hidden md:flex fixed inset-0 z-50 items-center justify-center pointer-events-none">
-          <motion.div
-            key="sheet-desktop"
-            initial={{ opacity: 0, scale: 0.96 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.96 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 35 }}
-            className="pointer-events-auto w-full max-w-[380px] rounded-2xl bg-slate-900 border border-white/10 shadow-2xl overflow-hidden relative"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Close button */}
-            <button
+      {longPressHabit &&
+        createPortal(
+          <AnimatePresence>
+            {/* Backdrop */}
+            <motion.div
+              key="sheet-backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
               onClick={() => setLongPressHabit(null)}
-              className="absolute top-3 right-3 z-10 flex size-8 items-center justify-center rounded-full bg-slate-800 hover:bg-slate-700 transition-colors"
+            />
+
+            {/* ── Mobile: slides up from bottom ── */}
+            <motion.div
+              key="sheet-mobile"
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', stiffness: 400, damping: 40 }}
+              className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl border-t border-white/10 bg-slate-900 md:hidden"
+              onClick={(e) => e.stopPropagation()}
             >
-              <span className="material-symbols-outlined text-[18px] text-slate-400">close</span>
-            </button>
-            <HabitSheetHeader habit={longPressHabit} />
-            <HabitContextMenuItems habit={longPressHabit} onClose={() => setLongPressHabit(null)} onAction={handleBottomSheetAction} />
-          </motion.div>
-          </div>
-        </AnimatePresence>,
-        document.body
-      )}
+              <div className="flex justify-center pb-1 pt-3">
+                <div className="h-1 w-10 rounded-full bg-slate-700" />
+              </div>
+              <HabitSheetHeader habit={longPressHabit} />
+              <HabitContextMenuItems
+                habit={longPressHabit}
+                onClose={() => setLongPressHabit(null)}
+                onAction={handleBottomSheetAction}
+              />
+              <div className="h-6" />
+            </motion.div>
+
+            {/* ── Desktop/Tablet: centered modal ── */}
+            <div className="pointer-events-none fixed inset-0 z-50 hidden items-center justify-center md:flex">
+              <motion.div
+                key="sheet-desktop"
+                initial={{ opacity: 0, scale: 0.96 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.96 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 35 }}
+                className="pointer-events-auto relative w-full max-w-[380px] overflow-hidden rounded-2xl border border-white/10 bg-slate-900 shadow-2xl"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Close button */}
+                <button
+                  onClick={() => setLongPressHabit(null)}
+                  className="absolute right-3 top-3 z-10 flex size-8 items-center justify-center rounded-full bg-slate-800 transition-colors hover:bg-slate-700"
+                >
+                  <span className="material-symbols-outlined text-[18px] text-slate-400">
+                    close
+                  </span>
+                </button>
+                <HabitSheetHeader habit={longPressHabit} />
+                <HabitContextMenuItems
+                  habit={longPressHabit}
+                  onClose={() => setLongPressHabit(null)}
+                  onAction={handleBottomSheetAction}
+                />
+              </motion.div>
+            </div>
+          </AnimatePresence>,
+          document.body
+        )}
 
       {/* ── Notes View Modal (read-only, from badge click) ── */}
       {notesViewModalHabit && (

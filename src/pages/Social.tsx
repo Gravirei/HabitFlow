@@ -21,24 +21,24 @@ export function Social() {
   const level = getLevelForXP(totalXP)
 
   return (
-    <div className="relative mx-auto flex h-auto min-h-screen w-full max-w-md sm:max-w-2xl md:max-w-4xl lg:max-w-6xl xl:max-w-7xl flex-col overflow-x-hidden bg-gray-950 text-slate-50 selection:bg-teal-500/30">
-      <main className="flex-grow pb-32 relative">
+    <div className="relative mx-auto flex h-auto min-h-screen w-full max-w-md flex-col overflow-x-hidden bg-gray-950 text-slate-50 selection:bg-teal-500/30 sm:max-w-2xl md:max-w-4xl lg:max-w-6xl xl:max-w-7xl">
+      <main className="relative flex-grow pb-32 pt-20">
         {/* Top App Bar */}
-        <header className="sticky top-0 z-30 backdrop-blur-md bg-gray-950/80 border-b border-white/[0.04] shrink-0">
-          <div className="flex items-center justify-between px-4 pb-3 pt-safe sm:px-6 lg:px-8">
+        <header className="fixed left-0 right-0 top-0 z-30 mx-auto max-w-md shrink-0 bg-gray-950/80 backdrop-blur-md sm:max-w-2xl md:max-w-4xl lg:max-w-6xl xl:max-w-7xl">
+          <div className="flex items-center justify-between px-4 pb-3 pt-4 sm:px-6 lg:px-8">
             {/* Back + Menu */}
             <div className="flex items-center gap-1">
               <button
                 onClick={() => navigate('/today')}
                 aria-label="Go back to Today"
-                className="flex size-10 cursor-pointer items-center justify-center rounded-xl text-slate-400 hover:text-white hover:bg-white/5 active:scale-95 transition-all duration-200"
+                className="flex size-10 cursor-pointer items-center justify-center rounded-xl text-slate-400 transition-all duration-200 hover:bg-white/5 hover:text-white active:scale-95"
               >
                 <span className="material-symbols-outlined text-xl">arrow_back</span>
               </button>
               <button
                 onClick={() => setIsSideNavOpen(true)}
                 aria-label="Open navigation menu"
-                className="flex size-10 cursor-pointer items-center justify-center rounded-xl text-slate-400 hover:text-white hover:bg-white/5 active:scale-95 transition-all duration-200"
+                className="flex size-10 cursor-pointer items-center justify-center rounded-xl text-slate-400 transition-all duration-200 hover:bg-white/5 hover:text-white active:scale-95"
               >
                 <span className="material-symbols-outlined text-xl">menu</span>
               </button>
@@ -47,18 +47,18 @@ export function Social() {
             {/* Title */}
             <div className="flex items-center gap-2">
               <span
-                className="material-symbols-outlined text-primary text-xl"
+                className="material-symbols-outlined text-xl text-primary"
                 style={{ fontVariationSettings: "'FILL' 1" }}
               >
                 group
               </span>
-              <h1 className="text-lg font-bold text-white tracking-tight">Social</h1>
+              <h1 className="text-lg font-bold tracking-tight text-white">Social</h1>
             </div>
 
             {/* Level chip */}
-            <div className="flex items-center gap-1 rounded-lg bg-primary/10 border border-primary/20 px-2 py-1">
+            <div className="flex items-center gap-1 rounded-lg border border-primary/20 bg-primary/10 px-2 py-1">
               <span
-                className="material-symbols-outlined text-primary text-[13px]"
+                className="material-symbols-outlined text-[13px] text-primary"
                 style={{ fontVariationSettings: "'FILL' 1" }}
               >
                 {level.icon}
@@ -69,7 +69,7 @@ export function Social() {
         </header>
 
         {/* Content */}
-        <div className="px-4 sm:px-6 lg:px-8 mt-4 max-w-3xl mx-auto">
+        <div className="mx-auto mt-4 max-w-3xl px-4 sm:px-6 lg:px-8">
           <SocialHub activeTab={activeTab} onNavigateToMessages={() => setActiveTab('messages')} />
         </div>
       </main>
