@@ -15,8 +15,8 @@ export function DateStrip({ days, selectedDate, onDateClick }: DateStripProps) {
   useEffect(() => {
     if (scrollRef.current) {
       const today = new Date().getDate()
-      const itemWidth = 60 // Slightly wider for elegance
-      const gap = 12
+      const itemWidth = 52
+      const gap = 8
       const containerWidth = scrollRef.current.clientWidth
       const scrollPos = (today - 1) * (itemWidth + gap) - containerWidth / 2 + itemWidth / 2
       scrollRef.current.scrollLeft = Math.max(0, scrollPos)
@@ -26,12 +26,11 @@ export function DateStrip({ days, selectedDate, onDateClick }: DateStripProps) {
   return (
     <div
       ref={scrollRef}
-      className="flex overflow-x-auto no-scrollbar gap-3 py-4 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 scroll-smooth"
+      className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto scroll-smooth px-4 py-3 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8"
     >
       {days.map((date) => {
         const isSelected =
-          date.getDate() === selectedDate.getDate() &&
-          date.getMonth() === selectedDate.getMonth()
+          date.getDate() === selectedDate.getDate() && date.getMonth() === selectedDate.getMonth()
         const isTodayDate = isToday(date)
 
         return (
@@ -42,36 +41,44 @@ export function DateStrip({ days, selectedDate, onDateClick }: DateStripProps) {
             aria-current={isTodayDate ? 'date' : undefined}
             aria-pressed={isSelected}
             className={cn(
-              "relative flex min-w-[56px] h-[72px] cursor-pointer flex-col items-center justify-center rounded-2xl transition-all duration-300 group",
-              isSelected 
-                ? "shadow-[0_8px_20px_-4px_rgba(20,184,166,0.3)]" 
-                : "hover:-translate-y-0.5"
+              'group relative flex h-[60px] min-w-[48px] cursor-pointer flex-col items-center justify-center rounded-xl transition-all duration-300',
+              isSelected
+                ? 'shadow-[0_8px_20px_-4px_rgba(20,184,166,0.3)]'
+                : 'hover:-translate-y-0.5'
             )}
           >
             {/* Glass Background Layer */}
-            <div 
+            <div
               className={cn(
-                "absolute inset-0 rounded-2xl border transition-all duration-300",
+                'absolute inset-0 rounded-xl border transition-all duration-300',
                 isSelected
-                  ? "bg-gradient-to-br from-teal-500 to-teal-400 border-teal-400/50"
-                  : "bg-slate-800/40 border-white/5 group-hover:bg-slate-700/50 group-hover:border-white/10"
+                  ? 'border-teal-400/50 bg-gradient-to-br from-teal-500 to-teal-400'
+                  : 'border-white/5 bg-slate-800/40 group-hover:border-white/10 group-hover:bg-slate-700/50'
               )}
             />
 
             {/* Content */}
-            <div className="relative z-10 flex flex-col items-center gap-1">
+            <div className="relative z-10 flex flex-col items-center gap-0.5">
               <span
                 className={cn(
-                  "text-[10px] font-bold uppercase tracking-wider transition-colors duration-200",
-                  isSelected ? "text-teal-50" : "text-slate-400 group-hover:text-slate-300"
+                  'text-[9px] font-bold uppercase tracking-wider transition-colors duration-200',
+                  isSelected ? 'text-teal-50' : 'text-slate-400 group-hover:text-slate-300'
                 )}
               >
                 {format(date, 'EEE')}
               </span>
+
+              <div
+                className={cn(
+                  'w-5 border-b',
+                  isSelected ? 'border-teal-300/50' : 'border-slate-600/50'
+                )}
+              />
+
               <span
                 className={cn(
-                  "text-lg font-bold leading-none transition-colors duration-200",
-                  isSelected ? "text-white" : "text-slate-200 group-hover:text-white"
+                  'text-base font-bold leading-none transition-colors duration-200',
+                  isSelected ? 'text-white' : 'text-slate-200 group-hover:text-white'
                 )}
               >
                 {date.getDate()}
@@ -80,19 +87,19 @@ export function DateStrip({ days, selectedDate, onDateClick }: DateStripProps) {
 
             {/* Today dot */}
             {isTodayDate && !isSelected && (
-              <div className="absolute bottom-2 z-10">
+              <div className="absolute bottom-1.5 z-10">
                 <motion.div
                   layoutId="today-dot"
                   className="size-1 rounded-full bg-orange-400 shadow-[0_0_8px_rgba(251,146,60,0.6)]"
                 />
               </div>
             )}
-            
+
             {/* Selected Indicator Glow */}
             {isSelected && (
               <motion.div
                 layoutId="date-glow"
-                className="absolute -inset-0.5 rounded-2xl bg-teal-500/20 blur-sm -z-10"
+                className="absolute -inset-0.5 -z-10 rounded-xl bg-teal-500/20 blur-sm"
                 transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
               />
             )}

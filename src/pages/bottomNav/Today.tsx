@@ -680,7 +680,7 @@ export function Today() {
 
       <main className="relative z-0 flex-grow pb-32 pt-20">
         {/* ── Date Strip ────────────────────────────────────────────── */}
-        <div className="pt-1">
+        <div>
           <DateStrip days={days} selectedDate={selectedDate} onDateClick={handleDateClick} />
         </div>
 
