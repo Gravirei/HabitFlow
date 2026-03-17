@@ -26,7 +26,7 @@ export function DateStrip({ days, selectedDate, onDateClick }: DateStripProps) {
   return (
     <div
       ref={scrollRef}
-      className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto scroll-smooth px-4 py-3 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8"
+      className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto scroll-smooth px-4 py-2 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8"
     >
       {days.map((date) => {
         const isSelected =

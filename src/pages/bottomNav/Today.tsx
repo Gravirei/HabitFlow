@@ -594,8 +594,8 @@ export function Today() {
     <div className="relative mx-auto flex h-auto min-h-screen w-full max-w-md flex-col overflow-x-hidden bg-gray-950 text-slate-50 selection:bg-teal-500/30 sm:max-w-2xl md:max-w-4xl lg:max-w-6xl xl:max-w-7xl">
       {/* Fixed Header */}
       <header className="fixed left-0 right-0 top-0 z-30 mx-auto max-w-md shrink-0 bg-background-light/95 backdrop-blur-sm dark:bg-background-dark/95 sm:max-w-2xl md:max-w-4xl lg:max-w-6xl xl:max-w-7xl">
-        <div className="flex flex-col gap-2 px-4 pb-3 pt-4 sm:px-6 lg:px-8">
-          <div className="flex h-12 items-center justify-between">
+        <div className="flex flex-col gap-1 px-4 pb-2 pt-3 sm:px-6 lg:px-8">
+          <div className="flex h-10 items-center justify-between">
             {/* Menu button */}
             <button
               onClick={() => setIsSideNavOpen(true)}
@@ -675,15 +675,13 @@ export function Today() {
               </button>
             </div>
           </div>
+
+          {/* Date Strip - Fixed horizontally scrollable */}
+          <DateStrip days={days} selectedDate={selectedDate} onDateClick={handleDateClick} />
         </div>
       </header>
 
-      <main className="relative z-0 flex-grow pb-32 pt-20">
-        {/* ── Date Strip ────────────────────────────────────────────── */}
-        <div>
-          <DateStrip days={days} selectedDate={selectedDate} onDateClick={handleDateClick} />
-        </div>
-
+      <main className="relative z-0 flex-grow pb-32 pt-32">
         {/* ── Animated Content ──────────────────────────────────────── */}
         <AnimatePresence mode="wait" custom={direction}>
           <motion.div
