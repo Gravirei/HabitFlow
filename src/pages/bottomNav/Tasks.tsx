@@ -470,10 +470,28 @@ export function Tasks() {
               </button>
             </div>
 
-            {/* Center: Title */}
-            <h1 className="absolute left-1/2 -translate-x-1/2 text-lg font-bold text-gray-900 dark:text-white">
-              Tasks
+            {/* Center: Title - Large screens always visible */}
+            <h1 className="absolute inset-x-0 hidden justify-center sm:flex">
+              <span className="text-lg font-bold text-gray-900 dark:text-white">Tasks</span>
             </h1>
+
+            {/* Center: Title - Mobile only with animation */}
+            <div className="absolute inset-x-0 flex justify-center sm:hidden">
+              <AnimatePresence mode="wait">
+                {!isSearchOpen && (
+                  <motion.h1
+                    key="tasks-title-mobile"
+                    initial={{ opacity: 0, y: -8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    transition={{ duration: 0.2 }}
+                    className="text-lg font-bold text-gray-900 dark:text-white"
+                  >
+                    Tasks
+                  </motion.h1>
+                )}
+              </AnimatePresence>
+            </div>
 
             {/* Right: Action Icons */}
             <div className="flex items-center gap-1">
@@ -493,7 +511,7 @@ export function Tasks() {
                   placeholder="Search..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className={`absolute right-0 h-10 rounded-full border border-gray-200 bg-gray-100 pl-4 pr-10 text-sm text-gray-900 transition-all duration-300 ease-out placeholder:text-gray-400 focus:rounded-full focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 dark:border-gray-700 dark:bg-gray-800/50 dark:text-white ${
+                  className={`absolute right-0 h-10 rounded-full border border-gray-200 bg-gray-100 pl-4 pr-10 text-sm text-gray-900 transition-all duration-300 ease-out placeholder:text-gray-400 focus:rounded-full focus:border-transparent focus:outline-none focus:ring-0 dark:border-gray-700 dark:bg-gray-800/50 dark:text-white ${
                     isSearchOpen ? 'w-48 opacity-100' : 'pointer-events-none w-10 opacity-0'
                   }`}
                   autoFocus={isSearchOpen}
