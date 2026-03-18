@@ -596,13 +596,23 @@ export function Tasks() {
       {isFilterOpen && (
         <>
           {/* Backdrop */}
-          <div
-            className="animate-in fade-in fixed inset-0 z-40 bg-black/60 backdrop-blur-sm duration-200"
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-[51] bg-black/60 backdrop-blur-sm"
             onClick={() => setIsFilterOpen(false)}
           />
 
           {/* Sidebar */}
-          <div className="animate-in slide-in-from-left no-scrollbar fixed left-0 top-0 z-50 h-full w-80 overflow-y-auto bg-white shadow-2xl duration-300 dark:bg-gray-900">
+          <motion.div
+            initial={{ x: '-100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '-100%' }}
+            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            className="no-scrollbar fixed left-0 top-0 z-[52] h-full w-80 overflow-y-auto bg-white shadow-2xl dark:bg-gray-900"
+          >
             {/* Header */}
             <div className="sticky top-0 flex items-center justify-between border-b border-gray-200 bg-white px-6 py-4 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-900">
               <div className="flex items-center gap-3">
@@ -823,7 +833,7 @@ export function Tasks() {
                 </div>
               )}
             </div>
-          </div>
+          </motion.div>
         </>
       )}
 
