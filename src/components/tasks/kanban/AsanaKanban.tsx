@@ -8,10 +8,15 @@ interface AsanaKanbanProps {
   onDeleteTask: (taskId: string) => void
 }
 
-export function AsanaKanban({ tasks, onTaskClick, onTaskStatusChange, onDeleteTask }: AsanaKanbanProps) {
-  const todoTasks = tasks.filter(t => t.status === 'todo' && !t.completed)
-  const inProgressTasks = tasks.filter(t => t.status === 'in_progress')
-  const doneTasks = tasks.filter(t => t.completed || t.status === 'completed')
+export function AsanaKanban({
+  tasks,
+  onTaskClick,
+  onTaskStatusChange,
+  onDeleteTask,
+}: AsanaKanbanProps) {
+  const todoTasks = tasks.filter((t) => t.status === 'todo' && !t.completed)
+  const inProgressTasks = tasks.filter((t) => t.status === 'in_progress')
+  const doneTasks = tasks.filter((t) => t.completed || t.status === 'completed')
 
   const formatDueDate = (dueDate: Date | string | undefined) => {
     if (!dueDate) return null
@@ -19,40 +24,47 @@ export function AsanaKanban({ tasks, onTaskClick, onTaskStatusChange, onDeleteTa
     const today = new Date()
     const isOverdue = date < today
     const isToday = date.toDateString() === today.toDateString()
-    
+
     if (isToday) return { text: 'Due Today', isUrgent: true }
     if (isOverdue) return { text: 'Overdue', isUrgent: true }
-    return { text: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), isUrgent: false }
+    return {
+      text: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      isUrgent: false,
+    }
   }
 
   const Column = ({ title, count, barColor, bgGradient, tasks: columnTasks, isDone }: any) => (
-    <div className="flex-shrink-0 w-80">
-      <div className={cn("rounded-2xl p-4", bgGradient)}>
-        <div className="flex items-center justify-between mb-4 px-2">
+    <div className="w-full sm:w-80 sm:flex-shrink-0">
+      <div className={cn('rounded-2xl p-4', bgGradient)}>
+        <div className="mb-4 flex items-center justify-between px-2">
           <div className="flex items-center gap-2">
-            <div className={cn("w-1 h-6 rounded-full", barColor)}></div>
+            <div className={cn('h-6 w-1 rounded-full', barColor)}></div>
             <h3 className="font-bold text-gray-900 dark:text-white">{title}</h3>
-            <span className="px-2 py-0.5 text-xs font-bold bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-md shadow-sm">
+            <span className="rounded-md bg-white px-2 py-0.5 text-xs font-bold text-gray-600 shadow-sm dark:bg-gray-800 dark:text-gray-400">
               {count}
             </span>
           </div>
-          <button className="material-symbols-outlined text-gray-400 hover:text-gray-600 text-lg">add</button>
+          <button className="material-symbols-outlined text-lg text-gray-400 hover:text-gray-600">
+            add
+          </button>
         </div>
 
         <div className="space-y-2">
           {columnTasks.map((task: Task) => {
             const dueDate = formatDueDate(task.due)
-            const progress = task.subtasks 
-              ? Math.round((task.subtasks.filter(s => s.completed).length / task.subtasks.length) * 100)
+            const progress = task.subtasks
+              ? Math.round(
+                  (task.subtasks.filter((s) => s.completed).length / task.subtasks.length) * 100
+                )
               : 0
 
             return (
               <div
                 key={task.id}
                 onClick={() => onTaskClick(task)}
-                className="bg-white dark:bg-gray-900 rounded-xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer group"
+                className="group cursor-pointer rounded-xl bg-white p-4 shadow-sm transition-all hover:shadow-md dark:bg-gray-900"
               >
-                <div className="flex items-start gap-3 mb-3">
+                <div className="mb-3 flex items-start gap-3">
                   <input
                     type="checkbox"
                     checked={task.completed}
@@ -60,18 +72,26 @@ export function AsanaKanban({ tasks, onTaskClick, onTaskStatusChange, onDeleteTa
                       e.stopPropagation()
                       onTaskStatusChange(task.id, task.completed ? 'todo' : 'completed')
                     }}
-                    className="mt-0.5 w-4 h-4 rounded border-gray-300"
+                    className="mt-0.5 h-4 w-4 rounded border-gray-300"
                   />
                   <div className="flex-1">
-                    <h4 className={cn(
-                      "font-semibold text-gray-900 dark:text-white text-sm mb-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors",
-                      isDone && "line-through"
-                    )}>
+                    <h4
+                      className={cn(
+                        'mb-1 text-sm font-semibold text-gray-900 transition-colors group-hover:text-blue-600 dark:text-white dark:group-hover:text-blue-400',
+                        isDone && 'line-through'
+                      )}
+                    >
                       {task.title}
                     </h4>
                     {task.description && (
-                      <p className={cn("text-xs text-gray-500 dark:text-gray-400 mb-2", isDone && "line-through")}>
-                        {task.description.slice(0, 60)}{task.description.length > 60 ? '...' : ''}
+                      <p
+                        className={cn(
+                          'mb-2 text-xs text-gray-500 dark:text-gray-400',
+                          isDone && 'line-through'
+                        )}
+                      >
+                        {task.description.slice(0, 60)}
+                        {task.description.length > 60 ? '...' : ''}
                       </p>
                     )}
                   </div>
@@ -80,41 +100,58 @@ export function AsanaKanban({ tasks, onTaskClick, onTaskStatusChange, onDeleteTa
                 {/* Progress Bar */}
                 {task.status === 'in_progress' && task.subtasks && task.subtasks.length > 0 && (
                   <div className="mb-3">
-                    <div className="flex justify-between text-xs mb-1">
-                      <span className="text-gray-600 dark:text-gray-400 font-medium">Progress</span>
-                      <span className="text-blue-600 dark:text-blue-400 font-bold">{progress}%</span>
+                    <div className="mb-1 flex justify-between text-xs">
+                      <span className="font-medium text-gray-600 dark:text-gray-400">Progress</span>
+                      <span className="font-bold text-blue-600 dark:text-blue-400">
+                        {progress}%
+                      </span>
                     </div>
-                    <div className="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-2 overflow-hidden">
-                      <div className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full transition-all duration-300" style={{ width: `${progress}%` }}></div>
+                    <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
+                      <div
+                        className="h-2 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-300"
+                        style={{ width: `${progress}%` }}
+                      ></div>
                     </div>
                   </div>
                 )}
 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className={cn(
-                      "flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-md",
-                      task.priority === 'high' ? 'bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400' :
-                      task.priority === 'medium' ? 'bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400' :
-                      'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400'
-                    )}>
+                    <span
+                      className={cn(
+                        'flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold',
+                        task.priority === 'high'
+                          ? 'bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400'
+                          : task.priority === 'medium'
+                            ? 'bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400'
+                            : 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400'
+                      )}
+                    >
                       <span className="material-symbols-outlined text-xs">flag</span>
-                      {task.priority === 'high' ? 'High' : task.priority === 'medium' ? 'Med' : 'Low'}
+                      {task.priority === 'high'
+                        ? 'High'
+                        : task.priority === 'medium'
+                          ? 'Med'
+                          : 'Low'}
                     </span>
                     {task.category && (
-                      <span className="px-2 py-1 text-xs font-medium bg-purple-50 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400 rounded-md">
+                      <span className="rounded-md bg-purple-50 px-2 py-1 text-xs font-medium text-purple-600 dark:bg-purple-900/20 dark:text-purple-400">
                         {task.category}
                       </span>
                     )}
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100 dark:border-gray-800">
+                <div className="mt-3 flex items-center justify-between border-t border-gray-100 pt-3 dark:border-gray-800">
                   {dueDate ? (
-                    <div className={cn(
-                      "flex items-center gap-1.5 text-xs",
-                      dueDate.isUrgent ? "font-semibold text-red-600 dark:text-red-400" : "text-gray-500 dark:text-gray-400"
-                    )}>
+                    <div
+                      className={cn(
+                        'flex items-center gap-1.5 text-xs',
+                        dueDate.isUrgent
+                          ? 'font-semibold text-red-600 dark:text-red-400'
+                          : 'text-gray-500 dark:text-gray-400'
+                      )}
+                    >
                       <span className="material-symbols-outlined text-sm">
                         {dueDate.isUrgent ? 'alarm' : 'calendar_today'}
                       </span>
@@ -133,7 +170,7 @@ export function AsanaKanban({ tasks, onTaskClick, onTaskStatusChange, onDeleteTa
   )
 
   return (
-    <div className="flex gap-4 overflow-x-auto pb-4">
+    <div className="no-scrollbar flex snap-x snap-mandatory flex-col gap-4 overflow-x-auto pb-4 sm:flex-row sm:gap-4">
       <Column
         title="To Do"
         count={todoTasks.length}

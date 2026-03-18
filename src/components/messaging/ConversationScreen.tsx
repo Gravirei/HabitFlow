@@ -62,7 +62,8 @@ function groupMessages(messages: Message[]): GroupedMessage[] {
     const isFirstInSequence = !prev || prev.senderId !== msg.senderId || showDateSeparator
     const showAvatar = !isSent && isFirstInSequence
 
-    const isLastInGroup = !next || next.senderId !== msg.senderId || !isSameDay(msg.createdAt, next.createdAt)
+    const isLastInGroup =
+      !next || next.senderId !== msg.senderId || !isSameDay(msg.createdAt, next.createdAt)
 
     result.push({ message: msg, showAvatar, isLastInGroup, showDateSeparator, dateSeparatorLabel })
   }
@@ -84,13 +85,17 @@ function getSenderColor(userId: string): string {
 
 function DateSeparator({ label }: { label: string }) {
   return (
-    <div className="my-5 flex items-center gap-3">
-      <div className="h-px flex-1 bg-gradient-to-r from-transparent via-white/[0.14] to-transparent" />
-      <div className="rounded-full border border-white/[0.07] bg-white/[0.03] px-3 py-1 text-[10px] font-extrabold tracking-[0.14em] text-white/40 uppercase">
+    <motion.div
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="my-6 flex items-center gap-4"
+    >
+      <div className="h-px flex-1 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+      <div className="border-white/8 rounded-full border bg-white/5 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-white/40">
         {label}
       </div>
-      <div className="h-px flex-1 bg-gradient-to-r from-transparent via-white/[0.14] to-transparent" />
-    </div>
+      <div className="h-px flex-1 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+    </motion.div>
   )
 }
 
@@ -181,14 +186,24 @@ export function ConversationScreen({ conversationId, onBack }: ConversationScree
     if (!participantId || !conversation) return
     if (!canNudge(participantId)) {
       toast.error('Nudge on cooldown', {
-        style: { background: '#0f1628', color: '#fff', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.1)' },
+        style: {
+          background: '#0f1628',
+          color: '#fff',
+          borderRadius: '14px',
+          border: '1px solid rgba(255,255,255,0.1)',
+        },
       })
       return
     }
     // sendNudgeMessage handles the socialStore.sendNudge call internally — do NOT call it here too
     sendNudgeMessage(conversationId, participantId)
     toast.success(`Nudge sent to ${conversation.name}`, {
-      style: { background: '#0f1628', color: '#fff', borderRadius: '14px', border: '1px solid rgba(0,229,204,0.2)' },
+      style: {
+        background: '#0f1628',
+        color: '#fff',
+        borderRadius: '14px',
+        border: '1px solid rgba(0,229,204,0.2)',
+      },
     })
   }
 
@@ -198,7 +213,12 @@ export function ConversationScreen({ conversationId, onBack }: ConversationScree
         await sendTextMessage(conversationId, text)
       } catch {
         toast.error('Message failed to send', {
-          style: { background: '#0f1628', color: '#fff', borderRadius: '14px', border: '1px solid rgba(255,77,109,0.3)' },
+          style: {
+            background: '#0f1628',
+            color: '#fff',
+            borderRadius: '14px',
+            border: '1px solid rgba(255,77,109,0.3)',
+          },
         })
       }
     },
@@ -214,18 +234,19 @@ export function ConversationScreen({ conversationId, onBack }: ConversationScree
   }
 
   return (
-    <div className="flex h-full flex-col">
-      {/* Header */}
-      <div className="sticky top-0 z-10 border-b border-white/[0.06] bg-[#0a0f1c]/65 backdrop-blur-2xl">
-        <div className="flex items-center gap-3 px-3.5 pb-3 pt-safe">
-          <button
+    <div className="flex h-full flex-col bg-[#0a0f1c]">
+      {/* Header - Glassmorphism */}
+      <header className="sticky top-0 z-30 border-b border-white/5 bg-[#0a0f1c]/80 backdrop-blur-2xl">
+        <div className="pt-safe flex items-center gap-3 px-4 pb-3">
+          <motion.button
             type="button"
             onClick={onBack}
-            className="flex size-9 items-center justify-center rounded-xl border border-transparent text-white/70 hover:bg-white/[0.04] hover:text-white transition-colors cursor-pointer"
+            whileTap={{ scale: 0.92 }}
+            className="flex size-10 cursor-pointer items-center justify-center rounded-xl text-white/60 transition-colors hover:bg-white/5 hover:text-white"
             aria-label="Back to conversations"
           >
-            <span className="material-symbols-outlined text-[20px]">arrow_back</span>
-          </button>
+            <span className="material-symbols-outlined text-2xl">arrow_back</span>
+          </motion.button>
 
           {/* Avatar */}
           <div className="relative flex-shrink-0">
@@ -238,24 +259,37 @@ export function ConversationScreen({ conversationId, onBack }: ConversationScree
                       key={id}
                       src={friend?.avatarUrl || '/images/avatars/avatar1.jpg'}
                       alt=""
-                      className="size-8 rounded-xl border-2 border-[#0F1117] object-cover"
-                      onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/images/avatars/avatar1.jpg' }}
+                      className="size-9 rounded-xl border-2 border-[#0a0f1c] object-cover"
+                      onError={(e) => {
+                        const target = e.currentTarget as HTMLImageElement
+                        target.src = '/images/avatars/avatar1.jpg'
+                      }}
                     />
                   )
                 })}
+                {conversation.memberCount > 3 && (
+                  <div className="flex size-9 items-center justify-center rounded-xl border-2 border-[#0a0f1c] bg-white/10 text-[10px] font-bold text-white">
+                    +{conversation.memberCount - 3}
+                  </div>
+                )}
               </div>
             ) : (
               <>
                 <img
                   src={conversation.avatarUrl || '/images/avatars/avatar1.jpg'}
                   alt={conversation.name}
-                  className="size-10 rounded-2xl object-cover border border-white/[0.06]"
-                  onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/images/avatars/avatar1.jpg' }}
+                  className="size-11 rounded-2xl border border-white/10 object-cover shadow-lg"
+                  onError={(e) => {
+                    const target = e.currentTarget as HTMLImageElement
+                    target.src = '/images/avatars/avatar1.jpg'
+                  }}
                 />
                 <span
                   className={
-                    `absolute -bottom-0.5 -right-0.5 size-[10px] rounded-full ring-2 ring-[#0F1117] ` +
-                    (isParticipantOnline ? 'bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.5)]' : 'bg-white/25')
+                    `absolute -bottom-0.5 -right-0.5 size-3 rounded-full border-2 border-[#0a0f1c] ring-2 ring-[#0a0f1c] ` +
+                    (isParticipantOnline
+                      ? 'bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.6)]'
+                      : 'bg-white/30')
                   }
                   aria-hidden="true"
                 />
@@ -265,71 +299,88 @@ export function ConversationScreen({ conversationId, onBack }: ConversationScree
 
           {/* Name + status */}
           <div className="min-w-0 flex-1">
-            <div className="truncate text-[14px] font-extrabold tracking-tight text-white">
+            <div className="truncate text-[15px] font-bold tracking-tight text-white">
               {conversation.name}
             </div>
-            <div className="mt-0.5 text-[11px] text-white/35">
-              {isGroupChat
-                ? `${conversation.memberCount} members · ${conversation.onlineCount} online`
-                : isParticipantOnline
-                  ? 'Active now'
-                  : 'Offline'}
+            <div className="mt-0.5 flex items-center gap-1.5 text-[12px] text-white/40">
+              {isGroupChat ? (
+                <>
+                  <span>{conversation.memberCount} members</span>
+                  <span className="text-white/20">·</span>
+                  <span className="text-emerald-400/80">{conversation.onlineCount} online</span>
+                </>
+              ) : isParticipantOnline ? (
+                <span className="text-emerald-400/80">Active now</span>
+              ) : (
+                <span>Offline</span>
+              )}
             </div>
           </div>
 
           {/* Actions */}
           <div className="flex items-center gap-2">
             {!isGroupChat && (
-              <button
+              <motion.button
                 type="button"
                 onClick={handleNudge}
-                className="flex size-9 items-center justify-center rounded-xl border border-white/[0.06] bg-white/[0.03] text-white/60 hover:bg-white/[0.06] hover:text-amber-200 transition-colors cursor-pointer"
+                whileTap={{ scale: 0.9 }}
+                className="border-white/8 flex size-10 cursor-pointer items-center justify-center rounded-xl border bg-white/5 text-white/50 transition-colors hover:bg-white/10 hover:text-amber-300"
                 aria-label="Send nudge"
               >
-                <span className="material-symbols-outlined text-[18px]">notifications_active</span>
-              </button>
+                <span className="material-symbols-outlined text-xl">notifications_active</span>
+              </motion.button>
             )}
 
-            <button
+            <motion.button
               type="button"
               onClick={() => setShowGroupInfo(true)}
-              className="flex size-9 items-center justify-center rounded-xl border border-white/[0.06] bg-white/[0.03] text-white/60 hover:bg-white/[0.06] hover:text-white transition-colors cursor-pointer"
+              whileTap={{ scale: 0.9 }}
+              className="border-white/8 flex size-10 cursor-pointer items-center justify-center rounded-xl border bg-white/5 text-white/50 transition-colors hover:bg-white/10 hover:text-white"
               aria-label={isGroupChat ? 'Group info' : 'Conversation info'}
             >
-              <span className="material-symbols-outlined text-[18px]">info</span>
-            </button>
+              <span className="material-symbols-outlined text-xl">info</span>
+            </motion.button>
           </div>
         </div>
-      </div>
+      </header>
 
       {/* Messages */}
       <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="flex-1 overflow-y-auto px-3.5 py-4"
+        className="no-scrollbar flex-1 overflow-y-auto px-4 py-5"
         role="log"
         aria-live="polite"
         aria-label="Message list"
       >
         {isLoadingMessages && conversationMessages.length === 0 ? (
-          <div className="space-y-3 py-8">
+          <div className="space-y-4 py-8">
             {Array.from({ length: 6 }).map((_, i) => (
               <div
                 key={i}
-                className={`h-12 rounded-2xl bg-white/[0.03] border border-white/[0.05] ${reduced ? '' : 'animate-pulse'}`}
+                className={`h-14 rounded-2xl border border-white/5 bg-white/5 ${reduced ? '' : 'animate-pulse'}`}
+                style={{ width: `${60 + Math.random() * 35}%` }}
               />
             ))}
           </div>
         ) : conversationMessages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center gap-3 py-16 text-center">
-            <div className="size-16 rounded-3xl border border-white/[0.06] bg-white/[0.028] flex items-center justify-center">
-              <span className="material-symbols-outlined text-[28px] text-white/20">chat_bubble_outline</span>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex flex-col items-center justify-center gap-4 py-20 text-center"
+          >
+            <div className="size-18 border-white/8 flex items-center justify-center rounded-3xl border bg-white/5">
+              <span className="material-symbols-outlined text-4xl text-white/20">
+                chat_bubble_outline
+              </span>
             </div>
             <div>
-              <p className="text-sm font-semibold text-white/70">No messages yet</p>
-              <p className="mt-1 text-xs text-white/35">Send a message to start the conversation.</p>
+              <p className="text-[15px] font-semibold text-white/70">No messages yet</p>
+              <p className="mt-1.5 text-[13px] text-white/35">
+                Send a message to start the conversation.
+              </p>
             </div>
-          </div>
+          </motion.div>
         ) : (
           <div className="flex flex-col gap-1">
             {grouped.map((g) => {
@@ -360,11 +411,18 @@ export function ConversationScreen({ conversationId, onBack }: ConversationScree
         )}
 
         {/* Typing indicator (bottom, above input) */}
-        {typingList.length > 0 && (
-          <div className="mt-2">
-            <TypingIndicator conversationId={conversationId} />
-          </div>
-        )}
+        <AnimatePresence>
+          {typingList.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              className="mt-3"
+            >
+              <TypingIndicator conversationId={conversationId} />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Scroll-to-bottom FAB */}
@@ -373,15 +431,15 @@ export function ConversationScreen({ conversationId, onBack }: ConversationScree
           <motion.button
             type="button"
             onClick={scrollToBottom}
-            initial={reduced ? { opacity: 1 } : { opacity: 0, y: 10, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={reduced ? { opacity: 0 } : { opacity: 0, y: 10, scale: 0.98 }}
-            transition={reduced ? { duration: 0 } : { type: 'spring', damping: 24, stiffness: 320 }}
-            className="fixed bottom-28 right-4 z-20 flex items-center gap-2 rounded-full border border-white/[0.08] bg-[#0f1628]/80 px-3.5 py-2 text-[12px] font-semibold text-white/80 backdrop-blur-2xl shadow-[0_24px_64px_rgba(0,0,0,0.55)] cursor-pointer"
+            initial={reduced ? { opacity: 1 } : { opacity: 0, scale: 0.8, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={reduced ? { opacity: 0 } : { opacity: 0, scale: 0.8, y: 20 }}
+            transition={reduced ? { duration: 0 } : { type: 'spring', damping: 25, stiffness: 300 }}
+            className="fixed bottom-28 right-5 z-30 flex cursor-pointer items-center gap-2.5 rounded-2xl border border-white/10 bg-[#0f1628]/90 px-4 py-2.5 text-[12px] font-semibold text-white/80 shadow-[0_8px_32px_rgba(0,0,0,0.5)] backdrop-blur-2xl transition-colors hover:bg-[#1a2235] hover:text-white"
             aria-label="Scroll to latest messages"
           >
             {unreadBelow > 0 && (
-              <span className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-teal-300 px-2 text-[10px] font-extrabold text-[#050810]">
+              <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-teal-400 px-2 text-[10px] font-bold text-[#050810]">
                 {unreadBelow > 99 ? '99+' : unreadBelow}
               </span>
             )}
