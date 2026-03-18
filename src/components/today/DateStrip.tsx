@@ -14,14 +14,16 @@ export function DateStrip({ days, selectedDate, onDateClick }: DateStripProps) {
 
   useEffect(() => {
     if (scrollRef.current) {
-      const today = new Date().getDate()
-      const itemWidth = 52
-      const gap = 8
-      const containerWidth = scrollRef.current.clientWidth
-      const scrollPos = (today - 1) * (itemWidth + gap) - containerWidth / 2 + itemWidth / 2
-      scrollRef.current.scrollLeft = Math.max(0, scrollPos)
+      const todayIndex = days.findIndex((date) => isToday(date))
+      if (todayIndex !== -1) {
+        const itemWidth = 52
+        const gap = 8
+        const containerWidth = scrollRef.current.clientWidth
+        const scrollPos = todayIndex * (itemWidth + gap) - containerWidth / 2 + itemWidth / 2
+        scrollRef.current.scrollLeft = Math.max(0, scrollPos)
+      }
     }
-  }, [])
+  }, [days])
 
   return (
     <div
