@@ -602,7 +602,7 @@ export function Tasks() {
           />
 
           {/* Sidebar */}
-          <div className="animate-in slide-in-from-left fixed left-0 top-0 z-50 h-full w-80 overflow-y-auto bg-white shadow-2xl duration-300 dark:bg-gray-900">
+          <div className="animate-in slide-in-from-left no-scrollbar fixed left-0 top-0 z-50 h-full w-80 overflow-y-auto bg-white shadow-2xl duration-300 dark:bg-gray-900">
             {/* Header */}
             <div className="sticky top-0 flex items-center justify-between border-b border-gray-200 bg-white px-6 py-4 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-900">
               <div className="flex items-center gap-3">
@@ -829,7 +829,7 @@ export function Tasks() {
 
       {/* Content Area */}
       <main
-        className="scrollbar-hide flex-1 px-6 pb-24 pt-[8.75rem] sm:px-8 md:px-12 lg:px-16"
+        className="no-scrollbar flex-1 overflow-y-auto px-6 pb-24 pt-[8.75rem] sm:px-8 md:px-12 lg:px-16"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         {view === 'kanban' ? (
