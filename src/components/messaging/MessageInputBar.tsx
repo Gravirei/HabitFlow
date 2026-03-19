@@ -4,14 +4,13 @@
  */
 
 import { AnimatePresence, motion } from 'framer-motion'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
 import { useHabitStore } from '@/store/useHabitStore'
 import { useSocialStore } from '../social/socialStore'
 import { MESSAGING_ANIMATIONS, MESSAGING_LIMITS } from './constants'
 
 interface MessageInputBarProps {
-  recipientName: string
   onSend: (text: string) => void
   onShareHabit: (habitId: string) => void
   onShareBadge: (badgeId: string) => void
@@ -22,7 +21,6 @@ interface MessageInputBarProps {
 }
 
 export function MessageInputBar({
-  recipientName,
   onSend,
   onShareHabit,
   onShareBadge,
@@ -54,16 +52,6 @@ export function MessageInputBar({
     el.style.height = `${Math.min(el.scrollHeight, 90)}px`
   }, [text])
 
-  const sendBtnClass = useMemo(() => {
-    if (canSend) {
-      return (
-        'bg-gradient-to-br from-teal-300 to-emerald-300 text-[#050810] ' +
-        'shadow-[0_10px_30px_rgba(0,229,204,0.25)] hover:shadow-[0_12px_36px_rgba(0,229,204,0.33)] '
-      )
-    }
-    return 'bg-white/[0.06] border border-white/[0.08] text-white/25 cursor-not-allowed'
-  }, [canSend])
-
   const send = () => {
     const t = text.trim().slice(0, MESSAGING_LIMITS.MAX_MESSAGE_LENGTH)
     if (!t) return
@@ -89,12 +77,12 @@ export function MessageInputBar({
   }
 
   return (
-    <div className="border-t border-white/[0.06] bg-[#0a0f1c]/75 backdrop-blur-2xl px-3.5 py-3">
+    <div className="bg-[#000000] px-3 pb-safe pt-2">
       <AnimatePresence>
         {shareTrayOpen && (
           <motion.div
             {...trayAnim}
-            className="mb-3 grid grid-cols-3 gap-2 rounded-2xl border border-white/[0.06] bg-white/[0.028] p-2 shadow-[0_18px_50px_rgba(0,0,0,0.35)]"
+            className="mb-3 grid grid-cols-3 gap-2 rounded-3xl bg-[#1C1C1E] p-2"
             role="menu"
             aria-label="Share options"
           >
@@ -105,18 +93,12 @@ export function MessageInputBar({
                 const habitToShare = completedHabits[0] ?? habits[0]
                 if (habitToShare) onShareHabit(habitToShare.id)
               }}
-              className="group flex flex-col items-center justify-center gap-1.5 rounded-2xl border border-white/[0.06] bg-transparent p-3 text-left transition-all duration-200 hover:bg-white/[0.05] hover:border-teal-300/30 cursor-pointer"
-              aria-label="Share habit completion"
+              className="group flex flex-col items-center justify-center gap-1 rounded-2xl bg-transparent py-3 transition-colors hover:bg-[#2C2C2E]"
             >
-              <span
-                className="material-symbols-outlined text-[22px] text-teal-300"
-                style={{ fontVariationSettings: "'FILL' 1" }}
-              >
-                check_circle
-              </span>
-              <span className="text-[10px] font-semibold tracking-wide text-white/60 group-hover:text-white/80">
-                Habit
-              </span>
+              <div className="flex size-12 items-center justify-center rounded-full bg-[#32D74B]/10 text-[#32D74B]">
+                <span className="material-symbols-outlined text-[26px]">check_circle</span>
+              </div>
+              <span className="mt-1 text-[12px] font-medium text-[#8E8E93]">Habit</span>
             </button>
 
             <button
@@ -126,65 +108,48 @@ export function MessageInputBar({
                 const badgeToShare = unlockedBadges[0] ?? badges[0]
                 if (badgeToShare) onShareBadge(badgeToShare.id)
               }}
-              className="group flex flex-col items-center justify-center gap-1.5 rounded-2xl border border-white/[0.06] bg-transparent p-3 transition-all duration-200 hover:bg-white/[0.05] hover:border-violet-300/30 cursor-pointer"
-              aria-label="Share badge"
+              className="group flex flex-col items-center justify-center gap-1 rounded-2xl bg-transparent py-3 transition-colors hover:bg-[#2C2C2E]"
             >
-              <span
-                className="material-symbols-outlined text-[22px] text-violet-300"
-                style={{ fontVariationSettings: "'FILL' 1" }}
-              >
-                military_tech
-              </span>
-              <span className="text-[10px] font-semibold tracking-wide text-white/60 group-hover:text-white/80">
-                Badge
-              </span>
+              <div className="flex size-12 items-center justify-center rounded-full bg-[#5E5CE6]/10 text-[#5E5CE6]">
+                <span className="material-symbols-outlined text-[26px]">military_tech</span>
+              </div>
+              <span className="mt-1 text-[12px] font-medium text-[#8E8E93]">Badge</span>
             </button>
 
             <button
               type="button"
               onClick={onSendNudge}
-              className="group flex flex-col items-center justify-center gap-1.5 rounded-2xl border border-white/[0.06] bg-transparent p-3 transition-all duration-200 hover:bg-white/[0.05] hover:border-amber-300/30 cursor-pointer"
-              aria-label="Send nudge"
+              className="group flex flex-col items-center justify-center gap-1 rounded-2xl bg-transparent py-3 transition-colors hover:bg-[#2C2C2E]"
             >
-              <span
-                className="material-symbols-outlined text-[22px] text-amber-300"
-                style={{ fontVariationSettings: "'FILL' 1" }}
-              >
-                notifications_active
-              </span>
-              <span className="text-[10px] font-semibold tracking-wide text-white/60 group-hover:text-white/80">
-                Nudge
-              </span>
+              <div className="flex size-12 items-center justify-center rounded-full bg-[#FF9F0A]/10 text-[#FF9F0A]">
+                <span className="material-symbols-outlined text-[26px]">notifications_active</span>
+              </div>
+              <span className="mt-1 text-[12px] font-medium text-[#8E8E93]">Nudge</span>
             </button>
           </motion.div>
         )}
       </AnimatePresence>
 
-      <div className="flex items-end gap-2.5">
-        <div className="flex flex-1 items-end gap-2 rounded-2xl border border-white/[0.06] bg-white/[0.028] px-3.5 py-2.5 backdrop-blur-xl focus-within:border-teal-300/30 focus-within:bg-teal-300/[0.04] focus-within:shadow-[0_0_0_4px_rgba(0,229,204,0.06)] transition-all duration-200">
-          <button
-            type="button"
-            onClick={onToggleShareTray}
-            className="flex size-8 items-center justify-center rounded-xl text-white/30 hover:text-teal-200 transition-colors cursor-pointer"
-            aria-label={shareTrayOpen ? 'Close share tray' : 'Open share tray'}
-          >
-            <span
-              className={`material-symbols-outlined text-[20px] ${shareTrayOpen ? 'rotate-45' : ''}`}
-              style={{ fontVariationSettings: "'FILL' 1", transition: reduced ? 'none' : 'transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1)' }}
-            >
-              add
-            </span>
-          </button>
+      <div className="flex items-end gap-2 pb-2">
+        <button
+          type="button"
+          onClick={onToggleShareTray}
+          className="mb-1 flex size-[34px] shrink-0 items-center justify-center rounded-full bg-[#2C2C2E] text-[#8E8E93] transition-colors hover:bg-[#3A3A3C] hover:text-white"
+        >
+          <span className={`material-symbols-outlined text-[24px] ${shareTrayOpen ? 'rotate-45' : ''}`}
+                style={{ transition: 'transform 200ms ease' }}>
+            add
+          </span>
+        </button>
 
+        <div className="flex min-h-[36px] flex-1 items-end rounded-[20px] border border-[#38383A] bg-[#1C1C1E] px-4 py-2 focus-within:border-[#8E8E93]">
           <textarea
             ref={textareaRef}
             value={text}
             onChange={handleTextChange}
-            placeholder={`Message ${recipientName}…`}
+            placeholder="iMessage"
             rows={1}
-            className="flex-1 resize-none bg-transparent text-[13.5px] leading-relaxed text-white placeholder:text-white/25 outline-none max-h-[90px]"
-            aria-label="Message input"
-            role="textbox"
+            className="w-full resize-none bg-transparent text-[16px] leading-[22px] text-white placeholder:text-[#8E8E93] outline-none max-h-[120px]"
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault()
@@ -194,20 +159,18 @@ export function MessageInputBar({
           />
         </div>
 
-        <button
-          type="button"
-          onClick={send}
-          disabled={!canSend}
-          className={`flex size-11 items-center justify-center rounded-2xl transition-all duration-200 active:scale-95 ${sendBtnClass}`}
-          aria-label={canSend ? 'Send message' : 'Type a message to send'}
-        >
-          <span
-            className="material-symbols-outlined text-[19px]"
-            style={{ fontVariationSettings: "'FILL' 1" }}
+        {canSend && (
+          <motion.button
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0, opacity: 0 }}
+            type="button"
+            onClick={send}
+            className="mb-1 flex size-[34px] shrink-0 items-center justify-center rounded-full bg-[#32D74B] text-white transition-transform active:scale-90"
           >
-            arrow_upward
-          </span>
-        </button>
+            <span className="material-symbols-outlined text-[18px] font-bold">arrow_upward</span>
+          </motion.button>
+        )}
       </div>
     </div>
   )

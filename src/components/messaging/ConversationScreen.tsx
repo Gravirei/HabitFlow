@@ -1,10 +1,11 @@
 /**
  * ConversationScreen — Full message thread view
- * Modern messaging-app UI inspired by habitflow-messaging-v2.html
+ * Redesigned for a premium, modern messaging experience with 
+ * enhanced glassmorphism, depth, and fluid interactions.
  */
 
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, motion, useScroll, useSpring } from 'framer-motion'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
 import { useMessagingStore } from './messagingStore'
 import { useSocialStore } from '../social/socialStore'
@@ -14,14 +15,14 @@ import { GroupInfoScreen } from './GroupInfoScreen'
 import { TypingIndicator } from './TypingIndicator'
 import toast from 'react-hot-toast'
 import type { Message } from './types'
+import clsx from 'clsx'
 
 const CURRENT_USER_ID = 'current-user'
-const SCROLL_FAB_THRESHOLD = 200
+const SCROLL_FAB_THRESHOLD = 240
 
-interface ConversationScreenProps {
-  conversationId: string
-  onBack: () => void
-}
+/* ─────────────────────────────────────────────
+   Helpers
+   ───────────────────────────────────────────── */
 
 function formatDateSeparator(iso: string): string {
   const date = new Date(iso)
@@ -32,7 +33,11 @@ function formatDateSeparator(iso: string): string {
   if (date.toDateString() === today.toDateString()) return 'Today'
   if (date.toDateString() === yesterday.toDateString()) return 'Yesterday'
 
-  return date.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })
+  return date.toLocaleDateString([], { 
+    weekday: 'long', 
+    month: 'short', 
+    day: 'numeric' 
+  })
 }
 
 function isSameDay(a: string, b: string): boolean {
@@ -75,29 +80,95 @@ function getSenderColor(userId: string): string {
   let hash = 0
   for (let i = 0; i < userId.length; i++) {
     hash = userId.charCodeAt(i) + ((hash << 5) - hash)
-    hash = hash & hash
   }
   const hue = Math.abs(hash) % 360
-  const saturation = 60 + (Math.abs(hash >> 8) % 21)
-  const lightness = 58 + (Math.abs(hash >> 16) % 16)
-  return `hsl(${hue}, ${saturation}%, ${lightness}%)`
+  return `hsl(${hue}, 70%, 75%)`
 }
+
+/* ─────────────────────────────────────────────
+   Sub-components
+   ───────────────────────────────────────────── */
 
 function DateSeparator({ label }: { label: string }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: -10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="my-6 flex items-center gap-4"
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      className="sticky top-4 z-10 my-8 flex justify-center"
     >
-      <div className="h-px flex-1 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-      <div className="border-white/8 rounded-full border bg-white/5 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-white/40">
+      <div className="rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.08em] text-white/50 backdrop-blur-md shadow-sm">
         {label}
       </div>
-      <div className="h-px flex-1 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
     </motion.div>
   )
 }
+
+function LoadingSkeleton() {
+  return (
+    <div className="space-y-6 py-4">
+      {[...Array(5)].map((_, i) => (
+        <div 
+          key={i} 
+          className={clsx(
+            "flex items-end gap-3",
+            i % 2 === 0 ? "flex-row" : "flex-row-reverse"
+          )}
+        >
+          <div className="size-8 rounded-xl bg-white/5 animate-pulse" />
+          <div 
+            className={clsx(
+              "h-12 rounded-2xl bg-white/5 animate-pulse",
+              i % 2 === 0 ? "rounded-bl-none" : "rounded-br-none"
+            )}
+            style={{ width: `${40 + Math.random() * 40}%` }}
+          />
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function EmptyConversation({ name, onAction }: { name: string; onAction: () => void }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="flex flex-col items-center justify-center gap-6 py-20 text-center"
+    >
+      <div className="relative">
+        <div className="absolute inset-0 bg-teal-500/20 blur-3xl rounded-full animate-pulse" />
+        <div className="relative flex size-24 items-center justify-center rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-xl">
+          <span className="material-symbols-outlined text-5xl text-teal-400/60">
+            forum
+          </span>
+        </div>
+      </div>
+      
+      <div className="max-w-[280px]">
+        <h3 className="text-xl font-bold tracking-tight text-white">
+          Say hello to {name}!
+        </h3>
+        <p className="mt-2 text-sm leading-relaxed text-white/40">
+          Start your journey together. Share a habit, send a nudge, or just say hi.
+        </p>
+      </div>
+
+      <motion.button
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        onClick={onAction}
+        className="flex items-center gap-2 rounded-2xl bg-teal-500 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-teal-500/20"
+      >
+        <span className="material-symbols-outlined text-lg">waving_hand</span>
+        Send a Wave
+      </motion.button>
+    </motion.div>
+  )
+}
+
+/* ─────────────────────────────────────────────
+   Main Component
+   ───────────────────────────────────────────── */
 
 export function ConversationScreen({ conversationId, onBack }: ConversationScreenProps) {
   const reduced = useReducedMotion()
@@ -139,14 +210,25 @@ export function ConversationScreen({ conversationId, onBack }: ConversationScree
 
   const grouped = useMemo(() => groupMessages(conversationMessages), [conversationMessages])
 
+  // Scroll position tracking for progress bar
+  const { scrollYProgress } = useScroll({ container: scrollRef })
+  const scaleX = useSpring(scrollYProgress, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001
+  })
+
   useEffect(() => {
-    setActiveConversation(conversationId) // Also calls markConversationRead internally
+    setActiveConversation(conversationId)
     return () => setActiveConversation(null)
   }, [conversationId, setActiveConversation])
 
   useEffect(() => {
     if (!showScrollFab) {
-      messagesEndRef.current?.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth' })
+      messagesEndRef.current?.scrollIntoView({ 
+        behavior: reduced ? 'auto' : 'smooth',
+        block: 'end'
+      })
     }
   }, [conversationMessages.length, reduced, showScrollFab])
 
@@ -154,27 +236,26 @@ export function ConversationScreen({ conversationId, onBack }: ConversationScree
     const container = scrollRef.current
     if (!container) return
 
-    if (container.scrollTop < 50 && hasMore && !isLoadingMessages) {
+    // Load more at top
+    if (container.scrollTop < 100 && hasMore && !isLoadingMessages) {
       loadMoreMessages(conversationId)
     }
 
     const distanceFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight
     setShowScrollFab(distanceFromBottom > SCROLL_FAB_THRESHOLD)
 
-    if (distanceFromBottom <= 10) setUnreadBelow(0)
+    if (distanceFromBottom <= 20) setUnreadBelow(0)
   }, [hasMore, isLoadingMessages, conversationId, loadMoreMessages])
 
   const prevMessageCountRef = useRef(conversationMessages.length)
   useEffect(() => {
     if (showScrollFab && conversationMessages.length > prevMessageCountRef.current) {
-      // Count all new messages from other users since last check
       const newMessages = conversationMessages.slice(prevMessageCountRef.current)
       const newFromOthers = newMessages.filter((m) => m.senderId !== CURRENT_USER_ID).length
       if (newFromOthers > 0) setUnreadBelow((p) => p + newFromOthers)
     }
     prevMessageCountRef.current = conversationMessages.length
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [conversationMessages.length])
+  }, [conversationMessages.length, showScrollFab])
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth' })
@@ -185,24 +266,25 @@ export function ConversationScreen({ conversationId, onBack }: ConversationScree
   const handleNudge = () => {
     if (!participantId || !conversation) return
     if (!canNudge(participantId)) {
-      toast.error('Nudge on cooldown', {
+      toast.error('Nudge is on cooldown', {
+        icon: '⏳',
         style: {
-          background: '#0f1628',
+          background: '#1a1f2e',
           color: '#fff',
-          borderRadius: '14px',
+          borderRadius: '16px',
           border: '1px solid rgba(255,255,255,0.1)',
         },
       })
       return
     }
-    // sendNudgeMessage handles the socialStore.sendNudge call internally — do NOT call it here too
     sendNudgeMessage(conversationId, participantId)
     toast.success(`Nudge sent to ${conversation.name}`, {
+      icon: '🔔',
       style: {
-        background: '#0f1628',
+        background: '#1a1f2e',
         color: '#fff',
-        borderRadius: '14px',
-        border: '1px solid rgba(0,229,204,0.2)',
+        borderRadius: '16px',
+        border: '1px solid rgba(20,184,166,0.3)',
       },
     })
   }
@@ -212,14 +294,7 @@ export function ConversationScreen({ conversationId, onBack }: ConversationScree
       try {
         await sendTextMessage(conversationId, text)
       } catch {
-        toast.error('Message failed to send', {
-          style: {
-            background: '#0f1628',
-            color: '#fff',
-            borderRadius: '14px',
-            border: '1px solid rgba(255,77,109,0.3)',
-          },
-        })
+        toast.error('Failed to send message')
       }
     },
     [conversationId, sendTextMessage]
@@ -227,162 +302,139 @@ export function ConversationScreen({ conversationId, onBack }: ConversationScree
 
   if (!conversation) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <p className="text-sm text-white/45">Conversation not found</p>
+      <div className="flex h-full items-center justify-center bg-[#0a0f1c]">
+        <div className="text-center">
+          <div className="mx-auto mb-4 flex size-16 items-center justify-center rounded-2xl bg-white/5 text-white/20">
+            <span className="material-symbols-outlined text-3xl">error</span>
+          </div>
+          <p className="text-sm font-medium text-white/40">Conversation not found</p>
+          <button 
+            onClick={onBack}
+            className="mt-4 text-sm font-bold text-teal-400"
+          >
+            Go Back
+          </button>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="flex h-full flex-col bg-[#0a0f1c]">
-      {/* Header - Glassmorphism */}
-      <header className="sticky top-0 z-30 border-b border-white/5 bg-[#0a0f1c]/80 backdrop-blur-2xl">
-        <div className="pt-safe flex items-center gap-3 px-4 pb-3">
+    <div className="relative flex h-full flex-col overflow-hidden bg-[#000000] font-sans">
+      {/* Header */}
+      <header className="relative z-30 shrink-0 border-b border-[#222222] bg-[#000000]/90 backdrop-blur-xl">
+        {/* Scroll Progress Bar */}
+        <motion.div 
+          className="absolute bottom-0 left-0 right-0 h-[1px] bg-[#32D74B] origin-left"
+          style={{ scaleX }}
+        />
+
+        <div className="flex items-center gap-2 px-3 pb-3 pt-safe">
           <motion.button
-            type="button"
+            whileTap={{ scale: 0.9 }}
             onClick={onBack}
-            whileTap={{ scale: 0.92 }}
-            className="flex size-10 cursor-pointer items-center justify-center rounded-xl text-white/60 transition-colors hover:bg-white/5 hover:text-white"
-            aria-label="Back to conversations"
+            className="flex size-10 shrink-0 items-center justify-center rounded-full text-[#32D74B] transition-colors hover:bg-[#1C1C1E]"
           >
-            <span className="material-symbols-outlined text-2xl">arrow_back</span>
+            <span className="material-symbols-outlined text-[28px] font-light">chevron_left</span>
           </motion.button>
 
-          {/* Avatar */}
-          <div className="relative flex-shrink-0">
-            {isGroupChat ? (
-              <div className="flex items-center -space-x-2">
-                {conversation.memberIds.slice(0, 3).map((id) => {
-                  const friend = friends.find((f) => f.userId === id)
-                  return (
-                    <img
-                      key={id}
-                      src={friend?.avatarUrl || '/images/avatars/avatar1.jpg'}
-                      alt=""
-                      className="size-9 rounded-xl border-2 border-[#0a0f1c] object-cover"
-                      onError={(e) => {
-                        const target = e.currentTarget as HTMLImageElement
-                        target.src = '/images/avatars/avatar1.jpg'
-                      }}
-                    />
-                  )
-                })}
-                {conversation.memberCount > 3 && (
-                  <div className="flex size-9 items-center justify-center rounded-xl border-2 border-[#0a0f1c] bg-white/10 text-[10px] font-bold text-white">
-                    +{conversation.memberCount - 3}
-                  </div>
-                )}
-              </div>
-            ) : (
-              <>
-                <img
-                  src={conversation.avatarUrl || '/images/avatars/avatar1.jpg'}
-                  alt={conversation.name}
-                  className="size-11 rounded-2xl border border-white/10 object-cover shadow-lg"
-                  onError={(e) => {
-                    const target = e.currentTarget as HTMLImageElement
-                    target.src = '/images/avatars/avatar1.jpg'
-                  }}
-                />
-                <span
-                  className={
-                    `absolute -bottom-0.5 -right-0.5 size-3 rounded-full border-2 border-[#0a0f1c] ring-2 ring-[#0a0f1c] ` +
-                    (isParticipantOnline
-                      ? 'bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.6)]'
-                      : 'bg-white/30')
-                  }
-                  aria-hidden="true"
-                />
-              </>
-            )}
-          </div>
-
-          {/* Name + status */}
-          <div className="min-w-0 flex-1">
-            <div className="truncate text-[15px] font-bold tracking-tight text-white">
-              {conversation.name}
-            </div>
-            <div className="mt-0.5 flex items-center gap-1.5 text-[12px] text-white/40">
+          {/* User Info Section */}
+          <div 
+            className="flex min-w-0 flex-1 cursor-pointer items-center gap-3 active:opacity-70 transition-opacity"
+            onClick={() => setShowGroupInfo(true)}
+          >
+            <div className="relative shrink-0">
               {isGroupChat ? (
-                <>
-                  <span>{conversation.memberCount} members</span>
-                  <span className="text-white/20">·</span>
-                  <span className="text-emerald-400/80">{conversation.onlineCount} online</span>
-                </>
-              ) : isParticipantOnline ? (
-                <span className="text-emerald-400/80">Active now</span>
+                <div className="flex items-center -space-x-3">
+                  {conversation.memberIds.slice(0, 2).map((id, idx) => {
+                    const friend = friends.find((f) => f.userId === id)
+                    return (
+                      <img
+                        key={id}
+                        src={friend?.avatarUrl || `/images/avatars/avatar${idx + 1}.jpg`}
+                        alt=""
+                        className="size-10 rounded-full border-[2.5px] border-[#000000] object-cover bg-[#1C1C1E]"
+                      />
+                    )
+                  })}
+                  {conversation.memberCount > 2 && (
+                    <div className="flex size-10 items-center justify-center rounded-full border-[2.5px] border-[#000000] bg-[#2C2C2E] text-[11px] font-medium text-white">
+                      +{conversation.memberCount - 2}
+                    </div>
+                  )}
+                </div>
               ) : (
-                <span>Offline</span>
+                <>
+                  <img
+                    src={conversation.avatarUrl || '/images/avatars/avatar1.jpg'}
+                    alt={conversation.name}
+                    className="size-11 rounded-full object-cover bg-[#1C1C1E]"
+                  />
+                  {isParticipantOnline && (
+                    <span className="absolute -bottom-0.5 -right-0.5 flex h-[14px] w-[14px] items-center justify-center rounded-full border-[2.5px] border-[#000000] bg-[#32D74B]" />
+                  )}
+                </>
               )}
             </div>
+
+            <div className="min-w-0 flex-1">
+              <h2 className="truncate text-[17px] font-semibold tracking-tight text-white">
+                {conversation.name}
+              </h2>
+              <p className="flex items-center gap-1 text-[13px] font-normal text-[#8E8E93]">
+                {isGroupChat ? (
+                  <>
+                    <span>{conversation.memberCount} members</span>
+                    <span className="text-[10px]">·</span>
+                    <span className="text-[#32D74B]">{conversation.onlineCount} online</span>
+                  </>
+                ) : (
+                  <span className={isParticipantOnline ? 'text-[#32D74B]' : ''}>
+                    {isParticipantOnline ? 'Active Now' : 'Offline'}
+                  </span>
+                )}
+              </p>
+            </div>
           </div>
 
-          {/* Actions */}
-          <div className="flex items-center gap-2">
+          {/* Action Icons */}
+          <div className="flex items-center">
             {!isGroupChat && (
               <motion.button
-                type="button"
-                onClick={handleNudge}
                 whileTap={{ scale: 0.9 }}
-                className="border-white/8 flex size-10 cursor-pointer items-center justify-center rounded-xl border bg-white/5 text-white/50 transition-colors hover:bg-white/10 hover:text-amber-300"
+                onClick={handleNudge}
+                className="flex size-10 items-center justify-center rounded-full text-[#32D74B] transition-colors hover:bg-[#1C1C1E]"
                 aria-label="Send nudge"
               >
-                <span className="material-symbols-outlined text-xl">notifications_active</span>
+                <span className="material-symbols-outlined text-[24px]">notifications_active</span>
               </motion.button>
             )}
-
             <motion.button
-              type="button"
-              onClick={() => setShowGroupInfo(true)}
               whileTap={{ scale: 0.9 }}
-              className="border-white/8 flex size-10 cursor-pointer items-center justify-center rounded-xl border bg-white/5 text-white/50 transition-colors hover:bg-white/10 hover:text-white"
-              aria-label={isGroupChat ? 'Group info' : 'Conversation info'}
+              onClick={() => setShowGroupInfo(true)}
+              className="flex size-10 items-center justify-center rounded-full text-[#32D74B] transition-colors hover:bg-[#1C1C1E]"
             >
-              <span className="material-symbols-outlined text-xl">info</span>
+              <span className="material-symbols-outlined text-[24px]">info</span>
             </motion.button>
           </div>
         </div>
       </header>
 
-      {/* Messages */}
+      {/* Message Thread */}
       <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="no-scrollbar flex-1 overflow-y-auto px-4 py-5"
-        role="log"
-        aria-live="polite"
-        aria-label="Message list"
+        className="no-scrollbar relative z-10 flex-1 overflow-y-auto px-4 pb-8"
       >
         {isLoadingMessages && conversationMessages.length === 0 ? (
-          <div className="space-y-4 py-8">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div
-                key={i}
-                className={`h-14 rounded-2xl border border-white/5 bg-white/5 ${reduced ? '' : 'animate-pulse'}`}
-                style={{ width: `${60 + Math.random() * 35}%` }}
-              />
-            ))}
-          </div>
+          <LoadingSkeleton />
         ) : conversationMessages.length === 0 ? (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex flex-col items-center justify-center gap-4 py-20 text-center"
-          >
-            <div className="size-18 border-white/8 flex items-center justify-center rounded-3xl border bg-white/5">
-              <span className="material-symbols-outlined text-4xl text-white/20">
-                chat_bubble_outline
-              </span>
-            </div>
-            <div>
-              <p className="text-[15px] font-semibold text-white/70">No messages yet</p>
-              <p className="mt-1.5 text-[13px] text-white/35">
-                Send a message to start the conversation.
-              </p>
-            </div>
-          </motion.div>
+          <EmptyConversation 
+            name={conversation.name} 
+            onAction={() => handleSendText('👋 Hey there!')} 
+          />
         ) : (
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-0.5 py-6">
             {grouped.map((g) => {
               const isSent = g.message.senderId === CURRENT_USER_ID
               const showSender = isGroupChat && !isSent
@@ -405,62 +457,62 @@ export function ConversationScreen({ conversationId, onBack }: ConversationScree
                 </div>
               )
             })}
-
-            <div ref={messagesEndRef} />
+            <div ref={messagesEndRef} className="h-2" />
           </div>
         )}
 
-        {/* Typing indicator (bottom, above input) */}
+        {/* Typing Overlay */}
         <AnimatePresence>
           {typingList.length > 0 && (
             <motion.div
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 10 }}
-              className="mt-3"
+              exit={{ opacity: 0, y: 20 }}
+              className="sticky bottom-0 z-20 pb-4"
             >
-              <TypingIndicator conversationId={conversationId} />
+              <div className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-[#0a0f1c]/80 px-4 py-2 backdrop-blur-xl shadow-xl">
+                <TypingIndicator conversationId={conversationId} />
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
       </div>
 
-      {/* Scroll-to-bottom FAB */}
+      {/* Fixed UI Overlays */}
       <AnimatePresence>
         {showScrollFab && (
           <motion.button
-            type="button"
+            initial={{ opacity: 0, y: 20, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.9 }}
             onClick={scrollToBottom}
-            initial={reduced ? { opacity: 1 } : { opacity: 0, scale: 0.8, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={reduced ? { opacity: 0 } : { opacity: 0, scale: 0.8, y: 20 }}
-            transition={reduced ? { duration: 0 } : { type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed bottom-28 right-5 z-30 flex cursor-pointer items-center gap-2.5 rounded-2xl border border-white/10 bg-[#0f1628]/90 px-4 py-2.5 text-[12px] font-semibold text-white/80 shadow-[0_8px_32px_rgba(0,0,0,0.5)] backdrop-blur-2xl transition-colors hover:bg-[#1a2235] hover:text-white"
-            aria-label="Scroll to latest messages"
+            className="absolute bottom-28 right-5 z-40 flex items-center gap-3 rounded-full border border-white/10 bg-teal-500 px-5 py-3 font-bold text-white shadow-2xl shadow-teal-500/25 backdrop-blur-lg"
           >
             {unreadBelow > 0 && (
-              <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-teal-400 px-2 text-[10px] font-bold text-[#050810]">
-                {unreadBelow > 99 ? '99+' : unreadBelow}
+              <span className="flex size-5 items-center justify-center rounded-full bg-white text-[10px] font-black text-teal-600">
+                {unreadBelow > 9 ? '9+' : unreadBelow}
               </span>
             )}
-            <span className="material-symbols-outlined text-[18px]">south</span>
+            <span className="text-sm">New Messages</span>
+            <span className="material-symbols-outlined text-[20px]">south</span>
           </motion.button>
         )}
       </AnimatePresence>
 
-      {/* Input */}
-      <MessageInputBar
-        recipientName={conversation.name}
-        onSend={handleSendText}
-        onShareHabit={(habitId) => sendHabitCard(conversationId, habitId)}
-        onShareBadge={(badgeId) => sendBadgeCard(conversationId, badgeId)}
-        onSendNudge={handleNudge}
-        onTyping={(isTyping) => sendTyping(conversationId, isTyping)}
-        shareTrayOpen={shareTrayOpen}
-        onToggleShareTray={toggleShareTray}
-      />
+      {/* Input Section */}
+      <div className="relative z-30 border-t border-[#222222] bg-[#000000]/90 backdrop-blur-xl">
+        <MessageInputBar
+          onSend={handleSendText}
+          onShareHabit={(habitId) => sendHabitCard(conversationId, habitId)}
+          onShareBadge={(badgeId) => sendBadgeCard(conversationId, badgeId)}
+          onSendNudge={handleNudge}
+          onTyping={(isTyping) => sendTyping(conversationId, isTyping)}
+          shareTrayOpen={shareTrayOpen}
+          onToggleShareTray={toggleShareTray}
+        />
+      </div>
 
-      {/* Group info panel */}
+      {/* Info Sidebar/Overlay */}
       <AnimatePresence>
         {showGroupInfo && (
           <GroupInfoScreen

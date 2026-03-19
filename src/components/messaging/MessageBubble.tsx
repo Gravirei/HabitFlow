@@ -84,7 +84,6 @@ const MessageBubbleInner = ({
   senderAvatarUrl,
   isLastInGroup,
   showSenderName,
-  senderColor,
 }: MessageBubbleProps) => {
   const reduced = useReducedMotion()
 
@@ -101,13 +100,13 @@ const MessageBubbleInner = ({
   const receipt = useMemo(() => DELIVERY[message.deliveryStatus], [message.deliveryStatus])
 
   const bubbleClass = isSent
-    ? 'bg-[linear-gradient(135deg,#00b8a0,#007a6e)] text-white shadow-[0_12px_40px_rgba(0,184,160,0.22)] border border-white/10'
-    : 'bg-white/[0.05] text-white border border-white/[0.07]'
+    ? 'bg-[#32D74B] text-white'
+    : 'bg-[#2C2C2E] text-white'
 
   // shape: last in group gets the "tail" corner
   const radiusClass = isSent
-    ? 'rounded-[18px] rounded-br-[6px]'
-    : 'rounded-[18px] rounded-bl-[6px]'
+    ? 'rounded-[20px] rounded-br-[4px]'
+    : 'rounded-[20px] rounded-bl-[4px]'
 
   // Soft-deleted messages: show an italicised placeholder instead of content
   if (message.isDeleted) {
@@ -115,8 +114,8 @@ const MessageBubbleInner = ({
       <motion.div {...motionProps}>
         <div className={`flex items-end gap-2 ${isSent ? 'justify-end' : 'justify-start'}`} role="article" aria-label="Deleted message">
           {!isSent && <div className="w-8 flex-shrink-0"><div className="size-7" aria-hidden="true" /></div>}
-          <div className={`flex flex-col gap-1 ${isSent ? 'items-end' : 'items-start'} max-w-[78%]`}>
-            <div className="rounded-[18px] border border-white/[0.05] bg-white/[0.03] px-[14px] py-[10px] text-[13px] italic text-white/30">
+          <div className={`flex flex-col gap-1 ${isSent ? 'items-end' : 'items-start'} max-w-[75%]`}>
+            <div className="rounded-[20px] border border-[#38383A] bg-[#1C1C1E] px-[14px] py-[10px] text-[15px] italic text-[#8E8E93]">
               This message was deleted.
             </div>
           </div>
@@ -135,7 +134,7 @@ const MessageBubbleInner = ({
               <img
                 src={senderAvatarUrl || '/images/avatars/avatar1.jpg'}
                 alt={senderName ?? ''}
-                className="size-7 rounded-xl object-cover border border-white/[0.06]"
+                className="size-7 rounded-full object-cover bg-[#1C1C1E]"
               />
             ) : (
               <div className="size-7" aria-hidden="true" />
@@ -143,17 +142,17 @@ const MessageBubbleInner = ({
           </div>
         )}
 
-        <div className={`flex flex-col gap-1 ${isSent ? 'items-end' : 'items-start'} max-w-[78%]`}
+        <div className={`flex flex-col gap-1 ${isSent ? 'items-end' : 'items-start'} max-w-[75%]`}
         >
           {showSenderName && !isSent && senderName && (
-            <span className="px-1 text-[10px] font-semibold tracking-wide" style={{ color: senderColor ?? 'rgba(255,255,255,0.35)' }}>
+            <span className="px-2 text-[12px] font-medium tracking-wide text-[#8E8E93]">
               {senderName}
             </span>
           )}
 
           {message.type === 'text' ? (
             <div
-              className={`${bubbleClass} ${radiusClass} px-[14px] py-[11px] text-[13.5px] leading-[1.6] backdrop-blur-xl`}
+              className={`${bubbleClass} ${radiusClass} px-[14px] py-[8px] text-[16px] leading-[22px]`}
               tabIndex={0}
               aria-haspopup="true"
             >
@@ -161,15 +160,14 @@ const MessageBubbleInner = ({
 
               {/* Foot: time + receipt */}
               {isLastInGroup && (
-                <div className="mt-2 flex items-center justify-end gap-1.5">
-                  <span className={`text-[10px] font-semibold ${isSent ? 'text-white/55' : 'text-white/30'}`}
-                    style={{ letterSpacing: '0.02em' }}
+                <div className="mt-1 flex items-center justify-end gap-1">
+                  <span className={`text-[11px] font-medium ${isSent ? 'text-white/80' : 'text-[#8E8E93]'}`}
                   >
                     {formatTime(message.createdAt)}
                   </span>
                   {isSent && (
                     <span
-                      className={`material-symbols-outlined text-[14px] ${receipt.className}`}
+                      className={`material-symbols-outlined text-[14px] ${message.deliveryStatus === 'read' ? 'text-white/100' : 'text-white/80'}`}
                       style={{ fontVariationSettings: "'FILL' 1" }}
                       aria-label={receipt.label}
                     >
@@ -188,8 +186,7 @@ const MessageBubbleInner = ({
 
           {/* For non-text messages, still show time under group */}
           {message.type !== 'text' && isLastInGroup && (
-            <div className={`px-1 text-[10px] font-semibold ${isSent ? 'text-right text-white/35' : 'text-left text-white/25'}`}
-              style={{ letterSpacing: '0.02em' }}
+            <div className={`px-2 text-[11px] font-medium ${isSent ? 'text-right text-[#8E8E93]' : 'text-left text-[#8E8E93]'}`}
             >
               {formatTime(message.createdAt)}
             </div>
