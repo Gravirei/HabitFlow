@@ -471,12 +471,12 @@ export function Tasks() {
             </div>
 
             {/* Center: Title - Large screens always visible */}
-            <h1 className="absolute inset-x-0 hidden justify-center sm:flex">
+            <h1 className="pointer-events-none absolute inset-x-0 hidden justify-center sm:flex">
               <span className="text-lg font-bold text-gray-900 dark:text-white">Tasks</span>
             </h1>
 
             {/* Center: Title - Mobile only with animation */}
-            <div className="absolute inset-x-0 flex justify-center sm:hidden">
+            <div className="pointer-events-none absolute inset-x-0 flex justify-center sm:hidden">
               <AnimatePresence mode="wait">
                 {!isSearchOpen && (
                   <motion.h1
