@@ -3,7 +3,7 @@
  * Polished tabbed interface with animated hero header
  */
 
-import { useEffect, useCallback } from 'react'
+import { useEffect, useCallback, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import toast from 'react-hot-toast'
 import { useSocialStore } from './socialStore'
@@ -15,10 +15,12 @@ import { SocialOnboarding } from './SocialOnboarding'
 import { MessagingHub } from '../messaging/MessagingHub'
 import { ConversationScreen } from '../messaging/ConversationScreen'
 import { useMessagingStore } from '../messaging/messagingStore'
+import { LeagueMapScreen } from './LeagueMapScreen'
 
 // ─── Tab types ──────────────────────────────────────────────────────────────
 
 import type { SocialTab } from './SocialBottomNav'
+import type { LeagueTier } from './types'
 
 // ─── Main Component ─────────────────────────────────────────────────────────
 
@@ -34,13 +36,22 @@ export function SocialHub({ activeTab, onNavigateToMessages }: SocialHubProps) {
     friends,
     totalXP,
     getUnlockedBadges,
+    currentLeagueTier,
   } = useSocialStore()
 
   const { activeConversationId, setActiveConversation, createDirectConversation, conversations } = useMessagingStore()
 
+  const [leagueMode, setLeagueMode] = useState<'map' | 'details'>('map')
+  const [selectedLeagueTier, setSelectedLeagueTier] = useState<LeagueTier>(currentLeagueTier)
+
   useEffect(() => {
     initializeBadges()
   }, [])
+
+  // Sync selected tier with current league tier when store updates
+  useEffect(() => {
+    setSelectedLeagueTier(currentLeagueTier)
+  }, [currentLeagueTier])
 
   // Reset active conversation when switching away from messages tab
   useEffect(() => {
@@ -48,6 +59,13 @@ export function SocialHub({ activeTab, onNavigateToMessages }: SocialHubProps) {
       setActiveConversation(null)
     }
   }, [activeTab, setActiveConversation])
+
+  // Reset league mode when switching away from league tab
+  useEffect(() => {
+    if (activeTab !== 'league') {
+      setLeagueMode('map')
+    }
+  }, [activeTab])
 
   // Compose new direct message — find a friend without an existing conversation
   const handleCompose = useCallback(async () => {
@@ -98,7 +116,21 @@ export function SocialHub({ activeTab, onNavigateToMessages }: SocialHubProps) {
         >
           {activeTab === 'leaderboard' && <LeaderboardScreen />}
           {activeTab === 'friends' && <FriendsScreen onNavigateToMessages={onNavigateToMessages} />}
-          {activeTab === 'league' && <LeagueScreen />}
+          {activeTab === 'league' && (
+            leagueMode === 'map' ? (
+              <LeagueMapScreen 
+                onSelectTier={(tier) => {
+                  setSelectedLeagueTier(tier)
+                  setLeagueMode('details')
+                }} 
+              />
+            ) : (
+              <LeagueScreen 
+                tier={selectedLeagueTier} 
+                onBack={() => setLeagueMode('map')} 
+              />
+            )
+          )}
           {activeTab === 'messages' && (
             activeConversationId ? (
               <ConversationScreen

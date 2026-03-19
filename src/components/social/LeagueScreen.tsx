@@ -192,12 +192,19 @@ function DemoDataBanner({ onDismiss }: { onDismiss: () => void }) {
   )
 }
 
-export function LeagueScreen() {
+interface LeagueScreenProps {
+  tier?: LeagueTier
+  onBack?: () => void
+}
+
+export function LeagueScreen({ tier, onBack }: LeagueScreenProps) {
   const { currentLeagueTier, leagueMembers, refreshLeague, getLeagueDaysRemaining, friends } = useSocialStore()
   const [loading, setLoading] = useState(true)
   const [showAll, setShowAll] = useState(false)
   const [showDemoBanner, setShowDemoBanner] = useState(true)
   const [previewProfile, setPreviewProfile] = useState<ProfilePreviewData | null>(null)
+
+  const activeTier = tier || currentLeagueTier
 
   const handleMemberClick = (member: LeagueMember) => {
     if (member.isCurrentUser) return
@@ -206,7 +213,7 @@ export function LeagueScreen() {
         level: member.level,
         xp: member.weeklyXP,
         weeklyXP: member.weeklyXP,
-        leagueTier: currentLeagueTier,
+        leagueTier: activeTier,
         isCurrentUser: false,
       })
     )
@@ -226,12 +233,22 @@ export function LeagueScreen() {
     <div className="space-y-4">
       {/* Hero card */}
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-800 via-slate-800/95 to-slate-900 border border-white/[0.05] p-5 text-center">
+        {/* Back button */}
+        {onBack && (
+          <button
+            onClick={onBack}
+            className="absolute top-4 left-4 z-10 flex size-8 items-center justify-center rounded-xl bg-white/[0.06] hover:bg-white/[0.1] transition-all cursor-pointer active:scale-95"
+          >
+            <span className="material-symbols-outlined text-lg text-slate-400">arrow_back</span>
+          </button>
+        )}
+
         {/* Ambient */}
-        <div className="pointer-events-none absolute -top-16 -right-16 size-40 rounded-full blur-3xl" style={{ backgroundColor: getLeagueTierColor(currentLeagueTier) + '15' }} />
-        <div className="pointer-events-none absolute -bottom-12 -left-12 size-32 rounded-full blur-3xl" style={{ backgroundColor: getLeagueTierColor(currentLeagueTier) + '10' }} />
+        <div className="pointer-events-none absolute -top-16 -right-16 size-40 rounded-full blur-3xl" style={{ backgroundColor: getLeagueTierColor(activeTier) + '15' }} />
+        <div className="pointer-events-none absolute -bottom-12 -left-12 size-32 rounded-full blur-3xl" style={{ backgroundColor: getLeagueTierColor(activeTier) + '10' }} />
 
         <div className="relative">
-          <TierBadge tier={currentLeagueTier} size="lg" />
+          <TierBadge tier={activeTier} size="lg" />
 
           {/* Timer pill */}
           <div className="inline-flex items-center gap-1.5 mt-4 rounded-full bg-white/[0.05] border border-white/[0.06] py-1.5 px-4">
@@ -243,7 +260,7 @@ export function LeagueScreen() {
 
           {/* Tier progress */}
           <div className="mt-4">
-            <TierProgress current={currentLeagueTier} />
+            <TierProgress current={activeTier} />
           </div>
 
           {/* Position */}
@@ -275,7 +292,7 @@ export function LeagueScreen() {
           <span className="size-1.5 rounded-full bg-slate-600" />
           <span className="text-slate-400">Safe</span>
         </span>
-        {currentLeagueTier !== 'bronze' && (
+        {activeTier !== 'bronze' && (
           <span className="flex items-center gap-1">
             <span className="size-1.5 rounded-full bg-red-400" />
             <span className="text-slate-400">Demote (Bottom 5)</span>
@@ -333,7 +350,7 @@ export function LeagueScreen() {
         <div className="space-y-2 text-[11px] text-slate-400">
           {[
             { icon: 'north', color: 'text-emerald-400', text: 'Top 5 promote to the next league each week' },
-            ...(currentLeagueTier !== 'bronze'
+            ...(activeTier !== 'bronze'
               ? [{ icon: 'south', color: 'text-red-400', text: 'Bottom 5 move down — every week is a fresh start!' }]
               : []),
             { icon: 'restart_alt', color: 'text-primary', text: 'Weekly reset every Monday — earn XP to climb' },
