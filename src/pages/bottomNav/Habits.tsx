@@ -1549,13 +1549,12 @@ function HabitCard({
     const viewportHeight = window.innerHeight
 
     let top = buttonRect.bottom + spacing
-    let left: number | 'auto' = 'auto'
-    let right: number | 'auto' = viewportWidth - buttonRect.right
+    let left: number | 'auto' = buttonRect.left
+    let right: number | 'auto' = 'auto'
 
     // Vertical positioning: Check if menu overflows bottom
     if (top + menuHeight > viewportHeight) {
-      // Position above button - bottom of menu should be 4px above top of button
-      // Menu top = button top - gap - menu height
+      // Position above button
       top = buttonRect.top - spacing - menuHeight
 
       // If still overflows top, align to viewport top with margin
@@ -1565,15 +1564,15 @@ function HabitCard({
     }
 
     // Horizontal positioning: Check if menu overflows right edge
-    const rightEdge = viewportWidth - (typeof right === 'number' ? right : 0)
-    if (rightEdge + menuWidth > viewportWidth) {
-      // Switch to left-aligned
-      left = buttonRect.left
-      right = 'auto'
+    if (left + menuWidth > viewportWidth - spacing) {
+      // Switch to right-aligned (menu's right edge = button's right edge)
+      left = 'auto'
+      right = viewportWidth - buttonRect.right
 
-      // If still overflows left, clamp to left edge
-      if (left < spacing) {
+      // If right-aligned overflows left edge, clamp to left edge
+      if (viewportWidth - right - menuWidth < spacing) {
         left = spacing
+        right = 'auto'
       }
     }
 
