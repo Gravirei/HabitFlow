@@ -244,7 +244,7 @@ export function ProfilePreviewModal({
           </button>
 
           {/* Scrollable content */}
-          <div className="overflow-y-auto flex-1">
+          <div className="overflow-y-auto flex-1 no-scrollbar">
             {/* ── Header: Avatar + Name + Bio ─────────────────────────── */}
             <div className="flex flex-col items-center pt-8 pb-4 px-5">
               {/* Avatar with league badge */}

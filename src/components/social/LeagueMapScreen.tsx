@@ -1,10 +1,6 @@
-/**
- * LeagueMapScreen — Visual roadmap of leagues
- * Shows a vertical curvy path with league checkpoints
- */
-
 import { motion } from 'framer-motion'
-import { getLeagueConfig, getLeagueTierColor } from './constants'
+import { useMemo, useEffect, useRef } from 'react'
+import { getLeagueConfig, getLeagueTierColor, LEAGUE_CONFIGS } from './constants'
 import type { LeagueTier } from './types'
 import { useSocialStore } from './socialStore'
 
@@ -12,184 +8,405 @@ interface LeagueMapScreenProps {
   onSelectTier: (tier: LeagueTier) => void
 }
 
-const LEAGUE_TIERS: LeagueTier[] = ['diamond', 'platinum', 'gold', 'silver', 'bronze']
+const LEAGUE_TIERS: LeagueTier[] = LEAGUE_CONFIGS.map((c) => c.tier)
+const TIER_COUNT = LEAGUE_TIERS.length
+const TIER_HEIGHT = 252
+const MAP_HEIGHT = TIER_COUNT * TIER_HEIGHT + 100
+const MAP_WIDTH = 100
+
+const POSITIONS = [
+  { x: 50 },
+  { x: 35 },
+  { x: 65 },
+  { x: 30 },
+  { x: 70 },
+  { x: 40 },
+  { x: 60 },
+  { x: 50 },
+  { x: 50 },
+  { x: 50 },
+  { x: 50 },
+  { x: 50 },
+]
+
+function getPosition(index: number) {
+  return POSITIONS[index % POSITIONS.length] ?? POSITIONS[0]
+}
 
 export function LeagueMapScreen({ onSelectTier }: LeagueMapScreenProps) {
   const { currentLeagueTier } = useSocialStore()
+  const scrollRef = useRef<HTMLDivElement>(null)
 
-  // Find the index of the current tier to determine unlocked status
-  const currentIdx = LEAGUE_TIERS.indexOf(currentLeagueTier)
+  const currentIdx = Math.max(0, LEAGUE_TIERS.indexOf(currentLeagueTier))
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      const scrollTarget = currentIdx * TIER_HEIGHT - scrollRef.current.clientHeight / 2 + 200
+      scrollRef.current.scrollTop = Math.max(0, scrollTarget)
+    }
+  }, [currentLeagueTier, currentIdx])
+
+  const particles = useMemo(() => {
+    return Array.from({ length: 20 }).map((_, i) => ({
+      id: i,
+      left: Math.random() * 100,
+      size: Math.random() * 4 + 2,
+      duration: Math.random() * 12 + 8,
+      delay: Math.random() * -12,
+      color: i % 3 === 0 ? '#7c3aed' : i % 3 === 1 ? '#06b6d4' : '#f43f5e',
+    }))
+  }, [])
+
+  const getRoadPath = () => {
+    const start = getPosition(0)
+    let d = `M ${start.x},40`
+    for (let i = 0; i < TIER_COUNT - 1; i++) {
+      const currX = getPosition(i).x
+      const nextX = getPosition(i + 1).x
+      const currY = i * TIER_HEIGHT + 60
+      const nextY = (i + 1) * TIER_HEIGHT + 60
+      const midY = (currY + nextY) / 2
+      d += ` C ${currX},${midY} ${nextX},${midY} ${nextX},${nextY}`
+    }
+    return d
+  }
+
+  const ROAD_PATH = getRoadPath()
 
   return (
-    <div className="relative flex flex-col items-center py-10 min-h-[600px] overflow-hidden">
-      {/* Background Decor */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/4 -left-20 size-64 bg-primary/5 blur-[100px] rounded-full" />
-        <div className="absolute bottom-1/4 -right-20 size-64 bg-emerald-500/5 blur-[100px] rounded-full" />
+    <div
+      ref={scrollRef}
+      className="relative flex min-h-[calc(100vh-12rem)] w-full flex-col items-center overflow-y-auto overflow-x-hidden bg-gray-950"
+    >
+      {/* Floating particles */}
+      <div className="pointer-events-none fixed inset-0 overflow-hidden">
+        {particles.map((p) => (
+          <motion.div
+            key={p.id}
+            className="absolute rounded-full opacity-0"
+            style={{
+              left: `${p.left}%`,
+              width: p.size,
+              height: p.size,
+              backgroundColor: p.color,
+              boxShadow: `0 0 ${p.size * 2}px ${p.color}`,
+              top: '100%',
+            }}
+            animate={{
+              y: [0, -1200],
+              opacity: [0, 0.6, 0],
+            }}
+            transition={{
+              duration: p.duration,
+              repeat: Infinity,
+              ease: 'linear',
+              delay: p.delay,
+            }}
+          />
+        ))}
       </div>
 
-      {/* Title */}
-      <div className="text-center mb-12 relative z-10">
-        <h2 className="text-2xl font-black text-white tracking-tight uppercase italic">
-          League <span className="text-primary text-3xl">Road</span>
+      {/* Header */}
+      <div className="sticky top-0 z-30 mb-4 w-full bg-gray-950/90 px-4 pb-4 pt-6 text-center backdrop-blur-sm">
+        <h2 className="text-2xl font-black uppercase tracking-tight text-white sm:text-3xl">
+          Spell <span className="text-[#7C3AED]">Mastery</span>
         </h2>
-        <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mt-1">
-          Climb the ranks to reach Diamond
+        <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 sm:mt-2 sm:text-xs">
+          Climb the ranks from Reis to Ria Uruku
         </p>
       </div>
 
-      {/* The Map Container */}
-      <div className="relative w-full max-w-[320px] h-[800px] flex flex-col items-center">
-        {/* SVG Path (Road) */}
+      {/* Map */}
+      <div className="relative w-full max-w-sm" style={{ height: MAP_HEIGHT }}>
+        {/* Road */}
         <svg
-          className="absolute inset-0 w-full h-full pointer-events-none"
-          viewBox="0 0 200 800"
+          className="absolute inset-0 h-full w-full"
+          viewBox={`0 0 ${MAP_WIDTH} ${MAP_HEIGHT}`}
           preserveAspectRatio="none"
         >
-          <motion.path
-            d="M100,750 C180,650 20,550 100,450 C180,350 20,250 100,150 C180,50 20,-50 100,-150"
-            fill="none"
-            stroke="rgba(255,255,255,0.03)"
-            strokeWidth="24"
-            strokeLinecap="round"
-          />
-          <motion.path
-            d="M100,750 C180,650 20,550 100,450 C180,350 20,250 100,150 C180,50 20,-50 100,-150"
-            fill="none"
-            stroke="url(#roadGradient)"
-            strokeWidth="6"
-            strokeDasharray="12 12"
-            strokeLinecap="round"
-            initial={{ strokeDashoffset: 0 }}
-            animate={{ strokeDashoffset: -100 }}
-            transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
-          />
           <defs>
-            <linearGradient id="roadGradient" x1="0%" y1="100%" x2="0%" y2="0%">
-              <stop offset="0%" stopColor="#1e293b" />
-              <stop offset="50%" stopColor="#334155" />
-              <stop offset="100%" stopColor="#475569" />
+            <linearGradient id="roadAura" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#312e81" />
+              <stop offset="50%" stopColor="#0f172a" />
+              <stop offset="100%" stopColor="#111827" />
             </linearGradient>
+            <linearGradient id="roadCore" x1="0%" y1="100%" x2="0%" y2="0%">
+              <stop offset="0%" stopColor="#7C3AED" />
+              <stop offset="35%" stopColor="#8b5cf6" />
+              <stop offset="70%" stopColor="#06b6d4" />
+              <stop offset="100%" stopColor="#f43f5e" />
+            </linearGradient>
+            <linearGradient id="roadCenterLine" x1="0%" y1="100%" x2="0%" y2="0%">
+              <stop offset="0%" stopColor="#c4b5fd" />
+              <stop offset="55%" stopColor="#67e8f9" />
+              <stop offset="100%" stopColor="#fda4af" />
+            </linearGradient>
+            <filter id="roadGlow" x="-30%" y="-5%" width="160%" height="110%">
+              <feGaussianBlur stdDeviation="2.2" result="blur" />
+              <feColorMatrix
+                in="blur"
+                type="matrix"
+                values="1 0 0 0 0
+                        0 1 0 0 0
+                        0 0 1 0 0
+                        0 0 0 0.8 0"
+              />
+            </filter>
+            <filter id="checkpointGlow" x="-60%" y="-60%" width="220%" height="220%">
+              <feGaussianBlur stdDeviation="3" />
+            </filter>
           </defs>
+
+          <path
+            d={ROAD_PATH}
+            fill="none"
+            stroke="#050816"
+            strokeWidth="26"
+            strokeLinecap="round"
+            opacity="0.95"
+          />
+
+          <path
+            d={ROAD_PATH}
+            fill="none"
+            stroke="url(#roadAura)"
+            strokeWidth="18"
+            strokeLinecap="round"
+            opacity="0.95"
+          />
+
+          <path
+            d={ROAD_PATH}
+            fill="none"
+            stroke="url(#roadCore)"
+            strokeWidth="10"
+            strokeLinecap="round"
+            opacity="0.7"
+            filter="url(#roadGlow)"
+          />
+
+          <motion.path
+            d={ROAD_PATH}
+            fill="none"
+            stroke="url(#roadCenterLine)"
+            strokeWidth="2"
+            strokeDasharray="3 10"
+            strokeLinecap="round"
+            opacity="0.95"
+            animate={{ strokeDashoffset: [0, -52] }}
+            transition={{ duration: 3.2, repeat: Infinity, ease: 'linear' }}
+          />
+
+          {currentIdx > 0 && (
+            <>
+              <path
+                d={ROAD_PATH}
+                fill="none"
+                stroke="url(#roadCore)"
+                strokeWidth="12"
+                strokeLinecap="round"
+                strokeDasharray={`${currentIdx * 330} 2400`}
+                opacity="0.32"
+                filter="url(#roadGlow)"
+              />
+              <path
+                d={ROAD_PATH}
+                fill="none"
+                stroke="#f8fafc"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeDasharray={`${currentIdx * 330} 2400`}
+                opacity="0.22"
+              />
+            </>
+          )}
         </svg>
 
-        {/* Checkpoints */}
-        <div className="flex flex-col-reverse justify-between h-full py-10 w-full relative">
-          {LEAGUE_TIERS.slice().reverse().map((tier, idx) => {
-            const cfg = getLeagueConfig(tier)
-            const tierIdx = LEAGUE_TIERS.indexOf(tier)
-            const isUnlocked = tierIdx >= currentIdx
-            const isCurrent = tier === currentLeagueTier
-            const tierColor = getLeagueTierColor(tier)
+        {/* Tiers */}
+        {LEAGUE_TIERS.map((tier, idx) => {
+          const cfg = getLeagueConfig(tier)
+          const isUnlocked = idx <= currentIdx
+          const isCurrent = tier === currentLeagueTier
+          const tierColor = getLeagueTierColor(tier)
+          const position = getPosition(idx)
+          const labelSide = position.x >= 50 ? 'left' : 'right'
+          const y = idx * TIER_HEIGHT + 60
 
-            // Alternating X offsets
-            const xOffset = idx % 2 === 0 ? 0 : (idx % 4 === 1 ? 60 : -60)
-
-            return (
-              <div
-                key={tier}
-                className="relative flex items-center justify-center w-full"
-                style={{ height: '140px' }}
+          return (
+            <div
+              key={tier}
+              className="absolute"
+              style={{
+                left: `${position.x}%`,
+                top: `${y}px`,
+                transform: 'translate(-50%, -50%)',
+              }}
+            >
+              <motion.button
+                whileHover={isUnlocked ? { scale: 1.05, y: -2 } : {}}
+                whileTap={isUnlocked ? { scale: 0.97 } : {}}
+                onClick={() => isUnlocked && onSelectTier(tier)}
+                className={`relative flex flex-col items-center ${
+                  isUnlocked ? 'cursor-pointer' : 'cursor-not-allowed'
+                }`}
               >
-                <div 
-                  className="relative z-10"
-                  style={{ transform: `translateX(${xOffset}px)` }}
-                >
-                  <motion.button
-                    whileHover={isUnlocked ? { scale: 1.1 } : {}}
-                    whileTap={isUnlocked ? { scale: 0.9 } : {}}
-                    onClick={() => isUnlocked && onSelectTier(tier)}
-                    className={`
-                      relative size-20 rounded-[32px] flex items-center justify-center
-                      border-4 transition-all duration-500
-                      ${isUnlocked 
-                        ? 'bg-slate-900 cursor-pointer' 
-                        : 'bg-slate-950 opacity-40 grayscale cursor-not-allowed'
-                      }
-                    `}
-                    style={{ 
-                      borderColor: isUnlocked ? tierColor : '#1e293b',
-                      boxShadow: isUnlocked ? `0 10px 40px ${tierColor}30` : 'none'
+                <div
+                  className="pointer-events-none absolute left-1/2 top-1/2 h-24 w-24 -translate-x-1/2 -translate-y-1/2 rounded-full opacity-70 blur-2xl"
+                  style={{
+                    background: isUnlocked ? `${tierColor}20` : 'rgba(51, 65, 85, 0.18)',
+                  }}
+                />
+
+                {/* Checkpoint */}
+                <div className="relative flex flex-col items-center">
+                  <div
+                    className={`relative flex h-[84px] w-[68px] items-center justify-center transition-all duration-300 sm:h-[92px] sm:w-[74px] ${
+                      isUnlocked ? '' : 'grayscale'
+                    }`}
+                    style={{
+                      boxShadow: isUnlocked
+                        ? `0 18px 34px rgba(2,6,23,0.62)`
+                        : undefined,
                     }}
                   >
-                    <span 
-                      className="material-symbols-outlined text-3xl"
-                      style={{ 
-                        color: isUnlocked ? tierColor : '#475569',
-                        fontVariationSettings: isUnlocked ? "'FILL' 1" : "'FILL' 0"
-                      }}
+                    <svg
+                      viewBox="0 0 100 100"
+                      className="absolute inset-0 h-full w-full"
+                      aria-hidden="true"
                     >
-                      {cfg.icon}
-                    </span>
+                      <defs>
+                        <linearGradient id={`checkpoint-shell-${tier}`} x1="0%" y1="0%" x2="0%" y2="100%">
+                          <stop offset="0%" stopColor={isUnlocked ? `${tierColor}` : '#64748b'} stopOpacity="0.95" />
+                          <stop offset="100%" stopColor="#020617" stopOpacity="1" />
+                        </linearGradient>
+                        <linearGradient id={`checkpoint-face-${tier}`} x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stopColor={isUnlocked ? `${tierColor}` : '#475569'} stopOpacity="0.18" />
+                          <stop offset="100%" stopColor="#0f172a" stopOpacity="0.96" />
+                        </linearGradient>
+                      </defs>
+                      <path
+                        d="M50 4 L82 18 L90 52 L74 92 L26 92 L10 52 L18 18 Z"
+                        fill="url(#checkpoint-shell-${tier})"
+                        opacity={isUnlocked ? 1 : 0.65}
+                      />
+                      <path
+                        d="M50 14 L72 24 L79 51 L67 82 L33 82 L21 51 L28 24 Z"
+                        fill="url(#checkpoint-face-${tier})"
+                        stroke={isUnlocked ? `${tierColor}` : '#475569'}
+                        strokeOpacity={isUnlocked ? 0.42 : 0.34}
+                        strokeWidth="2.5"
+                      />
+                      <path
+                        d="M50 26 L62 33 L66 50 L59 68 L41 68 L34 50 L38 33 Z"
+                        fill={isUnlocked ? `${tierColor}15` : '#0f172a'}
+                        stroke={isUnlocked ? `${tierColor}` : '#475569'}
+                        strokeOpacity={isUnlocked ? 0.28 : 0.24}
+                        strokeWidth="1.5"
+                      />
+                      <path
+                        d="M50 14 L72 24"
+                        stroke={isUnlocked ? '#ffffff' : '#94a3b8'}
+                        strokeOpacity={0.18}
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                      />
+                    </svg>
 
-                    {/* Locked Overlay */}
+                    <div className="relative z-10 flex items-center justify-center">
+                      <span
+                        className="material-symbols-outlined text-[30px] sm:text-[34px]"
+                        style={{
+                          color: isUnlocked ? tierColor : '#475569',
+                          fontVariationSettings: isUnlocked ? "'FILL' 1" : "'FILL' 0",
+                          filter: isUnlocked ? `drop-shadow(0 0 12px ${tierColor}55)` : 'none',
+                        }}
+                      >
+                        {cfg.icon}
+                      </span>
+                    </div>
+
                     {!isUnlocked && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-[28px]">
+                      <div className="absolute inset-[11px] flex items-center justify-center rounded-[18px] bg-slate-950/58 backdrop-blur-[1px]">
                         <span className="material-symbols-outlined text-xl text-slate-500">lock</span>
                       </div>
                     )}
-                  </motion.button>
 
-                  {/* Tier Label */}
-                  <div 
-                    className="absolute top-1/2 -translate-y-1/2 whitespace-nowrap"
-                    style={{ 
-                      left: xOffset > 0 ? 'auto' : '100%',
-                      right: xOffset > 0 ? '100%' : 'auto',
-                      marginLeft: xOffset > 0 ? '0' : '24px',
-                      marginRight: xOffset > 0 ? '24px' : '0',
-                      textAlign: xOffset > 0 ? 'right' : 'left'
-                    }}
-                  >
-                    <p className={`text-[11px] font-black uppercase tracking-[0.15em] ${isUnlocked ? 'text-white' : 'text-slate-600'}`}>
-                      {cfg.label}
-                    </p>
                     {isCurrent && (
-                      <motion.div 
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="flex items-center gap-1.5 mt-1"
-                        style={{ justifyContent: xOffset > 0 ? 'flex-end' : 'flex-start' }}
-                      >
-                        <span className="size-1.5 rounded-full bg-primary animate-pulse" />
-                        <span className="text-[10px] font-bold text-primary tracking-wide">ACTIVE NOW</span>
-                      </motion.div>
+                      <>
+                        <motion.div
+                          className="absolute inset-[-8px] rounded-[28px] border"
+                          style={{ borderColor: `${tierColor}88` }}
+                          animate={{ scale: [1, 1.08], opacity: [0.7, 0.12, 0.7] }}
+                          transition={{ duration: 2, repeat: Infinity }}
+                        />
+                        <motion.div
+                          className="absolute inset-[-12px] rounded-[30px]"
+                          style={{ background: tierColor }}
+                          filter="url(#checkpointGlow)"
+                          animate={{ opacity: [0.18, 0.34, 0.18] }}
+                          transition={{ duration: 2, repeat: Infinity }}
+                        />
+                      </>
                     )}
                   </div>
 
-                  {/* GPS Indicator for Current Tier */}
-                  {isCurrent && (
-                    <div className="absolute -top-14 left-1/2 -translate-x-1/2">
-                      <motion.div
-                        animate={{ y: [0, -10, 0] }}
-                        transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-                        className="flex flex-col items-center"
-                      >
-                        <div className="bg-primary text-slate-950 size-10 rounded-2xl flex items-center justify-center shadow-2xl shadow-primary/50 border-2 border-white/30">
-                          <span className="material-symbols-outlined text-xl font-black">location_on</span>
-                        </div>
-                        <div className="w-1.5 h-3 bg-primary/40 rounded-full mt-1 blur-[1px]" />
-                      </motion.div>
-                    </div>
-                  )}
                 </div>
-              </div>
-            )
-          })}
-        </div>
-      </div>
 
-      {/* Bottom Info */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5 }}
-        className="mt-20 px-6 text-center"
-      >
-        <p className="text-[11px] text-slate-500 font-medium leading-relaxed max-w-[240px]">
-          Tap a league to view its standings and promotion criteria.
-        </p>
-      </motion.div>
+                <div
+                  className={`absolute top-1/2 hidden min-w-[120px] max-w-[160px] -translate-y-1/2 items-center ${
+                    labelSide === 'left' ? 'right-[calc(100%+18px)] justify-end text-right' : 'left-[calc(100%+18px)] justify-start text-left'
+                  } sm:flex`}
+                >
+                  <div
+                    className={`inline-flex min-w-[132px] items-center justify-center rounded-full border px-4 py-2 text-center ${
+                      isUnlocked
+                        ? 'bg-slate-950/75 text-white'
+                        : 'border-slate-800/70 bg-slate-900/75 text-slate-500'
+                    }`}
+                    style={{
+                      borderColor: isUnlocked ? `${tierColor}35` : undefined,
+                      boxShadow: isUnlocked ? `inset 0 0 0 1px ${tierColor}12` : undefined,
+                    }}
+                  >
+                    <span className="block w-full text-center text-[10px] font-black uppercase tracking-[0.16em]">
+                      {cfg.label.replace(' League', '')}
+                    </span>
+                  </div>
+                </div>
+
+                <div
+                  className={`mt-3 inline-flex min-w-[132px] items-center justify-center rounded-full border px-4 py-2 text-center sm:hidden ${
+                    isUnlocked
+                      ? 'bg-slate-950/75 text-white'
+                      : 'border-slate-800/70 bg-slate-900/75 text-slate-500'
+                  }`}
+                  style={{
+                    borderColor: isUnlocked ? `${tierColor}35` : undefined,
+                    boxShadow: isUnlocked ? `inset 0 0 0 1px ${tierColor}12` : undefined,
+                  }}
+                >
+                  <span className="block w-full text-center text-[10px] font-black uppercase tracking-[0.16em]">
+                    {cfg.label.replace(' League', '')}
+                  </span>
+                </div>
+
+                {/* You indicator */}
+                {isCurrent && (
+                  <motion.div
+                    className="absolute -top-12"
+                    animate={{ y: [0, -4, 0] }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                  >
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-slate-950 text-white shadow-[0_0_18px_rgba(124,58,237,0.35)]">
+                      <span className="material-symbols-outlined text-base">person</span>
+                    </div>
+                  </motion.div>
+                )}
+              </motion.button>
+            </div>
+          )
+        })}
+      </div>
     </div>
   )
 }

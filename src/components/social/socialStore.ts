@@ -30,6 +30,7 @@ import {
   generateDemoLeaderboard,
   generateDemoFriends,
   generateDemoLeagueMembers,
+  LEAGUE_CONFIGS,
 } from './constants'
 
 // ─── Helper ─────────────────────────────────────────────────────────────────
@@ -179,7 +180,7 @@ export const useSocialStore = create<SocialState>()(
       nudges: [],
       sentNudgesCount: 0,
 
-      currentLeagueTier: 'bronze',
+      currentLeagueTier: 'reis',
       leagueMembers: [],
       leagueWeekStart: null,
       leagueWeekEnd: null,
@@ -253,11 +254,12 @@ export const useSocialStore = create<SocialState>()(
 
           // Update league tier based on total XP
           let newTier = state.currentLeagueTier
-          if (newTotalXP >= 15000) newTier = 'diamond'
-          else if (newTotalXP >= 5000) newTier = 'platinum'
-          else if (newTotalXP >= 2000) newTier = 'gold'
-          else if (newTotalXP >= 500) newTier = 'silver'
-          else newTier = 'bronze'
+          for (let i = LEAGUE_CONFIGS.length - 1; i >= 0; i--) {
+            if (newTotalXP >= LEAGUE_CONFIGS[i].minXP) {
+              newTier = LEAGUE_CONFIGS[i].tier;
+              break;
+            }
+          }
 
           return {
             totalXP: newTotalXP,
@@ -349,7 +351,7 @@ export const useSocialStore = create<SocialState>()(
           mutualStreak: 0,
           lastActive: new Date().toISOString(),
           status: 'active',
-          leagueTier: 'bronze',
+          leagueTier: 'reis',
           todayCompleted: false,
           friendSince: new Date().toISOString(),
         }
@@ -679,7 +681,7 @@ export const useSocialStore = create<SocialState>()(
             .filter((r) => r.fromUserId === 'current-user' && r.status === 'pending')
             .map((r) => r.toUserId)
         )
-        const tiers: LeagueTier[] = ['bronze', 'silver', 'gold', 'platinum', 'diamond']
+        const tiers: LeagueTier[] = LEAGUE_CONFIGS.map(c => c.tier)
 
         return DEMO_NAMES.slice(8).map((name, i): DiscoverableUser => {
           const userId = `discover-${i}`
@@ -825,7 +827,7 @@ export const useSocialStore = create<SocialState>()(
           friendRequests: [],
           nudges: [],
           sentNudgesCount: 0,
-          currentLeagueTier: 'bronze',
+          currentLeagueTier: 'reis',
           leagueMembers: [],
           leagueWeekStart: null,
           leagueWeekEnd: null,

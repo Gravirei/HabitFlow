@@ -115,7 +115,15 @@ export interface Nudge {
 
 // ─── Leagues ────────────────────────────────────────────────────────────────
 
-export type LeagueTier = 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond'
+export type LeagueTier =
+  // Brago
+  | 'reis' | 'gravirei' | 'gigano_reis' | 'ion_gravirei' | 'rioru_reis' | 'oruga_reis' | 'baber_gravidon' | 'dioga_gravidon' | 'diborudo_jii_gravidon' | 'nyuborutsu_ma_gurabirei' | 'nyuborutsu_shin_gurabirei' | 'berudo_gravirei' | 'bidom_gravirei' | 'kueaborutsu_gravirei' | 'digou_gurabiruku' | 'shin_baberuga_gravidon'
+  // Zatch
+  | 'zaker' | 'zakeruga' | 'teozaker' | 'ganreizu_zakeru' | 'rashirudo' | 'jikerudo' | 'maazu_jikerudon' | 'rauzaruku' | 'zaguruzemu' | 'bao_zakeruga' | 'baou_kurou_disugurugu' | 'jiou_renzu_zakeruga' | 'shin_beruwan_bao_zakeruga' | 'barudo_forusu'
+  // Tio
+  | 'seoshi' | 'ma_seshield' | 'giga_la_seoshi' | 'chajiru_seshieldon' | 'rima_chajiru_seshieldon' | 'saifojio' | 'shin_saifojio' | 'saisu' | 'gigano_saisu' | 'chajiru_saifodon'
+  // Clear Note
+  | 'radisu' | 'rajia_radisu' | 'teoradisu' | 'ba_radisu' | 'giru_ranzu_radisu' | 'dioga_ranzu_radisu' | 'ranzu_radisu' | 'supurifo' | 'ba_supurifo' | 'qua_supurifo' | 'shin_kuria_seunousu' | 'ria_uruku'
 
 export interface LeagueConfig {
   tier: LeagueTier

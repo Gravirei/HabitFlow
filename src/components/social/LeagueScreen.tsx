@@ -6,7 +6,7 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useSocialStore } from './socialStore'
-import { getLeagueConfig, getLeagueTierColor, getLeagueTierGradient } from './constants'
+import { getLeagueConfig, getLeagueTierColor, getLeagueTierGradient, LEAGUE_CONFIGS } from './constants'
 import type { LeagueTier, LeagueMember, ProfilePreviewData } from './types'
 import { ProfilePreviewModal, generateProfilePreview } from './ProfilePreviewModal'
 
@@ -50,36 +50,52 @@ function TierBadge({ tier, size = 'md' }: { tier: LeagueTier; size?: 'sm' | 'md'
 // ─── Tier Progress Dots ─────────────────────────────────────────────────────
 
 function TierProgress({ current }: { current: LeagueTier }) {
-  const tiers: LeagueTier[] = ['bronze', 'silver', 'gold', 'platinum', 'diamond']
+  const tiers: LeagueTier[] = LEAGUE_CONFIGS.map(c => c.tier)
   const idx = tiers.indexOf(current)
+  
+  // Show a window of 5 tiers around the current tier
+  const windowSize = 5;
+  let startIdx = Math.max(0, idx - 2);
+  let endIdx = Math.min(tiers.length - 1, startIdx + windowSize - 1);
+  
+  if (endIdx - startIdx + 1 < windowSize) {
+    startIdx = Math.max(0, endIdx - windowSize + 1);
+  }
+  
+  const displayTiers = tiers.slice(startIdx, endIdx + 1);
 
   return (
-    <div className="flex items-center justify-center gap-1 w-full">
-      {tiers.map((tier, i) => {
-        const active = i <= idx
-        const isCurrent = i === idx
-        return (
-          <div key={tier} className="flex items-center gap-1 flex-1">
-            {/* Dot */}
-            <div className="flex flex-col items-center gap-1 flex-1">
-              <div className={`h-1 w-full rounded-full transition-all duration-300 ${
-                active ? `bg-gradient-to-r ${getLeagueTierGradient(tier)}` : 'bg-slate-700/40'
-              }`} />
-              <span
-                className={`material-symbols-outlined text-[13px] transition-all duration-300 ${
-                  isCurrent ? 'scale-110' : ''
-                }`}
-                style={{
-                  color: active ? getLeagueTierColor(tier) : '#475569',
-                  fontVariationSettings: active ? "'FILL' 1" : "'FILL' 0",
-                }}
-              >
-                {tier === 'diamond' || tier === 'platinum' ? 'diamond' : 'shield'}
-              </span>
+    <div className="flex flex-col items-center gap-1 w-full overflow-hidden">
+      <div className="flex items-center justify-center gap-1 w-full">
+        {displayTiers.map((tier) => {
+          const cfg = getLeagueConfig(tier)
+          const tierGlobalIdx = tiers.indexOf(tier)
+          const active = tierGlobalIdx <= idx
+          const isCurrent = tierGlobalIdx === idx
+          
+          return (
+            <div key={tier} className="flex items-center gap-1 flex-1">
+              <div className="flex flex-col items-center gap-1 flex-1">
+                <div className={`h-1 w-full rounded-full transition-all duration-300 ${
+                  active ? `bg-gradient-to-r ${getLeagueTierGradient(tier)}` : 'bg-slate-700/40'
+                }`} />
+                <span
+                  className={`material-symbols-outlined text-[13px] transition-all duration-300 ${
+                    isCurrent ? 'scale-110' : ''
+                  }`}
+                  style={{
+                    color: active ? getLeagueTierColor(tier) : '#475569',
+                    fontVariationSettings: active ? "'FILL' 1" : "'FILL' 0",
+                  }}
+                >
+                  {cfg.icon}
+                </span>
+              </div>
             </div>
-          </div>
-        )
-      })}
+          )
+        })}
+      </div>
+      <span className="text-[9px] text-slate-500 uppercase tracking-widest">{startIdx > 0 ? '...' : ''} Tier {idx + 1} of {tiers.length} {endIdx < tiers.length - 1 ? '...' : ''}</span>
     </div>
   )
 }
@@ -292,7 +308,7 @@ export function LeagueScreen({ tier, onBack }: LeagueScreenProps) {
           <span className="size-1.5 rounded-full bg-slate-600" />
           <span className="text-slate-400">Safe</span>
         </span>
-        {activeTier !== 'bronze' && (
+        {activeTier !== 'reis' && (
           <span className="flex items-center gap-1">
             <span className="size-1.5 rounded-full bg-red-400" />
             <span className="text-slate-400">Demote (Bottom 5)</span>
@@ -350,7 +366,7 @@ export function LeagueScreen({ tier, onBack }: LeagueScreenProps) {
         <div className="space-y-2 text-[11px] text-slate-400">
           {[
             { icon: 'north', color: 'text-emerald-400', text: 'Top 5 promote to the next league each week' },
-            ...(activeTier !== 'bronze'
+            ...(activeTier !== 'reis'
               ? [{ icon: 'south', color: 'text-red-400', text: 'Bottom 5 move down — every week is a fresh start!' }]
               : []),
             { icon: 'restart_alt', color: 'text-primary', text: 'Weekly reset every Monday — earn XP to climb' },

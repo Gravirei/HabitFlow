@@ -20,11 +20,17 @@ export function Social() {
   const { totalXP } = useSocialStore()
   const level = getLevelForXP(totalXP)
 
+  const isLeagueTab = activeTab === 'league'
+
   return (
-    <div className="relative mx-auto flex h-auto min-h-screen w-full max-w-md flex-col overflow-x-hidden bg-gray-950 text-slate-50 selection:bg-teal-500/30 sm:max-w-2xl md:max-w-4xl lg:max-w-6xl xl:max-w-7xl">
+    <div
+      className={`relative mx-auto flex h-auto min-h-screen w-full flex-col overflow-x-hidden bg-gray-950 text-slate-50 selection:bg-teal-500/30 ${isLeagueTab ? 'max-w-full' : 'max-w-md sm:max-w-2xl md:max-w-4xl lg:max-w-6xl xl:max-w-7xl'}`}
+    >
       <main className="relative flex-grow pb-32 pt-20">
         {/* Top App Bar */}
-        <header className="fixed left-0 right-0 top-0 z-30 mx-auto max-w-md shrink-0 bg-gray-950/80 backdrop-blur-md sm:max-w-2xl md:max-w-4xl lg:max-w-6xl xl:max-w-7xl">
+        <header
+          className={`fixed left-0 right-0 top-0 z-30 mx-auto shrink-0 bg-gray-950/80 backdrop-blur-md ${isLeagueTab ? 'max-w-full' : 'max-w-md sm:max-w-2xl md:max-w-4xl lg:max-w-6xl xl:max-w-7xl'}`}
+        >
           <div className="flex items-center justify-between px-4 pb-3 pt-4 sm:px-6 lg:px-8">
             {/* Back + Menu */}
             <div className="flex items-center gap-1">
@@ -69,7 +75,9 @@ export function Social() {
         </header>
 
         {/* Content */}
-        <div className="mx-auto mt-4 max-w-3xl px-4 sm:px-6 lg:px-8">
+        <div
+          className={`mx-auto ${activeTab === 'league' ? 'mt-0 max-w-full px-0' : 'mt-4 max-w-3xl px-4 sm:px-6 lg:px-8'}`}
+        >
           <SocialHub activeTab={activeTab} onNavigateToMessages={() => setActiveTab('messages')} />
         </div>
       </main>
