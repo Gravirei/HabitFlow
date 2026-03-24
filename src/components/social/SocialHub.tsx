@@ -125,10 +125,12 @@ export function SocialHub({ activeTab, onNavigateToMessages }: SocialHubProps) {
                 }} 
               />
             ) : (
-              <LeagueScreen 
-                tier={selectedLeagueTier} 
-                onBack={() => setLeagueMode('map')} 
-              />
+              <div className="mx-auto mt-4 max-w-3xl px-4 sm:px-6 lg:px-8">
+                <LeagueScreen 
+                  tier={selectedLeagueTier} 
+                  onBack={() => setLeagueMode('map')} 
+                />
+              </div>
             )
           )}
           {activeTab === 'messages' && (
