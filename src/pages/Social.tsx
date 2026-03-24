@@ -3,7 +3,7 @@
  * Clean app bar with ambient glow, content area, and navigation
  */
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
 import { BottomNav } from '@/components/BottomNav'
@@ -13,14 +13,44 @@ import { SocialBottomNav, type SocialTab } from '@/components/social/SocialBotto
 import { useSocialStore } from '@/components/social/socialStore'
 import { getLevelForXP } from '@/components/social/constants'
 
+const SOCIAL_ACTIVE_TAB_STORAGE_KEY = 'social-active-tab'
+const DEFAULT_SOCIAL_TAB: SocialTab = 'profile'
+
+function readInitialSocialTab(): SocialTab {
+  if (typeof window === 'undefined') return DEFAULT_SOCIAL_TAB
+  const storedTab = window.localStorage.getItem(SOCIAL_ACTIVE_TAB_STORAGE_KEY)
+  const validTabs: SocialTab[] = ['profile', 'leaderboard', 'friends', 'league', 'messages']
+  return validTabs.includes(storedTab as SocialTab) ? (storedTab as SocialTab) : DEFAULT_SOCIAL_TAB
+}
+
 export function Social() {
   const navigate = useNavigate()
   const [isSideNavOpen, setIsSideNavOpen] = useState(false)
-  const [activeTab, setActiveTab] = useState<SocialTab>('profile')
+  const [activeTab, setActiveTab] = useState<SocialTab>(readInitialSocialTab)
   const { totalXP } = useSocialStore()
   const level = getLevelForXP(totalXP)
 
   const isLeagueTab = activeTab === 'league'
+
+  useEffect(() => {
+    window.localStorage.setItem(SOCIAL_ACTIVE_TAB_STORAGE_KEY, activeTab)
+  }, [activeTab])
+
+  useEffect(() => {
+    let isPageUnloading = false
+    const handleBeforeUnload = () => {
+      isPageUnloading = true
+    }
+
+    window.addEventListener('beforeunload', handleBeforeUnload)
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload)
+      if (!isPageUnloading) {
+        window.localStorage.removeItem(SOCIAL_ACTIVE_TAB_STORAGE_KEY)
+      }
+    }
+  }, [])
 
   return (
     <div

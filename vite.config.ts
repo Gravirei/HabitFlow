@@ -13,7 +13,7 @@ export default defineConfig({
   server: {
     host: 'localhost', // Restrict to localhost only — prevents LAN exposure during development
     port: 3000,
-    open: true,
+    open: false,
   },
   build: {
     outDir: 'dist',
