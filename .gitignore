@@ -28,6 +28,10 @@ archive
 TIMER_MD
 .agent
 
+.cursor
+.claude
+.codex
+
 
 # Testing
 coverage
