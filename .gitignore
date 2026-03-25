@@ -49,3 +49,4 @@ credentials/
 
 # ByteRover
 .brv
+.env

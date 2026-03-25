@@ -444,7 +444,7 @@ export function Tasks() {
   return (
     <div className="relative mx-auto flex h-auto min-h-screen w-full max-w-md flex-col overflow-x-hidden bg-gray-50 dark:bg-gray-950 sm:max-w-2xl md:max-w-4xl lg:max-w-6xl xl:max-w-7xl">
       {/* Header - Fixed position */}
-      <header className="fixed left-0 right-0 top-0 z-30 mx-auto max-w-md bg-background-light/80 p-4 pb-2 backdrop-blur-xl transition-all dark:bg-background-dark/80 sm:max-w-2xl sm:rounded-none md:max-w-4xl lg:max-w-6xl xl:max-w-7xl">
+      <header className="fixed left-0 right-0 top-0 z-30 mx-auto max-w-md bg-background-light/80 p-4 pb-2 pt-safe backdrop-blur-xl transition-all dark:bg-background-dark/80 sm:max-w-2xl sm:rounded-none md:max-w-4xl lg:max-w-6xl xl:max-w-7xl">
         <div className="mx-auto flex w-full max-w-7xl flex-col gap-4">
           <div className="flex h-12 items-center justify-between pt-2">
             {/* Left: Back Button + Hamburger Menu */}

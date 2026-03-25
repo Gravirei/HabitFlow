@@ -594,61 +594,63 @@ export function Today() {
     <div className="relative mx-auto flex h-auto min-h-screen w-full max-w-md flex-col overflow-x-hidden bg-gray-950 text-slate-50 selection:bg-teal-500/30 sm:max-w-2xl md:max-w-4xl lg:max-w-6xl xl:max-w-7xl">
       {/* Fixed Header */}
       <header className="fixed left-0 right-0 top-0 z-30 mx-auto max-w-md shrink-0 bg-background-light/95 backdrop-blur-sm dark:bg-background-dark/95 sm:max-w-2xl md:max-w-4xl lg:max-w-6xl xl:max-w-7xl">
-        <div className="flex flex-col gap-1 px-4 pb-2 pt-3 sm:px-6 lg:px-8">
-          <div className="flex h-10 items-center justify-between">
+        <div className="flex flex-col gap-1 px-4 pb-2 pt-safe sm:px-6 lg:px-8">
+          <div className="relative flex h-10 items-center justify-between">
             {/* Menu button */}
             <button
               onClick={() => setIsSideNavOpen(true)}
               aria-label="Open navigation menu"
-              className="flex size-10 cursor-pointer items-center justify-center rounded-xl text-slate-400 transition-all hover:bg-white/5 hover:text-white active:scale-95"
+              className="relative z-10 flex size-10 cursor-pointer items-center justify-center rounded-xl text-slate-400 transition-all hover:bg-white/5 hover:text-white active:scale-95"
             >
               <span className="material-symbols-outlined text-xl">menu</span>
             </button>
 
             {/* Title / Search */}
-            <div className="flex-1 overflow-hidden px-4 text-center">
-              <AnimatePresence mode="wait">
-                {isSearchOpen ? (
-                  <motion.div
-                    key="search"
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    className="relative mx-auto max-w-xs"
-                  >
-                    <input
-                      type="text"
-                      placeholder="Search..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      autoFocus
-                      className="w-full rounded-xl border border-slate-700 bg-slate-800/50 px-4 py-2 pl-10 text-sm text-slate-100 placeholder:text-slate-500 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-teal-500/50"
-                    />
-                    <span className="material-symbols-outlined absolute left-3 top-2 text-lg text-slate-500">
-                      search
-                    </span>
-                  </motion.div>
-                ) : (
-                  <AnimatePresence mode="wait" custom={direction}>
-                    <motion.h1
-                      key={selectedDate.toISOString()}
-                      custom={direction}
-                      variants={slideVariants}
-                      initial="enter"
-                      animate="center"
-                      exit="exit"
-                      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                      className="text-lg font-bold tracking-tight text-white"
+            <div className="pointer-events-none absolute inset-x-0 flex justify-center px-4 text-center">
+              <div className="pointer-events-auto w-full max-w-xs">
+                <AnimatePresence mode="wait">
+                  {isSearchOpen ? (
+                    <motion.div
+                      key="search"
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      className="relative w-full"
                     >
-                      {getPageTitle()}
-                    </motion.h1>
-                  </AnimatePresence>
-                )}
-              </AnimatePresence>
+                      <input
+                        type="text"
+                        placeholder="Search..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        autoFocus
+                        className="w-full rounded-xl border border-slate-700 bg-slate-800/50 px-4 py-2 pl-10 text-sm text-slate-100 placeholder:text-slate-500 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-teal-500/50"
+                      />
+                      <span className="material-symbols-outlined absolute left-3 top-2 text-lg text-slate-500">
+                        search
+                      </span>
+                    </motion.div>
+                  ) : (
+                    <AnimatePresence mode="wait" custom={direction}>
+                      <motion.h1
+                        key={selectedDate.toISOString()}
+                        custom={direction}
+                        variants={slideVariants}
+                        initial="enter"
+                        animate="center"
+                        exit="exit"
+                        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                        className="text-lg font-bold tracking-tight text-white"
+                      >
+                        {getPageTitle()}
+                      </motion.h1>
+                    </AnimatePresence>
+                  )}
+                </AnimatePresence>
+              </div>
             </div>
 
             {/* Action buttons */}
-            <div className="flex items-center gap-2">
+            <div className="relative z-10 flex items-center gap-2">
               <button
                 onClick={() => {
                   setIsSearchOpen(!isSearchOpen)

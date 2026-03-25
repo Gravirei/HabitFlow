@@ -61,7 +61,7 @@ export function Social() {
         <header
           className={`fixed left-0 right-0 top-0 z-30 mx-auto shrink-0 bg-gray-950/80 backdrop-blur-md ${isLeagueTab ? 'max-w-full' : 'max-w-md sm:max-w-2xl md:max-w-4xl lg:max-w-6xl xl:max-w-7xl'}`}
         >
-          <div className="flex items-center justify-between px-4 pb-3 pt-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between px-4 pb-3 pt-safe sm:px-6 lg:px-8">
             {/* Back + Menu */}
             <div className="flex items-center gap-1">
               <button
