@@ -8,6 +8,7 @@ import { SessionManagement } from '@/components/auth/SessionManagement'
 import { useAuth } from '@/lib/auth/AuthContext'
 import { isEmailVerified } from '@/lib/auth/AuthContext'
 import { supabase } from '@/lib/supabase'
+import { useAccessibilityStore } from '@/store/useAccessibilityStore'
 
 type Theme = 'system' | 'light' | 'dark'
 type FontSize = 'small' | 'medium' | 'large'
@@ -199,6 +200,8 @@ function Badge({ children, variant = 'default' }: { children: React.ReactNode; v
 export function Settings() {
   const navigate = useNavigate()
   const { user } = useAuth()
+  const showAccessibilityButton = useAccessibilityStore((s) => s.showAccessibilityButton)
+  const setShowAccessibilityButton = useAccessibilityStore((s) => s.setShowAccessibilityButton)
 
   // Appearance
   const [theme, setTheme] = useState<Theme>('system')
@@ -739,6 +742,21 @@ export function Settings() {
                   label="Screen Reader Support"
                   description="Enhanced screen reader hints"
                   trailing={<Toggle id="screen-reader" label="Toggle screen reader support" checked={screenReader} onChange={setScreenReader} />}
+                />
+                <Divider />
+                <SettingRow
+                  icon="accessibility_new"
+                  iconGradient="from-teal-400 to-cyan-600"
+                  label="Floating Accessibility Button"
+                  description="Show accessibility button across app pages"
+                  trailing={
+                    <Toggle
+                      id="floating-accessibility-button"
+                      label="Toggle floating accessibility button"
+                      checked={showAccessibilityButton}
+                      onChange={setShowAccessibilityButton}
+                    />
+                  }
                 />
               </SectionCard>
             </section>

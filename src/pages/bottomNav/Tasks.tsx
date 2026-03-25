@@ -8,7 +8,6 @@ import { TrelloKanban } from '@/components/tasks/kanban/TrelloKanban'
 import { MinimalKanban } from '@/components/tasks/kanban/MinimalKanban'
 import { NotionKanban } from '@/components/tasks/kanban/NotionKanban'
 import { AsanaKanban } from '@/components/tasks/kanban/AsanaKanban'
-import { AccessibilityButton } from '@/components/AccessibilityButton'
 import { TaskCardWithMenu } from '@/components/tasks/TaskCardWithMenu'
 import { QuickActionsMenu } from '@/components/tasks/QuickActionsMenu'
 import { TemplateCreationModal } from '@/components/tasks/TemplateCreationModal'
@@ -1002,9 +1001,6 @@ export function Tasks() {
         onClose={() => setIsTemplateManagerOpen(false)}
         onSaveTemplate={handleSaveTemplate}
       />
-
-      {/* Accessibility Button Demo */}
-      <AccessibilityButton />
 
       {/* Floating Action Button */}
       <button

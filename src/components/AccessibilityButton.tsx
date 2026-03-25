@@ -17,8 +17,8 @@ export function AccessibilityButton() {
   const buttonRef = useRef<HTMLButtonElement>(null)
   const [itemsAnimated, setItemsAnimated] = useState(false)
 
-  // Handle drag start
-  const handleMouseDown = (e: React.MouseEvent) => {
+  // Handle drag start for mouse and touch
+  const handlePointerDown = (e: React.PointerEvent<HTMLButtonElement>) => {
     if (buttonRef.current) {
       const rect = buttonRef.current.getBoundingClientRect()
       setDragOffset({
@@ -34,7 +34,7 @@ export function AccessibilityButton() {
 
   // Handle dragging
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
+    const handlePointerMove = (e: PointerEvent) => {
       if (isDragging) {
         setHasMoved(true)
         // Close modal when actually dragging (not just clicking)
@@ -53,7 +53,7 @@ export function AccessibilityButton() {
       }
     }
 
-    const handleMouseUp = () => {
+    const handlePointerUp = () => {
       if (isDragging) {
         setIsDragging(false)
         
@@ -90,13 +90,15 @@ export function AccessibilityButton() {
     }
 
     if (isDragging) {
-      document.addEventListener('mousemove', handleMouseMove)
-      document.addEventListener('mouseup', handleMouseUp)
+      document.addEventListener('pointermove', handlePointerMove)
+      document.addEventListener('pointerup', handlePointerUp)
+      document.addEventListener('pointercancel', handlePointerUp)
     }
 
     return () => {
-      document.removeEventListener('mousemove', handleMouseMove)
-      document.removeEventListener('mouseup', handleMouseUp)
+      document.removeEventListener('pointermove', handlePointerMove)
+      document.removeEventListener('pointerup', handlePointerUp)
+      document.removeEventListener('pointercancel', handlePointerUp)
     }
   }, [isDragging, dragOffset, position])
 
@@ -200,7 +202,7 @@ export function AccessibilityButton() {
       {/* Floating Accessibility Button - Glass/Frosted Effect with Siri Animation */}
       <button
         ref={buttonRef}
-        onMouseDown={handleMouseDown}
+        onPointerDown={handlePointerDown}
         onClick={(e) => {
           if (!hasMoved) {
             // Stop event from reaching backdrop
@@ -224,6 +226,7 @@ export function AccessibilityButton() {
           top: `${position.y}px`,
           zIndex: 80,
           transition: isDragging ? 'none' : 'all 0.3s ease-out',
+          touchAction: 'none',
         }}
         aria-label="Accessibility Options"
       >
