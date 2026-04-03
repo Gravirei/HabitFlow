@@ -856,8 +856,12 @@ export function Tasks() {
 
       {/* Content Area */}
       <main
-        className="no-scrollbar flex-1 overflow-y-auto px-6 pb-24 pt-[8.75rem] sm:px-8 md:px-12 lg:px-16"
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        className="no-scrollbar flex-1 overflow-y-auto px-6 pb-24 sm:px-8 md:px-12 lg:px-16"
+        style={{
+          paddingTop: 'calc(8.75rem + env(safe-area-inset-top))',
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
+        }}
       >
         {view === 'kanban' ? (
           <>

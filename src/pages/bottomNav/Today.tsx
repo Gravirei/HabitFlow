@@ -683,7 +683,10 @@ export function Today() {
         </div>
       </header>
 
-      <main className="relative z-0 flex-grow pb-32 pt-32">
+      <main
+        className="relative z-0 flex-grow pb-32"
+        style={{ paddingTop: 'calc(8rem + env(safe-area-inset-top))' }}
+      >
         {/* ── Animated Content ──────────────────────────────────────── */}
         <AnimatePresence mode="wait" custom={direction}>
           <motion.div

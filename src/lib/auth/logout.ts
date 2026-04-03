@@ -6,60 +6,75 @@ export interface LogoutOptions {
 }
 
 /**
- * Signs out the current user.
+ * Signs out the current user with atomic cleanup.
  *
- * Note: supabase-js clears its own session storage when signing out.
- * We additionally clear common app storage keys as a defense-in-depth.
- * 
+ * Design principles:
+ * 1. Server revocation ALWAYS runs first — even if it fails, local cleanup proceeds.
+ * 2. Local storage is ALWAYS cleared (except preserved keys) — no partial state.
+ * 3. IndexedDB cleanup is best-effort — failures are logged, not thrown.
+ * 4. Hard redirect to /login only when clearLocalData is true.
+ *
  * @param options - Optional logout configuration
  * @param options.logoutAllDevices - If true, terminates all sessions across devices
- * @param options.clearLocalData - If true, clears all local storage data
+ * @param options.clearLocalData - If true, also clears IndexedDB and redirects to /login
  */
 export async function logout(options: LogoutOptions = {}): Promise<void> {
   const { logoutAllDevices = false, clearLocalData = false } = options
 
-  // Sign out from Supabase
-  // Use 'global' scope to sign out from all devices if requested
-  const { error } = await supabase.auth.signOut({
-    scope: logoutAllDevices ? 'global' : 'local'
-  })
-  if (error) throw error
+  // Step 1: Server-side revocation — always attempt, never block on failure
+  try {
+    await supabase.auth.signOut({
+      scope: logoutAllDevices ? 'global' : 'local',
+    })
+  } catch (e) {
+    console.error('signOut failed, proceeding with local cleanup', e)
+  }
 
-  // Clear local data if requested
+  // Step 2: Preserve keys that should survive logout
+  const theme = localStorage.getItem('theme')
+
+  // Step 3: Single-pass clear — no partial state windows
+  try {
+    localStorage.clear()
+    sessionStorage.clear()
+  } catch (e) {
+    console.error('Storage clear failed', e)
+  }
+
+  // Step 4: Restore preserved keys
+  if (theme) localStorage.setItem('theme', theme)
+
+  // Step 5: IndexedDB — best effort, only when full clear requested
   if (clearLocalData) {
-    try {
-      // Clear all localStorage except critical system items
-      const keysToPreserve = ['theme'] // Preserve theme preference
-      const allKeys = Object.keys(localStorage)
-      
-      allKeys.forEach(key => {
-        if (!keysToPreserve.includes(key)) {
-          localStorage.removeItem(key)
-        }
-      })
+    await clearIndexedDB()
 
-      // Clear sessionStorage
-      sessionStorage.clear()
+    // Step 6: Hard navigate to login (full page reload clears any in-memory state)
+    window.location.href = '/login'
+  }
+}
 
-      // Clear IndexedDB databases (if any)
-      if ('indexedDB' in window) {
-        const databases = await window.indexedDB.databases?.()
-        databases?.forEach(db => {
-          if (db.name) {
-            window.indexedDB.deleteDatabase(db.name)
-          }
-        })
-      }
-    } catch {
-      // Ignore cleanup errors
-    }
-  } else {
-    // Default cleanup (safe even if keys don't exist)
-    try {
-      // If you later store additional auth-related items, clear them here
-      localStorage.removeItem('habitflow_device_id')
-    } catch {
-      // ignore
-    }
+async function clearIndexedDB(): Promise<void> {
+  if (!('indexedDB' in window) || !indexedDB.databases) return
+  try {
+    const databases = await indexedDB.databases()
+    await Promise.allSettled(
+      databases.map(
+        (db) =>
+          new Promise<void>((resolve) => {
+            if (!db.name) {
+              resolve()
+              return
+            }
+            const req = indexedDB.deleteDatabase(db.name)
+            req.onsuccess = () => resolve()
+            req.onerror = () => {
+              console.error(`IndexedDB delete failed: ${db.name}`, req.error)
+              resolve()
+            }
+          })
+      )
+    )
+  } catch (e) {
+    console.error('IndexedDB cleanup failed', e)
   }
 }
