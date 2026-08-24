@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useHabitStore } from '@/store/useHabitStore'
 import { useCategoryStore } from '@/store/useCategoryStore'
 import { useHabitTaskStore } from '@/store/useHabitTaskStore'
-import { iconColorOptions } from '@/components/categories/CreateNewHabit'
+import { iconColorOptions } from '@/features/categories/components/CreateNewHabit'
 import { format } from 'date-fns'
 
 interface HabitDetailsModalProps {

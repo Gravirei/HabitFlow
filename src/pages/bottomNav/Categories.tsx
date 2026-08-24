@@ -39,7 +39,7 @@ import {
   EditCategoryModal,
   CategoryTemplateLibraryModal,
   CategoryImportExportModal,
-} from '@/components/categories'
+} from '@/features/categories/components'
 import type { CategoryTemplatePack } from '@/types/categoryTemplate'
 import { ConfirmDialog } from '@/shared/ui/ConfirmDialog'
 import { useCategoryStore } from '@/store/useCategoryStore'
