@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { IntegrationProvider, IntegrationConnection, IntegrationStatus, SyncResult } from './types'
+import type { IntegrationProvider, IntegrationConnection, IntegrationStatus, SyncResult } from '../components/types'
 
 const createDefaultConnection = (provider: IntegrationProvider): IntegrationConnection => ({
   provider,

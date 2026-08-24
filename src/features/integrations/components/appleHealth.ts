@@ -1,5 +1,5 @@
 import toast from 'react-hot-toast';
-import { useIntegrationStore } from './integrationStore';
+import { useIntegrationStore } from '../store/integrationStore';
 
 interface HealthData {
   steps: number;

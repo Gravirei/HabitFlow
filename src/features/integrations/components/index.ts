@@ -2,7 +2,7 @@
 export * from './types'
 
 // Store
-export { useIntegrationStore } from './integrationStore'
+export { useIntegrationStore } from '../store/integrationStore'
 
 // Services
 export { googleCalendarService } from './googleCalendar'

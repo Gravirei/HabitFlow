@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import toast from 'react-hot-toast'
 import { notionService } from './notion'
-import { useIntegrationStore } from './integrationStore'
+import { useIntegrationStore } from '../store/integrationStore'
 
 export function NotionSettings() {
   const connection = useIntegrationStore((s) => s.connections['notion'])

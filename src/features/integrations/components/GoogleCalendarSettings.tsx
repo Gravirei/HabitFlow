@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'react-hot-toast'
-import { useIntegrationStore } from './integrationStore'
+import { useIntegrationStore } from '../store/integrationStore'
 import { googleCalendarService } from './googleCalendar'
 import type { GoogleCalendarSettings as GoogleCalendarSettingsType } from './types'
 

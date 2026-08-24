@@ -1,4 +1,4 @@
-import { useIntegrationStore } from './integrationStore'
+import { useIntegrationStore } from '../store/integrationStore'
 
 const NOTION_AUTH_URL = 'https://api.notion.com/v1/oauth/authorize'
 const NOTION_TOKEN_URL = 'https://api.notion.com/v1/oauth/token'

@@ -18,7 +18,7 @@ import {
   ZapierSettings,
   IFTTTSettings,
   type IntegrationProvider,
-} from '@/components/integrations';
+} from '@/features/integrations/components';
 
 export function Integrations() {
   const navigate = useNavigate();

@@ -1,4 +1,4 @@
-import { useIntegrationStore } from './integrationStore';
+import { useIntegrationStore } from '../store/integrationStore';
 
 /**
  * Validates Zapier webhook URL format

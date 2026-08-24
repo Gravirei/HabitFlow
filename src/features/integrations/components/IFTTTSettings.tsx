@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
-import { useIntegrationStore } from './integrationStore';
+import { useIntegrationStore } from '../store/integrationStore';
 import { iftttService } from './ifttt';
 
 const IFTTT_EVENTS = [

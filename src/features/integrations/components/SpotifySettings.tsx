@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { spotifyService } from './spotify';
-import { useIntegrationStore } from './integrationStore';
+import { useIntegrationStore } from '../store/integrationStore';
 
 interface Playlist {
   id: string;

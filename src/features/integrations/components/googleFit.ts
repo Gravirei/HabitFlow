@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { useIntegrationStore } from './integrationStore';
+import { useIntegrationStore } from '../store/integrationStore';
 
 interface TokenResponse {
   access_token: string;

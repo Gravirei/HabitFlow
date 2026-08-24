@@ -1,4 +1,4 @@
-import { useIntegrationStore } from './integrationStore';
+import { useIntegrationStore } from '../store/integrationStore';
 
 export const iftttService = {
   /**

@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { useIntegrationStore } from './integrationStore';
+import { useIntegrationStore } from '../store/integrationStore';
 import type { SlackSettings } from './types';
 
 const SLACK_CLIENT_ID = import.meta.env.VITE_SLACK_CLIENT_ID || 'placeholder_client_id';
