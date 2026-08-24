@@ -44,7 +44,7 @@ import { Integrations } from '@/pages/sideNav/Integrations'
 import { Social } from '@/pages/Social'
 import { useDayChangeDetector } from '@/hooks/useDayChangeDetector'
 import { useHabitTaskStore } from '@/store/useHabitTaskStore'
-import { GlobalAccessibilityButton } from '@/components/accessibility/GlobalAccessibilityButton'
+import { GlobalAccessibilityButton } from '@/features/accessibility/components/GlobalAccessibilityButton'
 // ARCHIVED: ThemeProvider import removed (theme module archived)
 
 /** Detects midnight rollover and resets all habit tasks for the new day */

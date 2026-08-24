@@ -1,5 +1,5 @@
 import { useLocation } from 'react-router-dom'
-import { AccessibilityButton } from '@/components/AccessibilityButton'
+import { AccessibilityButton } from './AccessibilityButton'
 import { useAccessibilityStore } from '@/store/useAccessibilityStore'
 
 const HIDDEN_ROUTES = new Set([
