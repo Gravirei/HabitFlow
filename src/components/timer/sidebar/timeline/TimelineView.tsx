@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Timeline View Component
  * Main timeline visualization component

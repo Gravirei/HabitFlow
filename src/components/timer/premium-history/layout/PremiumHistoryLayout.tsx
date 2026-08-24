@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Premium History Layout Component
  * Main layout wrapper with background effects

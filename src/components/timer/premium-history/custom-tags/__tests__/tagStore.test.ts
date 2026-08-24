@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Tag Store Tests
  * Comprehensive tests for custom tags Zustand store

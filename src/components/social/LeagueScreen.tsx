@@ -56,7 +56,7 @@ function TierProgress({ current }: { current: LeagueTier }) {
   // Show a window of 5 tiers around the current tier
   const windowSize = 5;
   let startIdx = Math.max(0, idx - 2);
-  let endIdx = Math.min(tiers.length - 1, startIdx + windowSize - 1);
+  const endIdx = Math.min(tiers.length - 1, startIdx + windowSize - 1);
   
   if (endIdx - startIdx + 1 < windowSize) {
     startIdx = Math.max(0, endIdx - windowSize + 1);

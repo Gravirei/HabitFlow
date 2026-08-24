@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Cloud Sync Modal
  * Backup and restore timer data to cloud

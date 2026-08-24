@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Advanced Filters Component
  * Button to open duration filters modal

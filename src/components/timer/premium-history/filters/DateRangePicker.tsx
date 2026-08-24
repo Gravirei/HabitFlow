@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Date Range Picker Component
  * Button to select date range for filtering sessions

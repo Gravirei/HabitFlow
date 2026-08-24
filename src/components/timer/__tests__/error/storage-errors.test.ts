@@ -30,7 +30,7 @@ describe('Storage Error Handling', () => {
     // Clear localStorage manually since .clear() might not be available
     try {
       Object.keys(localStorage).forEach(key => localStorage.removeItem(key))
-    } catch (e) {
+    } catch {
       // localStorage might be mocked/unavailable
     }
   })
@@ -127,7 +127,7 @@ describe('Storage Error Handling', () => {
       // This would be part of quota management logic
       try {
         localStorage.setItem('new_key', 'value')
-      } catch (e) {
+      } catch {
         // Cleanup old data
         localStorage.removeItem('old_key')
         // Retry
@@ -437,7 +437,7 @@ describe('Storage Error Handling', () => {
           const data = localStorage.getItem('flowmodoro_history')
           result = data ? JSON.parse(data) : []
           break
-        } catch (e) {
+        } catch {
           continue
         }
       }

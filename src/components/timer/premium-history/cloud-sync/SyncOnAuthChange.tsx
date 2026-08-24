@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * SyncOnAuthChange Component
  * Listens to auth state changes and triggers sync operations

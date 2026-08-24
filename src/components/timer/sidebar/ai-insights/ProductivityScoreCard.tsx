@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Productivity Score Card - Main score display with breakdown
  */

@@ -23,7 +23,6 @@ describe('useHabitStore', () => {
     localStorage.clear()
 
     // Reset store to initial state - use partial update to preserve methods
-    // @ts-ignore - accessing internal state for testing
     const state = useHabitStore.getState()
     useHabitStore.setState({ 
       isFirstVisit: true, 
@@ -218,7 +217,6 @@ describe('useHabitStore', () => {
     it('should delete a habit by id', () => {
       const { result } = renderHook(() => useHabitStore())
 
-      let habitId!: string
 
       act(() => {
         result.current.addHabit({
@@ -232,7 +230,7 @@ describe('useHabitStore', () => {
         })
       })
 
-      habitId = result.current.habits[0].id
+      const habitId = result.current.habits[0].id
       expect(result.current.habits.length).toBe(1)
 
       act(() => {
@@ -264,7 +262,6 @@ describe('useHabitStore', () => {
     it('should update habit properties', () => {
       const { result } = renderHook(() => useHabitStore())
 
-      let habitId!: string
 
       act(() => {
         result.current.addHabit({
@@ -278,7 +275,7 @@ describe('useHabitStore', () => {
         })
       })
 
-      habitId = result.current.habits[0].id
+      const habitId = result.current.habits[0].id
 
       act(() => {
         result.current.updateHabit(habitId, { name: 'Updated Habit' })
@@ -292,7 +289,6 @@ describe('useHabitStore', () => {
     it('should mark habit as completed for today', () => {
       const { result } = renderHook(() => useHabitStore())
 
-      let habitId!: string
 
       act(() => {
         result.current.addHabit({
@@ -306,7 +302,7 @@ describe('useHabitStore', () => {
         })
       })
 
-      habitId = result.current.habits[0].id
+      const habitId = result.current.habits[0].id
 
       act(() => {
         result.current.toggleHabitCompletion(habitId)
@@ -318,7 +314,6 @@ describe('useHabitStore', () => {
     it('should increment totalCompletions when completing', () => {
       const { result } = renderHook(() => useHabitStore())
 
-      let habitId!: string
 
       act(() => {
         result.current.addHabit({
@@ -332,7 +327,7 @@ describe('useHabitStore', () => {
         })
       })
 
-      habitId = result.current.habits[0].id
+      const habitId = result.current.habits[0].id
       expect(result.current.habits[0].totalCompletions).toBe(0)
 
       act(() => {
@@ -345,7 +340,6 @@ describe('useHabitStore', () => {
     it('should toggle completion status', () => {
       const { result } = renderHook(() => useHabitStore())
 
-      let habitId!: string
 
       act(() => {
         result.current.addHabit({
@@ -359,7 +353,7 @@ describe('useHabitStore', () => {
         })
       })
 
-      habitId = result.current.habits[0].id
+      const habitId = result.current.habits[0].id
 
       // Complete
       act(() => {

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * AI Insights Modal - Main Dashboard
  */

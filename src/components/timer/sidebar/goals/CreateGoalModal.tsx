@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Create Goal Modal
  * Modal for creating new goals

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useState, useEffect } from 'react'
 import { AccessibleModal } from '@/components/timer/shared/AccessibleModal'
 import type { TaskTemplate } from '@/types/taskTemplate'

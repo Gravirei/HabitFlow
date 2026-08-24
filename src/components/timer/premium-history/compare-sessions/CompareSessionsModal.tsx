@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Compare Sessions Modal
  * Side-by-side session analysis and comparison

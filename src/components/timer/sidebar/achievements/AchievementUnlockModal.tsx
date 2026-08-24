@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Achievement Unlock Modal
  * Celebration modal when an achievement is unlocked

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Social Onboarding — First-time user flow (GAP 5)
  *

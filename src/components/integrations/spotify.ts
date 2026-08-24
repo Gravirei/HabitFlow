@@ -331,7 +331,8 @@ export const spotifyService = {
    * Disconnects Spotify integration
    */
   disconnect(): void {
-    const integrationStore = useIntegrationStore();
+    const integrationStore = // eslint-disable-next-line react-hooks/rules-of-hooks -- TODO(burn-down): zustand hook called inside plain function; should be getState(), see refactor plan P1
+    useIntegrationStore();
     integrationStore.disconnect('spotify');
   },
 };

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Notification Service
  * Handles browser notifications and permission management

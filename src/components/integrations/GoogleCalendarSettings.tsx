@@ -43,7 +43,7 @@ export function GoogleCalendarSettings(): React.ReactElement {
     try {
       const cals = await googleCalendarService.listCalendars(connection.accessToken)
       setCalendars(cals)
-    } catch (error) {
+    } catch {
       toast.error('Failed to load calendars')
       store.setError('google-calendar', 'Failed to load calendars')
     } finally {
@@ -73,7 +73,7 @@ export function GoogleCalendarSettings(): React.ReactElement {
       if (result.errors.length > 0) {
         toast.error(`Failed to sync ${result.errors.length} habits`)
       }
-    } catch (error) {
+    } catch {
       toast.error('Sync failed')
       store.setError('google-calendar', 'Sync failed')
     } finally {
@@ -88,7 +88,7 @@ export function GoogleCalendarSettings(): React.ReactElement {
       setCalendars([])
       setIsOpen(false)
       toast.success('Disconnected from Google Calendar')
-    } catch (error) {
+    } catch {
       toast.error('Failed to disconnect')
     } finally {
       setShowDisconnectConfirm(false)

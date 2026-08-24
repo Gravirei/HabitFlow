@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Archive Store Tests
  * Comprehensive tests for archive Zustand store

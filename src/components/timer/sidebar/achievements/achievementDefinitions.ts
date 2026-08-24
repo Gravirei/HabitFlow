@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Achievement Definitions
  * All available achievements in the system

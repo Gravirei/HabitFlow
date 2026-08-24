@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { motion, AnimatePresence } from 'framer-motion'
 import { useHabitStore } from '@/store/useHabitStore'
 import { useCategoryStore } from '@/store/useCategoryStore'

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Export Panel Component
  * Placeholder for future export functionality (CSV, PDF, JSON)

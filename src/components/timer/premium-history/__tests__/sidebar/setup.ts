@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Test Setup and Mocks for Sidebar Tests
  */

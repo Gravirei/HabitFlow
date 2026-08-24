@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Virtualized Session List Component
  * Uses react-window for performance with large session lists

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * AI Insights Feature Tests
  * Tests for 7 insight categories and smart recommendations

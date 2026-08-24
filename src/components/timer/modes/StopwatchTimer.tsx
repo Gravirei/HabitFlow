@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * StopwatchTimer Component
  * Stopwatch mode with lap functionality

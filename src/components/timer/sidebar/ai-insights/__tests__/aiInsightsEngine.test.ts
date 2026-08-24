@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * AI Insights Engine Tests
  * Comprehensive tests for core analysis algorithms

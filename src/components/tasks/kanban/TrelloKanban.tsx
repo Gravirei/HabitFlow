@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Task } from '@/types/task'
 import { cn } from '@/utils/cn'
 

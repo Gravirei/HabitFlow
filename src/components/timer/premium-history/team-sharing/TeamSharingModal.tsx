@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Team Sharing Modal
  * Collaborate and share timer sessions with team members

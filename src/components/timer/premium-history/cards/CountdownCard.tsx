@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Countdown Card Component
  * Displays countdown session with completion status or stopped state

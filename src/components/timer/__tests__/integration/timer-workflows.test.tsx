@@ -548,7 +548,7 @@ describe('Timer Workflows - Integration Tests', () => {
       act(() => {
         try {
           historyResult.current.saveToHistory({ duration: 10000 })
-        } catch (e) {
+        } catch {
           // Expected to catch error
         }
       })

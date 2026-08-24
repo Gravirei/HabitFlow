@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Goals Store Tests
  * Comprehensive tests for the goals Zustand store

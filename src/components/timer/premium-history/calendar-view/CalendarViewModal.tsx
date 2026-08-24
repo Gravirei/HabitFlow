@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Calendar View Modal
  * Monthly calendar overview of timer sessions

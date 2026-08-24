@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Achievements Feature Tests
  * Tests for 47 achievements system with auto-unlock

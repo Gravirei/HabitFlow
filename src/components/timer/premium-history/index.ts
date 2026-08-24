@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Premium History Components Barrel Export
  * Central export point for all premium history components

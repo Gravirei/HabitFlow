@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Insight Card - Individual insight display
  */

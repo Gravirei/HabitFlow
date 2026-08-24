@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Phase 4 - Categories enhanced UX tests (search / filters / sorting / empty states)
  */

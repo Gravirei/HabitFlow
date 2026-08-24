@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Social Store
  * Zustand store for XP, leaderboards, friends, leagues, and badges

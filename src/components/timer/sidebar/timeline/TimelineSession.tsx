@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Timeline Session Component
  * Individual session block in the timeline

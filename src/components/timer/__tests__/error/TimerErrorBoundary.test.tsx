@@ -268,7 +268,7 @@ describe('TimerErrorBoundary', () => {
       const user = userEvent.setup()
       let shouldThrow = true
 
-      const { } = render(
+      render(
         <TimerErrorBoundary>
           <ThrowError shouldThrow={shouldThrow} />
         </TimerErrorBoundary>

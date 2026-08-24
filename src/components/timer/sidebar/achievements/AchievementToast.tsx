@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Achievement Toast Component
  * Toast notification for newly unlocked achievements

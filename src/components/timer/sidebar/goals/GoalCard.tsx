@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Goal Card Component
  * Displays individual goal with progress

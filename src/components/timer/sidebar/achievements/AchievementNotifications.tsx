@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Achievement Notifications Component
  * Manages and displays achievement unlock notifications

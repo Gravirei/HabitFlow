@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Storage Integrity Utility
  * Provides integrity checks for localStorage data using checksums

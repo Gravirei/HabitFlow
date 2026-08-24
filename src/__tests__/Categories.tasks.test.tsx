@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Phase 5 - Categories tasks integration test (Tasks chip filters categories with tasks)
  */

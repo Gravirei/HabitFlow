@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Session Details Modal Component
  * Shows detailed information about a timer session

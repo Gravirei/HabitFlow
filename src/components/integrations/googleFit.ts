@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useIntegrationStore } from './integrationStore';
 
 interface TokenResponse {

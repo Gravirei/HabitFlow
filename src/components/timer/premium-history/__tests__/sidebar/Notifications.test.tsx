@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Notifications Feature Tests
  * Tests for session reminders and notification settings

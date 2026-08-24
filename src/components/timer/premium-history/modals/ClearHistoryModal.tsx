@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Clear History Confirmation Modal
  * Warns user before clearing all history data

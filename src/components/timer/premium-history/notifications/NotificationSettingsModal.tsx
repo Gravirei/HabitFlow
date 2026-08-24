@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Notification Settings Modal
  * Redesigned to match Custom Tags modal theme

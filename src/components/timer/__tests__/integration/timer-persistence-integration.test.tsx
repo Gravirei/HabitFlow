@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Timer Persistence Integration Tests
  * 

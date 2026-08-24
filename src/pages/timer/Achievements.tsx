@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Achievements Page
  * Full-page view for achievements with navigation

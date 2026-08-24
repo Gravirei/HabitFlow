@@ -127,32 +127,11 @@ export const supabase = createClient(
 
 // Type helper for Supabase tables (add your table types here)
 export type Database = {
-  // Example structure - customize based on your actual database schema
+  // Placeholder schema — add real table types here as they are introduced.
   public: {
-    Tables: {
-      // Add your table definitions here
-      // Example:
-      // timer_sessions: {
-      //   Row: {
-      //     id: string
-      //     user_id: string
-      //     mode: string
-      //     duration: number
-      //     timestamp: string
-      //     created_at: string
-      //   }
-      //   Insert: Omit<timer_sessions.Row, 'id' | 'created_at'>
-      //   Update: Partial<timer_sessions.Insert>
-      // }
-    }
-    Views: {
-      // Add your view definitions here
-    }
-    Functions: {
-      // Add your function definitions here
-    }
-    Enums: {
-      // Add your enum definitions here
-    }
+    Tables: Record<string, never>
+    Views: Record<string, never>
+    Functions: Record<string, never>
+    Enums: Record<string, never>
   }
 }

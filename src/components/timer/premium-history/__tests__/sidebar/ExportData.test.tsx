@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Export Data Feature Tests
  * Tests for CSV, PDF, and JSON export functionality

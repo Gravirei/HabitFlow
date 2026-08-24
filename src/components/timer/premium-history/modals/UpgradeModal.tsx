@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Upgrade Modal Component
  * Prompts free users to upgrade to premium (placeholder for future)

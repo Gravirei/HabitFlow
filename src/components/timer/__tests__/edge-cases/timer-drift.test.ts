@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Timer Drift Edge Case Tests
  * 

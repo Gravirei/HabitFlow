@@ -208,7 +208,7 @@ describe('Performance Constants', () => {
       const original = constants.MAX_HISTORY_RECORDS
       try {
         (constants as any).MAX_HISTORY_RECORDS = 999
-      } catch (e) {
+      } catch {
         // Expected in strict mode
       }
       // Constant should remain unchanged (if modification didn't throw)

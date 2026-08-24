@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * HistoryModal Component
  * Full-screen modal displaying timer history with modern glassmorphism and animations

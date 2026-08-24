@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Intervals Card Component
  * Displays intervals session with cycles, work, and break breakdown

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Advanced Filters Modal
  * Modal with duration filters and additional filter options

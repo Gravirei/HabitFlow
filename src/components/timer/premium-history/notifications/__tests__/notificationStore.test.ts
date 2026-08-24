@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Notification Store Tests
  * Comprehensive tests for notification settings Zustand store

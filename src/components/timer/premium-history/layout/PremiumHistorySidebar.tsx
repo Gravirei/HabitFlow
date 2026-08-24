@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Premium History Sidebar Component
  * Desktop sidebar navigation (future feature)

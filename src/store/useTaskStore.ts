@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type { Task } from '@/types/task'

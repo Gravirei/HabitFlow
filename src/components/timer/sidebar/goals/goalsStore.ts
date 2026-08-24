@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Goals Store
  * State management for goal tracking

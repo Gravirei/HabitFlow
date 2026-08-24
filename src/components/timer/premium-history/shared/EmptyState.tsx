@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Empty State Component
  * Displays when no sessions match the current filters

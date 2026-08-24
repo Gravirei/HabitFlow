@@ -33,7 +33,7 @@ export const LogoutConfirmDialog: React.FC<LogoutConfirmDialogProps> = ({
         logoutAllDevices,
         clearLocalData,
       })
-    } catch (error) {
+    } catch {
       // Error handling is done in the parent component
       setIsLoggingOut(false)
     }

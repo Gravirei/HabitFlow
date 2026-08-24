@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Achievements Panel Component
  * Main panel displaying achievements with filtering

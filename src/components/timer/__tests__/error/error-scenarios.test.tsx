@@ -36,7 +36,7 @@ describe('Error Scenarios', () => {
     // Clear localStorage manually since .clear() might not be available
     try {
       Object.keys(localStorage).forEach(key => localStorage.removeItem(key))
-    } catch (e) {
+    } catch {
       // localStorage might be mocked/unavailable
     }
     // Restore Storage.prototype methods

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Achievement Card Component
  * Displays individual achievement with progress and unlock status

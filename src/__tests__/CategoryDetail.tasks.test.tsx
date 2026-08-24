@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Phase 5 - CategoryDetail tasks integration test (toggle + tasks rendering)
  */

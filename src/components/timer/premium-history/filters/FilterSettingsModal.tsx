@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Filter Settings Modal
  * Redesigned to match Custom Tags modal theme

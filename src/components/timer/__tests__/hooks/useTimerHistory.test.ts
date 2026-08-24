@@ -2,7 +2,6 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 
 // Type declarations for test environment
 declare const global: typeof globalThis
-declare const process: NodeJS.Process
 
 import { renderHook, act, waitFor } from '@testing-library/react'
 import { useTimerHistory } from '../../hooks/useTimerHistory'

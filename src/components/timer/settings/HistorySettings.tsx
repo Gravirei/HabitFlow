@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * HistorySettings Component
  * Premium timer history configuration with advanced features

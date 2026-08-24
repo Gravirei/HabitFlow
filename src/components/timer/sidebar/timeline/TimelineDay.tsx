@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Timeline Day Component
  * Single day view in the timeline

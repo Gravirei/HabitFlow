@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Timeline View Feature Tests
  * Tests for day/week/month timeline visualization

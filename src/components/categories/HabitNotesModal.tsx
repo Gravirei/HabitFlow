@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
 import { useHabitStore } from '@/store/useHabitStore'

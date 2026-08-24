@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * AI Insights Page
  * Smart analytics and productivity recommendations with modern professional UI

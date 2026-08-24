@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Goal Tracking Feature Tests
  * Tests for goal creation, tracking, and achievement

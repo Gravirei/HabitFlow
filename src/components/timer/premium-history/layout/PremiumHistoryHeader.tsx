@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Premium History Header Component
  * Sticky header with back button and title

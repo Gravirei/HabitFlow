@@ -4,7 +4,7 @@
  * Routes: /timer
  */
 
-import { Page, Locator, expect } from '@playwright/test';
+import { Page, Locator } from '@playwright/test';
 
 export type TimerMode = 'stopwatch' | 'countdown' | 'intervals';
 
@@ -248,7 +248,7 @@ export class TimerPage {
   }
 
   // Intervals actions
-  async configureIntervals(workMinutes: number, breakMinutes: number): Promise<void> {
+  async configureIntervals(_workMinutes: number, _breakMinutes: number): Promise<void> {
     // Similar to countdown, wheel pickers need special handling
     // This is a placeholder for the actual implementation
     await this.workMinutesPicker.click();

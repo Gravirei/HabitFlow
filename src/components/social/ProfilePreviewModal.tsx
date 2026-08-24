@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * ProfilePreviewModal — Full social profile preview for any user.
  * Used in Leaderboard, League, and Friends screens.

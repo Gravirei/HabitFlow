@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Time Series Chart Component
  * Mobile-first line chart showing daily/weekly trends

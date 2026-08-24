@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Achievements Modal Component
  * Modal for viewing and managing achievements

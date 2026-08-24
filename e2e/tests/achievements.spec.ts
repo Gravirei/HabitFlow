@@ -3,7 +3,7 @@
  * Tests achievement badges, unlocking, and progress tracking
  */
 
-import { test, expect, STORAGE_KEYS } from '../fixtures';
+import { test, expect } from '../fixtures';
 import { AchievementsPage, TimerPage } from '../pages';
 
 test.describe('Achievements', () => {
@@ -22,16 +22,14 @@ test.describe('Achievements', () => {
       await achievementsPage.goto();
       await achievementsPage.waitForAchievementsToLoad();
       
-      const totalCount = await achievementsPage.getTotalCount();
       expect(totalCount).toBeGreaterThan(0);
     });
 
-    test('locked badges appear dimmed/locked', async ({ page }) => {
+    test('locked badges appear dimmed/locked', async () => {
       await achievementsPage.goto();
       await achievementsPage.waitForAchievementsToLoad();
       
       const lockedCount = await achievementsPage.getLockedCount();
-      const totalCount = await achievementsPage.getTotalCount();
       
       // With fresh storage, most badges should be locked
       expect(lockedCount).toBeGreaterThanOrEqual(0);
@@ -45,7 +43,7 @@ test.describe('Achievements', () => {
         if (isVisible) {
           // Locked badges typically have reduced opacity or a locked class
           const classes = await firstLocked.getAttribute('class') || '';
-          const hasLockedIndicator = classes.includes('locked') || 
+          const _hasLockedIndicator = classes.includes('locked') || 
             classes.includes('disabled') ||
             classes.includes('opacity');
           // Just verify the badge exists
@@ -92,12 +90,7 @@ test.describe('Achievements', () => {
       await timerPage.stop(true);
       
       // Check for notification toast or modal
-      const notification = page.locator('[class*="toast"], [class*="notification"], [role="alert"]')
-        .filter({ hasText: /achievement|unlocked|earned/i });
-      
       // Notification may or may not appear depending on implementation
-      const appeared = await notification.isVisible().catch(() => false);
-      
       // Just verify the session completed successfully
       await achievementsPage.goto();
       await achievementsPage.waitForAchievementsToLoad();
@@ -111,7 +104,6 @@ test.describe('Achievements', () => {
       await achievementsPage.waitForAchievementsToLoad();
       
       const initialUnlocked = await achievementsPage.getUnlockedCount();
-      const totalCount = await achievementsPage.getTotalCount();
       
       // Complete multiple sessions to unlock more achievements
       for (let i = 0; i < 3; i++) {
@@ -135,7 +127,7 @@ test.describe('Achievements', () => {
   });
 
   test.describe('Achievement Progress', () => {
-    test('achievement progress is tracked', async ({ page }) => {
+    test('achievement progress is tracked', async () => {
       await achievementsPage.goto();
       await achievementsPage.waitForAchievementsToLoad();
       
@@ -157,7 +149,6 @@ test.describe('Achievements', () => {
       await achievementsPage.waitForAchievementsToLoad();
       
       const unlockedCount = await achievementsPage.getUnlockedCount();
-      const totalCount = await achievementsPage.getTotalCount();
       const overallProgress = await achievementsPage.getOverallProgress();
       
       // Overall progress should match unlocked/total ratio
@@ -193,11 +184,10 @@ test.describe('Achievements', () => {
   });
 
   test.describe('Achievement Details', () => {
-    test('can view individual achievement info', async ({ page }) => {
+    test('can view individual achievement info', async () => {
       await achievementsPage.goto();
       await achievementsPage.waitForAchievementsToLoad();
       
-      const totalCount = await achievementsPage.getTotalCount();
       
       if (totalCount > 0) {
         // Get first achievement info
@@ -208,7 +198,7 @@ test.describe('Achievements', () => {
       }
     });
 
-    test('can check if specific achievement is unlocked', async ({ page }) => {
+    test('can check if specific achievement is unlocked', async () => {
       await achievementsPage.goto();
       await achievementsPage.waitForAchievementsToLoad();
       
@@ -221,7 +211,7 @@ test.describe('Achievements', () => {
         try {
           const isUnlocked = await achievementsPage.isAchievementUnlocked(firstAchievementName);
           expect(typeof isUnlocked).toBe('boolean');
-        } catch (e) {
+        } catch {
           // Achievement may not be found if name doesn't match
           expect(achievements.length).toBeGreaterThan(0);
         }

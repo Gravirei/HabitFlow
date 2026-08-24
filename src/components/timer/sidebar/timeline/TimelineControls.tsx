@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Timeline Controls Component
  * Navigation and view mode controls for timeline

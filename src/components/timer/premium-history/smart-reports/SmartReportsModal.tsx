@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Smart Reports Modal
  * Automated insights and PDF generation

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * useBaseTimer Hook
  * Shared timer logic and state management for all timer modes

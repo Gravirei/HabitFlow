@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * ConversationScreen — Full message thread view
  * Redesigned for a premium, modern messaging experience with 

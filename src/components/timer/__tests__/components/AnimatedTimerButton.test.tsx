@@ -489,7 +489,7 @@ describe('AnimatedTimerButton', () => {
     })
 
     it('should not break with missing onLap handler', () => {
-      const { onLap, ...handlersWithoutLap } = mockHandlers
+      const { onLap: _onLap, ...handlersWithoutLap } = mockHandlers
       
       render(
         <AnimatedTimerButton

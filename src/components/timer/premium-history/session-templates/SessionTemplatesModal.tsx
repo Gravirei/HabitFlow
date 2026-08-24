@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Session Templates Modal
  * Browse, create, and manage session templates

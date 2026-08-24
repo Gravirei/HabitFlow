@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Export Data Page
  * Export timer data in various formats

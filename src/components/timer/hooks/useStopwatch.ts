@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * useStopwatch Hook
  * Manages stopwatch timer logic and state

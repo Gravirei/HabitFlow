@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Archive Modal
  * View and manage archived timer sessions

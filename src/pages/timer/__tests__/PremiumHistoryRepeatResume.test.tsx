@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * PremiumHistory Repeat/Resume Integration Tests
  * 

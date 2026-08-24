@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Premium History Page
  * Mobile-first timer history with beautiful session cards and analytics

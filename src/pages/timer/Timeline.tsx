@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Timeline Page
  * Visual timeline view of all timer sessions

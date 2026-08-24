@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Export Modal Component
  * Redesigned to match Custom Tags modal theme

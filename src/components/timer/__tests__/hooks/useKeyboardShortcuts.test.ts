@@ -437,7 +437,7 @@ describe('useKeyboardShortcuts', () => {
     })
 
     it('should NOT call onLap if callback not provided', () => {
-      const { onLap, ...callbacksWithoutLap } = mockCallbacks
+      const { onLap: _onLap, ...callbacksWithoutLap } = mockCallbacks
 
       renderHook(() =>
         useKeyboardShortcuts({

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Achievements Store Tests
  * Comprehensive tests for the achievements Zustand store

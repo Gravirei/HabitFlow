@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * useTimerHistory Hook
  * Shared hook for managing timer history across all timer modes

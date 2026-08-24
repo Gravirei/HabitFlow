@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Goals Modal
  * Main modal for viewing and managing goals

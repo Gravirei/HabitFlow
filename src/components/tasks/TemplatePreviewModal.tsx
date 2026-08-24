@@ -22,14 +22,11 @@ export function TemplatePreviewModal({
   isOpen,
   onClose,
   template,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onUseAsTemplate: _onUseAsTemplate,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onSaveAsTask: _onSaveAsTask,
   onSaveToMyTemplates,
   onUpdateTemplate,
   onDeleteTemplate,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   customTemplates: _customTemplates = [],
 }: TemplatePreviewModalProps) {
   const [editedTitle, setEditedTitle] = useState('')

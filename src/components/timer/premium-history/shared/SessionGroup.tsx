@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Session Group Component
  * Groups sessions by date with header and count

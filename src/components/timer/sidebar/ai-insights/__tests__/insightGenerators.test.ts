@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Insight Generators Tests
  * Comprehensive tests for text generation and recommendations

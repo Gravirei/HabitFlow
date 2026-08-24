@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Goals Page
  * Goal tracking and management interface

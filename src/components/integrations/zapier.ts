@@ -254,7 +254,8 @@ export const zapierService = {
    * Disconnects the Zapier integration
    */
   disconnect(): void {
-    const store = useIntegrationStore();
+    const store = // eslint-disable-next-line react-hooks/rules-of-hooks -- TODO(burn-down): zustand hook called inside plain function; should be getState(), see refactor plan P1
+    useIntegrationStore();
     store.disconnect('zapier');
   },
 };

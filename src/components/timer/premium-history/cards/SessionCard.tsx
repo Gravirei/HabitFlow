@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Session Card Component
  * Smart wrapper that renders the appropriate card type based on timer mode

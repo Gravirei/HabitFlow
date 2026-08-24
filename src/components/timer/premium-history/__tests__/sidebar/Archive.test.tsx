@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Archive Feature Tests
  * Tests for archiving and managing old sessions

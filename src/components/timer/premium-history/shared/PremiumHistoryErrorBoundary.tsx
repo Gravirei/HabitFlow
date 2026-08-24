@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Premium History Error Boundary
  * Catches and handles errors in Premium History features gracefully

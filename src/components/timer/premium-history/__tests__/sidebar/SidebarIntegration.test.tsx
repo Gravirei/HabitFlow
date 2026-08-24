@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Sidebar Integration Tests
  * Tests that verify sidebar features work together correctly

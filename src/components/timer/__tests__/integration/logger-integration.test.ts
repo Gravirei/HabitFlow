@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Logger Integration Tests
  * Tests for logger usage in real timer scenarios

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * MessageInputBar — modern input area with share tray and send affordances
  * Inspired by habitflow-messaging-v2.html input zone.

@@ -207,10 +207,11 @@ export function formatTimelineDate(date: Date, viewMode: TimelineViewMode): stri
   switch (viewMode) {
     case 'day':
       return format(date, 'EEEE, MMMM d, yyyy')
-    case 'week':
+    case 'week': {
       const weekStart = startOfWeek(date, { weekStartsOn: 0 })
       const weekEnd = endOfWeek(date, { weekStartsOn: 0 })
       return `${format(weekStart, 'MMM d')} - ${format(weekEnd, 'MMM d, yyyy')}`
+    }
     case 'month':
       return format(date, 'MMMM yyyy')
   }

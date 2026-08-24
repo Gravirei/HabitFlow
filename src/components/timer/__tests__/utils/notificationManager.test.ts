@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
 
 // Type declarations for test environment

@@ -161,7 +161,7 @@ export const googleCalendarService = {
       try {
         await this.createHabitEvent(accessToken, calendarId, habit)
         synced++
-      } catch (err) {
+      } catch {
         errors.push(`Failed to sync: ${habit.name}`)
       }
     }

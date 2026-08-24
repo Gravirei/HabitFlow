@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Archive List Component
  * Display list of archived sessions

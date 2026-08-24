@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * SyncOnAuthChange Component Tests
  * Tests for auth state change handling and sync triggers

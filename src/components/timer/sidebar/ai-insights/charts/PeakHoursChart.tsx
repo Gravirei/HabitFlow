@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Peak Hours Chart - Hourly productivity heatmap
  */

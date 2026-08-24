@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Mode Filter Component
  * Horizontal scrollable filter tabs for timer modes

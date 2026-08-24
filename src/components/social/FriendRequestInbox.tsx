@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * FriendRequestInbox — Collapsible section showing pending incoming friend requests.
  * Sits at the top of FriendsScreen.

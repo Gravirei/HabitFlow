@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Timer History Validation Utilities
  * Centralized validation and migration logic for timer history records

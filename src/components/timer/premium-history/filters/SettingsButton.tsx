@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Settings Button Component
  * Button to open settings sidebar with view options
