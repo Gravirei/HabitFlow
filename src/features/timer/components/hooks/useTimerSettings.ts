@@ -3,7 +3,7 @@
  * Manages timer settings (notifications, sound, vibration) with localStorage persistence
  */
 
-import { useLocalStorage } from '../../../hooks/useLocalStorage'
+import { useLocalStorage } from '@/hooks/useLocalStorage'
 import { logError } from '../utils/errorMessages'
 
 import type { TimerSettings, SoundType, VibrationPattern } from '../types/timer.types'

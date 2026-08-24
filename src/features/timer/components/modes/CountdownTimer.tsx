@@ -21,7 +21,7 @@ import { TIMER_CLASSES, MAX_HOURS, MAX_MINUTES, MAX_SECONDS, formatTime } from '
 import { useTimerFocus } from '../hooks/useTimerFocus'
 import { timerPersistence, type CountdownTimerState, type SavedTimerState } from '../utils/timerPersistence'
 import { soundManager } from '../utils/soundManager'
-import { useImmediateSave } from '../../../hooks/useDebounce'
+import { useImmediateSave } from '@/hooks/useDebounce'
 
 const STORAGE_KEY = 'timer-countdown-history'
 

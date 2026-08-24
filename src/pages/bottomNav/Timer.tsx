@@ -4,8 +4,8 @@
  * Now uses the refactored modular timer components
  */
 
-import { TimerContainer } from '@/components/timer/TimerContainer'
-import { TimerErrorBoundary } from '@/components/timer/shared/TimerErrorBoundary'
+import { TimerContainer } from '@/features/timer/components/TimerContainer'
+import { TimerErrorBoundary } from '@/features/timer/components/shared/TimerErrorBoundary'
 
 export function Timer() {
   return (

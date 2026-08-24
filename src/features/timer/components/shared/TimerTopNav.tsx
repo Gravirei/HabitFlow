@@ -11,7 +11,7 @@ import { HistoryModal } from './HistoryModal'
 import { TimerMenuSidebar } from './TimerMenuSidebar'
 import { CloudSyncModal } from '../premium-history/cloud-sync'
 // ARCHIVED: ThemesModal import removed (theme module archived)
-import { tieredStorage } from '../../../lib/storage/tieredStorage'
+import { tieredStorage } from '@/lib/storage/tieredStorage'
 import type { TimerHistoryRecord } from '../types/timer.types'
 
 export const TimerTopNav: React.FC = () => {

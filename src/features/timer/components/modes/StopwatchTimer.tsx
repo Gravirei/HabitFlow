@@ -16,7 +16,7 @@ import { TimerAnnouncer } from '../shared/TimerAnnouncer'
 import { TIMER_CLASSES, formatTime } from '../constants/timer.constants'
 import { useTimerFocus } from '../hooks/useTimerFocus'
 import { timerPersistence, type StopwatchTimerState } from '../utils/timerPersistence'
-import { useImmediateSave } from '../../../hooks/useDebounce'
+import { useImmediateSave } from '@/hooks/useDebounce'
 
 const STORAGE_KEY = 'timer-stopwatch-history'
 

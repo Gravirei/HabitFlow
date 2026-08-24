@@ -12,7 +12,7 @@ import { useTimerHistory } from '../hooks/useTimerHistory'
 import { validateTimerHistory } from '../utils/validation'
 import type { TimerHistoryRecord, TimerMode } from '../types/timer.types'
 import { formatTime } from '../constants/timer.constants'
-import { tieredStorage } from '../../../lib/storage/tieredStorage'
+import { tieredStorage } from '@/lib/storage/tieredStorage'
 
 interface HistoryModalProps {
   isOpen: boolean

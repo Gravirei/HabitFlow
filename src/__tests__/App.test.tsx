@@ -4,7 +4,7 @@ import App from '@/App'
 import { AuthProvider } from '@/lib/auth/AuthContext'
 
 // Avoid side effects from global UI that initializes storage/persistent timer features
-vi.mock('@/components/timer/sidebar/achievements', () => ({
+vi.mock('@/features/timer/components/sidebar/achievements', () => ({
   AchievementNotifications: () => null,
 }))
 vi.mock('@/components/OnboardingModal', () => ({

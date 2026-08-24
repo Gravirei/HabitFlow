@@ -22,7 +22,7 @@ import { MAX_WORK_MINUTES, MAX_BREAK_MINUTES, CIRCLE_CIRCUMFERENCE, formatTime }
 import { useTimerFocus } from '../hooks/useTimerFocus'
 import { timerPersistence, type IntervalsTimerState, type SavedTimerState } from '../utils/timerPersistence'
 import { soundManager } from '../utils/soundManager'
-import { useImmediateSave } from '../../../hooks/useDebounce'
+import { useImmediateSave } from '@/hooks/useDebounce'
 
 const STORAGE_KEY = 'timer-intervals-history'
 

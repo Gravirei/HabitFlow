@@ -6,7 +6,7 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
-import { useLocalStorage } from '../../../../hooks/useLocalStorage'
+import { useLocalStorage } from '@/hooks/useLocalStorage'
 import { loadTimerHistory, validateTimerHistory } from '../../utils/validation'
 import { loadTimerState, clearTimerState } from '../../utils/timerPersistence'
 

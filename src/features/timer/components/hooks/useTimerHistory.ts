@@ -9,7 +9,7 @@
  */
 
 import { useCallback, useMemo } from 'react'
-import { useTieredStorage } from '../../../lib/storage'
+import { useTieredStorage } from '@/lib/storage'
 import { generateUUID } from '../utils/uuid'
 import { MAX_HISTORY_RECORDS } from '../constants/timer.constants'
 import type { TimerMode, TimerHistoryRecord, Lap } from '../types/timer.types'

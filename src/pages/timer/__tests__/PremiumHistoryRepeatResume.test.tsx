@@ -6,8 +6,8 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { timerPersistence } from '@/components/timer/utils/timerPersistence'
-import type { CountdownSession, IntervalsSession, StopwatchSession } from '@/components/timer/premium-history/types/session.types'
+import { timerPersistence } from '@/features/timer/components/utils/timerPersistence'
+import type { CountdownSession, IntervalsSession, StopwatchSession } from '@/features/timer/components/premium-history/types/session.types'
 
 // Mock react-router-dom
 const mockNavigate = vi.fn()

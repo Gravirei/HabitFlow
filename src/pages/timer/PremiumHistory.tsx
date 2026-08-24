@@ -7,7 +7,7 @@
 
 import React, { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useTimerHistory } from '@/components/timer/hooks/useTimerHistory'
+import { useTimerHistory } from '@/features/timer/components/hooks/useTimerHistory'
 import {
   PremiumHistoryLayout,
   FilterBar,
@@ -20,26 +20,26 @@ import {
   PremiumHistoryErrorBoundary,
   LiveRegionAnnouncer,
   useLiveRegion
-} from '@/components/timer/premium-history'
-import { ClearFiltersButton, FilterSettingsModal } from '@/components/timer/premium-history/filters'
-import { ExportModal, exportToCSV, exportToJSON, exportToPDF } from '@/components/timer/premium-history/export'
-import type { ExportFormat, ExportOptions, TimerSession } from '@/components/timer/premium-history/export'
-import { PremiumHistorySettingsSidebar } from '@/components/timer/premium-history/layout/PremiumHistorySettingsSidebar'
-import { useFilterPersistence } from '@/components/timer/premium-history/hooks/useFilterPersistence'
-import { useFilterVisibility } from '@/components/timer/premium-history/hooks/useFilterVisibility'
-import { AchievementProgressWidget } from '@/components/timer/sidebar/achievements'
-import { ArchiveModal } from '@/components/timer/premium-history/archive'
-import { NotificationSettingsModal } from '@/components/timer/premium-history/notifications'
-import { SessionTemplatesModal, CreateTemplateModal } from '@/components/timer/premium-history/session-templates'
-import { CustomTagsModal } from '@/components/timer/premium-history/custom-tags'
-import { CalendarViewModal } from '@/components/timer/premium-history/calendar-view'
-import { CompareSessionsModal } from '@/components/timer/premium-history/compare-sessions'
-import { SmartReportsModal } from '@/components/timer/premium-history/smart-reports'
-import { TeamSharingModal } from '@/components/timer/premium-history/team-sharing'
-import { CloudSyncModal } from '@/components/timer/premium-history/cloud-sync'
+} from '@/features/timer/components/premium-history'
+import { ClearFiltersButton, FilterSettingsModal } from '@/features/timer/components/premium-history/filters'
+import { ExportModal, exportToCSV, exportToJSON, exportToPDF } from '@/features/timer/components/premium-history/export'
+import type { ExportFormat, ExportOptions, TimerSession } from '@/features/timer/components/premium-history/export'
+import { PremiumHistorySettingsSidebar } from '@/features/timer/components/premium-history/layout/PremiumHistorySettingsSidebar'
+import { useFilterPersistence } from '@/features/timer/components/premium-history/hooks/useFilterPersistence'
+import { useFilterVisibility } from '@/features/timer/components/premium-history/hooks/useFilterVisibility'
+import { AchievementProgressWidget } from '@/features/timer/components/sidebar/achievements'
+import { ArchiveModal } from '@/features/timer/components/premium-history/archive'
+import { NotificationSettingsModal } from '@/features/timer/components/premium-history/notifications'
+import { SessionTemplatesModal, CreateTemplateModal } from '@/features/timer/components/premium-history/session-templates'
+import { CustomTagsModal } from '@/features/timer/components/premium-history/custom-tags'
+import { CalendarViewModal } from '@/features/timer/components/premium-history/calendar-view'
+import { CompareSessionsModal } from '@/features/timer/components/premium-history/compare-sessions'
+import { SmartReportsModal } from '@/features/timer/components/premium-history/smart-reports'
+import { TeamSharingModal } from '@/features/timer/components/premium-history/team-sharing'
+import { CloudSyncModal } from '@/features/timer/components/premium-history/cloud-sync'
 import { useNavigate } from 'react-router-dom'
-import { timerPersistence, type RepeatSessionConfig } from '@/components/timer/utils/timerPersistence'
-import type { CountdownSession, IntervalsSession } from '@/components/timer/premium-history/types/session.types'
+import { timerPersistence, type RepeatSessionConfig } from '@/features/timer/components/utils/timerPersistence'
+import type { CountdownSession, IntervalsSession } from '@/features/timer/components/premium-history/types/session.types'
 
 type TimerMode = 'Stopwatch' | 'Countdown' | 'Intervals'
 
