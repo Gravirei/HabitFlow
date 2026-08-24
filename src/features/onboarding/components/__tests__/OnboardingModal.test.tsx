@@ -5,7 +5,7 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
-import { OnboardingModal } from '@/components/OnboardingModal'
+import { OnboardingModal } from '../OnboardingModal'
 import { useHabitStore } from '@/store/useHabitStore'
 
 // Mock the store

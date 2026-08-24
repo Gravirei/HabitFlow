@@ -8,8 +8,8 @@ import {
   type ReactNode,
 } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { BottomNav } from '@/components/BottomNav'
-import { SideNav } from '@/components/SideNav'
+import { BottomNav } from '@/shared/layout/BottomNav'
+import { SideNav } from '@/shared/layout/SideNav'
 import { motion, AnimatePresence } from 'framer-motion'
 import clsx from 'clsx'
 import toast from 'react-hot-toast'

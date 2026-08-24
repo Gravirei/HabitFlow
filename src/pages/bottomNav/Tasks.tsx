@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { BottomNav } from '@/components/BottomNav'
+import { BottomNav } from '@/shared/layout/BottomNav'
 import { TaskModal } from '@/components/tasks/TaskModal'
 import { HybridKanban } from '@/components/tasks/kanban/HybridKanban'
 import { TrelloKanban } from '@/components/tasks/kanban/TrelloKanban'
