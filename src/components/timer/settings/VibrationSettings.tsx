@@ -7,7 +7,7 @@ import React from 'react'
 import { useTimerSettings, type VibrationPattern } from '../hooks/useTimerSettings'
 import { useTimerSound } from '../hooks/useTimerSound'
 import { SettingsSection } from './SettingsSection'
-import { ToggleSwitch } from './ToggleSwitch'
+import { ToggleSwitch } from '@/shared/ui/ToggleSwitch'
 
 const VIBRATION_PATTERNS: { value: VibrationPattern; label: string; description: string }[] = [
   { value: 'short', label: 'Short', description: 'Single short vibration' },

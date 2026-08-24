@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { useState, useEffect } from 'react'
-import { AccessibleModal } from '@/components/timer/shared/AccessibleModal'
+import { AccessibleModal } from '@/shared/ui/AccessibleModal'
 import type { TaskTemplate } from '@/types/taskTemplate'
 import type { TaskPriority, TaskStatus, Subtask } from '@/types/task'
 

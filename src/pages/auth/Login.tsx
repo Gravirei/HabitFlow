@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { TurnstileWidget } from '@/components/shared/TurnstileWidget'
+import { TurnstileWidget } from '@/shared/ui/TurnstileWidget'
 import { applySupabaseSessionFromGateway, callAuthGateway } from '@/lib/security/authGatewayClient'
 import toast from 'react-hot-toast'
 import { TwoFactorChallengeModal } from '@/components/auth/TwoFactorChallengeModal'

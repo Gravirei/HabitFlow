@@ -7,7 +7,7 @@ import React, { useState, useEffect } from 'react'
 import { useTimerSettings } from '../hooks/useTimerSettings'
 import { notificationManager } from '../utils/notificationManager'
 import { SettingsSection } from './SettingsSection'
-import { ToggleSwitch } from './ToggleSwitch'
+import { ToggleSwitch } from '@/shared/ui/ToggleSwitch'
 
 export const NotificationSettings: React.FC = () => {
   const { settings, updateSettings } = useTimerSettings()

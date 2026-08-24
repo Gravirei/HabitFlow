@@ -4,7 +4,7 @@ import type { Habit } from '@/types/habit'
 import { iconColorOptions } from './CreateNewHabit'
 import clsx from 'clsx'
 import { useState } from 'react'
-import { ConfirmDialog } from '@/components/timer/settings/ConfirmDialog'
+import { ConfirmDialog } from '@/shared/ui/ConfirmDialog'
 
 interface ArchivedHabitsModalProps {
   isOpen: boolean

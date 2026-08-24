@@ -14,8 +14,8 @@ import { CreateNewHabit } from '@/components/categories/CreateNewHabit'
 import { EditHabit } from '@/components/categories/EditHabit'
 import { ArchivedHabitsModal } from '@/components/categories/ArchivedHabitsModal'
 import { HabitNotesModal } from '@/components/categories/HabitNotesModal'
-import { ToggleSwitch } from '@/components/timer/settings/ToggleSwitch'
-import { ConfirmDialog } from '@/components/timer/settings/ConfirmDialog'
+import { ToggleSwitch } from '@/shared/ui/ToggleSwitch'
+import { ConfirmDialog } from '@/shared/ui/ConfirmDialog'
 
 // Predefined icon colors with gradients (matching CreateNewHabit)
 const iconColorOptions = [

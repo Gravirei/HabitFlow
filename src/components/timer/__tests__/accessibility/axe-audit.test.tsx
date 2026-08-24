@@ -12,7 +12,7 @@ import { MemoryRouter } from 'react-router-dom'
 import { axe, toHaveNoViolations } from 'jest-axe'
 import { TimerDisplay } from '../../shared/TimerDisplay'
 import { AnimatedTimerButton } from '../../shared/AnimatedTimerButton'
-import { AccessibleModal } from '../../shared/AccessibleModal'
+import { AccessibleModal } from '@/shared/ui/AccessibleModal'
 import { TimerSettingsModal } from '../../settings/TimerSettingsModal'
 
 // Extend expect with axe matchers

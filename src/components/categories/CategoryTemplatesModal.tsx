@@ -2,7 +2,7 @@
 import { useMemo, useState } from 'react'
 import clsx from 'clsx'
 
-import { AccessibleModal } from '@/components/timer/shared/AccessibleModal'
+import { AccessibleModal } from '@/shared/ui/AccessibleModal'
 import {
   CATEGORY_TEMPLATE_PACKS,
   type CategoryTemplatePack,

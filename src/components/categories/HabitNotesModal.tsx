@@ -5,7 +5,7 @@ import { useHabitStore } from '@/store/useHabitStore'
 import type { Habit, HabitNote } from '@/types/habit'
 import clsx from 'clsx'
 import toast from 'react-hot-toast'
-import { ConfirmDialog } from '@/components/timer/settings/ConfirmDialog'
+import { ConfirmDialog } from '@/shared/ui/ConfirmDialog'
 
 interface HabitNotesModalProps {
   isOpen: boolean

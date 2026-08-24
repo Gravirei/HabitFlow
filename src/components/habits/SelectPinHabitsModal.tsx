@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useHabitStore } from '@/store/useHabitStore'
 import { useCategoryStore } from '@/store/useCategoryStore'
 import type { Habit } from '@/types/habit'
-import { ToggleSwitch } from '@/components/timer/settings/ToggleSwitch'
+import { ToggleSwitch } from '@/shared/ui/ToggleSwitch'
 import clsx from 'clsx'
 
 interface SelectPinHabitsModalProps {

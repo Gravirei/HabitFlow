@@ -41,7 +41,7 @@ import {
   CategoryImportExportModal,
 } from '@/components/categories'
 import type { CategoryTemplatePack } from '@/types/categoryTemplate'
-import { ConfirmDialog } from '@/components/timer/settings/ConfirmDialog'
+import { ConfirmDialog } from '@/shared/ui/ConfirmDialog'
 import { useCategoryStore } from '@/store/useCategoryStore'
 import { useHabitStore } from '@/store/useHabitStore'
 import { useTaskStore } from '@/store/useTaskStore'

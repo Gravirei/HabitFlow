@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react'
 import { useTimerSettings } from '../hooks/useTimerSettings'
-import { ConfirmDialog } from './ConfirmDialog'
+import { ConfirmDialog } from '@/shared/ui/ConfirmDialog'
 
 export const ResetSection: React.FC = () => {
   const { resetSettings } = useTimerSettings()

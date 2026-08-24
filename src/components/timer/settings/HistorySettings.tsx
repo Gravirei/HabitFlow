@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTimerSettings } from '../hooks/useTimerSettings'
 import { SettingsSection } from './SettingsSection'
-import { ToggleSwitch } from './ToggleSwitch'
+import { ToggleSwitch } from '@/shared/ui/ToggleSwitch'
 
 const PREMIUM_FEATURES = [
   {

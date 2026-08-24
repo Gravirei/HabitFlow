@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useHabitTaskStore } from '@/store/useHabitTaskStore'
-import { ConfirmDialog } from '@/components/timer/settings/ConfirmDialog'
+import { ConfirmDialog } from '@/shared/ui/ConfirmDialog'
 import clsx from 'clsx'
 
 interface HabitTaskCompletionModalProps {

@@ -6,7 +6,7 @@
 export { TimerSettingsModal } from './TimerSettingsModal'
 export { SettingsHeader } from './SettingsHeader'
 export { SettingsSection } from './SettingsSection'
-export { ToggleSwitch } from './ToggleSwitch'
+export { ToggleSwitch } from '@/shared/ui/ToggleSwitch'
 export { SliderControl } from './SliderControl'
 export { SoundSettings } from './SoundSettings'
 export { VibrationSettings } from './VibrationSettings'

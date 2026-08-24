@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
-import { TurnstileWidget } from '@/components/shared/TurnstileWidget'
+import { TurnstileWidget } from '@/shared/ui/TurnstileWidget'
 import { callAuthGateway } from '@/lib/security/authGatewayClient'
 import { supabase } from '@/lib/supabase'
 

@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react'
 import clsx from 'clsx'
 
-import { AccessibleModal } from '@/components/timer/shared/AccessibleModal'
+import { AccessibleModal } from '@/shared/ui/AccessibleModal'
 import {
   buildCategoryExportBundle,
   parseCategoryExportBundle,

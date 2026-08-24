@@ -7,7 +7,7 @@ import React from 'react'
 import { useTimerSettings, type SoundType } from '../hooks/useTimerSettings'
 import { useTimerSound } from '../hooks/useTimerSound'
 import { SettingsSection } from './SettingsSection'
-import { ToggleSwitch } from './ToggleSwitch'
+import { ToggleSwitch } from '@/shared/ui/ToggleSwitch'
 import { SliderControl } from './SliderControl'
 
 const SOUND_TYPES: { value: SoundType; label: string; preview: string }[] = [

@@ -6,7 +6,7 @@
 import React from 'react'
 import { useTimerSettings } from '../hooks/useTimerSettings'
 import { SettingsSection } from './SettingsSection'
-import { ToggleSwitch } from './ToggleSwitch'
+import { ToggleSwitch } from '@/shared/ui/ToggleSwitch'
 
 export const AutoStartSettings: React.FC = () => {
   const { settings, updateSettings } = useTimerSettings()

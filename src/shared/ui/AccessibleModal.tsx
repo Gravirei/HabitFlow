@@ -5,8 +5,8 @@
  */
 
 import React, { useId } from 'react'
-import { useFocusTrap } from '../hooks/useFocusTrap'
-import { useBodyScrollLock } from '../hooks/useBodyScrollLock'
+import { useFocusTrap } from '@/shared/hooks/useFocusTrap'
+import { useBodyScrollLock } from '@/shared/hooks/useBodyScrollLock'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
 
 interface AccessibleModalProps {
