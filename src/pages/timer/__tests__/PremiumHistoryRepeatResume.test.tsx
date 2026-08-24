@@ -6,7 +6,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { timerPersistence } from '@/features/timer/components/utils/timerPersistence'
+import { timerPersistence } from '@/features/timer/utils/timerPersistence'
 import type { CountdownSession, IntervalsSession, StopwatchSession } from '@/features/timer/components/premium-history/types/session.types'
 
 // Mock react-router-dom

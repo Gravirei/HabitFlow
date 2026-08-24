@@ -8,7 +8,7 @@ import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
 import { act } from '@testing-library/react'
 
 // Must import store after mocks are set up
-let useTagStore: typeof import('../tagStore').useTagStore
+let useTagStore: typeof import('@/features/timer/store/tagStore').useTagStore
 
 describe('useTagStore', () => {
   let mockDate = 1000000000000
@@ -29,7 +29,7 @@ describe('useTagStore', () => {
 
     // Dynamic import to ensure fresh store after localStorage is ready
     vi.resetModules()
-    const module = await import('../tagStore')
+    const module = await import('@/features/timer/store/tagStore')
     useTagStore = module.useTagStore
 
     // Reset store to initial state

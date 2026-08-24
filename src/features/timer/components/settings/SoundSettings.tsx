@@ -4,8 +4,8 @@
  */
 
 import React from 'react'
-import { useTimerSettings, type SoundType } from '../hooks/useTimerSettings'
-import { useTimerSound } from '../hooks/useTimerSound'
+import { useTimerSettings, type SoundType } from '@/features/timer/hooks/useTimerSettings'
+import { useTimerSound } from '@/features/timer/hooks/useTimerSound'
 import { SettingsSection } from './SettingsSection'
 import { ToggleSwitch } from '@/shared/ui/ToggleSwitch'
 import { SliderControl } from './SliderControl'

@@ -11,7 +11,7 @@
 
 import { useEffect, useRef } from 'react'
 import { useAuth } from '@/lib/auth/AuthContext'
-import { useSyncStore } from './syncStore'
+import { useSyncStore } from '@/features/timer/store/syncStore'
 import { tieredStorage } from '@/lib/storage'
 
 export function SyncOnAuthChange() {

@@ -8,7 +8,7 @@ import React, { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { AchievementsPanel } from '@/features/timer/components/sidebar/achievements/AchievementsPanel'
-import { useAchievementsStore } from '@/features/timer/components/sidebar/achievements/achievementsStore'
+import { useAchievementsStore } from '@/features/timer/store/achievementsStore'
 
 export function Achievements() {
   const navigate = useNavigate()

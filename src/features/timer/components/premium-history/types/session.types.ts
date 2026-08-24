@@ -3,7 +3,7 @@
  * Proper type definitions for session data with all mode-specific properties
  */
 
-import type { TimerMode } from '../../types/timer.types'
+import type { TimerMode } from '@/features/timer/types/timer.types'
 
 /**
  * Base session interface - common properties for all timer modes

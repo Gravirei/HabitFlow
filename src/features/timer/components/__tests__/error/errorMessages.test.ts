@@ -16,7 +16,7 @@ import {
   logError,
   ErrorCategory,
   ErrorSeverity
-} from '../../utils/errorMessages'
+} from '@/features/timer/utils/errorMessages'
 
 describe('Error Messages', () => {
   describe('getTimerErrorMessage', () => {

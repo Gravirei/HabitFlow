@@ -7,7 +7,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useSyncStore } from './syncStore'
+import { useSyncStore } from '@/features/timer/store/syncStore'
 import { tieredStorage } from '@/lib/storage'
 import type { TimerSession } from '../types/session.types'
 import toast from 'react-hot-toast'

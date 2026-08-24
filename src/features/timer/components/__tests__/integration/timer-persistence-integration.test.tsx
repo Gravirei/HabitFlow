@@ -7,10 +7,10 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
-import { useCountdown } from '../../hooks/useCountdown'
-import { useStopwatch } from '../../hooks/useStopwatch'
-import { useIntervals } from '../../hooks/useIntervals'
-import { timerPersistence } from '../../utils/timerPersistence'
+import { useCountdown } from '@/features/timer/hooks/useCountdown'
+import { useStopwatch } from '@/features/timer/hooks/useStopwatch'
+import { useIntervals } from '@/features/timer/hooks/useIntervals'
+import { timerPersistence } from '@/features/timer/utils/timerPersistence'
 
 // Mock dependencies
 vi.mock('../../hooks/useTimerSettings', () => ({

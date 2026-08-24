@@ -20,7 +20,7 @@
 
 import { useEffect } from 'react'
 import { useTimerSettings } from './useTimerSettings'
-import { useKeyboardHelp } from '../TimerContainer'
+import { useKeyboardHelp } from '../components/TimerContainer'
 import type { UseKeyboardShortcutsOptions } from '../types/timer.types'
 
 export const useKeyboardShortcuts = (options: UseKeyboardShortcutsOptions) => {

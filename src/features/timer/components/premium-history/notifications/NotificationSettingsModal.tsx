@@ -6,7 +6,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useNotificationStore } from './notificationStore'
+import { useNotificationStore } from '@/features/timer/store/notificationStore'
 import { 
   requestNotificationPermission, 
   getNotificationPermissionStatus,

@@ -8,7 +8,7 @@ import React, { useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { AchievementsPanel } from './AchievementsPanel'
-import { useAchievementsStore } from './achievementsStore'
+import { useAchievementsStore } from '@/features/timer/store/achievementsStore'
 
 interface AchievementsModalProps {
   isOpen: boolean

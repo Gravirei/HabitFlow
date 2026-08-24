@@ -6,8 +6,8 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
-import { useTimerHistory } from '../../hooks/useTimerHistory'
-import { useCountdown } from '../../hooks/useCountdown'
+import { useTimerHistory } from '@/features/timer/hooks/useTimerHistory'
+import { useCountdown } from '@/features/timer/hooks/useCountdown'
 
 // Default options for useTimerHistory tests
 const defaultHistoryOptions = { mode: 'Stopwatch' as const, storageKey: 'test-history' }

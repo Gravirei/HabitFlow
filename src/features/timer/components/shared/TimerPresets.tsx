@@ -4,8 +4,8 @@
  */
 
 import React from 'react'
-import type { TimerPresetsProps } from '../types/timer.types'
-import { COUNTDOWN_PRESETS } from '../constants/timer.constants'
+import type { TimerPresetsProps } from '@/features/timer/types/timer.types'
+import { COUNTDOWN_PRESETS } from '@/features/timer/constants/timer.constants'
 
 export const TimerPresets: React.FC<TimerPresetsProps> = React.memo(({ 
   presets = COUNTDOWN_PRESETS,

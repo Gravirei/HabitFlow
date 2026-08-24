@@ -7,7 +7,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { tieredStorage } from '@/lib/storage'
-import type { SyncStatus, CloudBackup, SyncSettings } from './types'
+import type { SyncStatus, CloudBackup, SyncSettings } from '@/features/timer/components/premium-history/cloud-sync/types'
 
 interface SyncStore {
   syncStatus: SyncStatus

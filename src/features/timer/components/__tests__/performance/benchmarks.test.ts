@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
-import { useStopwatch } from '../../hooks/useStopwatch'
-import { useCountdown } from '../../hooks/useCountdown'
-import { useIntervals } from '../../hooks/useIntervals'
-import { useTimerHistory } from '../../hooks/useTimerHistory'
-import { generateUUID } from '../../utils/uuid'
-import { validateTimerHistory } from '../../utils/validation'
+import { useStopwatch } from '@/features/timer/hooks/useStopwatch'
+import { useCountdown } from '@/features/timer/hooks/useCountdown'
+import { useIntervals } from '@/features/timer/hooks/useIntervals'
+import { useTimerHistory } from '@/features/timer/hooks/useTimerHistory'
+import { generateUUID } from '@/features/timer/utils/uuid'
+import { validateTimerHistory } from '@/features/timer/utils/validation'
 
 // Mock localStorage - shared store object that can be accessed by tests
 let mockStore: Record<string, string> = {}

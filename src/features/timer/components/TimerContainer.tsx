@@ -8,15 +8,15 @@
 
 import React, { useState, useRef, createContext, useContext } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import type { TimerMode } from './types/timer.types'
+import type { TimerMode } from '@/features/timer/types/timer.types'
 import { StopwatchTimer } from './modes/StopwatchTimer'
 import { CountdownTimer } from './modes/CountdownTimer'
 import { IntervalsTimer } from './modes/IntervalsTimer'
 import { TimerTopNav } from './shared/TimerTopNav'
 import { KeyboardHelpModal } from './shared/KeyboardHelpModal'
-import { TimerFocusProvider } from './context/TimerContext'
-import { useTimerFocus } from './hooks/useTimerFocus'
-import { timerPersistence } from './utils/timerPersistence'
+import { TimerFocusProvider } from '@/features/timer/context/TimerContext'
+import { useTimerFocus } from '@/features/timer/hooks/useTimerFocus'
+import { timerPersistence } from '@/features/timer/utils/timerPersistence'
 import { TimerErrorBoundary } from './shared/TimerErrorBoundary'
 
 // Context for keyboard help modal

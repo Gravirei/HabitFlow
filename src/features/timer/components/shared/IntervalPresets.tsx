@@ -4,8 +4,8 @@
  */
 
 import React from 'react'
-import { INTERVAL_PRESETS } from '../constants/timer.constants'
-import { CustomIntervalPreset } from '../hooks/useCustomIntervalPresets'
+import { INTERVAL_PRESETS } from '@/features/timer/constants/timer.constants'
+import { CustomIntervalPreset } from '@/features/timer/hooks/useCustomIntervalPresets'
 
 interface IntervalPresetsProps {
   presets?: CustomIntervalPreset[]

@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
-import { useStopwatch } from '../../hooks/useStopwatch'
+import { useStopwatch } from '@/features/timer/hooks/useStopwatch'
 
 describe('useStopwatch', () => {
   beforeEach(() => {

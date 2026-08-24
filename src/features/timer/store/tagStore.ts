@@ -5,7 +5,7 @@
 
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { Tag, TaggedSession } from './types'
+import type { Tag, TaggedSession } from '@/features/timer/components/premium-history/custom-tags/types'
 
 interface TagStore {
   tags: Tag[]

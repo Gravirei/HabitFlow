@@ -5,8 +5,8 @@
 
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { Achievement, UserStats } from './types'
-import { ACHIEVEMENT_DEFINITIONS } from './achievementDefinitions'
+import type { Achievement, UserStats } from '@/features/timer/components/sidebar/achievements/types'
+import { ACHIEVEMENT_DEFINITIONS } from '@/features/timer/components/sidebar/achievements/achievementDefinitions'
 
 interface AchievementsState {
   achievements: Achievement[]

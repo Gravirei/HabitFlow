@@ -9,15 +9,15 @@ import {
   isValidSession,
   type CompletionParams,
   type CompletionCallbacks
-} from '../../utils/intervalCompletionHandler'
-import { soundManager } from '../../utils/soundManager'
-import { vibrationManager } from '../../utils/vibrationManager'
-import { notificationManager } from '../../utils/notificationManager'
+} from '@/features/timer/utils/intervalCompletionHandler'
+import { soundManager } from '@/features/timer/utils/soundManager'
+import { vibrationManager } from '@/features/timer/utils/vibrationManager'
+import { notificationManager } from '@/features/timer/utils/notificationManager'
 
 // Mock the managers
-vi.mock('../../utils/soundManager')
-vi.mock('../../utils/vibrationManager')
-vi.mock('../../utils/notificationManager')
+vi.mock('@/features/timer/utils/soundManager')
+vi.mock('@/features/timer/utils/vibrationManager')
+vi.mock('@/features/timer/utils/notificationManager')
 
 describe('intervalCompletionHandler', () => {
   beforeEach(() => {

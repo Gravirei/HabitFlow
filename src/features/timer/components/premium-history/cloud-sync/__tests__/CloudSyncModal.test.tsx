@@ -7,12 +7,12 @@
 import { describe, it, expect, beforeEach, vi, type Mock } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { CloudSyncModal } from '../CloudSyncModal'
-import { useSyncStore } from '../syncStore'
+import { useSyncStore } from '@/features/timer/store/syncStore'
 import { tieredStorage } from '@/lib/storage'
 import toast from 'react-hot-toast'
 
 // Mock dependencies
-vi.mock('../syncStore')
+vi.mock('@/features/timer/store/syncStore')
 vi.mock('@/lib/storage', () => ({
   tieredStorage: {
     isLoggedIn: vi.fn(),

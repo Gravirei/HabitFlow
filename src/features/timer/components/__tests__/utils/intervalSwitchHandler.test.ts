@@ -10,7 +10,7 @@ import {
   isBreakInterval,
   isWorkInterval,
   getIntervalDescription
-} from '../../utils/intervalSwitchHandler'
+} from '@/features/timer/utils/intervalSwitchHandler'
 
 describe('intervalSwitchHandler', () => {
   describe('calculateNextInterval', () => {

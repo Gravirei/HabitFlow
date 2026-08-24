@@ -6,7 +6,7 @@
 
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useTemplateStore } from './templateStore'
+import { useTemplateStore } from '@/features/timer/store/templateStore'
 import { CreateTemplateModal } from './CreateTemplateModal'
 import type { SessionTemplate } from './types'
 

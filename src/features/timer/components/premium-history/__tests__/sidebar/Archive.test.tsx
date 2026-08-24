@@ -7,7 +7,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { ArchiveModal } from '../../archive/ArchiveModal'
-import { useArchiveStore } from '../../archive/archiveStore'
+import { useArchiveStore } from '@/features/timer/store/archiveStore'
 
 // NOTE: These are specification tests - see IMPLEMENTATION_NOTE.md
 // Use SidebarIntegration.test.tsx for actual integration testing

@@ -4,7 +4,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 declare const global: typeof globalThis
 
 import { renderHook, act, waitFor } from '@testing-library/react'
-import { useTimerHistory } from '../../hooks/useTimerHistory'
+import { useTimerHistory } from '@/features/timer/hooks/useTimerHistory'
 
 // Mock localStorage
 const localStorageMock = (() => {

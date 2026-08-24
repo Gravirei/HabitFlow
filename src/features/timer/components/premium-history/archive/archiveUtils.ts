@@ -3,7 +3,7 @@
  * Helper functions for archive operations
  */
 
-import type { ArchivedSession } from './archiveStore'
+import type { ArchivedSession } from '@/features/timer/store/archiveStore'
 
 /**
  * Convert timer history record to archived session

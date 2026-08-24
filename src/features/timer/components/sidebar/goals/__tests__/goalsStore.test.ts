@@ -9,7 +9,7 @@ import { renderHook, act } from '@testing-library/react'
 import type { Goal, GoalType, GoalPeriod, TimerMode } from '../types'
 
 // Import store dynamically
-let useGoalsStore: typeof import('../goalsStore').useGoalsStore
+let useGoalsStore: typeof import('@/features/timer/store/goalsStore').useGoalsStore
 
 // Helper to create mock goal data
 const createMockGoalData = (overrides: Partial<Omit<Goal, 'id' | 'current' | 'createdAt' | 'status'>> = {}) => ({
@@ -41,7 +41,7 @@ describe('useGoalsStore', () => {
     localStorage.clear()
 
     // Dynamically import store to ensure setup runs first
-    const module = await import('../goalsStore')
+    const module = await import('@/features/timer/store/goalsStore')
     useGoalsStore = module.useGoalsStore
   })
 

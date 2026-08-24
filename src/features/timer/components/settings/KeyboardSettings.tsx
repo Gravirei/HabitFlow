@@ -4,7 +4,7 @@
  */
 
 import React from 'react'
-import { useTimerSettings } from '../hooks/useTimerSettings'
+import { useTimerSettings } from '@/features/timer/hooks/useTimerSettings'
 import { SettingsSection } from './SettingsSection'
 import { ToggleSwitch } from '@/shared/ui/ToggleSwitch'
 

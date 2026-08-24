@@ -5,7 +5,7 @@
 
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { NotificationSettings, NotificationHistory } from './types'
+import type { NotificationSettings, NotificationHistory } from '@/features/timer/components/premium-history/notifications/types'
 
 const DEFAULT_SETTINGS: NotificationSettings = {
   enabled: false,

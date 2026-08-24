@@ -7,7 +7,7 @@
 
 import React, { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useTimerHistory } from '@/features/timer/components/hooks/useTimerHistory'
+import { useTimerHistory } from '@/features/timer/hooks/useTimerHistory'
 import {
   PremiumHistoryLayout,
   FilterBar,
@@ -38,7 +38,7 @@ import { SmartReportsModal } from '@/features/timer/components/premium-history/s
 import { TeamSharingModal } from '@/features/timer/components/premium-history/team-sharing'
 import { CloudSyncModal } from '@/features/timer/components/premium-history/cloud-sync'
 import { useNavigate } from 'react-router-dom'
-import { timerPersistence, type RepeatSessionConfig } from '@/features/timer/components/utils/timerPersistence'
+import { timerPersistence, type RepeatSessionConfig } from '@/features/timer/utils/timerPersistence'
 import type { CountdownSession, IntervalsSession } from '@/features/timer/components/premium-history/types/session.types'
 
 type TimerMode = 'Stopwatch' | 'Countdown' | 'Intervals'

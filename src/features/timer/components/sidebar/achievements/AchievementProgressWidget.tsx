@@ -7,7 +7,7 @@
 import React from 'react'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
-import { useAchievementsStore } from './achievementsStore'
+import { useAchievementsStore } from '@/features/timer/store/achievementsStore'
 import { getAchievementStats } from './achievementTracking'
 
 export function AchievementProgressWidget() {

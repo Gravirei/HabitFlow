@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { describe, it, expect } from 'vitest'
-import { generateUUID } from '../../utils/uuid'
+import { generateUUID } from '@/features/timer/utils/uuid'
 
 describe('uuid utilities', () => {
   describe('generateUUID', () => {

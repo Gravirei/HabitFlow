@@ -9,7 +9,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 // Imports commented out to prevent module resolution errors
 // import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 // import { GoalsModal } from '../../goals/GoalsModal'
-// import { useGoalsStore } from '../../goals/goalsStore'
+// import { useGoalsStore } from '@/features/timer/store/goalsStore'
 
 // Use SidebarIntegration.test.tsx for actual integration testing
 describe.skip('Goal Tracking Feature', () => {

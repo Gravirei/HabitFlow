@@ -9,7 +9,7 @@ declare const process: NodeJS.Process
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { soundManager } from '../../utils/soundManager'
+import { soundManager } from '@/features/timer/utils/soundManager'
 
 // Helper to create fresh mock oscillator
 const createMockOscillator = () => ({
@@ -376,8 +376,8 @@ describe('soundManager', () => {
   describe('Singleton Pattern', () => {
     it('should be a singleton instance', async () => {
       // Import the module twice to verify it's the same instance
-      const module1 = await import('../../utils/soundManager')
-      const module2 = await import('../../utils/soundManager')
+      const module1 = await import('@/features/timer/utils/soundManager')
+      const module2 = await import('@/features/timer/utils/soundManager')
 
       expect(module1.soundManager).toBe(module2.soundManager)
     })
@@ -388,7 +388,7 @@ describe('soundManager', () => {
       const firstCallCount = (global.AudioContext as any).mock.calls.length
 
       // Import module again
-      const { soundManager: reimported } = await import('../../utils/soundManager')
+      const { soundManager: reimported } = await import('@/features/timer/utils/soundManager')
       
       // Should be the same instance
       expect(reimported).toBe(soundManager)

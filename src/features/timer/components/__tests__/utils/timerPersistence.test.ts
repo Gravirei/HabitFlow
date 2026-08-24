@@ -10,8 +10,8 @@ declare const process: NodeJS.Process
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { timerPersistence, TimerPersistence } from '../../utils/timerPersistence'
-import type { CountdownTimerState, StopwatchTimerState, IntervalsTimerState } from '../../utils/timerPersistence'
+import { timerPersistence, TimerPersistence } from '@/features/timer/utils/timerPersistence'
+import type { CountdownTimerState, StopwatchTimerState, IntervalsTimerState } from '@/features/timer/utils/timerPersistence'
 
 describe('TimerPersistence', () => {
   let mockLocalStorage: { [key: string]: string } = {}

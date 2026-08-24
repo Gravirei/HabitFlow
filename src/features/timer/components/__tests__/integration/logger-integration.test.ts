@@ -6,7 +6,7 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { logger } from '@/lib/logger'
-import { timerPersistence } from '../../utils/timerPersistence'
+import { timerPersistence } from '@/features/timer/utils/timerPersistence'
 
 describe('Logger Integration', () => {
   const originalConsole = {

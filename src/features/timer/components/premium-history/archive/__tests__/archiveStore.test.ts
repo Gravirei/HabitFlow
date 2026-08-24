@@ -6,10 +6,10 @@
 
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
 import { act } from '@testing-library/react'
-import type { ArchivedSession } from '../archiveStore'
+import type { ArchivedSession } from '@/features/timer/store/archiveStore'
 
 // Must import store after mocks are set up
-let useArchiveStore: typeof import('../archiveStore').useArchiveStore
+let useArchiveStore: typeof import('@/features/timer/store/archiveStore').useArchiveStore
 
 describe('useArchiveStore', () => {
   const createMockSession = (overrides: Partial<ArchivedSession> = {}): ArchivedSession => ({
@@ -29,7 +29,7 @@ describe('useArchiveStore', () => {
     
     // Dynamic import to ensure fresh store after localStorage is ready
     vi.resetModules()
-    const module = await import('../archiveStore')
+    const module = await import('@/features/timer/store/archiveStore')
     useArchiveStore = module.useArchiveStore
 
     // Reset store to initial state

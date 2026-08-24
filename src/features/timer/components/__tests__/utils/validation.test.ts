@@ -3,8 +3,8 @@ import {
   validateTimerHistory,
   isValidTimerHistoryRecord,
   migrateTimerHistoryRecord
-} from '../../utils/validation'
-import type { TimerHistoryRecord } from '../../types/timer.types'
+} from '@/features/timer/utils/validation'
+import type { TimerHistoryRecord } from '@/features/timer/types/timer.types'
 
 describe('validation utilities', () => {
   describe('isValidTimerHistoryRecord', () => {

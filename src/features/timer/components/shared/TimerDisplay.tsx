@@ -4,13 +4,13 @@
  */
 
 import React from 'react'
-import type { TimerDisplayProps } from '../types/timer.types'
+import type { TimerDisplayProps } from '@/features/timer/types/timer.types'
 import { 
   TIMER_CLASSES, 
   CIRCLE_CIRCUMFERENCE, 
   CIRCLE_STROKE_WIDTH,
   formatTime 
-} from '../constants/timer.constants'
+} from '@/features/timer/constants/timer.constants'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
 
 export const TimerDisplay: React.FC<TimerDisplayProps> = React.memo(({ 

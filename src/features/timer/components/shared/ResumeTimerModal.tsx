@@ -6,7 +6,7 @@
  */
 
 import React from 'react'
-import { timerPersistence, type SavedTimerState } from '../utils/timerPersistence'
+import { timerPersistence, type SavedTimerState } from '@/features/timer/utils/timerPersistence'
 
 interface ResumeTimerModalProps {
   isOpen: boolean

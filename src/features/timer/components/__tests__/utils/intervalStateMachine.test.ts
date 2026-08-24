@@ -13,7 +13,7 @@ import {
   isValidIntervalConfig,
   type IntervalState,
   type IntervalConfig
-} from '../../utils/intervalStateMachine'
+} from '@/features/timer/utils/intervalStateMachine'
 
 describe('intervalStateMachine', () => {
   describe('getNextInterval', () => {

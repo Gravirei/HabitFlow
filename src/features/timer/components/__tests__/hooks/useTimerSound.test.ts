@@ -5,19 +5,19 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { renderHook } from '@testing-library/react'
-import { useTimerSound } from '../../hooks/useTimerSound'
-import { soundManager } from '../../utils/soundManager'
-import { vibrationManager } from '../../utils/vibrationManager'
+import { useTimerSound } from '@/features/timer/hooks/useTimerSound'
+import { soundManager } from '@/features/timer/utils/soundManager'
+import { vibrationManager } from '@/features/timer/utils/vibrationManager'
 
 // Mock dependencies
-vi.mock('../../utils/soundManager', () => ({
+vi.mock('@/features/timer/utils/soundManager', () => ({
   soundManager: {
     playSound: vi.fn(),
     cleanup: vi.fn()
   }
 }))
 
-vi.mock('../../utils/vibrationManager', () => ({
+vi.mock('@/features/timer/utils/vibrationManager', () => ({
   vibrationManager: {
     vibrate: vi.fn(),
     stop: vi.fn(),
@@ -25,7 +25,7 @@ vi.mock('../../utils/vibrationManager', () => ({
   }
 }))
 
-vi.mock('../../hooks/useTimerSettings', () => ({
+vi.mock('@/features/timer/hooks/useTimerSettings', () => ({
   useTimerSettings: () => ({
     settings: {
       soundEnabled: true,

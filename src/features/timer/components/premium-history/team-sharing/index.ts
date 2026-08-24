@@ -1,3 +1,3 @@
 export { TeamSharingModal } from './TeamSharingModal'
-export { useShareStore } from './shareStore'
+export { useShareStore } from '@/features/timer/store/shareStore'
 export type { SharedSession, ShareLink, TeamMember } from './types'

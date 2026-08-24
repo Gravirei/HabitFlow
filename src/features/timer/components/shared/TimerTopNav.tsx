@@ -5,14 +5,14 @@
 
 import React, { useState, useMemo, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useTimerSettings } from '../hooks/useTimerSettings'
+import { useTimerSettings } from '@/features/timer/hooks/useTimerSettings'
 import { TimerSettingsModal } from '../settings/TimerSettingsModal'
 import { HistoryModal } from './HistoryModal'
 import { TimerMenuSidebar } from './TimerMenuSidebar'
 import { CloudSyncModal } from '../premium-history/cloud-sync'
 // ARCHIVED: ThemesModal import removed (theme module archived)
 import { tieredStorage } from '@/lib/storage/tieredStorage'
-import type { TimerHistoryRecord } from '../types/timer.types'
+import type { TimerHistoryRecord } from '@/features/timer/types/timer.types'
 
 export const TimerTopNav: React.FC = () => {
   const navigate = useNavigate()

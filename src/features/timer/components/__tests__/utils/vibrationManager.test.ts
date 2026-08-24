@@ -9,7 +9,7 @@ declare const process: NodeJS.Process
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { vibrationManager } from '../../utils/vibrationManager'
+import { vibrationManager } from '@/features/timer/utils/vibrationManager'
 
 describe('vibrationManager', () => {
   let mockVibrate: ReturnType<typeof vi.fn>
@@ -312,15 +312,15 @@ describe('vibrationManager', () => {
   describe('Singleton Pattern', () => {
     it('should be a singleton instance', async () => {
       // Import the module twice to verify it's the same instance
-      const module1 = await import('../../utils/vibrationManager')
-      const module2 = await import('../../utils/vibrationManager')
+      const module1 = await import('@/features/timer/utils/vibrationManager')
+      const module2 = await import('@/features/timer/utils/vibrationManager')
 
       expect(module1.vibrationManager).toBe(module2.vibrationManager)
     })
 
     it('should maintain state across multiple imports', async () => {
       // Import module again
-      const { vibrationManager: reimported } = await import('../../utils/vibrationManager')
+      const { vibrationManager: reimported } = await import('@/features/timer/utils/vibrationManager')
       
       // Should be the same instance
       expect(reimported).toBe(vibrationManager)

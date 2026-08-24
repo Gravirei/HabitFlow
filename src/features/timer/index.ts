@@ -4,26 +4,26 @@
  */
 
 // Main Container
-export { TimerContainer, useKeyboardHelp } from './TimerContainer'
+export { TimerContainer, useKeyboardHelp } from './components/TimerContainer'
 
 // Mode Components
-export { StopwatchTimer } from './modes/StopwatchTimer'
-export { CountdownTimer } from './modes/CountdownTimer'
-export { IntervalsTimer } from './modes/IntervalsTimer'
+export { StopwatchTimer } from './components/modes/StopwatchTimer'
+export { CountdownTimer } from './components/modes/CountdownTimer'
+export { IntervalsTimer } from './components/modes/IntervalsTimer'
 
 // Shared Components
-export { TimerDisplay } from './shared/TimerDisplay'
-export { AnimatedTimerButton } from './shared/AnimatedTimerButton'
-export { TimerTopNav } from './shared/TimerTopNav'
-export { HistoryModal } from './shared/HistoryModal'
-export { EditPresetModal } from './shared/EditPresetModal'
-export { EditIntervalPresetModal } from './shared/EditIntervalPresetModal'
-export { WheelPicker } from './shared/WheelPicker'
-export { TimerPresets } from './shared/TimerPresets'
-export { IntervalPresets } from './shared/IntervalPresets'
+export { TimerDisplay } from './components/shared/TimerDisplay'
+export { AnimatedTimerButton } from './components/shared/AnimatedTimerButton'
+export { TimerTopNav } from './components/shared/TimerTopNav'
+export { HistoryModal } from './components/shared/HistoryModal'
+export { EditPresetModal } from './components/shared/EditPresetModal'
+export { EditIntervalPresetModal } from './components/shared/EditIntervalPresetModal'
+export { WheelPicker } from './components/shared/WheelPicker'
+export { TimerPresets } from './components/shared/TimerPresets'
+export { IntervalPresets } from './components/shared/IntervalPresets'
 
 // Settings Components
-export { TimerSettingsModal } from './settings/TimerSettingsModal'
+export { TimerSettingsModal } from './components/settings/TimerSettingsModal'
 
 // Hooks
 export { useStopwatch } from './hooks/useStopwatch'

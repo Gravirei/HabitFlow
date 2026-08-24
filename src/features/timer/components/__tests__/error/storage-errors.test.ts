@@ -7,8 +7,8 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import { useLocalStorage } from '@/hooks/useLocalStorage'
-import { loadTimerHistory, validateTimerHistory } from '../../utils/validation'
-import { loadTimerState, clearTimerState } from '../../utils/timerPersistence'
+import { loadTimerHistory, validateTimerHistory } from '@/features/timer/utils/validation'
+import { loadTimerState, clearTimerState } from '@/features/timer/utils/timerPersistence'
 
 describe('Storage Error Handling', () => {
   let consoleErrorSpy: ReturnType<typeof vi.spyOn>

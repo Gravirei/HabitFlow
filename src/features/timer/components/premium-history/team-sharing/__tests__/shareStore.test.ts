@@ -7,7 +7,7 @@ import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
 import { act } from '@testing-library/react'
 
 // Must import store after mocks are set up
-let useShareStore: typeof import('../shareStore').useShareStore
+let useShareStore: typeof import('@/features/timer/store/shareStore').useShareStore
 
 describe('useShareStore', () => {
   let mockDate = 1000000000000
@@ -31,7 +31,7 @@ describe('useShareStore', () => {
     
     // Dynamic import to ensure fresh store after localStorage is ready
     vi.resetModules()
-    const module = await import('../shareStore')
+    const module = await import('@/features/timer/store/shareStore')
     useShareStore = module.useShareStore
 
     // Reset store to initial state

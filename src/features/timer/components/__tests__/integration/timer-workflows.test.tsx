@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
-import { useStopwatch } from '../../hooks/useStopwatch'
-import { useCountdown } from '../../hooks/useCountdown'
-import { useIntervals } from '../../hooks/useIntervals'
-import { useTimerHistory } from '../../hooks/useTimerHistory'
+import { useStopwatch } from '@/features/timer/hooks/useStopwatch'
+import { useCountdown } from '@/features/timer/hooks/useCountdown'
+import { useIntervals } from '@/features/timer/hooks/useIntervals'
+import { useTimerHistory } from '@/features/timer/hooks/useTimerHistory'
 
 // Mock localStorage
 const localStorageMock = (() => {

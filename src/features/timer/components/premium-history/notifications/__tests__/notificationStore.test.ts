@@ -9,7 +9,7 @@ import { act } from '@testing-library/react'
 import type { NotificationHistory } from '../types'
 
 // Must import store after mocks are set up
-let useNotificationStore: typeof import('../notificationStore').useNotificationStore
+let useNotificationStore: typeof import('@/features/timer/store/notificationStore').useNotificationStore
 
 describe('useNotificationStore', () => {
   const DEFAULT_SETTINGS = {
@@ -50,7 +50,7 @@ describe('useNotificationStore', () => {
     
     // Dynamic import to ensure fresh store after localStorage is ready
     vi.resetModules()
-    const module = await import('../notificationStore')
+    const module = await import('@/features/timer/store/notificationStore')
     useNotificationStore = module.useNotificationStore
 
     // Reset store to initial state

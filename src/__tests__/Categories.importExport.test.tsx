@@ -11,8 +11,8 @@ import type { Category } from '@/types/category'
 import type { Habit } from '@/types/habit'
 import type { Task } from '@/types/task'
 
-vi.mock('@/components/BottomNav', () => ({ BottomNav: () => null }))
-vi.mock('@/components/SideNav', () => ({ SideNav: () => null }))
+vi.mock('@/shared/layout/BottomNav', () => ({ BottomNav: () => null }))
+vi.mock('@/shared/layout/SideNav', () => ({ SideNav: () => null }))
 
 const navigateMock = vi.fn()
 vi.mock('react-router-dom', async () => {

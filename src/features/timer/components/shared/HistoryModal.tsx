@@ -8,10 +8,10 @@
 import React, { useState, useMemo, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
-import { useTimerHistory } from '../hooks/useTimerHistory'
-import { validateTimerHistory } from '../utils/validation'
-import type { TimerHistoryRecord, TimerMode } from '../types/timer.types'
-import { formatTime } from '../constants/timer.constants'
+import { useTimerHistory } from '@/features/timer/hooks/useTimerHistory'
+import { validateTimerHistory } from '@/features/timer/utils/validation'
+import type { TimerHistoryRecord, TimerMode } from '@/features/timer/types/timer.types'
+import { formatTime } from '@/features/timer/constants/timer.constants'
 import { tieredStorage } from '@/lib/storage/tieredStorage'
 
 interface HistoryModalProps {

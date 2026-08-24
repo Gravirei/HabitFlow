@@ -6,10 +6,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { WheelPicker } from '../../shared/WheelPicker'
-import { soundManager } from '../../utils/soundManager'
+import { soundManager } from '@/features/timer/utils/soundManager'
 
 // Mock soundManager
-vi.mock('../../utils/soundManager', () => ({
+vi.mock('@/features/timer/utils/soundManager', () => ({
   soundManager: {
     playSound: vi.fn(),
     cleanup: vi.fn(),

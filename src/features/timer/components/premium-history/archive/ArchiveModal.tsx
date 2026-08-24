@@ -7,7 +7,7 @@
 
 import React, { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useArchiveStore } from './archiveStore'
+import { useArchiveStore } from '@/features/timer/store/archiveStore'
 import { convertFromArchivedSession } from './archiveUtils'
 import { useLocalStorage } from '@/hooks/useLocalStorage'
 

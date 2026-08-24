@@ -9,8 +9,8 @@ import { renderHook, act } from '@testing-library/react'
 import type { UserStats } from '../types'
 
 // Import store and definitions dynamically
-let useAchievementsStore: typeof import('../achievementsStore').useAchievementsStore
-let ACHIEVEMENT_DEFINITIONS: typeof import('../achievementDefinitions').ACHIEVEMENT_DEFINITIONS
+let useAchievementsStore: typeof import('@/features/timer/store/achievementsStore').useAchievementsStore
+let ACHIEVEMENT_DEFINITIONS: typeof import('@/features/timer/components/sidebar/achievements/achievementDefinitions').ACHIEVEMENT_DEFINITIONS
 
 // Helper to create mock user stats
 const createMockStats = (overrides: Partial<UserStats> = {}): UserStats => ({
@@ -38,7 +38,7 @@ describe('useAchievementsStore', () => {
     localStorage.clear()
 
     // Dynamically import store to ensure setup runs first
-    const storeModule = await import('../achievementsStore')
+    const storeModule = await import('@/features/timer/store/achievementsStore')
     const defsModule = await import('../achievementDefinitions')
     useAchievementsStore = storeModule.useAchievementsStore
     ACHIEVEMENT_DEFINITIONS = defsModule.ACHIEVEMENT_DEFINITIONS

@@ -6,9 +6,9 @@
 
 import { useEffect, useCallback, useState } from 'react'
 import { useLocalStorage } from '@/hooks/useLocalStorage'
-import { useAchievementsStore } from './achievementsStore'
+import { useAchievementsStore } from '@/features/timer/store/achievementsStore'
 import { calculateUserStats } from './achievementTracking'
-import type { TimerHistoryRecord } from '../../types/timer.types'
+import type { TimerHistoryRecord } from '@/features/timer/types/timer.types'
 import type { Achievement } from './types'
 
 const STORAGE_KEYS = {

@@ -5,7 +5,7 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { renderHook } from '@testing-library/react'
-import { useKeyboardShortcuts } from '../../hooks/useKeyboardShortcuts'
+import { useKeyboardShortcuts } from '@/features/timer/hooks/useKeyboardShortcuts'
 
 // Mock dependencies
 vi.mock('../../hooks/useTimerSettings', () => ({

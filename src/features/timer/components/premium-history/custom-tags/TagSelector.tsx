@@ -6,7 +6,7 @@
 
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useTagStore } from './tagStore'
+import { useTagStore } from '@/features/timer/store/tagStore'
 
 interface TagSelectorProps {
   sessionId: string

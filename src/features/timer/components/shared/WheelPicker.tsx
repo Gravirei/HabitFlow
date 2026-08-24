@@ -4,8 +4,8 @@
  */
 
 import React, { useRef, useState, useEffect } from 'react'
-import type { WheelPickerProps } from '../types/timer.types'
-import { soundManager } from '../utils/soundManager'
+import type { WheelPickerProps } from '@/features/timer/types/timer.types'
+import { soundManager } from '@/features/timer/utils/soundManager'
 
 export const WheelPicker: React.FC<WheelPickerProps> = React.memo(({
   value,

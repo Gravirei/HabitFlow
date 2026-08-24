@@ -9,7 +9,7 @@ import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { GoalCard } from './GoalCard'
 import { CreateGoalModal } from './CreateGoalModal'
-import { useGoalsStore } from './goalsStore'
+import { useGoalsStore } from '@/features/timer/store/goalsStore'
 import type { Goal } from './types'
 
 interface GoalsModalProps {

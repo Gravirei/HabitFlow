@@ -6,7 +6,7 @@
 
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useShareStore } from './shareStore'
+import { useShareStore } from '@/features/timer/store/shareStore'
 import type { TimerSession } from '../types/session.types'
 
 interface TeamSharingModalProps {

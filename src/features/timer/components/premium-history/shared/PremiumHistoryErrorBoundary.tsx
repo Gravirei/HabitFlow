@@ -5,7 +5,7 @@
  */
 
 import React, { Component, ErrorInfo, ReactNode } from 'react'
-import { logError, ErrorCategory, ErrorSeverity } from '../../utils/errorMessages'
+import { logError, ErrorCategory, ErrorSeverity } from '@/features/timer/utils/errorMessages'
 
 interface Props {
   children: ReactNode

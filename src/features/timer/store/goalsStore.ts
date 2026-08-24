@@ -6,7 +6,7 @@
 
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { Goal, GoalType, GoalPeriod, TimerMode } from './types'
+import type { Goal, GoalType, GoalPeriod, TimerMode } from '@/features/timer/components/sidebar/goals/types'
 
 interface GoalsState {
   goals: Goal[]

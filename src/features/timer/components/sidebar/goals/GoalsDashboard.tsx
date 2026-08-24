@@ -7,7 +7,7 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { GoalCard } from './GoalCard'
 import { CreateGoalModal } from './CreateGoalModal'
-import { useGoalsStore } from './goalsStore'
+import { useGoalsStore } from '@/features/timer/store/goalsStore'
 
 export function GoalsDashboard() {
   const [showCreateModal, setShowCreateModal] = useState(false)

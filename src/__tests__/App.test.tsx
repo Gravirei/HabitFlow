@@ -7,7 +7,7 @@ import { AuthProvider } from '@/lib/auth/AuthContext'
 vi.mock('@/features/timer/components/sidebar/achievements', () => ({
   AchievementNotifications: () => null,
 }))
-vi.mock('@/components/OnboardingModal', () => ({
+vi.mock('@/features/onboarding/components/OnboardingModal', () => ({
   OnboardingModal: () => null,
 }))
 

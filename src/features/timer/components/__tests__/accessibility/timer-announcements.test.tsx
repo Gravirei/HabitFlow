@@ -5,9 +5,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { act } from '@testing-library/react'
 import { renderHook } from '@testing-library/react'
-import { useCountdown } from '../../hooks/useCountdown'
-import { useStopwatch } from '../../hooks/useStopwatch'
-import { useIntervals } from '../../hooks/useIntervals'
+import { useCountdown } from '@/features/timer/hooks/useCountdown'
+import { useStopwatch } from '@/features/timer/hooks/useStopwatch'
+import { useIntervals } from '@/features/timer/hooks/useIntervals'
 
 describe('Timer Announcements - Integration Tests', () => {
   beforeEach(() => {

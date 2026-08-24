@@ -14,9 +14,9 @@ import { act } from "@testing-library/react"
 // Unused import removed
 // Unused import removed
 import { renderHook } from '@testing-library/react'
-import { useCountdown } from '../../hooks/useCountdown'
-import { useTimerHistory } from '../../hooks/useTimerHistory'
-import { useTimerPersistence } from '../../hooks/useTimerPersistence'
+import { useCountdown } from '@/features/timer/hooks/useCountdown'
+import { useTimerHistory } from '@/features/timer/hooks/useTimerHistory'
+import { useTimerPersistence } from '@/features/timer/hooks/useTimerPersistence'
 
 describe('Error Scenarios', () => {
   let consoleErrorSpy: ReturnType<typeof vi.spyOn>

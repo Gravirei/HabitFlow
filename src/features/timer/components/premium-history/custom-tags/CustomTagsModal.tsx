@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useTagStore } from './tagStore'
+import { useTagStore } from '@/features/timer/store/tagStore'
 import { TAG_COLORS } from './types'
 import type { Tag } from './types'
 

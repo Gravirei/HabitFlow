@@ -4,7 +4,7 @@
  */
 
 import { describe, it, expect } from 'vitest'
-import * as constants from '../../constants/performance.constants'
+import * as constants from '@/features/timer/constants/performance.constants'
 
 describe('Performance Constants', () => {
   describe('Timer Update Intervals', () => {

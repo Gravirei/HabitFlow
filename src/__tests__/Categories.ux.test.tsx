@@ -11,11 +11,11 @@ import { Categories } from '@/pages/bottomNav/Categories'
 import type { Category } from '@/types/category'
 import type { Habit } from '@/types/habit'
 
-vi.mock('@/components/BottomNav', () => ({
+vi.mock('@/shared/layout/BottomNav', () => ({
   BottomNav: () => null,
 }))
 
-vi.mock('@/components/SideNav', () => ({
+vi.mock('@/shared/layout/SideNav', () => ({
   SideNav: () => null,
 }))
 

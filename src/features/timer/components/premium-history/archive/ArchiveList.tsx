@@ -6,7 +6,7 @@
 
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
-import type { ArchivedSession } from './archiveStore'
+import type { ArchivedSession } from '@/features/timer/store/archiveStore'
 import { SessionCard } from '../cards/SessionCard'
 
 interface ArchiveListProps {

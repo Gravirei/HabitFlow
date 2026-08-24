@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react'
-import type { SessionSetupModalProps } from '../types/timer.types'
+import type { SessionSetupModalProps } from '@/features/timer/types/timer.types'
 
 export const SessionSetupModal: React.FC<SessionSetupModalProps> = ({
   isOpen,

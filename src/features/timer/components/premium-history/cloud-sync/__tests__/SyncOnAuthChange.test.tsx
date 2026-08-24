@@ -8,12 +8,12 @@ import { describe, it, expect, beforeEach, vi, afterEach, type Mock } from 'vite
 import { render, waitFor, act } from '@testing-library/react'
 import { SyncOnAuthChange } from '../SyncOnAuthChange'
 import { useAuth } from '@/lib/auth/AuthContext'
-import { useSyncStore } from '../syncStore'
+import { useSyncStore } from '@/features/timer/store/syncStore'
 import { tieredStorage } from '@/lib/storage'
 
 // Mock dependencies
 vi.mock('@/lib/auth/AuthContext')
-vi.mock('../syncStore')
+vi.mock('@/features/timer/store/syncStore')
 vi.mock('@/lib/storage', () => ({
   tieredStorage: {
     setUser: vi.fn(),

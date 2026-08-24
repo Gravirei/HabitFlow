@@ -6,12 +6,12 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
-import { useCountdown } from '../../hooks/useCountdown'
-import { useStopwatch } from '../../hooks/useStopwatch'
-import { useIntervals } from '../../hooks/useIntervals'
-import { useTimerHistory } from '../../hooks/useTimerHistory'
-import { useTimerSettings } from '../../hooks/useTimerSettings'
-import { useCustomPresets } from '../../hooks/useCustomPresets'
+import { useCountdown } from '@/features/timer/hooks/useCountdown'
+import { useStopwatch } from '@/features/timer/hooks/useStopwatch'
+import { useIntervals } from '@/features/timer/hooks/useIntervals'
+import { useTimerHistory } from '@/features/timer/hooks/useTimerHistory'
+import { useTimerSettings } from '@/features/timer/hooks/useTimerSettings'
+import { useCustomPresets } from '@/features/timer/hooks/useCustomPresets'
 
 // Mock sound and vibration managers to prevent JSDOM issues
 vi.mock('../../utils/soundManager', () => ({

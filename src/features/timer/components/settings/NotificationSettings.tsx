@@ -4,8 +4,8 @@
  */
 
 import React, { useState, useEffect } from 'react'
-import { useTimerSettings } from '../hooks/useTimerSettings'
-import { notificationManager } from '../utils/notificationManager'
+import { useTimerSettings } from '@/features/timer/hooks/useTimerSettings'
+import { notificationManager } from '@/features/timer/utils/notificationManager'
 import { SettingsSection } from './SettingsSection'
 import { ToggleSwitch } from '@/shared/ui/ToggleSwitch'
 

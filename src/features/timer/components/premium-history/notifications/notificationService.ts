@@ -4,7 +4,7 @@
  * Handles browser notifications and permission management
  */
 
-import { useNotificationStore } from './notificationStore'
+import { useNotificationStore } from '@/features/timer/store/notificationStore'
 import type { NotificationType } from './types'
 
 /**

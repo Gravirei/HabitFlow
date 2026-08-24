@@ -5,7 +5,7 @@
 
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { SessionTemplate } from './types'
+import type { SessionTemplate } from '@/features/timer/components/premium-history/session-templates/types'
 
 interface TemplateStore {
   templates: SessionTemplate[]

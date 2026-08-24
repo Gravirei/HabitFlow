@@ -7,7 +7,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { NotificationSettingsModal } from '../../notifications/NotificationSettingsModal'
-import { useNotificationStore } from '../../notifications/notificationStore'
+import { useNotificationStore } from '@/features/timer/store/notificationStore'
 import { scheduleNotification, sendNotification } from '../../notifications/notificationService'
 
 // NOTE: These are specification tests - see IMPLEMENTATION_NOTE.md

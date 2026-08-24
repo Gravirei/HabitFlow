@@ -9,7 +9,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 // Imports commented out to prevent module resolution errors
 // import { render, screen, fireEvent } from '@testing-library/react'
 // import { AchievementsModal } from '../../achievements/AchievementsModal'
-// import { useAchievementsStore } from '../../achievements/achievementsStore'
+// import { useAchievementsStore } from '@/features/timer/store/achievementsStore'
 // import { checkAndUnlockAchievements } from '../../achievements/achievementTracking'
 
 // Use SidebarIntegration.test.tsx for actual integration testing

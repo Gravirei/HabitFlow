@@ -11,7 +11,7 @@ declare const process: NodeJS.Process
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { notificationManager, NotificationManager } from '../../utils/notificationManager'
+import { notificationManager, NotificationManager } from '@/features/timer/utils/notificationManager'
 
 // Mock Notification API
 class MockNotification {

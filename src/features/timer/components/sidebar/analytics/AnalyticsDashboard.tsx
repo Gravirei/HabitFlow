@@ -10,7 +10,7 @@ import { StatisticsCards } from './StatisticsCards'
 import { TimeSeriesChart } from './TimeSeriesChart'
 import { SessionDistributionChart } from './SessionDistributionChart'
 import { ProductivityHeatmap } from './ProductivityHeatmap'
-import { useTimerHistory } from '../../hooks/useTimerHistory'
+import { useTimerHistory } from '@/features/timer/hooks/useTimerHistory'
 
 type TimeRange = '7days' | '30days' | '90days'
 

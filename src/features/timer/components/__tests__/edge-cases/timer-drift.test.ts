@@ -11,9 +11,9 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
-import { useCountdown } from '../../hooks/useCountdown'
-import { useStopwatch } from '../../hooks/useStopwatch'
-import { getCurrentTime } from '../../hooks/useBaseTimer'
+import { useCountdown } from '@/features/timer/hooks/useCountdown'
+import { useStopwatch } from '@/features/timer/hooks/useStopwatch'
+import { getCurrentTime } from '@/features/timer/hooks/useBaseTimer'
 
 describe('Timer Drift Edge Cases', () => {
   beforeEach(() => {

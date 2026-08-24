@@ -10,11 +10,11 @@ import { MemoryRouter } from 'react-router-dom'
 import { Categories } from '@/pages/bottomNav/Categories'
 import type { Category } from '@/types/category'
 
-vi.mock('@/components/BottomNav', () => ({
+vi.mock('@/shared/layout/BottomNav', () => ({
   BottomNav: () => null,
 }))
 
-vi.mock('@/components/SideNav', () => ({
+vi.mock('@/shared/layout/SideNav', () => ({
   SideNav: () => null,
 }))
 

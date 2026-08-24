@@ -5,7 +5,7 @@
 
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { SharedSession, ShareLink, TeamMember } from './types'
+import type { SharedSession, ShareLink, TeamMember } from '@/features/timer/components/premium-history/team-sharing/types'
 
 interface ShareStore {
   sharedSessions: SharedSession[]
