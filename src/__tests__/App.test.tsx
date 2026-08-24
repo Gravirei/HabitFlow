@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
-import App from '../App'
+import App from '@/App'
 import { AuthProvider } from '@/lib/auth/AuthContext'
 
 // Avoid side effects from global UI that initializes storage/persistent timer features

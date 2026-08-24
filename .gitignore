@@ -36,6 +36,9 @@ TIMER_MD
 # Testing
 coverage
 
+# Codegen intermediate (scripts/gen_leagues.js stdout)
+leagues_output.txt
+
 # Environment variables
 .env
 
