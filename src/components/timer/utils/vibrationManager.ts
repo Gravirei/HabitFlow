@@ -5,7 +5,7 @@
  */
 
 import { logError, ErrorCategory, ErrorSeverity } from './errorMessages'
-import { logger } from './logger'
+import { logger } from '@/lib/logger'
 
 export type VibrationPattern = 'short' | 'long' | 'pulse'
 

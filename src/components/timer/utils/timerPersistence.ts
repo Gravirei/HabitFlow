@@ -18,7 +18,7 @@
  */
 
 import type { TimerMode } from '../types/timer.types'
-import { logger } from './logger'
+import { logger } from '@/lib/logger'
 import { STATE_MAX_AGE_MS } from '../constants/performance.constants'
 
 const STORAGE_KEY = 'flowmodoro_timer_state'

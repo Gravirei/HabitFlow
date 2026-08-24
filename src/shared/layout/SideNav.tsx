@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import toast from 'react-hot-toast'
 import { logout } from '@/lib/auth/logout'
-import { LogoutConfirmDialog, type LogoutOptions } from '@/components/auth/LogoutConfirmDialog'
+import { LogoutConfirmDialog, type LogoutOptions } from '@/shared/ui/LogoutConfirmDialog'
 import { useProfileStore, getAvatarFallbackUrl } from '@/store/useProfileStore'
 
 interface SideNavProps {

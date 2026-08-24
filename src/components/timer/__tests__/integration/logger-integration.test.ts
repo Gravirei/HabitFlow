@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { logger } from '../../utils/logger'
+import { logger } from '@/lib/logger'
 import { timerPersistence } from '../../utils/timerPersistence'
 
 describe('Logger Integration', () => {

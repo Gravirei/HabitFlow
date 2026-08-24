@@ -3,8 +3,11 @@
  * All TypeScript interfaces and types for the timer components
  */
 
-// Timer Modes
-export type TimerMode = 'Stopwatch' | 'Countdown' | 'Intervals'
+import type { Lap, TimerHistoryRecord, TimerMode } from '@/lib/storage/timerHistory.types'
+
+// Canonical homes for storage-facing types live in lib/storage; re-exported
+// here so timer-internal imports keep their single entry point.
+export type { Lap, TimerHistoryRecord, TimerMode }
 
 export type IntervalType = 'work' | 'break'
 
@@ -33,43 +36,6 @@ export interface TimerSettings {
   showVibrationIcon: boolean
   showNotificationIcon: boolean
   showHistoryIcon: boolean
-}
-
-// History Record
-export interface TimerHistoryRecord {
-  id: string
-  mode: TimerMode
-  duration: number // In SECONDS (changed from milliseconds)
-  timestamp: number // End time (when session was saved)
-  
-  // Common fields
-  startTime?: number // When timer started (timestamp)
-  
-  // Stopwatch-specific
-  lapCount?: number
-  bestLap?: number // In seconds
-  laps?: Lap[]
-  
-  // Countdown-specific
-  targetDuration?: number // Original goal in seconds
-  completed?: boolean // True if countdown reached zero, false if stopped early
-  
-  // Intervals-specific
-  intervalCount?: number // Total intervals completed
-  completedLoops?: number // Same as intervalCount (for clarity)
-  workDuration?: number // Work period in seconds
-  breakDuration?: number // Break period in seconds
-  sessionName?: string
-  targetLoopCount?: number // Target number of loops
-}
-
-// Lap Data
-export interface Lap {
-  id: number
-  time: string
-  timeMs: number
-  split?: string
-  delta?: string
 }
 
 // Timer State

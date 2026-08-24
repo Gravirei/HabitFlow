@@ -5,7 +5,7 @@
  */
 
 import { logError, ErrorCategory, ErrorSeverity } from './errorMessages'
-import { logger } from './logger'
+import { logger } from '@/lib/logger'
 
 export type SoundType = 'beep' | 'bell' | 'chime' | 'digital' | 'tick'
 

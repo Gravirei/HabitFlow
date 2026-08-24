@@ -16,7 +16,7 @@ import {
 } from '../constants/timer.constants'
 import { useBaseTimer, getCurrentTime } from './useBaseTimer'
 import { logError, ErrorCategory, ErrorSeverity } from '../utils/errorMessages'
-import { logger } from '../utils/logger'
+import { logger } from '@/lib/logger'
 
 export const useStopwatch = (): UseStopwatchReturn => {
   // Use base timer for shared state and methods

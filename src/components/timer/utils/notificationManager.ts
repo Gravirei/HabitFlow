@@ -33,7 +33,7 @@
  */
 
 import { logError, ErrorCategory, ErrorSeverity } from './errorMessages'
-import { logger } from './logger'
+import { logger } from '@/lib/logger'
 
 /**
  * Options for displaying a timer notification

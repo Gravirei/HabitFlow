@@ -4,7 +4,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { logger, TimerLogger } from '../../utils/logger'
+import { logger, TimerLogger } from '@/lib/logger'
 
 describe('TimerLogger', () => {
   // Store original console methods

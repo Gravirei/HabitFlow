@@ -9,7 +9,7 @@
 import { useEffect, useState, useCallback, useRef, useContext } from 'react'
 import { supabase } from '@/lib/supabase'
 import { tieredStorage, type SyncStatus } from './tieredStorage'
-import type { TimerHistoryRecord, TimerMode } from '@/components/timer/types/timer.types'
+import type { TimerHistoryRecord, TimerMode } from './timerHistory.types'
 import type { User } from '@supabase/supabase-js'
 
 /**

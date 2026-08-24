@@ -13,7 +13,7 @@
  */
 
 import { supabase } from '@/lib/supabase'
-import type { TimerHistoryRecord, TimerMode } from '@/components/timer/types/timer.types'
+import type { TimerHistoryRecord, TimerMode } from './timerHistory.types'
 
 // Storage keys
 const STORAGE_KEYS = {
@@ -118,7 +118,7 @@ function getStorageKey(mode: TimerMode): string {
  * LocalStorage helpers with integrity checks
  * Security: Uses checksums to detect tampering
  */
-import { secureGetItem, secureSetItem } from '@/components/timer/utils/storageIntegrity'
+import { secureGetItem, secureSetItem } from './storageIntegrity'
 
 const localStorageHelper = {
   get<T>(key: string, defaultValue: T): T {

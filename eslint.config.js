@@ -86,6 +86,34 @@ export default tseslint.config(
         },
       ]
     : []),
+  // Layered-architecture guard (refactor P4): cross-cutting layers may only
+  // be consumed by features/components, never the other way around.
+  {
+    files: [
+      'src/lib/**',
+      'src/hooks/**',
+      'src/store/**',
+      'src/utils/**',
+      'src/schemas/**',
+      'src/types/**',
+      'src/constants/**',
+      'src/shared/**',
+    ],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['@/components/*', '@/features/*', '**/components/**', '**/features/**'],
+              message:
+                'Shared layers (lib/hooks/store/utils/schemas/types/constants/shared) must not depend on feature or component code.',
+            },
+          ],
+        },
+      ],
+    },
+  },
   {
     files: ['e2e/**/*.{ts,tsx}'],
     languageOptions: {

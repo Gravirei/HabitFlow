@@ -15,7 +15,7 @@ import { MAX_HISTORY_RECORDS } from '../constants/timer.constants'
 import type { TimerMode, TimerHistoryRecord, Lap } from '../types/timer.types'
 import { isValidTimerHistoryRecord, validateSessionName } from '../utils/validation'
 import { logError, ErrorCategory, ErrorSeverity } from '../utils/errorMessages'
-import { logger } from '../utils/logger'
+import { logger } from '@/lib/logger'
 
 interface UseTimerHistoryOptions {
   mode: TimerMode

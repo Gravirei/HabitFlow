@@ -8,7 +8,7 @@
 import { useState, useCallback } from 'react'
 import { useTimerSettings } from './useTimerSettings'
 import { logError, ErrorCategory, ErrorSeverity } from '../utils/errorMessages'
-import { logger } from '../utils/logger'
+import { logger } from '@/lib/logger'
 
 /**
  * Helper to get current time (works with both real Date.now and vitest's fake timers)

@@ -16,7 +16,7 @@ import {
   calculateStrokeDashoffset
 } from '../constants/timer.constants'
 import { useBaseTimer, getCurrentTime } from './useBaseTimer'
-import { logger } from '../utils/logger'
+import { logger } from '@/lib/logger'
 import { logError } from '../utils/errorMessages'
 import { shouldCompleteSession } from '../utils/intervalStateMachine'
 import { 

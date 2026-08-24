@@ -7,7 +7,7 @@
 import type { TimerHistoryRecord } from '../types/timer.types'
 import { generateUUID } from './uuid'
 import { logError, ErrorCategory, ErrorSeverity } from './errorMessages'
-import { logger } from './logger'
+import { logger } from '@/lib/logger'
 
 // Security: Input length limits to prevent abuse
 // Must match UI maxLength in SessionSetupModal (50 chars) and DB CHECK constraint
