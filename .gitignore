@@ -53,3 +53,7 @@ credentials/
 # ByteRover
 .brv
 .env
+
+# Playwright artifacts
+playwright-report
+test-results
