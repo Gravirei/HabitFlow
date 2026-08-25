@@ -65,25 +65,29 @@ src/
 - Unit tests are colocated with subjects in `__tests__/` directories.
   Only two cross-cutting files remain in `src/__tests__/`: `App.test.tsx` and
   `toast-integration.test.tsx`.
-- **Known red baseline:** 22 test files / 59 tests fail at baseline (flaky
-  Categories suites under parallel load, e2e specs collected by vitest,
-  legacy timer error-path tests). Structural work is gated on *delta*: never
-  introduce a NEW failure; fix-forward or document.
+- **Expected state: all-green.** As of the hardening initiative (2026-08-25),
+  `npx vitest run` passes fully and CI fails on any test failure. Two suites
+  have a rare cold-parallel flake (`Categories.templates`, timer `axe-audit`
+  — "Axe is already running"); both pass in isolation, so re-run before
+  investigating a failure.
 - `npm run build` doubles as the import-resolution oracle: tsc cannot see
   inside `@ts-nocheck` files, but vite resolves every import.
 
 ## Known debt (tracked, do not silently grow)
 
-1. **Type-debt ledger:** 153 files carry a first-line `// @ts-nocheck`
+1. **Type-debt ledger:** 146 files carry a first-line `// @ts-nocheck`
    (~684 real errors behind them: missing imports, unused vars, implicit anys).
    Removing a header means fixing that file's errors — verify with
-   `npm run typecheck`. Burn-down is ongoing; don't add new headers.
+   `npm run typecheck`. Burn-down is ongoing (hardening phase 5, smallest
+   features first); don't add new headers.
    ESLint auto-detects ledger files at config load and relaxes only mechanical
    rules for them, so deleting a header also tightens lint on that file.
-2. **Lint warnings:** ~552 (mostly `no-explicit-any`). `lint:strict` is aspirational.
-3. **E2E:** Playwright specs exist under `e2e/` but are also picked up by vitest
-   (8 baseline suite failures). Firefox binary must be installed via
-   `npx playwright install firefox`.
+2. **Lint warnings:** 552 (mostly `no-explicit-any`), hard-capped by the
+   ratcheting `.lint-budget` gate in CI. `lint:strict` flips automatically
+   once the ledger burn-down finishes.
+3. **E2E:** Playwright specs live under `e2e/`; vitest no longer collects
+   them (its include pattern matches `src/**` only). Run them with
+   `npm run test:e2e` after `npx playwright install firefox`.
 
 ## Codegen (leagues → constants)
 
