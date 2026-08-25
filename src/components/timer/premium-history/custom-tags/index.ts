@@ -1,5 +1,0 @@
-export { CustomTagsModal } from './CustomTagsModal'
-export { TagSelector } from './TagSelector'
-export { useTagStore } from './tagStore'
-export type { Tag, TaggedSession } from './types'
-export { TAG_COLORS } from './types'

@@ -1,6 +1,0 @@
- 1 CSS custom property (line 47 in src/index.css):
-    • Changed from: --color-background: #0d1a14; (dark green)
-    • Changed to: --color-background: #030712; (neutral dark gray)
- 2 Tailwind utility (line 15 in tailwind.config.js):
-    • Changed from: 'background-dark': '#1A2F22', (dark green)
-    • Changed to: 'background-dark': '#030712', (neutral dark gray)

@@ -1,181 +1,154 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { AccountLockout } from '../accountLockout'
+import { supabase } from '@/lib/supabase'
+import {
+  isAccountLocked,
+  lockAccount,
+  unlockAccount,
+  checkAndLockAccount,
+} from '../accountLockout'
+import { createQueryBuilder } from './helpers'
 
-describe('AccountLockout', () => {
+vi.mock('@/lib/supabase', () => ({
+  supabase: { from: vi.fn() },
+}))
+
+const fromMock = vi.mocked(supabase.from)
+
+describe('accountLockout', () => {
   beforeEach(() => {
-    localStorage.clear()
+    vi.clearAllMocks()
     vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-01-15T12:00:00Z'))
   })
 
   afterEach(() => {
     vi.useRealTimers()
   })
 
-  describe('Failed Attempt Tracking', () => {
-    it('should track failed login attempts', () => {
-      AccountLockout.recordFailedAttempt('user@example.com')
-      AccountLockout.recordFailedAttempt('user@example.com')
+  describe('isAccountLocked', () => {
+    it('returns not locked when no lockout record exists', async () => {
+      const builder = createQueryBuilder({ data: [] })
+      fromMock.mockReturnValue(builder)
 
-      const attempts = AccountLockout.getFailedAttempts('user@example.com')
-      expect(attempts).toBe(2)
+      const status = await isAccountLocked('user@example.com')
+
+      expect(status).toEqual({ isLocked: false })
+      expect(fromMock).toHaveBeenCalledWith('account_lockouts')
     })
 
-    it('should reset failed attempts on successful login', () => {
-      AccountLockout.recordFailedAttempt('user@example.com')
-      AccountLockout.recordFailedAttempt('user@example.com')
+    it('returns locked with reason and expiry for an active lockout', async () => {
+      const lockedUntil = '2026-01-15T13:00:00.000Z'
+      const builder = createQueryBuilder({
+        data: [{ email: 'user@example.com', is_locked: true, locked_until: lockedUntil, reason: 'Too many failed login attempts' }],
+      })
+      fromMock.mockReturnValue(builder)
 
-      expect(AccountLockout.getFailedAttempts('user@example.com')).toBe(2)
+      const status = await isAccountLocked('user@example.com')
 
-      AccountLockout.resetAttempts('user@example.com')
-
-      expect(AccountLockout.getFailedAttempts('user@example.com')).toBe(0)
+      expect(status.isLocked).toBe(true)
+      expect(status.lockedUntil).toEqual(new Date(lockedUntil))
+      expect(status.reason).toBe('Too many failed login attempts')
     })
 
-    it('should track attempts for different users separately', () => {
-      AccountLockout.recordFailedAttempt('user1@example.com')
-      AccountLockout.recordFailedAttempt('user2@example.com')
-      AccountLockout.recordFailedAttempt('user2@example.com')
+    it('unlocks and reports not-locked when the lockout has expired', async () => {
+      const expired = '2026-01-15T11:00:00.000Z'
+      const selectBuilder = createQueryBuilder({
+        data: [{ email: 'user@example.com', is_locked: true, locked_until: expired }],
+      })
+      const updateBuilder = createQueryBuilder()
+      fromMock
+        .mockReturnValueOnce(selectBuilder)
+        .mockReturnValueOnce(updateBuilder)
 
-      expect(AccountLockout.getFailedAttempts('user1@example.com')).toBe(1)
-      expect(AccountLockout.getFailedAttempts('user2@example.com')).toBe(2)
-    })
-  })
+      const status = await isAccountLocked('user@example.com')
 
-  describe('Account Locking', () => {
-    it('should lock account after max failed attempts', () => {
-      const maxAttempts = 5
-      const identifier = 'user@example.com'
-
-      // Record max attempts
-      for (let i = 0; i < maxAttempts; i++) {
-        AccountLockout.recordFailedAttempt(identifier)
-      }
-
-      expect(AccountLockout.isLocked(identifier, maxAttempts)).toBe(true)
+      expect(status.isLocked).toBe(false)
+      expect(updateBuilder.update).toHaveBeenCalledWith({ is_locked: false })
     })
 
-    it('should not lock account before max attempts', () => {
-      const maxAttempts = 5
-      const identifier = 'user@example.com'
+    it('fails open (not locked) when the query errors', async () => {
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const builder = createQueryBuilder({ data: null, error: new Error('db down') })
+      fromMock.mockReturnValue(builder)
 
-      // Record fewer than max attempts
-      for (let i = 0; i < maxAttempts - 1; i++) {
-        AccountLockout.recordFailedAttempt(identifier)
-      }
+      const status = await isAccountLocked('user@example.com')
 
-      expect(AccountLockout.isLocked(identifier, maxAttempts)).toBe(false)
-    })
-
-    it('should unlock account after lockout duration', () => {
-      const maxAttempts = 5
-      const lockoutDuration = 15 * 60 * 1000 // 15 minutes
-      const identifier = 'user@example.com'
-
-      // Lock the account
-      for (let i = 0; i < maxAttempts; i++) {
-        AccountLockout.recordFailedAttempt(identifier)
-      }
-
-      expect(AccountLockout.isLocked(identifier, maxAttempts)).toBe(true)
-
-      // Advance time past lockout duration
-      vi.advanceTimersByTime(lockoutDuration + 1000)
-
-      expect(AccountLockout.isLocked(identifier, maxAttempts, lockoutDuration)).toBe(false)
+      expect(status.isLocked).toBe(false)
+      expect(errorSpy).toHaveBeenCalled()
+      errorSpy.mockRestore()
     })
   })
 
-  describe('Lockout Duration', () => {
-    it('should return remaining lockout time', () => {
-      const maxAttempts = 3
-      const lockoutDuration = 10 * 60 * 1000 // 10 minutes
-      const identifier = 'user@example.com'
+  describe('lockAccount', () => {
+    it('inserts a lockout record with computed expiry', async () => {
+      const insertBuilder = createQueryBuilder()
+      fromMock.mockReturnValue(insertBuilder)
 
-      // Lock the account
-      for (let i = 0; i < maxAttempts; i++) {
-        AccountLockout.recordFailedAttempt(identifier)
-      }
+      await lockAccount('user@example.com', 'user-1', 'Too many failed login attempts', 30)
 
-      const remaining = AccountLockout.getRemainingLockoutTime(identifier, lockoutDuration)
-
-      expect(remaining).toBeGreaterThan(0)
-      expect(remaining).toBeLessThanOrEqual(lockoutDuration)
-    })
-
-    it('should return 0 for unlocked accounts', () => {
-      const identifier = 'user@example.com'
-
-      const remaining = AccountLockout.getRemainingLockoutTime(identifier, 10 * 60 * 1000)
-
-      expect(remaining).toBe(0)
-    })
-
-    it('should decrease remaining time as time passes', () => {
-      const maxAttempts = 3
-      const lockoutDuration = 10 * 60 * 1000
-      const identifier = 'user@example.com'
-
-      for (let i = 0; i < maxAttempts; i++) {
-        AccountLockout.recordFailedAttempt(identifier)
-      }
-
-      const remaining1 = AccountLockout.getRemainingLockoutTime(identifier, lockoutDuration)
-
-      vi.advanceTimersByTime(2 * 60 * 1000) // 2 minutes
-
-      const remaining2 = AccountLockout.getRemainingLockoutTime(identifier, lockoutDuration)
-
-      expect(remaining2).toBeLessThan(remaining1)
-      expect(remaining2).toBeGreaterThan(0)
+      expect(insertBuilder.insert).toHaveBeenCalledWith(
+        expect.objectContaining({
+          user_id: 'user-1',
+          email: 'user@example.com',
+          reason: 'Too many failed login attempts',
+          locked_until: '2026-01-15T12:30:00.000Z',
+          is_locked: true,
+        })
+      )
     })
   })
 
-  describe('Progressive Lockout', () => {
-    it('should increase lockout duration with repeated violations', () => {
-      const identifier = 'user@example.com'
-      const maxAttempts = 3
-      const baseLockout = 5 * 60 * 1000 // 5 minutes
+  describe('unlockAccount', () => {
+    it('deactivates active lockouts for the email', async () => {
+      const updateBuilder = createQueryBuilder()
+      fromMock.mockReturnValue(updateBuilder)
 
-      // First lockout
-      for (let i = 0; i < maxAttempts; i++) {
-        AccountLockout.recordFailedAttempt(identifier)
-      }
+      await unlockAccount('user@example.com')
 
-      const duration1 = AccountLockout.getRemainingLockoutTime(identifier, baseLockout)
-
-      // Wait for lockout to expire
-      vi.advanceTimersByTime(baseLockout + 1000)
-
-      // Second lockout - should be longer
-      for (let i = 0; i < maxAttempts; i++) {
-        AccountLockout.recordFailedAttempt(identifier)
-      }
-
-      const duration2 = AccountLockout.getRemainingLockoutTime(identifier, baseLockout * 2)
-
-      expect(duration2).toBeGreaterThanOrEqual(duration1)
+      expect(updateBuilder.update).toHaveBeenCalledWith({ is_locked: false })
+      expect(updateBuilder.eq).toHaveBeenCalledWith('email', 'user@example.com')
+      expect(updateBuilder.eq).toHaveBeenCalledWith('is_locked', true)
     })
   })
 
-  describe('Persistence', () => {
-    it('should persist lockout data to localStorage', () => {
-      AccountLockout.recordFailedAttempt('user@example.com')
+  describe('checkAndLockAccount', () => {
+    it('does not lock when failed attempts are below the threshold', async () => {
+      const builder = createQueryBuilder({ data: [{ success: false }, { success: false }] })
+      fromMock.mockReturnValue(builder)
 
-      const stored = localStorage.getItem('account_lockout_user@example.com')
-      expect(stored).toBeTruthy()
+      const status = await checkAndLockAccount('user@example.com', 5)
 
-      const data = JSON.parse(stored!)
-      expect(data.attempts).toBe(1)
+      expect(status.isLocked).toBe(false)
+      expect(builder.gte).toHaveBeenCalledWith('created_at', '2026-01-15T11:45:00.000Z')
     })
 
-    it('should restore lockout data from localStorage', () => {
-      AccountLockout.recordFailedAttempt('user@example.com')
-      AccountLockout.recordFailedAttempt('user@example.com')
+    it('locks the account when the threshold is reached', async () => {
+      const attempts = Array.from({ length: 5 }, () => ({ success: false, user_id: 'user-1' }))
+      const countBuilder = createQueryBuilder({ data: attempts })
+      const insertBuilder = createQueryBuilder()
+      fromMock
+        .mockReturnValueOnce(countBuilder)
+        .mockReturnValueOnce(insertBuilder)
 
-      // Simulate app restart
-      const attempts = AccountLockout.getFailedAttempts('user@example.com')
+      const status = await checkAndLockAccount('user@example.com', 5, 15, 30)
 
-      expect(attempts).toBe(2)
+      expect(status.isLocked).toBe(true)
+      expect(status.lockedUntil).toEqual(new Date('2026-01-15T12:30:00.000Z'))
+      expect(status.reason).toContain('Too many failed login attempts')
+      expect(insertBuilder.insert).toHaveBeenCalledWith(
+        expect.objectContaining({ email: 'user@example.com', is_locked: true })
+      )
+    })
+
+    it('fails open when the attempt lookup errors', async () => {
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const builder = createQueryBuilder({ data: null, error: new Error('db down') })
+      fromMock.mockReturnValue(builder)
+
+      const status = await checkAndLockAccount('user@example.com')
+
+      expect(status.isLocked).toBe(false)
+      errorSpy.mockRestore()
     })
   })
 })

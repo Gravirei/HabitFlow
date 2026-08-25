@@ -18,26 +18,35 @@ export interface TrustedDevice {
   created_at: string
 }
 
+const DEVICE_ID_KEY = 'habitflow_device_id'
+
 /**
- * Generate a device fingerprint (simplified)
+ * Generate (or retrieve) a persistent cryptographically random device ID.
+ *
+ * Uses crypto.randomUUID() stored in localStorage so the same browser always
+ * gets the same ID across sessions. This replaces the previous weak hash-based
+ * fingerprint which was trivially spoofable and produced collisions.
+ *
+ * Security properties:
+ * - 122 bits of randomness (UUID v4) — collision probability negligible
+ * - Persists across page reloads and sessions in the same browser profile
+ * - Cannot be derived from observable browser properties (user-agent, screen, etc.)
+ * - Different browser profiles / incognito windows get different IDs (correct behaviour)
  */
 export function generateDeviceId(): string {
-  const userAgent = navigator.userAgent
-  const screenResolution = `${screen.width}x${screen.height}`
-  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
-  const language = navigator.language
+  try {
+    const existing = localStorage.getItem(DEVICE_ID_KEY)
+    if (existing) return existing
 
-  const fingerprint = `${userAgent}-${screenResolution}-${timezone}-${language}`
-  
-  // Create a simple hash (in production, use a proper hashing library)
-  let hash = 0
-  for (let i = 0; i < fingerprint.length; i++) {
-    const char = fingerprint.charCodeAt(i)
-    hash = (hash << 5) - hash + char
-    hash = hash & hash
+    const newId = crypto.randomUUID()
+    localStorage.setItem(DEVICE_ID_KEY, newId)
+    return newId
+  } catch {
+    // localStorage unavailable (e.g. private browsing with strict settings)
+    // Fall back to a session-scoped UUID — device won't be "remembered" but
+    // the app continues to function correctly.
+    return crypto.randomUUID()
   }
-  
-  return `device_${Math.abs(hash).toString(36)}`
 }
 
 /**

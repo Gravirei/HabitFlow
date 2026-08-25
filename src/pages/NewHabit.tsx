@@ -13,6 +13,11 @@ export function NewHabit() {
   const { addHabit } = useHabitStore()
   const [searchParams] = useSearchParams()
 
+  // Phase 2 Categories: allow preselecting category via query param.
+  // Example: /new-habit?categoryId=fitness
+  // Keep backward compatibility: when absent (or empty), store nothing.
+  const categoryIdFromQuery = searchParams.get('categoryId')?.trim() || undefined
+
   const {
     register,
     handleSubmit,
@@ -49,10 +54,11 @@ export function NewHabit() {
       reminderEnabled: data.reminderEnabled,
       reminderTime: data.reminderEnabled ? data.reminderTime : undefined,
       startDate: format(new Date(), 'yyyy-MM-dd'),
+      categoryId: categoryIdFromQuery,
     })
 
     toast.success('🎉 Habit created successfully!')
-    navigate('/')
+    navigate('/today')
   }
 
   const onError = (errors: any) => {
@@ -71,7 +77,7 @@ export function NewHabit() {
       {/* Top App Bar */}
       <div className="flex items-center p-4 pb-2 justify-between pt-safe shrink-0">
         <button
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/today')}
           className="text-gray-900 dark:text-white flex size-12 shrink-0 items-center justify-center rounded-full active:scale-95 transition-transform touch-manipulation"
         >
           <span className="material-symbols-outlined text-2xl">close</span>

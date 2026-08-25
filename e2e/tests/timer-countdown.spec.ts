@@ -86,7 +86,7 @@ test.describe('Countdown Timer', () => {
       expect(isIdle).toBe(true);
     });
 
-    test('preset buttons set correct durations', async ({ page }) => {
+    test('preset buttons set correct durations', async () => {
       // Select a preset
       await timerPage.selectPreset(0);
       
@@ -108,7 +108,7 @@ test.describe('Countdown Timer', () => {
   });
 
   test.describe('Countdown Behavior', () => {
-    test('start begins countdown', async ({ page }) => {
+    test('start begins countdown', async () => {
       // Select a preset first
       await timerPage.selectPreset(0);
       
@@ -199,7 +199,7 @@ test.describe('Countdown Timer', () => {
       expect(typeof isComplete).toBe('boolean');
     });
 
-    test('completion modal appears on finish', async ({ page }) => {
+    test('completion modal appears on finish', async () => {
       // This test verifies the modal can be detected
       // Full completion testing may require clock manipulation
       
@@ -211,7 +211,7 @@ test.describe('Countdown Timer', () => {
       expect(timerPage.completionConfirmButton).toBeDefined();
     });
 
-    test('completion modal can be dismissed', async ({ page }) => {
+    test('completion modal can be dismissed', async () => {
       // Test the dismissal API
       expect(typeof timerPage.dismissCompletionModal).toBe('function');
     });
@@ -292,7 +292,7 @@ test.describe('Countdown Timer', () => {
   });
 
   test.describe('Edge Cases', () => {
-    test('cannot start with zero time selected', async ({ page }) => {
+    test('cannot start with zero time selected', async () => {
       // If no preset is selected and wheel pickers are at 0,
       // start should either be disabled or show an error
       

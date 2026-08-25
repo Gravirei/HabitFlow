@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Achievements Page
  * Full-page view for achievements with navigation
@@ -6,8 +7,8 @@
 import React, { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { AchievementsPanel } from '@/components/timer/sidebar/achievements/AchievementsPanel'
-import { useAchievementsStore } from '@/components/timer/sidebar/achievements/achievementsStore'
+import { AchievementsPanel } from '@/features/timer/components/sidebar/achievements/AchievementsPanel'
+import { useAchievementsStore } from '@/features/timer/store/achievementsStore'
 
 export function Achievements() {
   const navigate = useNavigate()

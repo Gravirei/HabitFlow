@@ -1,135 +1,128 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { RateLimiter } from '../rateLimiter'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import { supabase } from '@/lib/supabase'
+import {
+  RATE_LIMIT_CONFIGS,
+  checkRateLimit,
+  recordLoginAttempt,
+  getClientIP,
+  getUserAgent,
+  clearOldAttempts,
+} from '../rateLimiter'
+import { createQueryBuilder } from './helpers'
 
-describe('RateLimiter', () => {
+vi.mock('@/lib/supabase', () => ({
+  supabase: { from: vi.fn() },
+}))
+
+const fromMock = vi.mocked(supabase.from)
+
+describe('rateLimiter', () => {
   beforeEach(() => {
+    vi.clearAllMocks()
     vi.useFakeTimers()
-    localStorage.clear()
+    vi.setSystemTime(new Date('2026-01-15T12:00:00Z'))
   })
 
   afterEach(() => {
     vi.useRealTimers()
   })
 
-  describe('checkLimit', () => {
-    it('should allow requests within limit', () => {
-      const limiter = new RateLimiter('test', 3, 60000) // 3 requests per minute
-
-      expect(limiter.checkLimit()).toBe(true)
-      expect(limiter.checkLimit()).toBe(true)
-      expect(limiter.checkLimit()).toBe(true)
-    })
-
-    it('should block requests exceeding limit', () => {
-      const limiter = new RateLimiter('test', 3, 60000)
-
-      limiter.checkLimit()
-      limiter.checkLimit()
-      limiter.checkLimit()
-
-      expect(limiter.checkLimit()).toBe(false)
-    })
-
-    it('should reset after time window', () => {
-      const limiter = new RateLimiter('test', 2, 1000) // 2 requests per second
-
-      expect(limiter.checkLimit()).toBe(true)
-      expect(limiter.checkLimit()).toBe(true)
-      expect(limiter.checkLimit()).toBe(false)
-
-      // Advance time by 1 second
-      vi.advanceTimersByTime(1000)
-
-      // Should allow requests again
-      expect(limiter.checkLimit()).toBe(true)
-    })
-
-    it('should track different keys separately', () => {
-      const limiter1 = new RateLimiter('action1', 1, 60000)
-      const limiter2 = new RateLimiter('action2', 1, 60000)
-
-      expect(limiter1.checkLimit()).toBe(true)
-      expect(limiter2.checkLimit()).toBe(true)
-
-      expect(limiter1.checkLimit()).toBe(false)
-      expect(limiter2.checkLimit()).toBe(false)
+  describe('RATE_LIMIT_CONFIGS', () => {
+    it('exposes sane defaults for login, signup, and forgotPassword', () => {
+      expect(RATE_LIMIT_CONFIGS.login).toMatchObject({ maxAttempts: 5, windowMinutes: 15 })
+      expect(RATE_LIMIT_CONFIGS.signup.maxAttempts).toBeGreaterThan(0)
+      expect(RATE_LIMIT_CONFIGS.forgotPassword.lockoutMinutes).toBeGreaterThan(0)
     })
   })
 
-  describe('getRemainingTime', () => {
-    it('should return 0 when not rate limited', () => {
-      const limiter = new RateLimiter('test', 3, 60000)
+  describe('checkRateLimit', () => {
+    const config = { maxAttempts: 3, windowMinutes: 60, lockoutMinutes: 30 }
 
-      expect(limiter.getRemainingTime()).toBe(0)
+    it('allows requests within the limit and reports remaining attempts', async () => {
+      const builder = createQueryBuilder({ data: [{ success: false }, { success: false }] })
+      fromMock.mockReturnValue(builder)
+
+      const result = await checkRateLimit('user@example.com', '1.2.3.4', config)
+
+      expect(result.allowed).toBe(true)
+      expect(result.remainingAttempts).toBe(1)
+      expect(builder.or).toHaveBeenCalledWith('email.eq.user@example.com,ip_address.eq.1.2.3.4')
+      expect(builder.gte).toHaveBeenCalledWith('created_at', '2026-01-15T11:00:00.000Z')
     })
 
-    it('should return remaining time when rate limited', () => {
-      const limiter = new RateLimiter('test', 1, 60000)
+    it('blocks requests exceeding the limit with a reset time', async () => {
+      const attempts = Array.from({ length: 3 }, () => ({ success: false }))
+      const builder = createQueryBuilder({ data: attempts })
+      fromMock.mockReturnValue(builder)
 
-      limiter.checkLimit()
-      limiter.checkLimit() // This should be blocked
+      const result = await checkRateLimit('user@example.com', '1.2.3.4', config)
 
-      const remaining = limiter.getRemainingTime()
-      expect(remaining).toBeGreaterThan(0)
-      expect(remaining).toBeLessThanOrEqual(60000)
+      expect(result.allowed).toBe(false)
+      expect(result.remainingAttempts).toBe(0)
+      expect(result.resetAt).toEqual(new Date('2026-01-15T12:30:00.000Z'))
     })
 
-    it('should decrease remaining time as time passes', () => {
-      const limiter = new RateLimiter('test', 1, 10000)
+    it('fails closed when the lookup errors', async () => {
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const builder = createQueryBuilder({ data: null, error: new Error('db down') })
+      fromMock.mockReturnValue(builder)
 
-      limiter.checkLimit()
-      limiter.checkLimit() // Blocked
+      const result = await checkRateLimit('user@example.com', '1.2.3.4', config)
 
-      const remaining1 = limiter.getRemainingTime()
-
-      vi.advanceTimersByTime(5000)
-
-      const remaining2 = limiter.getRemainingTime()
-
-      expect(remaining2).toBeLessThan(remaining1)
-      expect(remaining2).toBeGreaterThan(0)
-    })
-  })
-
-  describe('reset', () => {
-    it('should clear rate limit data', () => {
-      const limiter = new RateLimiter('test', 1, 60000)
-
-      limiter.checkLimit()
-      limiter.checkLimit() // Blocked
-
-      expect(limiter.checkLimit()).toBe(false)
-
-      limiter.reset()
-
-      expect(limiter.checkLimit()).toBe(true)
+      expect(result.allowed).toBe(false)
+      expect(result.remainingAttempts).toBe(0)
+      errorSpy.mockRestore()
     })
   })
 
-  describe('persistence', () => {
-    it('should persist rate limit data to localStorage', () => {
-      const limiter = new RateLimiter('test', 2, 60000)
+  describe('recordLoginAttempt', () => {
+    it('inserts an attempt record', async () => {
+      const builder = createQueryBuilder()
+      fromMock.mockReturnValue(builder)
 
-      limiter.checkLimit()
-      limiter.checkLimit()
+      await recordLoginAttempt('user@example.com', '1.2.3.4', 'UA/1', false, 'user-1')
 
-      const stored = localStorage.getItem('rate_limit_test')
-      expect(stored).toBeTruthy()
-
-      const data = JSON.parse(stored!)
-      expect(data.count).toBe(2)
+      expect(fromMock).toHaveBeenCalledWith('login_attempts')
+      expect(builder.insert).toHaveBeenCalledWith({
+        user_id: 'user-1',
+        email: 'user@example.com',
+        ip_address: '1.2.3.4',
+        user_agent: 'UA/1',
+        success: false,
+      })
     })
 
-    it('should restore rate limit data from localStorage', () => {
-      const limiter1 = new RateLimiter('test', 2, 60000)
+    it('defaults user_id to null when not provided', async () => {
+      const builder = createQueryBuilder()
+      fromMock.mockReturnValue(builder)
 
-      limiter1.checkLimit()
-      limiter1.checkLimit()
+      await recordLoginAttempt('user@example.com', '1.2.3.4', 'UA/1', true)
 
-      // Create new instance - should restore from localStorage
-      const limiter2 = new RateLimiter('test', 2, 60000)
+      expect(builder.insert).toHaveBeenCalledWith(
+        expect.objectContaining({ user_id: null, success: true })
+      )
+    })
+  })
 
-      expect(limiter2.checkLimit()).toBe(false) // Should still be blocked
+  describe('client helpers', () => {
+    it('returns a placeholder client IP', () => {
+      expect(getClientIP()).toBe('unknown')
+    })
+
+    it('returns the navigator user agent', () => {
+      expect(getUserAgent()).toBe(navigator.userAgent || 'unknown')
+    })
+  })
+
+  describe('clearOldAttempts', () => {
+    it('deletes attempts older than the cutoff (default 7 days)', async () => {
+      const builder = createQueryBuilder()
+      fromMock.mockReturnValue(builder)
+
+      await clearOldAttempts()
+
+      expect(builder.delete).toHaveBeenCalled()
+      expect(builder.lt).toHaveBeenCalledWith('created_at', '2026-01-08T12:00:00.000Z')
     })
   })
 })

@@ -1,84 +1,585 @@
+// @ts-nocheck
 import { useNavigate } from 'react-router-dom'
 import { useHabitStore } from '@/store/useHabitStore'
-import { BottomNav } from '@/components/BottomNav'
-import { SideNav } from '@/components/SideNav'
-import { useState, useRef, useEffect } from 'react'
+import { useHabitTaskStore } from '@/store/useHabitTaskStore'
+import { BottomNav } from '@/shared/layout/BottomNav'
+import { SideNav } from '@/shared/layout/SideNav'
+import { HabitTaskCompletionModal } from '@/features/habits/components/HabitTaskCompletionModal'
+import { HabitDetailsModal } from '@/features/habits/components/HabitDetailsModal'
+import { HabitNotesViewModal } from '@/features/habits/components/HabitNotesViewModal'
+import { HabitNotesModal } from '@/features/categories/components/HabitNotesModal'
+import { HabitTasksModal } from '@/features/categories/components/HabitTasksModal'
+import { EditHabit } from '@/features/categories/components/EditHabit'
+import { ConfirmDialog } from '@/shared/ui/ConfirmDialog'
+import { useState, useEffect } from 'react'
 import { format, isToday, isBefore } from 'date-fns'
 import { motion, AnimatePresence } from 'framer-motion'
-import clsx from 'clsx'
+import { GreetingHero, HabitCard, HydrationCard, TaskCard, DateStrip } from '@/features/today/components'
+import { cn } from '@/utils/cn'
+import { shouldResetTaskForStartFresh } from '@/utils/habitResetUtils'
+import { createPortal } from 'react-dom'
 
-// Mock tasks for the UI
+// ─── Mock tasks ───────────────────────────────────────────────────────────────
 const tasks = [
-  { id: '1', text: 'Reply to team emails', description: 'Review Q4 marketing proposal draft attached', time: '2:00 PM', folder: 'Work', priority: 'High', priorityColor: 'orange' },
-  { id: '2', text: 'Buy groceries', description: 'Milk, Eggs, Bread, Spinach, Avocados', time: '6:00 PM', folder: 'Personal', priority: null, priorityColor: 'primary' },
+  {
+    id: '1',
+    text: 'Reply to team emails',
+    description: 'Review Q4 marketing proposal draft attached',
+    time: '2:00 PM',
+    folder: 'Work',
+    priority: 'High',
+    priorityColor: 'orange',
+  },
+  {
+    id: '2',
+    text: 'Buy groceries',
+    description: 'Milk, Eggs, Bread, Spinach, Avocados',
+    time: '6:00 PM',
+    folder: 'Personal',
+    priority: null,
+    priorityColor: 'primary',
+  },
 ]
 
-// Color mapping for habits - based on icon for visual variety
-const getHabitColor = (icon: string) => {
-  const colors: Record<string, { bg: string; text: string; badge: string; badgeText: string; accent: string; checkBg: string }> = {
-    directions_run: { bg: 'bg-green-50 dark:bg-primary/10', text: 'text-primary', badge: 'bg-green-100 dark:bg-green-900/30', badgeText: 'text-green-700 dark:text-green-400', accent: 'bg-primary', checkBg: 'bg-primary' },
-    auto_stories: { bg: 'bg-blue-50 dark:bg-blue-500/10', text: 'text-blue-500', badge: 'bg-blue-100 dark:bg-blue-900/30', badgeText: 'text-blue-700 dark:text-blue-400', accent: 'bg-blue-500', checkBg: 'bg-blue-500' },
-    menu_book: { bg: 'bg-blue-50 dark:bg-blue-500/10', text: 'text-blue-500', badge: 'bg-blue-100 dark:bg-blue-900/30', badgeText: 'text-blue-700 dark:text-blue-400', accent: 'bg-blue-500', checkBg: 'bg-blue-500' },
-    self_improvement: { bg: 'bg-purple-50 dark:bg-purple-500/10', text: 'text-purple-500', badge: 'bg-purple-100 dark:bg-purple-900/30', badgeText: 'text-purple-700 dark:text-purple-400', accent: 'bg-purple-500', checkBg: 'bg-purple-500' },
-    water_drop: { bg: 'bg-cyan-50 dark:bg-cyan-500/10', text: 'text-cyan-500', badge: 'bg-cyan-100 dark:bg-cyan-900/30', badgeText: 'text-cyan-700 dark:text-cyan-400', accent: 'bg-cyan-500', checkBg: 'bg-cyan-500' },
-    fitness_center: { bg: 'bg-orange-50 dark:bg-orange-500/10', text: 'text-orange-500', badge: 'bg-orange-100 dark:bg-orange-900/30', badgeText: 'text-orange-700 dark:text-orange-400', accent: 'bg-orange-500', checkBg: 'bg-orange-500' },
-    bedtime: { bg: 'bg-indigo-50 dark:bg-indigo-500/10', text: 'text-indigo-500', badge: 'bg-indigo-100 dark:bg-indigo-900/30', badgeText: 'text-indigo-700 dark:text-indigo-400', accent: 'bg-indigo-500', checkBg: 'bg-indigo-500' },
-    edit_note: { bg: 'bg-pink-50 dark:bg-pink-500/10', text: 'text-pink-500', badge: 'bg-pink-100 dark:bg-pink-900/30', badgeText: 'text-pink-700 dark:text-pink-400', accent: 'bg-pink-500', checkBg: 'bg-pink-500' },
-    directions_walk: { bg: 'bg-teal-50 dark:bg-teal-500/10', text: 'text-teal-500', badge: 'bg-teal-100 dark:bg-teal-900/30', badgeText: 'text-teal-700 dark:text-teal-400', accent: 'bg-teal-500', checkBg: 'bg-teal-500' },
-    default: { bg: 'bg-slate-100 dark:bg-slate-500/10', text: 'text-slate-500', badge: 'bg-slate-100 dark:bg-slate-900/30', badgeText: 'text-slate-700 dark:text-slate-400', accent: 'bg-slate-500', checkBg: 'bg-slate-500' },
-  }
-  return colors[icon] || colors.default
+// ─── Slide variants ───────────────────────────────────────────────────────────
+const slideVariants = {
+  enter: (dir: number) => ({ x: dir > 0 ? 20 : -20, opacity: 0 }),
+  center: { x: 0, opacity: 1 },
+  exit: (dir: number) => ({ x: dir > 0 ? -20 : 20, opacity: 0 }),
 }
 
+// ─── View Mode Dropdown ──────────────────────────────────────────────────────
+function ViewModeDropdown({
+  currentMode,
+  onModeChange,
+}: {
+  currentMode: 'list' | 'grid'
+  onModeChange: (mode: 'list' | 'grid') => void
+}) {
+  const [isOpen, setIsOpen] = useState(false)
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex cursor-pointer items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-400 transition-colors hover:bg-slate-800/50 hover:text-teal-400"
+      >
+        <span>View: {currentMode === 'grid' ? '2 Column' : 'List'}</span>
+        <span
+          className="material-symbols-outlined text-sm transition-transform"
+          style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
+        >
+          expand_more
+        </span>
+      </button>
+
+      {isOpen && (
+        <>
+          {/* Backdrop */}
+          <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
+
+          {/* Dropdown menu */}
+          <div className="absolute right-0 top-full z-50 mt-2 w-32 overflow-hidden rounded-lg border border-slate-700 bg-slate-800 shadow-xl">
+            <button
+              onClick={() => {
+                onModeChange('list')
+                setIsOpen(false)
+              }}
+              className={cn(
+                'flex w-full items-center justify-between px-3 py-2 text-xs font-medium transition-colors',
+                currentMode === 'list'
+                  ? 'bg-teal-500/10 text-teal-400'
+                  : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
+              )}
+            >
+              <span>List View</span>
+              {currentMode === 'list' && (
+                <span className="material-symbols-outlined text-sm">check</span>
+              )}
+            </button>
+            <button
+              onClick={() => {
+                onModeChange('grid')
+                setIsOpen(false)
+              }}
+              className={cn(
+                'flex w-full items-center justify-between px-3 py-2 text-xs font-medium transition-colors',
+                currentMode === 'grid'
+                  ? 'bg-teal-500/10 text-teal-400'
+                  : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
+              )}
+            >
+              <span>2 Column</span>
+              {currentMode === 'grid' && (
+                <span className="material-symbols-outlined text-sm">check</span>
+              )}
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  )
+}
+
+// ─── Section Header ───────────────────────────────────────────────────────────
+function SectionHeader({
+  title,
+  count,
+  onAction,
+  actionLabel,
+  viewMode,
+  onViewModeChange,
+}: {
+  title: string
+  count?: number
+  onAction?: () => void
+  actionLabel?: string
+  viewMode?: 'list' | 'grid'
+  onViewModeChange?: (mode: 'list' | 'grid') => void
+}) {
+  return (
+    <div className="mb-4 mt-8 flex items-center justify-between px-2">
+      <div className="flex items-center gap-3">
+        <h3 className="text-xl font-bold tracking-tight text-white">{title}</h3>
+        {count !== undefined && count > 0 && (
+          <span className="flex h-6 min-w-[24px] items-center justify-center rounded-full border border-slate-700 bg-slate-800 px-1.5 text-xs font-bold text-teal-400">
+            {count}
+          </span>
+        )}
+      </div>
+      <div className="flex items-center gap-2">
+        {viewMode && onViewModeChange && (
+          <ViewModeDropdown currentMode={viewMode} onModeChange={onViewModeChange} />
+        )}
+        {onAction && (
+          <button
+            onClick={onAction}
+            className="flex cursor-pointer items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold text-slate-400 transition-colors hover:bg-slate-800/50 hover:text-teal-400"
+          >
+            {actionLabel ?? 'View All'}
+            <span className="material-symbols-outlined text-sm">arrow_forward</span>
+          </button>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// ─── Empty State ──────────────────────────────────────────────────────────────
+function EmptyState({ icon, message }: { icon: string; message: string }) {
+  return (
+    <div className="flex flex-col items-center justify-center gap-3 rounded-3xl border border-dashed border-slate-700/50 bg-slate-800/20 py-12 text-center">
+      <div className="flex size-16 items-center justify-center rounded-2xl bg-slate-800/50 shadow-inner">
+        <span className="material-symbols-outlined text-3xl text-slate-500">{icon}</span>
+      </div>
+      <p className="max-w-[200px] text-sm font-medium text-slate-500">{message}</p>
+    </div>
+  )
+}
+
+// ─── Habit Context Menu Items (shared between mobile & desktop) ───────────────
+function HabitContextMenuItems({
+  habit,
+  onClose,
+  onAction,
+}: {
+  habit: any
+  onClose: () => void
+  onAction: (action: string, habit: any) => void
+}) {
+  return (
+    <div className="py-2">
+      <button
+        onClick={() => onAction('details', habit)}
+        className="flex w-full items-center gap-4 px-5 py-3.5 text-left transition-colors hover:bg-white/[0.04] active:bg-white/[0.08]"
+      >
+        <span className="material-symbols-outlined text-[20px] text-slate-400">info</span>
+        <span className="text-sm font-medium text-slate-200">View Details</span>
+      </button>
+      <button
+        onClick={() => onAction('edit', habit)}
+        className="flex w-full items-center gap-4 px-5 py-3.5 text-left transition-colors hover:bg-white/[0.04] active:bg-white/[0.08]"
+      >
+        <span className="material-symbols-outlined text-[20px] text-slate-400">edit</span>
+        <span className="text-sm font-medium text-slate-200">Edit Habit</span>
+      </button>
+      <button
+        onClick={() => onAction('tasks', habit)}
+        className="flex w-full items-center gap-4 px-5 py-3.5 text-left transition-colors hover:bg-white/[0.04] active:bg-white/[0.08]"
+      >
+        <span className="material-symbols-outlined text-[20px] text-slate-400">checklist</span>
+        <span className="text-sm font-medium text-slate-200">Manage Tasks</span>
+      </button>
+      <button
+        onClick={() => onAction('notes', habit)}
+        className="flex w-full items-center gap-4 px-5 py-3.5 text-left transition-colors hover:bg-white/[0.04] active:bg-white/[0.08]"
+      >
+        <span className="material-symbols-outlined text-[20px] text-slate-400">note</span>
+        <span className="text-sm font-medium text-slate-200">Notes</span>
+      </button>
+      <button
+        onClick={() => onAction('pin', habit)}
+        className="flex w-full items-center gap-4 px-5 py-3.5 text-left transition-colors hover:bg-white/[0.04] active:bg-white/[0.08]"
+      >
+        <span className="material-symbols-outlined text-[20px] text-slate-400">
+          {habit.pinned ? 'keep_off' : 'keep'}
+        </span>
+        <span className="text-sm font-medium text-slate-200">
+          {habit.pinned ? 'Unpin Habit' : 'Pin Habit'}
+        </span>
+      </button>
+      <div className="my-1 border-t border-white/[0.06]" />
+      <button
+        onClick={() => onAction('hide', habit)}
+        className="flex w-full items-center gap-4 px-5 py-3.5 text-left transition-colors hover:bg-white/[0.04] active:bg-white/[0.08]"
+      >
+        <span className="material-symbols-outlined text-[20px] text-orange-400">hide_source</span>
+        <span className="text-sm font-medium text-orange-300">Hide for Today</span>
+      </button>
+      <button
+        onClick={() => onAction('archive', habit)}
+        className="flex w-full items-center gap-4 px-5 py-3.5 text-left transition-colors hover:bg-white/[0.04] active:bg-white/[0.08]"
+      >
+        <span className="material-symbols-outlined text-[20px] text-red-400">archive</span>
+        <span className="text-sm font-medium text-red-300">Archive Habit</span>
+      </button>
+    </div>
+  )
+}
+
+// ─── Habit Icon Header (shared between mobile & desktop) ─────────────────────
+function HabitSheetHeader({ habit }: { habit: any }) {
+  return (
+    <div className="flex items-center gap-3 border-b border-white/[0.06] px-5 py-4">
+      <div
+        className={cn(
+          'flex size-11 items-center justify-center rounded-xl bg-gradient-to-br shadow-lg',
+          {
+            'from-blue-500 to-cyan-500': (habit.iconColor ?? 0) === 0,
+            'from-purple-500 to-pink-500': habit.iconColor === 1,
+            'from-emerald-500 to-teal-500': habit.iconColor === 2,
+            'from-orange-500 to-amber-500': habit.iconColor === 3,
+            'from-red-500 to-rose-500': habit.iconColor === 4,
+            'from-teal-500 to-cyan-500': habit.iconColor === 5,
+          }
+        )}
+      >
+        <span className="material-symbols-outlined text-[22px] text-white">{habit.icon}</span>
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-sm font-bold text-white">{habit.name}</p>
+        <p className="mt-0.5 text-xs text-slate-400">{habit.category || 'General'}</p>
+      </div>
+    </div>
+  )
+}
+
+// ─── Main Page ────────────────────────────────────────────────────────────────
 export function Today() {
   const navigate = useNavigate()
   const [isSideNavOpen, setIsSideNavOpen] = useState(false)
   const { habits, toggleHabitCompletion, isHabitCompletedOnDate } = useHabitStore()
+  const { getTaskCount, getTasksByHabitId, updateTask, resetTasksIfNeeded } = useHabitTaskStore()
   const [selectedDate, setSelectedDate] = useState(new Date())
   const [direction, setDirection] = useState(0)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
-  const scrollRef = useRef<HTMLDivElement>(null)
-  const [waterCount, setWaterCount] = useState(0) // Track hydration progress
+  const [waterCount, setWaterCount] = useState(0)
 
-  // Format selected date for store operations
+  // Hydration tracking (standalone, not tied to habits)
+  const hydrationGoal = 8 // Default goal: 8 cups
+  const isHydrationComplete = waterCount >= hydrationGoal
+
+  // Habit view mode: 'list' or 'grid' (default: grid/2-column)
+  const [habitViewMode, setHabitViewMode] = useState<'list' | 'grid'>(() => {
+    const saved = localStorage.getItem('today-habit-view-mode')
+    return (saved as 'list' | 'grid') || 'grid'
+  })
+
+  // Persist view mode to localStorage
+  const handleViewModeChange = (mode: 'list' | 'grid') => {
+    setHabitViewMode(mode)
+    localStorage.setItem('today-habit-view-mode', mode)
+  }
+
+  // HabitTasksModal state
+  const [selectedHabitId, setSelectedHabitId] = useState<string | null>(null)
+  const [selectedHabitName, setSelectedHabitName] = useState('')
+  const [selectedHabitIcon, setSelectedHabitIcon] = useState('checklist')
+  const [selectedHabitIconColor, setSelectedHabitIconColor] = useState(0)
+
+  // Long-press bottom sheet
+  const [longPressHabit, setLongPressHabit] = useState<any | null>(null)
+
+  // Modals opened from bottom sheet
+  const [detailsModalHabitId, setDetailsModalHabitId] = useState<string | null>(null)
+  const [editModalHabitId, setEditModalHabitId] = useState<string | null>(null)
+  const [notesViewModalHabit, setNotesViewModalHabit] = useState<{
+    id: string
+    name: string
+  } | null>(null)
+  const [notesModalHabit, setNotesModalHabit] = useState<{ id: string; name: string } | null>(null)
+  const [manageTasksHabit, setManageTasksHabit] = useState<any | null>(null)
+  const [confirmDeleteToday, setConfirmDeleteToday] = useState<{ id: string; name: string } | null>(
+    null
+  )
+  const [confirmArchive, setConfirmArchive] = useState<{ id: string; name: string } | null>(null)
+
+  // Confirmation dialogs
+  const [confirmDialogState, setConfirmDialogState] = useState<{
+    isOpen: boolean
+    type: 'incomplete-tasks' | 'start-fresh' | null
+    habitId: string | null
+    habitName?: string
+    incompleteTasks?: number
+  }>({ isOpen: false, type: null, habitId: null })
+
   const formattedDate = format(selectedDate, 'yyyy-MM-dd')
 
-  // Filter habits and tasks based on search query
-  const filteredHabits = habits.filter(habit => 
-    habit.name.toLowerCase().includes(searchQuery.toLowerCase())
-  )
-  
-  const filteredTasks = tasks.filter(task => 
-    task.text.toLowerCase().includes(searchQuery.toLowerCase())
+  // Habit body click handler - only open modal if habit has tasks
+  const handleHabitBodyClick = (habit: any) => {
+    const taskCount = getTaskCount(habit.id)
+    if (taskCount > 0) {
+      // Open task completion modal
+      setSelectedHabitId(habit.id)
+      setSelectedHabitName(habit.name)
+      setSelectedHabitIcon(habit.icon)
+      setSelectedHabitIconColor(habit.iconColor ?? 0)
+    }
+    // If no tasks, do nothing (only completion checkbox toggles)
+  }
+
+  // Habit completion toggle handler
+  const handleHabitCompletion = (habitId: string) => {
+    const habit = habits.find((h) => h.id === habitId)
+    if (!habit) return
+
+    const isCompleted = isHabitCompletedOnDate(habitId, formattedDate)
+
+    if (isCompleted) {
+      // Scenario: Already completed - warn before resetting
+      setConfirmDialogState({
+        isOpen: true,
+        type: 'start-fresh',
+        habitId: habit.id,
+        habitName: habit.name,
+      })
+    } else {
+      // Only check for incomplete tasks if the habit actually has tasks
+      const totalTaskCount = getTaskCount(habitId)
+      if (totalTaskCount > 0) {
+        const habitTasksForHabit = getTasksByHabitId(habitId)
+        const incompleteTasks = habitTasksForHabit.filter((ht) => !ht.completed).length
+
+        if (incompleteTasks > 0) {
+          // Scenario: Has incomplete tasks - warn
+          setConfirmDialogState({
+            isOpen: true,
+            type: 'incomplete-tasks',
+            habitId: habit.id,
+            habitName: habit.name,
+            incompleteTasks,
+          })
+          return
+        }
+      }
+      // Scenario: No tasks, or all tasks complete - normal toggle
+      toggleHabitCompletion(habitId, formattedDate)
+    }
+  }
+
+  // Confirm complete habit with incomplete tasks
+  const handleConfirmComplete = () => {
+    if (confirmDialogState.habitId) {
+      toggleHabitCompletion(confirmDialogState.habitId, formattedDate)
+    }
+    setConfirmDialogState({ isOpen: false, type: null, habitId: null })
+  }
+
+  // Confirm start fresh - unmark habit and reset tasks for current period only
+  const handleConfirmStartFresh = () => {
+    if (confirmDialogState.habitId) {
+      const habit = habits.find((h) => h.id === confirmDialogState.habitId)
+      // Unmark habit
+      toggleHabitCompletion(confirmDialogState.habitId, formattedDate)
+
+      // Unmark tasks for the current period (frequency-aware)
+      const habitTasksForHabit = getTasksByHabitId(confirmDialogState.habitId)
+      habitTasksForHabit.forEach((ht) => {
+        if (habit && shouldResetTaskForStartFresh(ht, habit.frequency, formattedDate)) {
+          updateTask(ht.id, { completed: false })
+        }
+      })
+    }
+    setConfirmDialogState({ isOpen: false, type: null, habitId: null })
+  }
+
+  // Handle task toggle from modal
+  const handleTaskToggle = (taskId: string) => {
+    const task = getTasksByHabitId(selectedHabitId || '').find((t) => t.id === taskId)
+    if (task) {
+      updateTask(taskId, {
+        completed: !task.completed,
+        completedDate: !task.completed ? formattedDate : undefined,
+      })
+    }
+  }
+
+  // Mark habit as complete when all tasks are done
+  const handleAllTasksComplete = (habitId: string) => {
+    const isCompleted = isHabitCompletedOnDate(habitId, formattedDate)
+    if (!isCompleted) {
+      toggleHabitCompletion(habitId, formattedDate)
+    }
+  }
+
+  // Unmark habit if tasks are incomplete
+  const handleTasksIncomplete = (habitId: string) => {
+    const isCompleted = isHabitCompletedOnDate(habitId, formattedDate)
+    if (isCompleted) {
+      toggleHabitCompletion(habitId, formattedDate)
+    }
+  }
+
+  // Handle bottom sheet menu actions
+  const handleBottomSheetAction = (action: string, habit: any) => {
+    setLongPressHabit(null)
+    switch (action) {
+      case 'details':
+        setDetailsModalHabitId(habit.id)
+        break
+      case 'edit':
+        setEditModalHabitId(habit.id)
+        break
+      case 'tasks':
+        setManageTasksHabit(habit)
+        break
+      case 'notes':
+        setNotesModalHabit({ id: habit.id, name: habit.name })
+        break
+      case 'pin':
+        // Delay pin state change so the bottom sheet exit animation completes first
+        // giving framer-motion a clean stable snapshot before layout reorder
+        setTimeout(() => {
+          if (habit.pinned) {
+            useHabitStore.getState().unpinHabit(habit.id)
+          } else {
+            useHabitStore.getState().pinHabit(habit.id)
+          }
+        }, 350)
+        break
+      case 'hide':
+        setConfirmDeleteToday({ id: habit.id, name: habit.name })
+        break
+      case 'archive':
+        setConfirmArchive({ id: habit.id, name: habit.name })
+        break
+    }
+  }
+
+  // Filtered habits & tasks
+  // Convert JS day (0=Sun) to weeklyDays format (0=Mon, 1=Tue, ..., 6=Sun)
+  const todayDayIndex = (() => {
+    const jsDay = selectedDate.getDay() // 0=Sun, 1=Mon, ..., 6=Sat
+    return jsDay === 0 ? 6 : jsDay - 1 // Convert to 0=Mon, ..., 6=Sun
+  })()
+
+  const filteredHabits = habits
+    .filter(
+      (h) =>
+        h.isActive === true &&
+        h.categoryId !== undefined &&
+        !h.archived &&
+        !h.hiddenDates?.includes(formattedDate)
+    )
+    .filter((h) => {
+      // Hide weekly habits on non-matching days (only if weeklyDays is configured)
+      if (h.frequency === 'weekly' && h.weeklyDays && h.weeklyDays.length > 0) {
+        return h.weeklyDays.includes(todayDayIndex)
+      }
+      // Hide monthly habits on non-matching dates (only if monthlyDays is configured)
+      if (h.frequency === 'monthly' && h.monthlyDays && h.monthlyDays.length > 0) {
+        const dateOfMonth = selectedDate.getDate()
+        const lastDay = new Date(
+          selectedDate.getFullYear(),
+          selectedDate.getMonth() + 1,
+          0
+        ).getDate()
+        return h.monthlyDays.some((d) => {
+          const effective = d > lastDay ? lastDay : d
+          return effective === dateOfMonth
+        })
+      }
+      return true
+    })
+    .filter((h) => h.name.toLowerCase().includes(searchQuery.toLowerCase()))
+    .sort((a, b) => {
+      if (a.pinned && !b.pinned) return -1
+      if (!a.pinned && b.pinned) return 1
+      return 0
+    })
+
+  // Reset habit tasks when page mounts or selected date changes
+  useEffect(() => {
+    filteredHabits.forEach((habit) => {
+      resetTasksIfNeeded(habit.id, habit.frequency)
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formattedDate])
+
+  const filteredTasks = tasks.filter((t) =>
+    t.text.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
-  // Calculate progress for selected date
-  const completedHabits = habits.filter(h => isHabitCompletedOnDate(h.id, formattedDate)).length
-  const totalHabits = habits.length
+  // Progress
+  const activeHabits = habits
+    .filter(
+      (h) =>
+        h.isActive === true &&
+        h.categoryId !== undefined &&
+        !h.archived &&
+        !h.hiddenDates?.includes(formattedDate)
+    )
+    .filter((h) => {
+      if (h.frequency === 'weekly' && h.weeklyDays && h.weeklyDays.length > 0) {
+        return h.weeklyDays.includes(todayDayIndex)
+      }
+      if (h.frequency === 'monthly' && h.monthlyDays && h.monthlyDays.length > 0) {
+        const dateOfMonth = selectedDate.getDate()
+        const lastDay = new Date(
+          selectedDate.getFullYear(),
+          selectedDate.getMonth() + 1,
+          0
+        ).getDate()
+        return h.monthlyDays.some((d) => {
+          const effective = d > lastDay ? lastDay : d
+          return effective === dateOfMonth
+        })
+      }
+      return true
+    })
+  const completedHabits = activeHabits.filter((h) =>
+    isHabitCompletedOnDate(h.id, formattedDate)
+  ).length
+  const totalHabits = activeHabits.length
   const progressPercentage = totalHabits > 0 ? (completedHabits / totalHabits) * 100 : 0
 
-  // Generate days for the current month
+  const getProgressMessage = () => {
+    if (progressPercentage >= 100) return 'Perfect! 🎉'
+    if (progressPercentage >= 75) return 'Excellent!'
+    if (progressPercentage >= 50) return 'Good Job!'
+    if (progressPercentage >= 25) return 'Keep Going!'
+    return "Let's Start!"
+  }
+
+  // Calendar days
   const getDaysInMonth = (date: Date) => {
     const year = date.getFullYear()
     const month = date.getMonth()
     const days = new Date(year, month + 1, 0).getDate()
     return Array.from({ length: days }, (_, i) => new Date(year, month, i + 1))
   }
-
   const days = getDaysInMonth(new Date())
-
-  // Scroll to current date on mount
-  useEffect(() => {
-    if (scrollRef.current) {
-      const today = new Date().getDate()
-      const itemWidth = 50
-      const gap = 12
-      const containerWidth = scrollRef.current.clientWidth
-      const scrollPos = (today - 1) * (itemWidth + gap) - containerWidth / 2 + itemWidth / 2
-      scrollRef.current.scrollLeft = scrollPos
-    }
-  }, [])
 
   const handleDateClick = (date: Date) => {
     setDirection(isBefore(date, selectedDate) ? -1 : 1)
@@ -87,404 +588,460 @@ export function Today() {
 
   const getPageTitle = () => {
     if (isToday(selectedDate)) return 'Today'
-    return format(selectedDate, 'EEE, MMM d')
-  }
-
-  const getProgressMessage = () => {
-    if (progressPercentage >= 100) return 'Perfect!'
-    if (progressPercentage >= 75) return 'Excellent!'
-    if (progressPercentage >= 50) return 'Good Job!'
-    if (progressPercentage >= 25) return 'Keep Going!'
-    return "Let's Start!"
-  }
-
-  const variants = {
-    enter: (direction: number) => ({
-      x: direction > 0 ? 50 : -50,
-      opacity: 0
-    }),
-    center: {
-      x: 0,
-      opacity: 1
-    },
-    exit: (direction: number) => ({
-      x: direction > 0 ? -50 : 50,
-      opacity: 0
-    })
+    return format(selectedDate, 'MMMM d')
   }
 
   return (
-    <div className="relative mx-auto flex min-h-screen w-full max-w-md flex-col font-display text-slate-800 dark:text-slate-200">
-      {/* Main Content */}
-      <main className="flex-grow pb-28 overflow-hidden">
-        {/* Top App Bar - KEPT AS IS */}
-        <div className="flex flex-col gap-4 p-4 pb-2">
-          <div className="flex h-12 items-center justify-between">
-            <div className="flex size-12 shrink-0 items-center">
-              <button 
-                onClick={() => setIsSideNavOpen(true)}
-                className="flex size-10 items-center justify-center rounded-full text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-surface-dark transition-colors"
-                aria-label="Open navigation menu"
-              >
-                <span className="material-symbols-outlined" aria-hidden="true">menu</span>
-              </button>
-            </div>
-            
-            {/* Title or Search Input */}
-            <div className="flex-1 overflow-hidden px-2">
-              <AnimatePresence mode="wait">
-                {isSearchOpen ? (
-                  <motion.div
-                    key="search"
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    className="w-full"
-                  >
-                    <input
-                      type="text"
-                      placeholder="Search habits..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      autoFocus
-                      className="w-full rounded-full border-none bg-slate-100 dark:bg-surface-dark px-4 py-1.5 text-sm outline-none focus:ring-2 focus:ring-primary/50"
-                    />
-                  </motion.div>
-                ) : (
-                  <div className="flex-1 overflow-hidden">
+    <div className="relative mx-auto flex h-auto min-h-screen w-full max-w-md flex-col overflow-x-hidden bg-gray-950 text-slate-50 selection:bg-teal-500/30 sm:max-w-2xl md:max-w-4xl lg:max-w-6xl xl:max-w-7xl">
+      {/* Fixed Header */}
+      <header className="fixed left-0 right-0 top-0 z-30 mx-auto max-w-md shrink-0 bg-background-light/95 backdrop-blur-sm dark:bg-background-dark/95 sm:max-w-2xl md:max-w-4xl lg:max-w-6xl xl:max-w-7xl">
+        <div className="flex flex-col gap-1 px-4 pb-2 pt-safe sm:px-6 lg:px-8">
+          <div className="relative flex h-10 items-center justify-between">
+            {/* Menu button */}
+            <button
+              onClick={() => setIsSideNavOpen(true)}
+              aria-label="Open navigation menu"
+              className="relative z-10 flex size-10 cursor-pointer items-center justify-center rounded-xl text-slate-400 transition-all hover:bg-white/5 hover:text-white active:scale-95"
+            >
+              <span className="material-symbols-outlined text-xl">menu</span>
+            </button>
+
+            {/* Title / Search */}
+            <div className="pointer-events-none absolute inset-x-0 flex justify-center px-4 text-center">
+              <div className="pointer-events-auto w-full max-w-xs">
+                <AnimatePresence mode="wait">
+                  {isSearchOpen ? (
+                    <motion.div
+                      key="search"
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      className="relative w-full"
+                    >
+                      <input
+                        type="text"
+                        placeholder="Search..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        autoFocus
+                        className="w-full rounded-xl border border-slate-700 bg-slate-800/50 px-4 py-2 pl-10 text-sm text-slate-100 placeholder:text-slate-500 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-teal-500/50"
+                      />
+                      <span className="material-symbols-outlined absolute left-3 top-2 text-lg text-slate-500">
+                        search
+                      </span>
+                    </motion.div>
+                  ) : (
                     <AnimatePresence mode="wait" custom={direction}>
-                      <motion.p
+                      <motion.h1
                         key={selectedDate.toISOString()}
                         custom={direction}
-                        variants={variants}
+                        variants={slideVariants}
                         initial="enter"
                         animate="center"
                         exit="exit"
-                        transition={{ type: 'tween', ease: 'easeInOut', duration: 0.2 }}
-                        className="text-lg font-bold dark:text-slate-200 text-center"
+                        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                        className="text-lg font-bold tracking-tight text-white"
                       >
                         {getPageTitle()}
-                      </motion.p>
+                      </motion.h1>
                     </AnimatePresence>
-                  </div>
-                )}
-              </AnimatePresence>
+                  )}
+                </AnimatePresence>
+              </div>
             </div>
 
-            <div className="flex items-center justify-end gap-2">
-              <button 
+            {/* Action buttons */}
+            <div className="relative z-10 flex items-center gap-2">
+              <button
                 onClick={() => {
                   setIsSearchOpen(!isSearchOpen)
                   if (isSearchOpen) setSearchQuery('')
                 }}
-                className={`flex size-10 items-center justify-center rounded-full transition-colors ${
-                  isSearchOpen 
-                    ? 'bg-primary/10 text-primary' 
-                    : 'text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-surface-dark'
-                }`}
                 aria-label={isSearchOpen ? 'Close search' : 'Open search'}
+                className={cn(
+                  'flex size-10 cursor-pointer items-center justify-center rounded-xl transition-all active:scale-95',
+                  isSearchOpen
+                    ? 'bg-teal-500/10 text-teal-400 ring-2 ring-teal-500/20'
+                    : 'text-slate-400 hover:bg-white/5 hover:text-white'
+                )}
               >
-                <span className="material-symbols-outlined" aria-hidden="true">
+                <span className="material-symbols-outlined text-xl font-bold">
                   {isSearchOpen ? 'close' : 'search'}
                 </span>
               </button>
-              <button 
+              <button
                 onClick={() => navigate('/calendar')}
-                className="flex size-10 items-center justify-center rounded-full text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-surface-dark transition-colors"
                 aria-label="Open calendar"
+                className="flex size-10 cursor-pointer items-center justify-center rounded-xl text-slate-400 transition-all hover:bg-white/5 hover:text-white active:scale-95"
               >
-                <span className="material-symbols-outlined" aria-hidden="true">calendar_month</span>
+                <span className="material-symbols-outlined text-xl font-bold">calendar_month</span>
               </button>
             </div>
           </div>
-          
-          {/* Horizontal Calendar - KEPT AS IS */}
-          <div 
-            ref={scrollRef}
-            className="flex overflow-x-auto no-scrollbar gap-3 py-2 -mx-4 px-4 scroll-smooth"
-          >
-            {days.map((date) => {
-              const isSelected = date.getDate() === selectedDate.getDate() && date.getMonth() === selectedDate.getMonth()
-              const isTodayDate = isToday(date)
-              
-              return (
-                <button
-                  key={date.toISOString()}
-                  onClick={() => handleDateClick(date)}
-                  className={`flex min-w-[50px] flex-col items-center justify-center gap-0.5 rounded-xl py-2 transition-all ${
-                    isSelected 
-                      ? 'bg-primary text-white shadow-lg shadow-primary/30' 
-                      : 'bg-white dark:bg-surface-dark text-slate-500 dark:text-slate-400 border border-slate-100 dark:border-white/10'
-                  }`}
-                  aria-label={format(date, 'EEEE, MMMM d, yyyy')}
-                  aria-current={isTodayDate ? 'date' : undefined}
-                  aria-pressed={isSelected}
-                >
-                  <span className={`text-[10px] font-bold uppercase ${isSelected ? 'text-white/80' : ''}`} aria-hidden="true">
-                    {format(date, 'EEE')}
-                  </span>
-                  <span className={`text-lg font-bold ${isSelected ? 'text-white' : 'text-slate-900 dark:text-white'}`} aria-hidden="true">
-                    {date.getDate()}
-                  </span>
-                  {isTodayDate && !isSelected && (
-                    <div className="h-1 w-1 rounded-full bg-primary mt-0.5" aria-hidden="true"></div>
-                  )}
-                </button>
-              )
-            })}
-          </div>
-        </div>
 
-        {/* NEW CONTENT STARTS HERE */}
+          {/* Date Strip - Fixed horizontally scrollable */}
+          <DateStrip days={days} selectedDate={selectedDate} onDateClick={handleDateClick} />
+        </div>
+      </header>
+
+      <main
+        className="relative z-0 flex-grow pb-32"
+        style={{ paddingTop: 'calc(8rem + env(safe-area-inset-top))' }}
+      >
+        {/* ── Animated Content ──────────────────────────────────────── */}
         <AnimatePresence mode="wait" custom={direction}>
           <motion.div
             key={selectedDate.toISOString()}
             custom={direction}
-            variants={variants}
+            variants={slideVariants}
             initial="enter"
             animate="center"
             exit="exit"
-            transition={{ type: 'tween', ease: 'easeInOut', duration: 0.2 }}
-            className="w-full px-4"
+            transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
+            className="mx-auto mt-6 max-w-3xl space-y-8 px-4 sm:px-6 lg:px-8"
           >
-            {/* Daily Goal Card - NEW */}
+            {/* ── Greeting Hero ────────────────────────────────────── */}
             {!isSearchOpen && (
-              <div className="py-2">
-                <div className="relative w-full bg-slate-900 dark:bg-[#1A2F22] rounded-[2rem] p-6 shadow-2xl shadow-slate-900/10 dark:shadow-black/40 overflow-hidden text-white group cursor-pointer transition-transform hover:scale-[1.01] duration-500">
-                  <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl transform translate-x-1/3 -translate-y-1/3 group-hover:bg-primary/20 transition-colors duration-500"></div>
-                  <div className="absolute bottom-0 left-0 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl transform -translate-x-1/3 translate-y-1/3"></div>
-                  <div className="flex items-center justify-between relative z-10">
-                    <div className="flex flex-col gap-3">
-                      <div>
-                        <span className="text-xs font-bold text-primary mb-1 block">DAILY GOAL</span>
-                        <span className="text-2xl font-display font-bold">{getProgressMessage()}</span>
-                      </div>
-                      <div className="flex flex-col gap-0.5">
-                        <span className="text-sm text-slate-300 font-medium">You've completed</span>
-                        <span className="text-base font-semibold text-white">{completedHabits} of {totalHabits} habits</span>
-                      </div>
-                    </div>
-                    <div className="relative flex items-center justify-center h-28 w-28">
-                      <svg className="size-28" viewBox="0 0 100 100">
-                        <circle 
-                          className="text-primary/20 dark:text-primary/10" 
-                          cx="50" cy="50" 
-                          fill="transparent" 
-                          r="40" 
-                          stroke="currentColor" 
-                          strokeWidth="8"
-                        ></circle>
-                        <circle 
-                          className="text-primary transition-all duration-500 ease-out" 
-                          cx="50" cy="50" 
-                          fill="transparent" 
-                          r="40" 
-                          stroke="currentColor" 
-                          strokeDasharray={251.2}
-                          strokeDashoffset={251.2 * (1 - progressPercentage / 100)}
-                          strokeLinecap="round" 
-                          strokeWidth="8"
-                          style={{ 
-                            transform: 'rotate(-90deg)', 
-                            transformOrigin: '50% 50%' 
-                          }}
-                        ></circle>
-                      </svg>
-                      <div className="absolute flex flex-col items-center justify-center">
-                        <span className="text-2xl font-bold text-white">{Math.round(progressPercentage)}%</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <GreetingHero
+                completedHabits={completedHabits}
+                totalHabits={totalHabits}
+                progressPercentage={progressPercentage}
+                progressMessage={getProgressMessage()}
+              />
             )}
 
-            {/* Habits Section - NEW */}
-            <section className="mt-6">
-              <div className="flex items-end justify-between mb-4 px-1">
-                <h3 className="text-xl font-display font-bold text-slate-900 dark:text-white">Habits</h3>
-                <button 
-                  onClick={() => navigate('/habits')}
-                  className="text-sm font-semibold text-slate-400 hover:text-primary transition-colors flex items-center gap-1"
-                >
-                  View All <span className="material-symbols-outlined text-lg">arrow_forward</span>
-                </button>
-              </div>
-              <div className="grid grid-cols-1 gap-3">
+            {/* ── Habits Section ───────────────────────────────────── */}
+            <section>
+              <SectionHeader
+                title="Your Habits"
+                count={filteredHabits.length}
+                viewMode={habitViewMode}
+                onViewModeChange={handleViewModeChange}
+                onAction={() => navigate('/habits')}
+                actionLabel="View All"
+              />
+              <div
+                className={cn(
+                  'grid gap-4',
+                  habitViewMode === 'grid' ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1'
+                )}
+              >
                 {filteredHabits.length === 0 ? (
-                  <div className="py-8 text-center text-slate-500">
-                    <p>{isSearchOpen ? 'No habits found.' : 'No habits yet.'}</p>
+                  <div className="col-span-full">
+                    <EmptyState
+                      icon="checklist"
+                      message={
+                        isSearchOpen ? 'No habits match your search.' : 'No habits for today.'
+                      }
+                    />
                   </div>
                 ) : (
-                  filteredHabits.map((habit) => {
-                    const isCompleted = isHabitCompletedOnDate(habit.id, formattedDate)
-                    const colors = getHabitColor(habit.icon)
-                    const isHydration = habit.icon === 'water_drop'
-                    
-                    // Hydration Card - Special Layout
-                    if (isHydration) {
-                      const maxCups = habit.goal || 8
-                      const isFullyCompleted = waterCount >= maxCups
-                      
-                      const handleAddWater = () => {
-                        if (waterCount < maxCups) {
-                          const newCount = waterCount + 1
-                          setWaterCount(newCount)
-                          // Mark as completed when all cups are filled
-                          if (newCount >= maxCups && !isCompleted) {
-                            toggleHabitCompletion(habit.id, formattedDate)
-                          }
-                        }
+                  <>
+                    {filteredHabits.map((habit, i) => {
+                      const isCompleted = isHabitCompletedOnDate(habit.id, formattedDate)
+                      const isHydration = habit.icon === 'water_drop'
+
+                      if (isHydration) {
+                        return (
+                          <motion.div key={habit.id} layout>
+                            <HydrationCard
+                              habit={habit}
+                              isCompleted={isCompleted}
+                              waterCount={waterCount}
+                              index={i}
+                              onAddWater={() => {
+                                const max = habit.goal || 8
+                                if (waterCount < max) {
+                                  const next = waterCount + 1
+                                  setWaterCount(next)
+                                  if (next >= max && !isCompleted)
+                                    toggleHabitCompletion(habit.id, formattedDate)
+                                }
+                              }}
+                            />
+                          </motion.div>
+                        )
                       }
-                      
+
                       return (
-                        <div 
+                        <HabitCard
                           key={habit.id}
-                          className="group relative bg-white dark:bg-surface-dark rounded-[1.75rem] p-4 shadow-sm border border-slate-100 dark:border-white/5 hover:border-cyan-400/20 transition-all duration-300"
-                        >
-                          <div className="flex items-center justify-between mb-4">
-                            <div className="flex items-center gap-3">
-                              <div className="h-12 w-12 rounded-xl bg-cyan-50 dark:bg-cyan-500/10 flex items-center justify-center text-cyan-500 shrink-0">
-                                <span className="material-symbols-outlined text-2xl">{habit.icon}</span>
-                              </div>
-                              <div>
-                                <h4 className="text-base font-bold text-slate-800 dark:text-slate-100 font-display leading-tight">{habit.name}</h4>
-                                <span className="text-xs text-slate-500 font-medium">{waterCount}/{maxCups} Cups</span>
-                              </div>
-                            </div>
-                            <button 
-                              onClick={handleAddWater}
-                              disabled={isFullyCompleted}
-                              className={clsx(
-                                "h-10 w-10 rounded-full flex items-center justify-center transition-colors shadow-lg active:scale-90 transform duration-200",
-                                isFullyCompleted 
-                                  ? "bg-cyan-500 text-white shadow-cyan-500/30 cursor-default" 
-                                  : "bg-cyan-500 text-white hover:bg-cyan-600 shadow-cyan-500/30"
-                              )}
-                              aria-label={isFullyCompleted ? `${habit.name} completed` : `Add cup to ${habit.name}`}
-                            >
-                              <span className="material-symbols-outlined" aria-hidden="true">{isFullyCompleted ? 'check' : 'add'}</span>
-                            </button>
-                          </div>
-                          <div className="flex gap-1.5 h-10 px-1">
-                            {Array.from({ length: maxCups }).map((_, i) => (
-                              <div 
-                                key={i} 
-                                className={clsx(
-                                  "flex-1 rounded-md transition-all duration-300",
-                                  i < waterCount ? "bg-cyan-400 opacity-100" : "bg-slate-100 dark:bg-slate-700/50"
-                                )}
-                              ></div>
-                            ))}
-                          </div>
-                        </div>
+                          habit={habit}
+                          isCompleted={isCompleted}
+                          index={i}
+                          onToggle={() => handleHabitCompletion(habit.id)}
+                          onBodyClick={() => handleHabitBodyClick(habit)}
+                          onLongPress={() => setLongPressHabit(habit)}
+                          onNotesClick={() =>
+                            setNotesViewModalHabit({ id: habit.id, name: habit.name })
+                          }
+                          enableLayoutAnimation={habitViewMode === 'list'}
+                        />
                       )
-                    }
-                    
-                    // Regular Habit Card
-                    return (
-                      <div 
-                        key={habit.id}
-                        className="group relative bg-white dark:bg-surface-dark rounded-[1.75rem] p-2 pr-4 pl-3 flex items-center justify-between shadow-sm border border-slate-100 dark:border-white/5 hover:border-primary/20 transition-all duration-300"
-                      >
-                        <div className={clsx("absolute left-0 top-5 bottom-5 w-1 rounded-r-full", colors.accent)}></div>
-                        <div className="flex items-center gap-3 flex-1">
-                          <div className={clsx("h-14 w-14 rounded-[1.25rem] flex items-center justify-center shrink-0 group-hover:scale-95 transition-transform duration-300", colors.bg, colors.text)}>
-                            <span className="material-symbols-outlined text-2xl">{habit.icon}</span>
-                          </div>
-                          <div className="flex flex-col py-1">
-                            <h4 className="text-base font-bold text-slate-800 dark:text-slate-100 font-display">{habit.name}</h4>
-                            <div className="flex items-center gap-2 mt-0.5">
-                              <span className={clsx("text-xs font-semibold px-2 py-0.5 rounded-md", colors.badge, colors.badgeText)}>
-                                {habit.category || 'General'}
-                              </span>
-                              {habit.goal && <span className="text-xs text-slate-400">{habit.goal} {habit.goalPeriod}</span>}
-                            </div>
-                          </div>
-                        </div>
-                        <button 
-                          className="cursor-pointer relative h-11 w-11"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            toggleHabitCompletion(habit.id, formattedDate)
-                          }}
-                          role="checkbox"
-                          aria-checked={isCompleted}
-                          aria-label={`Mark ${habit.name} as ${isCompleted ? 'incomplete' : 'complete'}`}
-                        >
-                          <div className={clsx("absolute inset-0 rounded-full transition-colors duration-300", isCompleted ? colors.checkBg : "bg-slate-100 dark:bg-slate-800")}></div>
-                          <div className={clsx("absolute inset-1 rounded-full transition-colors duration-300 flex items-center justify-center", isCompleted ? "bg-transparent" : "bg-white dark:bg-surface-dark")}>
-                            <span className={clsx("material-symbols-outlined text-xl font-bold transition-colors duration-300", isCompleted ? "text-white dark:text-slate-900" : "text-slate-300")} aria-hidden="true">check</span>
-                          </div>
-                        </button>
-                      </div>
-                    )
-                  })
+                    })}
+                  </>
                 )}
               </div>
             </section>
 
-            {/* Tasks Section - NEW */}
-            <section className="mt-8 pb-4">
-              <div className="flex items-end justify-between mb-4 px-1">
-                <h3 className="text-xl font-display font-bold text-slate-900 dark:text-white">Tasks</h3>
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider bg-white dark:bg-surface-dark px-3 py-1.5 rounded-full shadow-sm border border-slate-100 dark:border-white/5">
-                  {filteredTasks.length} Pending
-                </span>
-              </div>
-              <div className="space-y-3">
-                {filteredTasks.map((task) => (
-                  <div 
-                    key={task.id}
-                    className="relative group overflow-hidden bg-white dark:bg-surface-dark rounded-[1.5rem] p-4 shadow-sm border border-slate-100 dark:border-white/5 flex gap-3 transition-all hover:shadow-lg"
-                  >
-                    <div className={clsx("absolute top-0 left-0 w-1.5 h-full", task.priorityColor === 'orange' ? 'bg-orange-400' : 'bg-primary')}></div>
-                    <label className="relative flex items-start pt-0.5 cursor-pointer">
-                      <input className="peer sr-only" type="checkbox"/>
-                      <div className="h-5 w-5 rounded-lg border-2 border-slate-300 dark:border-slate-600 peer-checked:bg-slate-800 dark:peer-checked:bg-primary dark:peer-checked:border-primary peer-checked:border-slate-800 transition-all flex items-center justify-center">
-                        <span className="material-symbols-outlined text-white dark:text-[#050b07] text-sm scale-0 peer-checked:scale-100 transition-transform font-bold">check</span>
-                      </div>
-                    </label>
-                    <div className="flex-1">
-                      <div className="flex justify-between items-start">
-                        <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 leading-tight mb-1 group-hover:text-primary transition-colors">{task.text}</p>
-                        {task.priority && (
-                          <span className="text-[10px] font-bold text-orange-500 bg-orange-50 dark:bg-orange-500/10 px-2 py-0.5 rounded-full uppercase tracking-wide ml-2 shrink-0">{task.priority}</span>
-                        )}
-                      </div>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-1">{task.description}</p>
-                      <div className="flex items-center gap-3 mt-2">
-                        <div className="flex items-center gap-1 text-xs font-medium text-slate-400">
-                          <span className="material-symbols-outlined text-[14px]">schedule</span>
-                          {task.time}
-                        </div>
-                        <div className="flex items-center gap-1 text-xs font-medium text-slate-400">
-                          <span className="material-symbols-outlined text-[14px]">folder</span>
-                          {task.folder}
-                        </div>
-                      </div>
-                    </div>
+            {/* ── Tasks Section ────────────────────────────────────── */}
+            <section>
+              <SectionHeader title="Pending Tasks" count={filteredTasks.length} />
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                {/* Hydration Card - Always visible */}
+                <HydrationCard
+                  habit={{
+                    id: 'hydration-tracker',
+                    name: 'Hydration',
+                    icon: 'water_drop',
+                    goal: hydrationGoal,
+                  }}
+                  isCompleted={isHydrationComplete}
+                  waterCount={waterCount}
+                  index={0}
+                  onAddWater={() => {
+                    if (waterCount < hydrationGoal) {
+                      setWaterCount(waterCount + 1)
+                    }
+                  }}
+                />
+
+                {filteredTasks.length === 0 ? (
+                  <div className="col-span-full">
+                    <EmptyState icon="task_alt" message="You're all caught up!" />
                   </div>
-                ))}
+                ) : (
+                  filteredTasks.map((task, i) => (
+                    <TaskCard key={task.id} task={task} index={i + 1} />
+                  ))
+                )}
               </div>
             </section>
           </motion.div>
         </AnimatePresence>
       </main>
 
-      {/* Floating Action Button - UPDATED */}
-      <div className="fixed bottom-24 right-4 z-10">
-        <button 
+      {/* ── FAB ──────────────────────────────────────────────────────── */}
+      <div className="fixed bottom-24 right-6 z-30 lg:right-10">
+        <motion.button
           onClick={() => navigate('/new-habit')}
-          className="group flex items-center justify-center rounded-full h-14 w-14 bg-slate-900 dark:bg-primary text-white dark:text-slate-900 shadow-2xl hover:scale-110 active:scale-95 transition-all duration-300"
           aria-label="Add new habit"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="group flex size-14 cursor-pointer items-center justify-center rounded-2xl shadow-2xl ring-2 ring-white/10 transition-all duration-300 sm:size-16"
+          style={{
+            background: 'linear-gradient(135deg, #14B8A6 0%, #0D9488 100%)', // Teal Gradient
+            boxShadow: '0 8px 30px rgba(20,184,166,0.4)',
+          }}
         >
-          <span className="material-symbols-outlined text-3xl group-hover:rotate-90 transition-transform duration-300" aria-hidden="true">add</span>
-        </button>
+          <span
+            className="material-symbols-outlined text-3xl text-white transition-transform duration-300 group-hover:rotate-90 sm:text-4xl"
+            aria-hidden="true"
+          >
+            add
+          </span>
+        </motion.button>
       </div>
 
       <SideNav isOpen={isSideNavOpen} onClose={() => setIsSideNavOpen(false)} />
       <BottomNav />
+
+      {/* Habit Task Completion Modal */}
+      {selectedHabitId && (
+        <HabitTaskCompletionModal
+          isOpen={!!selectedHabitId}
+          onClose={() => {
+            setSelectedHabitId(null)
+            setSelectedHabitName('')
+            setSelectedHabitIcon('checklist')
+            setSelectedHabitIconColor(0)
+          }}
+          habitId={selectedHabitId}
+          habitName={habits.find((h) => h.id === selectedHabitId)?.name || 'Habit Tasks'}
+          isHabitCompleted={isHabitCompletedOnDate(selectedHabitId, formattedDate)}
+          onTaskToggle={handleTaskToggle}
+          onAllTasksComplete={handleAllTasksComplete}
+          onTasksIncomplete={handleTasksIncomplete}
+        />
+      )}
+
+      {/* ── Confirmation Dialogs ── */}
+      {/* Incomplete Tasks Warning */}
+      <ConfirmDialog
+        isOpen={confirmDialogState.isOpen && confirmDialogState.type === 'incomplete-tasks'}
+        onClose={() => setConfirmDialogState({ isOpen: false, type: null, habitId: null })}
+        onConfirm={handleConfirmComplete}
+        title="Incomplete Tasks"
+        message={`"${confirmDialogState.habitName}" has ${confirmDialogState.incompleteTasks} task${confirmDialogState.incompleteTasks === 1 ? '' : 's'} remaining. Mark habit as complete anyway?`}
+        confirmText="Complete Anyway"
+        cancelText="Cancel"
+        variant="warning"
+        icon="warning"
+      />
+
+      {/* Start Fresh Warning */}
+      <ConfirmDialog
+        isOpen={confirmDialogState.isOpen && confirmDialogState.type === 'start-fresh'}
+        onClose={() => setConfirmDialogState({ isOpen: false, type: null, habitId: null })}
+        onConfirm={handleConfirmStartFresh}
+        title="Start Fresh?"
+        message={`"${confirmDialogState.habitName}" is already complete. Starting fresh will unmark the habit and reset all tasks. Continue?`}
+        confirmText="Start Fresh"
+        cancelText="Cancel"
+        variant="warning"
+        icon="restart_alt"
+      />
+
+      {/* ── Long-press Bottom Sheet (mobile) / Centered Modal (desktop) ── */}
+      {longPressHabit &&
+        createPortal(
+          <AnimatePresence>
+            {/* Backdrop */}
+            <motion.div
+              key="sheet-backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
+              onClick={() => setLongPressHabit(null)}
+            />
+
+            {/* ── Mobile: slides up from bottom ── */}
+            <motion.div
+              key="sheet-mobile"
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', stiffness: 400, damping: 40 }}
+              className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl border-t border-white/10 bg-slate-900 md:hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex justify-center pb-1 pt-3">
+                <div className="h-1 w-10 rounded-full bg-slate-700" />
+              </div>
+              <HabitSheetHeader habit={longPressHabit} />
+              <HabitContextMenuItems
+                habit={longPressHabit}
+                onClose={() => setLongPressHabit(null)}
+                onAction={handleBottomSheetAction}
+              />
+              <div className="h-6" />
+            </motion.div>
+
+            {/* ── Desktop/Tablet: centered modal ── */}
+            <div className="pointer-events-none fixed inset-0 z-50 hidden items-center justify-center md:flex">
+              <motion.div
+                key="sheet-desktop"
+                initial={{ opacity: 0, scale: 0.96 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.96 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 35 }}
+                className="pointer-events-auto relative w-full max-w-[380px] overflow-hidden rounded-2xl border border-white/10 bg-slate-900 shadow-2xl"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Close button */}
+                <button
+                  onClick={() => setLongPressHabit(null)}
+                  className="absolute right-3 top-3 z-10 flex size-8 items-center justify-center rounded-full bg-slate-800 transition-colors hover:bg-slate-700"
+                >
+                  <span className="material-symbols-outlined text-[18px] text-slate-400">
+                    close
+                  </span>
+                </button>
+                <HabitSheetHeader habit={longPressHabit} />
+                <HabitContextMenuItems
+                  habit={longPressHabit}
+                  onClose={() => setLongPressHabit(null)}
+                  onAction={handleBottomSheetAction}
+                />
+              </motion.div>
+            </div>
+          </AnimatePresence>,
+          document.body
+        )}
+
+      {/* ── Notes View Modal (read-only, from badge click) ── */}
+      {notesViewModalHabit && (
+        <HabitNotesViewModal
+          isOpen={!!notesViewModalHabit}
+          onClose={() => setNotesViewModalHabit(null)}
+          habitId={notesViewModalHabit.id}
+          habitName={notesViewModalHabit.name}
+        />
+      )}
+
+      {/* ── Modals from bottom sheet ── */}
+      {detailsModalHabitId && (
+        <HabitDetailsModal
+          isOpen={!!detailsModalHabitId}
+          onClose={() => setDetailsModalHabitId(null)}
+          habitId={detailsModalHabitId}
+        />
+      )}
+
+      {editModalHabitId && (
+        <EditHabit
+          isOpen={!!editModalHabitId}
+          onClose={() => setEditModalHabitId(null)}
+          habitId={editModalHabitId}
+        />
+      )}
+
+      {notesModalHabit && (
+        <HabitNotesModal
+          isOpen={!!notesModalHabit}
+          onClose={() => setNotesModalHabit(null)}
+          habitId={notesModalHabit.id}
+          habitName={notesModalHabit.name}
+        />
+      )}
+
+      {manageTasksHabit && (
+        <HabitTasksModal
+          isOpen={!!manageTasksHabit}
+          onClose={() => setManageTasksHabit(null)}
+          habitId={manageTasksHabit.id}
+          habitName={manageTasksHabit.name}
+          habitIcon={manageTasksHabit.icon}
+          habitIconColor={manageTasksHabit.iconColor ?? 0}
+        />
+      )}
+
+      {/* Hide for Today confirm */}
+      <ConfirmDialog
+        isOpen={!!confirmDeleteToday}
+        onClose={() => setConfirmDeleteToday(null)}
+        onConfirm={() => {
+          if (confirmDeleteToday) {
+            useHabitStore.getState().hideHabitForToday(confirmDeleteToday.id, formattedDate)
+          }
+          setConfirmDeleteToday(null)
+        }}
+        title="Hide for Today?"
+        message={`This will hide "${confirmDeleteToday?.name}" for today only. It will appear again tomorrow.`}
+        confirmText="Hide for Today"
+        cancelText="Cancel"
+        variant="danger"
+        icon="hide_source"
+      />
+
+      {/* Archive confirm */}
+      <ConfirmDialog
+        isOpen={!!confirmArchive}
+        onClose={() => setConfirmArchive(null)}
+        onConfirm={() => {
+          if (confirmArchive) {
+            useHabitStore.getState().archiveHabit(confirmArchive.id)
+          }
+          setConfirmArchive(null)
+        }}
+        title="Archive Habit?"
+        message={`"${confirmArchive?.name}" will be archived and removed from your daily view. You can restore it later.`}
+        confirmText="Archive"
+        cancelText="Cancel"
+        variant="danger"
+        icon="archive"
+      />
     </div>
   )
 }

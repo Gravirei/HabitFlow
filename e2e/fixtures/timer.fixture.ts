@@ -1,4 +1,4 @@
-import { test as base, Page } from '@playwright/test'
+import { test as base } from '@playwright/test'
 
 // Custom fixture type
 export type TimerFixtures = {
@@ -39,6 +39,7 @@ export const test = base.extend<TimerFixtures>({
         };
       }`)
     }
+    // eslint-disable-next-line react-hooks/rules-of-hooks -- Playwright fixture use(), not a React hook
     await use(mockTime)
   },
 
@@ -51,6 +52,7 @@ export const test = base.extend<TimerFixtures>({
         }
       }, ms)
     }
+    // eslint-disable-next-line react-hooks/rules-of-hooks -- Playwright fixture use(), not a React hook
     await use(advanceTime)
   },
 
@@ -70,6 +72,7 @@ export const test = base.extend<TimerFixtures>({
         };
       }`)
     }
+    // eslint-disable-next-line react-hooks/rules-of-hooks -- Playwright fixture use(), not a React hook
     await use(mockNotifications)
   },
 
@@ -126,6 +129,7 @@ export const test = base.extend<TimerFixtures>({
         };
       }`)
     }
+    // eslint-disable-next-line react-hooks/rules-of-hooks -- Playwright fixture use(), not a React hook
     await use(mockAudio)
   },
 
@@ -134,6 +138,7 @@ export const test = base.extend<TimerFixtures>({
     const waitForTimerUpdate = async () => {
       await page.waitForTimeout(100) // Small delay for RAF
     }
+    // eslint-disable-next-line react-hooks/rules-of-hooks -- Playwright fixture use(), not a React hook
     await use(waitForTimerUpdate)
   },
 })

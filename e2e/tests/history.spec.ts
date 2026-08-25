@@ -3,7 +3,7 @@
  * Tests session history display, filtering, export, and management
  */
 
-import { test, expect, STORAGE_KEYS, createMockStopwatchSession, createMockCountdownSession, createMockIntervalsSession } from '../fixtures';
+import { test, expect, createMockStopwatchSession, createMockCountdownSession, createMockIntervalsSession } from '../fixtures';
 import { HistoryPage, TimerPage } from '../pages';
 
 test.describe('Premium History', () => {
@@ -193,7 +193,6 @@ test.describe('Premium History', () => {
       
       // Note: Date range filter implementation depends on actual UI
       // This is a placeholder test that verifies the filter button exists
-      const datePickerVisible = await historyPage.dateRangePicker.isVisible().catch(() => false);
       // Date picker may or may not be visible depending on implementation
     });
   });

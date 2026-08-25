@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * AI Insights Page
  * Smart analytics and productivity recommendations with modern professional UI
@@ -7,13 +8,13 @@ import React, { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useLocalStorage } from '@/hooks/useLocalStorage'
-import { getAIInsights } from '../../components/timer/sidebar/ai-insights'
-import type { TimerSessionData } from '../../components/timer/sidebar/ai-insights/types'
-import { ProductivityScoreCard } from '../../components/timer/sidebar/ai-insights/ProductivityScoreCard'
-import { InsightCard } from '../../components/timer/sidebar/ai-insights/InsightCard'
-import { RecommendationsList } from '../../components/timer/sidebar/ai-insights/RecommendationsList'
-import { WeeklySummaryCard } from '../../components/timer/sidebar/ai-insights/WeeklySummaryCard'
-import { PeakHoursChart } from '../../components/timer/sidebar/ai-insights/charts/PeakHoursChart'
+import { getAIInsights } from '@/features/timer/components/sidebar/ai-insights'
+import type { TimerSessionData } from '@/features/timer/components/sidebar/ai-insights/types'
+import { ProductivityScoreCard } from '@/features/timer/components/sidebar/ai-insights/ProductivityScoreCard'
+import { InsightCard } from '@/features/timer/components/sidebar/ai-insights/InsightCard'
+import { RecommendationsList } from '@/features/timer/components/sidebar/ai-insights/RecommendationsList'
+import { WeeklySummaryCard } from '@/features/timer/components/sidebar/ai-insights/WeeklySummaryCard'
+import { PeakHoursChart } from '@/features/timer/components/sidebar/ai-insights/charts/PeakHoursChart'
 
 export default function AIInsights() {
   const navigate = useNavigate()

@@ -1,4 +1,4 @@
-import { test as base, Page } from '@playwright/test'
+import { test as base } from '@playwright/test'
 
 export type StorageFixtures = {
   clearTimerStorage: () => Promise<void>
@@ -34,6 +34,7 @@ export const storageTest = base.extend<StorageFixtures>({
           .forEach(k => localStorage.removeItem(k))
       }, STORAGE_KEYS)
     }
+    // eslint-disable-next-line react-hooks/rules-of-hooks -- Playwright fixture use(), not a React hook
     await use(clearTimerStorage)
   },
 
@@ -71,6 +72,7 @@ export const storageTest = base.extend<StorageFixtures>({
         }
       }, { sessions, keys: STORAGE_KEYS })
     }
+    // eslint-disable-next-line react-hooks/rules-of-hooks -- Playwright fixture use(), not a React hook
     await use(seedTimerHistory)
   },
 
@@ -81,6 +83,7 @@ export const storageTest = base.extend<StorageFixtures>({
         localStorage.setItem(data.key, JSON.stringify(data.settings))
       }, { key: STORAGE_KEYS.TIMER_SETTINGS, settings })
     }
+    // eslint-disable-next-line react-hooks/rules-of-hooks -- Playwright fixture use(), not a React hook
     await use(seedTimerSettings)
   },
 
@@ -92,6 +95,7 @@ export const storageTest = base.extend<StorageFixtures>({
         return item ? JSON.parse(item) : null
       }, key)
     }
+    // eslint-disable-next-line react-hooks/rules-of-hooks -- Playwright fixture use(), not a React hook
     await use(getStorageItem)
   },
 
@@ -102,6 +106,7 @@ export const storageTest = base.extend<StorageFixtures>({
         localStorage.setItem(data.key, JSON.stringify(data.value))
       }, { key, value })
     }
+    // eslint-disable-next-line react-hooks/rules-of-hooks -- Playwright fixture use(), not a React hook
     await use(setStorageItem)
   },
 })
