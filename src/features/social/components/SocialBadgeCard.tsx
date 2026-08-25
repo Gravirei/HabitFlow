@@ -15,6 +15,7 @@ interface SocialBadgeCardProps {
 function getRarityColor(rarity: BadgeRarity): string {
   const colors: Record<BadgeRarity, string> = {
     common: 'from-slate-500 to-slate-400',
+    uncommon: 'from-green-500 to-emerald-400',
     rare: 'from-blue-500 to-cyan-400',
     epic: 'from-purple-500 to-pink-400',
     legendary: 'from-amber-500 to-orange-400',
@@ -25,6 +26,7 @@ function getRarityColor(rarity: BadgeRarity): string {
 function getRarityGlow(rarity: BadgeRarity): string {
   const glows: Record<BadgeRarity, string> = {
     common: '',
+    uncommon: 'shadow-green-500/20',
     rare: 'shadow-blue-500/20',
     epic: 'shadow-purple-500/20',
     legendary: 'shadow-amber-500/30',
@@ -47,10 +49,11 @@ export function SocialBadgeCard({ badge, index = 0, compact = false }: SocialBad
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: index * 0.03 }}
         className={`
-          flex size-14 items-center justify-center rounded-xl relative
-          ${isLocked
-            ? 'bg-slate-800/50 border border-slate-700/50'
-            : `bg-gradient-to-br ${getRarityColor(rarity)} shadow-lg ${getRarityGlow(rarity)}`
+          relative flex size-14 items-center justify-center rounded-xl
+          ${
+            isLocked
+              ? 'border border-slate-700/50 bg-slate-800/50'
+              : `bg-gradient-to-br ${getRarityColor(rarity)} shadow-lg ${getRarityGlow(rarity)}`
           }
         `}
         title={`${name}: ${description}`}
@@ -61,9 +64,7 @@ export function SocialBadgeCard({ badge, index = 0, compact = false }: SocialBad
         >
           {isLocked ? 'lock' : icon}
         </span>
-        {isLocked && (
-          <div className="absolute inset-0 bg-slate-900/30 rounded-xl" />
-        )}
+        {isLocked && <div className="absolute inset-0 rounded-xl bg-slate-900/30" />}
       </motion.div>
     )
   }
@@ -74,22 +75,21 @@ export function SocialBadgeCard({ badge, index = 0, compact = false }: SocialBad
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05 }}
       className={`
-        relative rounded-2xl overflow-hidden transition-all
-        ${isLocked
-          ? 'bg-slate-800/50 border border-slate-700/50'
-          : `bg-gradient-to-br ${getRarityColor(rarity)} shadow-lg ${getRarityGlow(rarity)}`
+        relative overflow-hidden rounded-2xl transition-all
+        ${
+          isLocked
+            ? 'border border-slate-700/50 bg-slate-800/50'
+            : `bg-gradient-to-br ${getRarityColor(rarity)} shadow-lg ${getRarityGlow(rarity)}`
         }
       `}
     >
-      {isLocked && (
-        <div className="absolute inset-0 bg-slate-900/20 backdrop-blur-[1px] z-10" />
-      )}
+      {isLocked && <div className="absolute inset-0 z-10 bg-slate-900/20 backdrop-blur-[1px]" />}
 
       <div className={`p-4 ${isLocked ? 'opacity-50' : ''}`}>
         <div className="flex items-start gap-3">
           <div
             className={`
-              size-11 rounded-xl flex items-center justify-center flex-shrink-0
+              flex size-11 flex-shrink-0 items-center justify-center rounded-xl
               ${isLocked ? 'bg-slate-700/50' : 'bg-white/20 backdrop-blur-sm'}
             `}
           >
@@ -101,18 +101,15 @@ export function SocialBadgeCard({ badge, index = 0, compact = false }: SocialBad
             </span>
           </div>
 
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between gap-2 mb-0.5">
-              <h3 className={`font-bold text-sm ${isLocked ? 'text-slate-400' : 'text-white'}`}>
+          <div className="min-w-0 flex-1">
+            <div className="mb-0.5 flex items-center justify-between gap-2">
+              <h3 className={`text-sm font-bold ${isLocked ? 'text-slate-400' : 'text-white'}`}>
                 {name}
               </h3>
               <span
                 className={`
-                  px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider
-                  ${isLocked
-                    ? 'bg-slate-700/50 text-slate-500'
-                    : 'bg-white/20 text-white'
-                  }
+                  rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider
+                  ${isLocked ? 'bg-slate-700/50 text-slate-500' : 'bg-white/20 text-white'}
                 `}
               >
                 {getRarityLabel(rarity)}
@@ -125,9 +122,9 @@ export function SocialBadgeCard({ badge, index = 0, compact = false }: SocialBad
         </div>
 
         {unlocked && badge.earnedAt && (
-          <div className="flex items-center gap-1.5 mt-3 pt-2.5 border-t border-white/15">
-            <span className="material-symbols-outlined text-white/80 text-sm">check_circle</span>
-            <span className="text-[11px] text-white/70 font-medium">
+          <div className="mt-3 flex items-center gap-1.5 border-t border-white/15 pt-2.5">
+            <span className="material-symbols-outlined text-sm text-white/80">check_circle</span>
+            <span className="text-[11px] font-medium text-white/70">
               Earned {new Date(badge.earnedAt).toLocaleDateString()}
             </span>
           </div>
@@ -140,7 +137,7 @@ export function SocialBadgeCard({ badge, index = 0, compact = false }: SocialBad
           initial={{ x: '-100%' }}
           animate={{ x: '200%' }}
           transition={{ duration: 2, repeat: Infinity, repeatDelay: 6, ease: 'easeInOut' }}
-          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent pointer-events-none"
+          className="pointer-events-none absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent"
           style={{ transform: 'skewX(-20deg)' }}
         />
       )}

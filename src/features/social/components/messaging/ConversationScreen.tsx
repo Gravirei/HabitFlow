@@ -1,7 +1,6 @@
-// @ts-nocheck
 /**
  * ConversationScreen — Full message thread view
- * Redesigned for a premium, modern messaging experience with 
+ * Redesigned for a premium, modern messaging experience with
  * enhanced glassmorphism, depth, and fluid interactions.
  */
 
@@ -21,6 +20,11 @@ import clsx from 'clsx'
 const CURRENT_USER_ID = 'current-user'
 const SCROLL_FAB_THRESHOLD = 240
 
+interface ConversationScreenProps {
+  conversationId: string
+  onBack: () => void
+}
+
 /* ─────────────────────────────────────────────
    Helpers
    ───────────────────────────────────────────── */
@@ -34,10 +38,10 @@ function formatDateSeparator(iso: string): string {
   if (date.toDateString() === today.toDateString()) return 'Today'
   if (date.toDateString() === yesterday.toDateString()) return 'Yesterday'
 
-  return date.toLocaleDateString([], { 
-    weekday: 'long', 
-    month: 'short', 
-    day: 'numeric' 
+  return date.toLocaleDateString([], {
+    weekday: 'long',
+    month: 'short',
+    day: 'numeric',
   })
 }
 
@@ -97,7 +101,7 @@ function DateSeparator({ label }: { label: string }) {
       animate={{ opacity: 1, scale: 1 }}
       className="sticky top-4 z-10 my-8 flex justify-center"
     >
-      <div className="rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.08em] text-white/50 backdrop-blur-md shadow-sm">
+      <div className="rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.08em] text-white/50 shadow-sm backdrop-blur-md">
         {label}
       </div>
     </motion.div>
@@ -108,18 +112,15 @@ function LoadingSkeleton() {
   return (
     <div className="space-y-6 py-4">
       {[...Array(5)].map((_, i) => (
-        <div 
-          key={i} 
-          className={clsx(
-            "flex items-end gap-3",
-            i % 2 === 0 ? "flex-row" : "flex-row-reverse"
-          )}
+        <div
+          key={i}
+          className={clsx('flex items-end gap-3', i % 2 === 0 ? 'flex-row' : 'flex-row-reverse')}
         >
-          <div className="size-8 rounded-xl bg-white/5 animate-pulse" />
-          <div 
+          <div className="size-8 animate-pulse rounded-xl bg-white/5" />
+          <div
             className={clsx(
-              "h-12 rounded-2xl bg-white/5 animate-pulse",
-              i % 2 === 0 ? "rounded-bl-none" : "rounded-br-none"
+              'h-12 animate-pulse rounded-2xl bg-white/5',
+              i % 2 === 0 ? 'rounded-bl-none' : 'rounded-br-none'
             )}
             style={{ width: `${40 + Math.random() * 40}%` }}
           />
@@ -137,18 +138,14 @@ function EmptyConversation({ name, onAction }: { name: string; onAction: () => v
       className="flex flex-col items-center justify-center gap-6 py-20 text-center"
     >
       <div className="relative">
-        <div className="absolute inset-0 bg-teal-500/20 blur-3xl rounded-full animate-pulse" />
+        <div className="absolute inset-0 animate-pulse rounded-full bg-teal-500/20 blur-3xl" />
         <div className="relative flex size-24 items-center justify-center rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-xl">
-          <span className="material-symbols-outlined text-5xl text-teal-400/60">
-            forum
-          </span>
+          <span className="material-symbols-outlined text-5xl text-teal-400/60">forum</span>
         </div>
       </div>
-      
+
       <div className="max-w-[280px]">
-        <h3 className="text-xl font-bold tracking-tight text-white">
-          Say hello to {name}!
-        </h3>
+        <h3 className="text-xl font-bold tracking-tight text-white">Say hello to {name}!</h3>
         <p className="mt-2 text-sm leading-relaxed text-white/40">
           Start your journey together. Share a habit, send a nudge, or just say hi.
         </p>
@@ -216,7 +213,7 @@ export function ConversationScreen({ conversationId, onBack }: ConversationScree
   const scaleX = useSpring(scrollYProgress, {
     stiffness: 100,
     damping: 30,
-    restDelta: 0.001
+    restDelta: 0.001,
   })
 
   useEffect(() => {
@@ -226,9 +223,9 @@ export function ConversationScreen({ conversationId, onBack }: ConversationScree
 
   useEffect(() => {
     if (!showScrollFab) {
-      messagesEndRef.current?.scrollIntoView({ 
+      messagesEndRef.current?.scrollIntoView({
         behavior: reduced ? 'auto' : 'smooth',
-        block: 'end'
+        block: 'end',
       })
     }
   }, [conversationMessages.length, reduced, showScrollFab])
@@ -309,10 +306,7 @@ export function ConversationScreen({ conversationId, onBack }: ConversationScree
             <span className="material-symbols-outlined text-3xl">error</span>
           </div>
           <p className="text-sm font-medium text-white/40">Conversation not found</p>
-          <button 
-            onClick={onBack}
-            className="mt-4 text-sm font-bold text-teal-400"
-          >
+          <button onClick={onBack} className="mt-4 text-sm font-bold text-teal-400">
             Go Back
           </button>
         </div>
@@ -325,12 +319,12 @@ export function ConversationScreen({ conversationId, onBack }: ConversationScree
       {/* Header */}
       <header className="relative z-30 shrink-0 border-b border-[#222222] bg-[#000000]/90 backdrop-blur-xl">
         {/* Scroll Progress Bar */}
-        <motion.div 
-          className="absolute bottom-0 left-0 right-0 h-[1px] bg-[#32D74B] origin-left"
+        <motion.div
+          className="absolute bottom-0 left-0 right-0 h-[1px] origin-left bg-[#32D74B]"
           style={{ scaleX }}
         />
 
-        <div className="flex items-center gap-2 px-3 pb-3 pt-safe">
+        <div className="pt-safe flex items-center gap-2 px-3 pb-3">
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={onBack}
@@ -340,8 +334,8 @@ export function ConversationScreen({ conversationId, onBack }: ConversationScree
           </motion.button>
 
           {/* User Info Section */}
-          <div 
-            className="flex min-w-0 flex-1 cursor-pointer items-center gap-3 active:opacity-70 transition-opacity"
+          <div
+            className="flex min-w-0 flex-1 cursor-pointer items-center gap-3 transition-opacity active:opacity-70"
             onClick={() => setShowGroupInfo(true)}
           >
             <div className="relative shrink-0">
@@ -354,7 +348,7 @@ export function ConversationScreen({ conversationId, onBack }: ConversationScree
                         key={id}
                         src={friend?.avatarUrl || `/images/avatars/avatar${idx + 1}.jpg`}
                         alt=""
-                        className="size-10 rounded-full border-[2.5px] border-[#000000] object-cover bg-[#1C1C1E]"
+                        className="size-10 rounded-full border-[2.5px] border-[#000000] bg-[#1C1C1E] object-cover"
                       />
                     )
                   })}
@@ -369,7 +363,7 @@ export function ConversationScreen({ conversationId, onBack }: ConversationScree
                   <img
                     src={conversation.avatarUrl || '/images/avatars/avatar1.jpg'}
                     alt={conversation.name}
-                    className="size-11 rounded-full object-cover bg-[#1C1C1E]"
+                    className="size-11 rounded-full bg-[#1C1C1E] object-cover"
                   />
                   {isParticipantOnline && (
                     <span className="absolute -bottom-0.5 -right-0.5 flex h-[14px] w-[14px] items-center justify-center rounded-full border-[2.5px] border-[#000000] bg-[#32D74B]" />
@@ -430,9 +424,9 @@ export function ConversationScreen({ conversationId, onBack }: ConversationScree
         {isLoadingMessages && conversationMessages.length === 0 ? (
           <LoadingSkeleton />
         ) : conversationMessages.length === 0 ? (
-          <EmptyConversation 
-            name={conversation.name} 
-            onAction={() => handleSendText('👋 Hey there!')} 
+          <EmptyConversation
+            name={conversation.name}
+            onAction={() => handleSendText('👋 Hey there!')}
           />
         ) : (
           <div className="flex flex-col gap-0.5 py-6">
@@ -471,7 +465,7 @@ export function ConversationScreen({ conversationId, onBack }: ConversationScree
               exit={{ opacity: 0, y: 20 }}
               className="sticky bottom-0 z-20 pb-4"
             >
-              <div className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-[#0a0f1c]/80 px-4 py-2 backdrop-blur-xl shadow-xl">
+              <div className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-[#0a0f1c]/80 px-4 py-2 shadow-xl backdrop-blur-xl">
                 <TypingIndicator conversationId={conversationId} />
               </div>
             </motion.div>
