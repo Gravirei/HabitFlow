@@ -10,6 +10,7 @@
  * Usage: node scripts/check-lint-budget.cjs <path-to-eslint-json-report>
  */
 
+const path = require('path')
 const fs = require('fs')
 
 const reportPath = process.argv[2]
@@ -18,7 +19,8 @@ if (!reportPath || !fs.existsSync(reportPath)) {
   process.exit(2)
 }
 
-const budgetFile = '.lint-budget'
+// Resolve relative to the script so the gate works from any CWD
+const budgetFile = path.join(__dirname, '..', '.lint-budget')
 const budget = parseInt(fs.readFileSync(budgetFile, 'utf8').trim(), 10)
 if (Number.isNaN(budget)) {
   console.error(`Invalid budget in ${budgetFile}`)

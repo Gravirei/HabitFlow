@@ -3,8 +3,8 @@
 
 echo "🔍 Checking for sensitive files..."
 
-# Check if .env files are being committed
-if git diff --cached --name-only | grep -E '^\.env$|^\.env\.local$' >/dev/null; then
+# Check if .env files are being committed (.env.example is allowed)
+if git diff --cached --name-only | grep -E '^\.env' | grep -vE '^\.env\.example$' >/dev/null; then
   echo ""
   echo "❌ ERROR: Attempting to commit .env file!"
   echo ""
