@@ -4,7 +4,7 @@
  */
 
 import { useEffect } from 'react'
-import { FilterMode } from '../filters/ModeFilter'
+import type { FilterMode } from '../filters/ModeFilter'
 
 interface FilterState {
   filterMode: FilterMode

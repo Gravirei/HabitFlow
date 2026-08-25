@@ -17,6 +17,9 @@
 
     /* Linting */
     "strict": true,
+    /* noUncheckedIndexedAccess is deferred to the type-debt burn-down phase:
+       enabling it today surfaces ~436 errors in otherwise-clean files. */
+    "verbatimModuleSyntax": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,

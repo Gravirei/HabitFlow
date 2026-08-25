@@ -2,7 +2,7 @@
  * Insight Generators - Text Generation & Recommendations
  */
 
-import {
+import type {
   AIInsights,
   Recommendation,
   PeakHoursInsight,
@@ -11,7 +11,7 @@ import {
   ConsistencyInsight,
   ProductivityTrendInsight,
   ProductivityScore,
-  WeeklySummary
+  WeeklySummary,
 } from './types'
 
 /**
@@ -22,12 +22,18 @@ export function generateInsightMessages(insights: AIInsights): AIInsights {
     ...insights,
     productivityScore: generateScoreMessage(insights.productivityScore),
     peakHours: insights.peakHours ? generatePeakHoursMessage(insights.peakHours) : undefined,
-    durationPattern: insights.durationPattern ? generateDurationMessage(insights.durationPattern) : undefined,
-    modeMastery: insights.modeMastery ? generateModeMasteryMessage(insights.modeMastery) : undefined,
+    durationPattern: insights.durationPattern
+      ? generateDurationMessage(insights.durationPattern)
+      : undefined,
+    modeMastery: insights.modeMastery
+      ? generateModeMasteryMessage(insights.modeMastery)
+      : undefined,
     consistency: generateConsistencyMessage(insights.consistency),
-    productivityTrend: insights.productivityTrend ? generateTrendMessage(insights.productivityTrend) : undefined,
+    productivityTrend: insights.productivityTrend
+      ? generateTrendMessage(insights.productivityTrend)
+      : undefined,
     weeklySummary: generateWeeklySummaryMessage(insights.weeklySummary),
-    recommendations: generateRecommendations(insights)
+    recommendations: generateRecommendations(insights),
   }
 }
 
@@ -36,7 +42,7 @@ export function generateInsightMessages(insights: AIInsights): AIInsights {
  */
 function generateScoreMessage(score: ProductivityScore): ProductivityScore {
   let message = ''
-  
+
   if (score.overall >= 90) {
     message = `Outstanding! You're in the top tier with a ${score.grade} productivity grade. Keep up the excellent work! 🌟`
   } else if (score.overall >= 80) {
@@ -59,7 +65,7 @@ function generateScoreMessage(score: ProductivityScore): ProductivityScore {
  */
 function generatePeakHoursMessage(insight: PeakHoursInsight): PeakHoursInsight {
   const { startHour, endHour, sessionsCount, completionRate } = insight.peakWindow
-  
+
   const formatHour = (hour: number) => {
     const period = hour >= 12 ? 'PM' : 'AM'
     const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour
@@ -67,12 +73,14 @@ function generatePeakHoursMessage(insight: PeakHoursInsight): PeakHoursInsight {
   }
 
   const timeRange = `${formatHour(startHour)} - ${formatHour(endHour)}`
-  const percentage = Math.round((sessionsCount / insight.hourlyDistribution.reduce((sum, h) => sum + h.sessions, 0)) * 100)
-  
+  const percentage = Math.round(
+    (sessionsCount / insight.hourlyDistribution.reduce((sum, h) => sum + h.sessions, 0)) * 100
+  )
+
   let message = `Your peak productivity is between ${timeRange}. `
   message += `You complete ${Math.round(completionRate)}% of your sessions during this time `
   message += `(${sessionsCount} sessions, ${percentage}% of total). `
-  
+
   if (completionRate >= 80) {
     message += `This is your power window! 🔥`
   } else if (completionRate >= 60) {
@@ -90,20 +98,22 @@ function generatePeakHoursMessage(insight: PeakHoursInsight): PeakHoursInsight {
 function generateDurationMessage(insight: DurationPatternInsight): DurationPatternInsight {
   const { min, max, completionRate } = insight.optimalDuration
   const avgMinutes = Math.round(insight.optimalDuration.avgDuration / 60)
-  
+
   const formatDuration = (seconds: number) => {
     const mins = Math.round(seconds / 60)
     if (mins < 60) return `${mins} minutes`
     const hours = Math.floor(mins / 60)
     const remainingMins = mins % 60
-    return remainingMins > 0 ? `${hours}h ${remainingMins}m` : `${hours} hour${hours > 1 ? 's' : ''}`
+    return remainingMins > 0
+      ? `${hours}h ${remainingMins}m`
+      : `${hours} hour${hours > 1 ? 's' : ''}`
   }
 
   const rangeText = formatDuration(min) + ' - ' + formatDuration(max)
-  
+
   let message = `You work best in ${rangeText} sessions with a ${Math.round(completionRate)}% completion rate. `
   message += `Your average session is ${avgMinutes} minutes. `
-  
+
   if (insight.trend === 'increasing') {
     message += `You're trending toward longer sessions. 📈`
   } else if (insight.trend === 'decreasing') {
@@ -120,20 +130,20 @@ function generateDurationMessage(insight: DurationPatternInsight): DurationPatte
  */
 function generateModeMasteryMessage(insight: ModeMasteryInsight): ModeMasteryInsight {
   const { mode, sessionsCount, completionRate } = insight.bestMode
-  
+
   const modeEmoji = {
     Stopwatch: '⏱️',
     Countdown: '⏲️',
-    Intervals: '🔄'
+    Intervals: '🔄',
   }
 
   let message = `${modeEmoji[mode]} ${mode} mode works best for you! `
   message += `With ${sessionsCount} sessions and a ${Math.round(completionRate)}% completion rate, `
   message += `this mode helps you stay focused. `
-  
-  const otherModes = insight.modeComparison.filter(m => m.mode !== mode)
-  const hasOtherModes = otherModes.some(m => m.sessions > 0)
-  
+
+  const otherModes = insight.modeComparison.filter((m) => m.mode !== mode)
+  const hasOtherModes = otherModes.some((m) => m.sessions > 0)
+
   if (hasOtherModes) {
     message += `Consider using ${mode} mode more often for better results! 🎯`
   } else {
@@ -149,9 +159,9 @@ function generateModeMasteryMessage(insight: ModeMasteryInsight): ModeMasteryIns
 function generateConsistencyMessage(insight: ConsistencyInsight): ConsistencyInsight {
   const { score, metrics, trend } = insight
   const { activeDays, totalDays, currentStreak, longestStreak } = metrics
-  
+
   let message = ''
-  
+
   if (score >= 80) {
     message = `Exceptional consistency! 🌟 `
   } else if (score >= 60) {
@@ -163,15 +173,15 @@ function generateConsistencyMessage(insight: ConsistencyInsight): ConsistencyIns
   }
 
   message += `You've been active ${activeDays} out of ${totalDays} days. `
-  
+
   if (currentStreak > 0) {
     message += `Current streak: ${currentStreak} day${currentStreak !== 1 ? 's' : ''} 🔥 `
   }
-  
+
   if (longestStreak > currentStreak) {
     message += `Your longest streak was ${longestStreak} days. `
   }
-  
+
   if (trend === 'improving') {
     message += `You're on an upward trajectory! Keep it up! 🚀`
   } else if (trend === 'declining') {
@@ -189,9 +199,9 @@ function generateConsistencyMessage(insight: ConsistencyInsight): ConsistencyIns
 function generateTrendMessage(insight: ProductivityTrendInsight): ProductivityTrendInsight {
   const { change, trend } = insight
   const avgChange = Math.round((change.sessions + change.duration) / 2)
-  
+
   let message = ''
-  
+
   if (trend === 'up') {
     message = `📈 You're on fire! Productivity up ${Math.abs(avgChange)}% compared to last week. `
     message += `Keep this momentum going! 🚀`
@@ -211,22 +221,22 @@ function generateTrendMessage(insight: ProductivityTrendInsight): ProductivityTr
  */
 function generateWeeklySummaryMessage(summary: WeeklySummary): WeeklySummary {
   const { highlights } = summary
-  
+
   if (highlights.totalSessions === 0) {
     return {
       ...summary,
-      message: 'No sessions recorded this week. Start your productivity journey today! 🌟'
+      message: 'No sessions recorded this week. Start your productivity journey today! 🌟',
     }
   }
 
   const hours = Math.floor(highlights.totalDuration / 3600)
   const minutes = Math.floor((highlights.totalDuration % 3600) / 60)
   const durationText = hours > 0 ? `${hours}h ${minutes}m` : `${minutes} minutes`
-  
+
   let message = `This week: ${highlights.totalSessions} session${highlights.totalSessions !== 1 ? 's' : ''}, `
   message += `${durationText} focused time across ${highlights.activeDays} day${highlights.activeDays !== 1 ? 's' : ''}. `
   message += `Completion rate: ${Math.round(highlights.completionRate)}%. `
-  
+
   if (highlights.completionRate >= 80) {
     message += `Outstanding! 🌟`
   } else if (highlights.completionRate >= 60) {
@@ -253,8 +263,9 @@ export function generateRecommendations(insights: AIInsights): Recommendation[] 
       priority: 'high',
       icon: 'info',
       title: 'Build Your Data',
-      description: 'Complete at least 5 sessions to unlock personalized insights and recommendations.',
-      actionable: true
+      description:
+        'Complete at least 5 sessions to unlock personalized insights and recommendations.',
+      actionable: true,
     })
     return recommendations
   }
@@ -262,7 +273,7 @@ export function generateRecommendations(insights: AIInsights): Recommendation[] 
   // Duration recommendations
   if (insights.durationPattern) {
     const avgMins = Math.round(insights.durationPattern.optimalDuration.avgDuration / 60)
-    
+
     if (avgMins < 15) {
       recommendations.push({
         id: `rec-${id++}`,
@@ -270,8 +281,9 @@ export function generateRecommendations(insights: AIInsights): Recommendation[] 
         priority: 'high',
         icon: 'schedule',
         title: 'Try Longer Sessions',
-        description: 'Your average session is quite short. Try 25-minute focused sessions for better deep work.',
-        actionable: true
+        description:
+          'Your average session is quite short. Try 25-minute focused sessions for better deep work.',
+        actionable: true,
       })
     } else if (avgMins > 60) {
       recommendations.push({
@@ -280,8 +292,9 @@ export function generateRecommendations(insights: AIInsights): Recommendation[] 
         priority: 'medium',
         icon: 'coffee',
         title: 'Take More Breaks',
-        description: 'Long sessions detected. Consider the Pomodoro technique: 25 min work + 5 min break.',
-        actionable: true
+        description:
+          'Long sessions detected. Consider the Pomodoro technique: 25 min work + 5 min break.',
+        actionable: true,
       })
     }
   }
@@ -289,14 +302,14 @@ export function generateRecommendations(insights: AIInsights): Recommendation[] 
   // Peak hours recommendations
   if (insights.peakHours) {
     const peakCompletion = insights.peakHours.peakWindow.completionRate
-    
+
     if (peakCompletion >= 70) {
       const formatHour = (hour: number) => {
         const period = hour >= 12 ? 'PM' : 'AM'
         const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour
         return `${displayHour} ${period}`
       }
-      
+
       recommendations.push({
         id: `rec-${id++}`,
         category: 'timing',
@@ -304,14 +317,14 @@ export function generateRecommendations(insights: AIInsights): Recommendation[] 
         icon: 'schedule',
         title: 'Leverage Your Peak Hours',
         description: `Schedule your most important tasks between ${formatHour(insights.peakHours.peakWindow.startHour)} - ${formatHour(insights.peakHours.peakWindow.endHour)} when you're most productive.`,
-        actionable: true
+        actionable: true,
       })
     }
   }
 
   // Consistency recommendations
   const consistency = insights.consistency
-  
+
   if (consistency.score < 50) {
     recommendations.push({
       id: `rec-${id++}`,
@@ -319,8 +332,9 @@ export function generateRecommendations(insights: AIInsights): Recommendation[] 
       priority: 'high',
       icon: 'calendar_today',
       title: 'Build Daily Habits',
-      description: 'Set a goal to use the timer at least once per day. Consistency beats intensity!',
-      actionable: true
+      description:
+        'Set a goal to use the timer at least once per day. Consistency beats intensity!',
+      actionable: true,
     })
   }
 
@@ -332,7 +346,7 @@ export function generateRecommendations(insights: AIInsights): Recommendation[] 
       icon: 'local_fire_department',
       title: 'Restart Your Streak',
       description: `You had a ${consistency.metrics.longestStreak}-day streak before. You can do it again! Start today.`,
-      actionable: true
+      actionable: true,
     })
   }
 
@@ -341,7 +355,7 @@ export function generateRecommendations(insights: AIInsights): Recommendation[] 
     const bestMode = insights.modeMastery.bestMode
     const totalSessions = insights.dataRange.sessionsAnalyzed
     const bestModePercentage = (bestMode.sessionsCount / totalSessions) * 100
-    
+
     if (bestModePercentage < 50) {
       recommendations.push({
         id: `rec-${id++}`,
@@ -350,7 +364,7 @@ export function generateRecommendations(insights: AIInsights): Recommendation[] 
         icon: 'star',
         title: `Use ${bestMode.mode} Mode More`,
         description: `${bestMode.mode} mode has your highest completion rate (${Math.round(bestMode.completionRate)}%). Try using it more often!`,
-        actionable: true
+        actionable: true,
       })
     }
   }
@@ -364,15 +378,16 @@ export function generateRecommendations(insights: AIInsights): Recommendation[] 
         priority: 'high',
         icon: 'trending_up',
         title: 'Get Back on Track',
-        description: 'Productivity dipped this week. Set a small goal for tomorrow - even 15 minutes counts!',
-        actionable: true
+        description:
+          'Productivity dipped this week. Set a small goal for tomorrow - even 15 minutes counts!',
+        actionable: true,
       })
     }
   }
 
   // Completion rate recommendation
   const completedCount = insights.weeklySummary.highlights.completionRate
-  
+
   if (completedCount < 60) {
     recommendations.push({
       id: `rec-${id++}`,
@@ -380,8 +395,9 @@ export function generateRecommendations(insights: AIInsights): Recommendation[] 
       priority: 'medium',
       icon: 'check_circle',
       title: 'Improve Completion Rate',
-      description: 'Many sessions are being stopped early. Try starting with shorter, achievable session lengths.',
-      actionable: true
+      description:
+        'Many sessions are being stopped early. Try starting with shorter, achievable session lengths.',
+      actionable: true,
     })
   }
 
@@ -392,9 +408,10 @@ export function generateRecommendations(insights: AIInsights): Recommendation[] 
       category: 'general',
       priority: 'low',
       icon: 'emoji_events',
-      title: 'You\'re Crushing It!',
-      description: 'Your consistency and productivity scores are excellent. Keep up the amazing work!',
-      actionable: false
+      title: "You're Crushing It!",
+      description:
+        'Your consistency and productivity scores are excellent. Keep up the amazing work!',
+      actionable: false,
     })
   }
 

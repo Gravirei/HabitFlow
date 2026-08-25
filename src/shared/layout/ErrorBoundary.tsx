@@ -1,4 +1,4 @@
-import { Component, ErrorInfo, ReactNode } from 'react'
+import { Component, type ErrorInfo, type ReactNode } from 'react'
 import { captureError } from '@/lib/sentry'
 
 interface Props {
@@ -13,7 +13,7 @@ interface State {
 
 export class ErrorBoundary extends Component<Props, State> {
   public state: State = {
-    hasError: false
+    hasError: false,
   }
 
   public static getDerivedStateFromError(error: Error): State {
@@ -23,7 +23,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('Error caught by boundary:', error, errorInfo)
-    
+
     // Send to Sentry for error tracking
     captureError(error, {
       component: 'GlobalErrorBoundary',
@@ -41,27 +41,28 @@ export class ErrorBoundary extends Component<Props, State> {
 
       // Default fallback UI
       return (
-        <div className="flex min-h-screen items-center justify-center bg-background-light dark:bg-background-dark p-4">
-          <div className="text-center max-w-md">
-            <span className="material-symbols-outlined text-6xl text-gray-300 dark:text-gray-700 mb-4">
+        <div className="flex min-h-screen items-center justify-center bg-background-light p-4 dark:bg-background-dark">
+          <div className="max-w-md text-center">
+            <span className="material-symbols-outlined mb-4 text-6xl text-gray-300 dark:text-gray-700">
               error
             </span>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+            <h2 className="mb-2 text-2xl font-bold text-gray-900 dark:text-white">
               Oops! Something went wrong
             </h2>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
-              {this.state.error?.message || 'An unexpected error occurred. Please try refreshing the page.'}
+            <p className="mb-6 text-gray-600 dark:text-gray-400">
+              {this.state.error?.message ||
+                'An unexpected error occurred. Please try refreshing the page.'}
             </p>
-            <div className="flex gap-3 justify-center">
+            <div className="flex justify-center gap-3">
               <button
                 onClick={() => window.location.reload()}
-                className="rounded-lg bg-primary px-6 py-3 font-medium text-black hover:bg-primary/90 transition-colors"
+                className="rounded-lg bg-primary px-6 py-3 font-medium text-black transition-colors hover:bg-primary/90"
               >
                 Reload Page
               </button>
               <button
                 onClick={() => this.setState({ hasError: false, error: undefined })}
-                className="rounded-lg bg-gray-200 dark:bg-gray-700 px-6 py-3 font-medium text-gray-900 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                className="rounded-lg bg-gray-200 px-6 py-3 font-medium text-gray-900 transition-colors hover:bg-gray-300 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
               >
                 Try Again
               </button>
@@ -71,7 +72,7 @@ export class ErrorBoundary extends Component<Props, State> {
                 <summary className="cursor-pointer text-sm text-gray-500 hover:text-gray-700">
                   Error Details (Development)
                 </summary>
-                <pre className="mt-2 overflow-auto rounded bg-gray-100 dark:bg-gray-800 p-3 text-xs">
+                <pre className="mt-2 overflow-auto rounded bg-gray-100 p-3 text-xs dark:bg-gray-800">
                   {this.state.error.stack}
                 </pre>
               </details>

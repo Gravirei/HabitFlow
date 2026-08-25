@@ -4,7 +4,7 @@
 
 import { generateAIInsights } from './aiInsightsEngine'
 import { generateInsightMessages } from './insightGenerators'
-import { AIInsights, TimerSessionData, InsightsCache } from './types'
+import type { AIInsights, TimerSessionData, InsightsCache } from './types'
 
 const CACHE_DURATION = 5 * 60 * 1000 // 5 minutes
 const CACHE_KEY = 'timer-ai-insights-cache'
@@ -61,7 +61,7 @@ function cacheInsights(insights: AIInsights): void {
     const cache: InsightsCache = {
       insights,
       cachedAt: now,
-      expiresAt: now + CACHE_DURATION
+      expiresAt: now + CACHE_DURATION,
     }
     localStorage.setItem(CACHE_KEY, JSON.stringify(cache))
   } catch (error) {

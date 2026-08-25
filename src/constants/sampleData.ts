@@ -3,7 +3,7 @@
  * Pre-populated habit examples to help users explore the app
  */
 
-import { Habit } from '@/types/habit'
+import type { Habit } from '@/types/habit'
 import { format } from 'date-fns'
 
 export const SAMPLE_HABITS: Habit[] = [

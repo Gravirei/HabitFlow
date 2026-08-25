@@ -3,7 +3,7 @@
  * Provider component for timer focus context
  */
 
-import React, { useState, ReactNode } from 'react'
+import React, { useState, type ReactNode } from 'react'
 import type { TimerMode } from '../../types/timer.types'
 import { TimerFocusContext } from './TimerFocusContext'
 
