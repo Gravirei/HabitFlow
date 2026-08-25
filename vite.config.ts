@@ -22,6 +22,15 @@ export default defineConfig({
     // serve them publicly — browsers/attackers cannot access your source code.
     // Use 'false' if you don't use Sentry. Never use 'true' in production.
     sourcemap: 'hidden',
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // framer-motion is imported by 100+ files including the shell —
+          // isolating it keeps app-code deploys from invalidating its cache entry
+          'framer-motion': ['framer-motion'],
+        },
+      },
+    },
   },
   test: {
     globals: true,
