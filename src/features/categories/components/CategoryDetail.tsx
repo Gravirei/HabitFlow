@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useMemo, useState, useEffect, useRef, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -14,7 +13,6 @@ import { CreateNewHabit } from '@/features/categories/components/CreateNewHabit'
 import { EditHabit } from '@/features/categories/components/EditHabit'
 import { ArchivedHabitsModal } from '@/features/categories/components/ArchivedHabitsModal'
 import { HabitNotesModal } from '@/features/categories/components/HabitNotesModal'
-import { ToggleSwitch } from '@/shared/ui/ToggleSwitch'
 import { ConfirmDialog } from '@/shared/ui/ConfirmDialog'
 
 // Predefined icon colors with gradients (matching CreateNewHabit)
@@ -42,8 +40,6 @@ const fallbackGradientByColor: Record<string, string> = {
   slate: 'from-slate-600 to-slate-800',
 }
 
-const clampPercent = (value: number) => Math.max(0, Math.min(100, value))
-
 export function CategoryDetail() {
   const navigate = useNavigate()
   const { categoryId } = useParams<{ categoryId: string }>()
@@ -54,7 +50,7 @@ export function CategoryDetail() {
   const deleteHabit = useHabitStore((state) => state.deleteHabit)
   const archiveHabit = useHabitStore((state) => state.archiveHabit)
   const { getTaskCount } = useHabitTaskStore()
-  
+
   const [selectedHabitId, setSelectedHabitId] = useState<string | null>(null)
   const [selectedHabitName, setSelectedHabitName] = useState<string>('')
   const [selectedHabitIcon, setSelectedHabitIcon] = useState<string>('checklist')
@@ -69,9 +65,7 @@ export function CategoryDetail() {
 
   const habits = useMemo(() => {
     if (!categoryId) return []
-    return allHabits.filter((habit) => 
-      habit.categoryId === categoryId && !habit.archived
-    )
+    return allHabits.filter((habit) => habit.categoryId === categoryId && !habit.archived)
   }, [categoryId, allHabits])
 
   // Check if all habits in this category are active
@@ -99,7 +93,7 @@ export function CategoryDetail() {
 
   // Calculate habit statistics
   const habitStats = useMemo(() => {
-    const activeHabitsCount = habits.filter(h => h.isActive === true).length
+    const activeHabitsCount = habits.filter((h) => h.isActive === true).length
     const inactiveHabitsCount = habits.length - activeHabitsCount
 
     if (habits.length === 0) {
@@ -123,7 +117,7 @@ export function CategoryDetail() {
 
     // Sort by task count
     const sortedByTasks = [...habitsWithTaskCounts].sort((a, b) => b.taskCount - a.taskCount)
-    
+
     return {
       totalTasks,
       averageTasks: Math.round(averageTasks * 10) / 10, // Round to 1 decimal
@@ -146,18 +140,22 @@ export function CategoryDetail() {
         animate={{ opacity: 1 }}
         className="relative mx-auto flex min-h-screen w-full max-w-md flex-col bg-background-light dark:bg-background-dark"
       >
-        <header className="flex items-center gap-3 p-4 pb-2 pt-safe shrink-0">
+        <header className="pt-safe flex shrink-0 items-center gap-3 p-4 pb-2">
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             type="button"
             onClick={() => navigate('/categories')}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+            className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-white/10 backdrop-blur-sm transition-colors hover:bg-white/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
             aria-label="Back to categories"
           >
-            <span className="material-symbols-outlined text-slate-900 dark:text-white">arrow_back</span>
+            <span className="material-symbols-outlined text-slate-900 dark:text-white">
+              arrow_back
+            </span>
           </motion.button>
-          <h1 className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">Category not found</h1>
+          <h1 className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">
+            Category not found
+          </h1>
         </header>
 
         <main className="flex-1 px-4 py-6">
@@ -165,10 +163,12 @@ export function CategoryDetail() {
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.1 }}
-            className="rounded-3xl border border-slate-200 bg-white/80 backdrop-blur-xl p-6 text-slate-900 shadow-lg dark:border-white/10 dark:bg-slate-900/80 dark:text-white"
+            className="rounded-3xl border border-slate-200 bg-white/80 p-6 text-slate-900 shadow-lg backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/80 dark:text-white"
           >
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-red-100 dark:bg-red-500/20 mx-auto">
-              <span className="material-symbols-outlined text-3xl text-red-600 dark:text-red-400">error</span>
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-red-100 dark:bg-red-500/20">
+              <span className="material-symbols-outlined text-3xl text-red-600 dark:text-red-400">
+                error
+              </span>
             </div>
             <h3 className="mt-4 text-center text-lg font-bold">Category Not Found</h3>
             <p className="mt-2 text-center text-sm text-slate-600 dark:text-slate-300">
@@ -180,7 +180,7 @@ export function CategoryDetail() {
                 whileTap={{ scale: 0.95 }}
                 type="button"
                 onClick={() => navigate('/categories')}
-                className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-primary to-emerald-400 px-6 py-3 text-sm font-bold text-slate-900 shadow-lg shadow-primary/25 transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+                className="inline-flex cursor-pointer items-center gap-2 rounded-2xl bg-gradient-to-r from-primary to-emerald-400 px-6 py-3 text-sm font-bold text-slate-900 shadow-lg shadow-primary/25 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
               >
                 <span className="material-symbols-outlined">arrow_back</span>
                 Go to Categories
@@ -193,7 +193,7 @@ export function CategoryDetail() {
   }
 
   return (
-    <div className="relative mx-auto flex min-h-screen w-full max-w-[1440px] flex-col bg-background-light dark:bg-background-dark overflow-hidden">
+    <div className="relative mx-auto flex min-h-screen w-full max-w-[1440px] flex-col overflow-hidden bg-background-light dark:bg-background-dark">
       {/* Animated Hero Header */}
       <motion.header
         initial={{ y: -20, opacity: 0 }}
@@ -222,7 +222,7 @@ export function CategoryDetail() {
         </div>
 
         {/* Header Content */}
-        <div className="relative z-10 p-5 pt-safe">
+        <div className="pt-safe relative z-10 p-5">
           {/* Top Bar */}
           <div className="flex items-center justify-between">
             <motion.button
@@ -230,7 +230,7 @@ export function CategoryDetail() {
               whileTap={{ scale: 0.95 }}
               type="button"
               onClick={() => navigate('/categories')}
-              className="flex h-11 w-11 items-center justify-center rounded-2xl bg-black/20 backdrop-blur-xl border border-white/10 transition-colors hover:bg-black/30 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+              className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-2xl border border-white/10 bg-black/20 backdrop-blur-xl transition-colors hover:bg-black/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
               aria-label="Back"
             >
               <span className="material-symbols-outlined text-white">arrow_back</span>
@@ -248,7 +248,7 @@ export function CategoryDetail() {
               <motion.div
                 whileHover={{ rotate: 360 }}
                 transition={{ duration: 0.6 }}
-                className="flex h-16 w-16 shrink-0 items-center justify-center rounded-3xl bg-white/15 backdrop-blur-xl border border-white/20 shadow-xl"
+                className="flex h-16 w-16 shrink-0 items-center justify-center rounded-3xl border border-white/20 bg-white/15 shadow-xl backdrop-blur-xl"
               >
                 <span className="material-symbols-outlined text-4xl text-white drop-shadow-lg">
                   {category.icon}
@@ -262,7 +262,7 @@ export function CategoryDetail() {
                   {habits.length} {habits.length === 1 ? 'Habit' : 'Habits'}
                 </p>
               </div>
-              
+
               {/* Activation Toggle - Right Side */}
               {habits.length > 0 && (
                 <div className="flex items-center gap-3">
@@ -275,21 +275,25 @@ export function CategoryDetail() {
                     transition={{
                       duration: 2,
                       repeat: Infinity,
-                      ease: "easeInOut"
+                      ease: 'easeInOut',
                     }}
                     className={clsx(
                       'h-3 w-3 rounded-full',
-                      allHabitsActive ? 'bg-green-400 shadow-[0_0_10px_rgba(74,222,128,0.8)]' : 'bg-red-400 shadow-[0_0_10px_rgba(248,113,113,0.8)]'
+                      allHabitsActive
+                        ? 'bg-green-400 shadow-[0_0_10px_rgba(74,222,128,0.8)]'
+                        : 'bg-red-400 shadow-[0_0_10px_rgba(248,113,113,0.8)]'
                     )}
                   />
-                  
+
                   {/* Toggle Switch - Using existing component */}
                   <div className="flex items-center gap-2">
                     <button
                       onClick={handleToggleCategoryActivation}
                       className={clsx(
                         'relative inline-flex h-7 w-12 items-center rounded-full transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-transparent',
-                        allHabitsActive ? 'bg-gradient-to-r from-green-500 to-emerald-500' : 'bg-gray-600'
+                        allHabitsActive
+                          ? 'bg-gradient-to-r from-green-500 to-emerald-500'
+                          : 'bg-gray-600'
                       )}
                       role="switch"
                       aria-checked={allHabitsActive}
@@ -297,8 +301,10 @@ export function CategoryDetail() {
                     >
                       <span
                         className={clsx(
-                          'inline-block h-6 w-6 transform rounded-full bg-white transition-all duration-300 shadow-lg',
-                          allHabitsActive ? 'translate-x-6 shadow-green-400/50' : 'translate-x-1 shadow-gray-700'
+                          'inline-block h-6 w-6 transform rounded-full bg-white shadow-lg transition-all duration-300',
+                          allHabitsActive
+                            ? 'translate-x-6 shadow-green-400/50'
+                            : 'translate-x-1 shadow-gray-700'
                         )}
                       />
                     </button>
@@ -358,7 +364,9 @@ export function CategoryDetail() {
                     onDelete={(habitId) => setHabitToDelete(habitId)}
                     onEdit={(habitId) => setHabitToEdit(habitId)}
                     onArchive={(habitId) => archiveHabit(habitId)}
-                    onOpenNotes={(habitId, habitName) => setNotesModalHabit({ id: habitId, name: habitName })}
+                    onOpenNotes={(habitId, habitName) =>
+                      setNotesModalHabit({ id: habitId, name: habitName })
+                    }
                   />
                 ))}
               </div>
@@ -371,19 +379,31 @@ export function CategoryDetail() {
           initial={{ x: 20, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           transition={{ delay: 0.4 }}
-          className="hidden lg:block lg:w-80 xl:w-96 shrink-0"
+          className="hidden shrink-0 lg:block lg:w-80 xl:w-96"
         >
           <div className="sticky top-6 space-y-6">
             {/* Quick Stats Card */}
-            <div className="rounded-3xl border border-slate-200 bg-white/80 backdrop-blur-xl p-6 shadow-lg dark:border-white/5 dark:bg-slate-900/80">
+            <div className="rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-lg backdrop-blur-xl dark:border-white/5 dark:bg-slate-900/80">
               <h3 className="mb-4 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                 <span className="material-symbols-outlined text-lg">analytics</span>
                 Quick Stats
               </h3>
               <div className="space-y-4">
-                <SidebarStatItem label="Total Habits" value={habits.length.toString()} icon="playlist_add_check" />
-                <SidebarStatItem label="Active Habits" value={habitStats.activeHabitsCount.toString()} icon="check_circle" />
-                <SidebarStatItem label="Inactive Habits" value={habitStats.inactiveHabitsCount.toString()} icon="radio_button_unchecked" />
+                <SidebarStatItem
+                  label="Total Habits"
+                  value={habits.length.toString()}
+                  icon="playlist_add_check"
+                />
+                <SidebarStatItem
+                  label="Active Habits"
+                  value={habitStats.activeHabitsCount.toString()}
+                  icon="check_circle"
+                />
+                <SidebarStatItem
+                  label="Inactive Habits"
+                  value={habitStats.inactiveHabitsCount.toString()}
+                  icon="radio_button_unchecked"
+                />
               </div>
             </div>
 
@@ -393,7 +413,7 @@ export function CategoryDetail() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
-                className="rounded-3xl border border-slate-200 bg-white/80 backdrop-blur-xl p-6 shadow-lg dark:border-white/5 dark:bg-slate-900/80"
+                className="rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-lg backdrop-blur-xl dark:border-white/5 dark:bg-slate-900/80"
               >
                 <h3 className="mb-4 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                   <span className="material-symbols-outlined text-lg">insights</span>
@@ -403,46 +423,67 @@ export function CategoryDetail() {
                   {/* Total Tasks */}
                   <div className="flex items-center justify-between py-2">
                     <span className="text-sm text-slate-600 dark:text-slate-400">Total Tasks</span>
-                    <span className="text-lg font-bold text-slate-900 dark:text-white">{habitStats.totalTasks}</span>
+                    <span className="text-lg font-bold text-slate-900 dark:text-white">
+                      {habitStats.totalTasks}
+                    </span>
                   </div>
 
                   {/* Average Tasks */}
-                  <div className="flex items-center justify-between py-2 border-t border-slate-200 dark:border-white/5">
-                    <span className="text-sm text-slate-600 dark:text-slate-400">Average per Habit</span>
-                    <span className="text-lg font-bold text-slate-900 dark:text-white">{habitStats.averageTasks}</span>
+                  <div className="flex items-center justify-between border-t border-slate-200 py-2 dark:border-white/5">
+                    <span className="text-sm text-slate-600 dark:text-slate-400">
+                      Average per Habit
+                    </span>
+                    <span className="text-lg font-bold text-slate-900 dark:text-white">
+                      {habitStats.averageTasks}
+                    </span>
                   </div>
 
                   {/* Most Active Habit */}
                   {habitStats.mostActiveHabit && (
-                    <div className="pt-3 border-t border-slate-200 dark:border-white/5">
-                      <div className="flex items-center gap-2 mb-2">
+                    <div className="border-t border-slate-200 pt-3 dark:border-white/5">
+                      <div className="mb-2 flex items-center gap-2">
                         <span className="material-symbols-outlined text-sm text-primary">star</span>
-                        <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Most Active</span>
+                        <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                          Most Active
+                        </span>
                       </div>
-                      <p className="font-semibold text-slate-900 dark:text-white truncate">{habitStats.mostActiveHabit.name}</p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                        {habitStats.mostActiveHabit.taskCount} {habitStats.mostActiveHabit.taskCount === 1 ? 'task' : 'tasks'}
+                      <p className="truncate font-semibold text-slate-900 dark:text-white">
+                        {habitStats.mostActiveHabit.name}
+                      </p>
+                      <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                        {habitStats.mostActiveHabit.taskCount}{' '}
+                        {habitStats.mostActiveHabit.taskCount === 1 ? 'task' : 'tasks'}
                       </p>
                     </div>
                   )}
 
                   {/* Least Active Habit */}
-                  {habitStats.leastActiveHabit && habits.length > 1 && habitStats.leastActiveHabit.taskCount === 0 && (
-                    <div className="pt-3 border-t border-slate-200 dark:border-white/5">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="material-symbols-outlined text-sm text-amber-500">notifications</span>
-                        <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Needs Attention</span>
+                  {habitStats.leastActiveHabit &&
+                    habits.length > 1 &&
+                    habitStats.leastActiveHabit.taskCount === 0 && (
+                      <div className="border-t border-slate-200 pt-3 dark:border-white/5">
+                        <div className="mb-2 flex items-center gap-2">
+                          <span className="material-symbols-outlined text-sm text-amber-500">
+                            notifications
+                          </span>
+                          <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                            Needs Attention
+                          </span>
+                        </div>
+                        <p className="truncate font-semibold text-slate-900 dark:text-white">
+                          {habitStats.leastActiveHabit.name}
+                        </p>
+                        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                          No tasks yet
+                        </p>
                       </div>
-                      <p className="font-semibold text-slate-900 dark:text-white truncate">{habitStats.leastActiveHabit.name}</p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">No tasks yet</p>
-                    </div>
-                  )}
+                    )}
                 </div>
               </motion.div>
             )}
 
             {/* Quick Actions */}
-            <div className="rounded-3xl border border-slate-200 bg-white/80 backdrop-blur-xl p-6 shadow-lg dark:border-white/5 dark:bg-slate-900/80">
+            <div className="rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-lg backdrop-blur-xl dark:border-white/5 dark:bg-slate-900/80">
               <h3 className="mb-4 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                 <span className="material-symbols-outlined text-lg">bolt</span>
                 Quick Actions
@@ -453,18 +494,18 @@ export function CategoryDetail() {
                   whileTap={{ scale: 0.98 }}
                   type="button"
                   onClick={() => setIsCreateHabitOpen(true)}
-                  className="flex w-full items-center gap-3 rounded-2xl bg-gradient-to-r from-primary to-emerald-400 p-4 text-left text-slate-900 shadow-lg shadow-primary/20 transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+                  className="flex w-full cursor-pointer items-center gap-3 rounded-2xl bg-gradient-to-r from-primary to-emerald-400 p-4 text-left text-slate-900 shadow-lg shadow-primary/20 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
                 >
                   <span className="material-symbols-outlined text-2xl">add_circle</span>
                   <span className="text-sm font-bold">Add New Habit</span>
                 </motion.button>
-                
+
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   type="button"
                   onClick={() => setIsArchivedHabitsOpen(true)}
-                  className="flex w-full items-center gap-3 rounded-2xl bg-slate-100 p-4 text-left text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/50"
+                  className="flex w-full cursor-pointer items-center gap-3 rounded-2xl bg-slate-100 p-4 text-left text-slate-700 transition-all hover:bg-slate-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/50 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
                 >
                   <span className="material-symbols-outlined text-2xl">archive</span>
                   <span className="text-sm font-bold">Archived Habits</span>
@@ -487,7 +528,7 @@ export function CategoryDetail() {
           whileTap={{ scale: 0.9 }}
           type="button"
           onClick={() => setIsCreateHabitOpen(true)}
-          className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-r from-primary to-emerald-400 text-slate-900 shadow-[0_12px_40px_rgba(19,236,91,0.4)] transition-shadow hover:shadow-[0_16px_48px_rgba(19,236,91,0.5)] cursor-pointer focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/30"
+          className="flex h-16 w-16 cursor-pointer items-center justify-center rounded-full bg-gradient-to-r from-primary to-emerald-400 text-slate-900 shadow-[0_12px_40px_rgba(19,236,91,0.4)] transition-shadow hover:shadow-[0_16px_48px_rgba(19,236,91,0.5)] focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/30"
           aria-label="Add a habit"
         >
           <span className="material-symbols-outlined text-4xl font-bold">add</span>
@@ -589,7 +630,16 @@ interface HabitCardProps {
   onOpenNotes: (habitId: string, habitName: string) => void
 }
 
-function HabitCard({ habit, index, taskCount, onClick, onDelete, onEdit, onArchive, onOpenNotes }: HabitCardProps) {
+function HabitCard({
+  habit,
+  index,
+  taskCount,
+  onClick,
+  onDelete,
+  onEdit,
+  onArchive,
+  onOpenNotes,
+}: HabitCardProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [showWeeklySchedule, setShowWeeklySchedule] = useState(false)
   const [showMonthlySchedule, setShowMonthlySchedule] = useState(false)
@@ -598,7 +648,6 @@ function HabitCard({ habit, index, taskCount, onClick, onDelete, onEdit, onArchi
   const menuRef = useRef<HTMLDivElement>(null)
   const weeklyBadgeRef = useRef<HTMLButtonElement>(null)
   const monthlyBadgeRef = useRef<HTMLButtonElement>(null)
-  const navigate = useNavigate()
 
   const openWeeklySchedule = useCallback(() => {
     if (weeklyBadgeRef.current) {
@@ -650,20 +699,28 @@ function HabitCard({ habit, index, taskCount, onClick, onDelete, onEdit, onArchi
       transition={{ delay: index * 0.05 }}
       onClick={onClick}
       className={clsx(
-        "group relative overflow-visible rounded-3xl border border-slate-200 bg-white/80 backdrop-blur-xl shadow-lg transition-all hover:shadow-xl hover:border-slate-300 cursor-pointer dark:border-white/5 dark:bg-slate-900/80 dark:hover:border-white/10",
-        isMenuOpen && "z-50"
+        'group relative cursor-pointer overflow-visible rounded-3xl border border-slate-200 bg-white/80 shadow-lg backdrop-blur-xl transition-all hover:border-slate-300 hover:shadow-xl dark:border-white/5 dark:bg-slate-900/80 dark:hover:border-white/10',
+        isMenuOpen && 'z-50'
       )}
     >
       <div className="relative flex items-center gap-4 p-4">
         {/* Icon */}
-        <div className={clsx(
-          "flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br shadow-md",
-          habit.iconColor !== undefined ? iconColorOptions[habit.iconColor]?.gradient : 'from-slate-100 to-slate-200 dark:from-white/10 dark:to-white/5'
-        )}>
-          <span className={clsx(
-            "material-symbols-outlined text-2xl",
-            habit.iconColor !== undefined ? 'text-white' : 'text-slate-700 dark:text-slate-200'
-          )}>{habit.icon}</span>
+        <div
+          className={clsx(
+            'flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br shadow-md',
+            habit.iconColor !== undefined
+              ? iconColorOptions[habit.iconColor]?.gradient
+              : 'from-slate-100 to-slate-200 dark:from-white/10 dark:to-white/5'
+          )}
+        >
+          <span
+            className={clsx(
+              'material-symbols-outlined text-2xl',
+              habit.iconColor !== undefined ? 'text-white' : 'text-slate-700 dark:text-slate-200'
+            )}
+          >
+            {habit.icon}
+          </span>
         </div>
 
         {/* Content */}
@@ -680,14 +737,16 @@ function HabitCard({ habit, index, taskCount, onClick, onDelete, onEdit, onArchi
               {habit.goal} per {habit.goalPeriod}
             </p>
           )}
-          
+
           {/* Task Count, Notes Badge & Frequency Badge */}
-          <div className="mt-2 flex items-center gap-2 flex-wrap">
+          <div className="mt-2 flex flex-wrap items-center gap-2">
             <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
               <span className="material-symbols-outlined text-base">task</span>
-              <span className="font-semibold">{taskCount} {taskCount === 1 ? 'task' : 'tasks'}</span>
+              <span className="font-semibold">
+                {taskCount} {taskCount === 1 ? 'task' : 'tasks'}
+              </span>
             </div>
-            
+
             {/* Frequency Badge */}
             <button
               ref={habit.frequency === 'monthly' ? monthlyBadgeRef : weeklyBadgeRef}
@@ -711,16 +770,27 @@ function HabitCard({ habit, index, taskCount, onClick, onDelete, onEdit, onArchi
                 }
               }}
               className={clsx(
-                "flex items-center gap-1 rounded-full px-2 py-1 text-xs font-semibold transition-all",
-                habit.frequency === 'daily' && "bg-teal-100 text-teal-700 dark:bg-teal-500/20 dark:text-teal-400",
-                habit.frequency === 'weekly' && "bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-400",
-                habit.frequency === 'monthly' && "bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400",
-                habit.frequency === 'weekly' && habit.weeklyTimesPerWeek && "cursor-pointer hover:ring-2 hover:ring-purple-300 dark:hover:ring-purple-500/40",
-                habit.frequency === 'monthly' && habit.monthlyTimesPerMonth && "cursor-pointer hover:ring-2 hover:ring-blue-300 dark:hover:ring-blue-500/40"
+                'flex items-center gap-1 rounded-full px-2 py-1 text-xs font-semibold transition-all',
+                habit.frequency === 'daily' &&
+                  'bg-teal-100 text-teal-700 dark:bg-teal-500/20 dark:text-teal-400',
+                habit.frequency === 'weekly' &&
+                  'bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-400',
+                habit.frequency === 'monthly' &&
+                  'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400',
+                habit.frequency === 'weekly' &&
+                  habit.weeklyTimesPerWeek &&
+                  'cursor-pointer hover:ring-2 hover:ring-purple-300 dark:hover:ring-purple-500/40',
+                habit.frequency === 'monthly' &&
+                  habit.monthlyTimesPerMonth &&
+                  'cursor-pointer hover:ring-2 hover:ring-blue-300 dark:hover:ring-blue-500/40'
               )}
             >
               <span className="material-symbols-outlined text-sm">
-                {habit.frequency === 'daily' ? 'today' : habit.frequency === 'weekly' ? 'date_range' : 'calendar_month'}
+                {habit.frequency === 'daily'
+                  ? 'today'
+                  : habit.frequency === 'weekly'
+                    ? 'date_range'
+                    : 'calendar_month'}
               </span>
               <span className="capitalize">
                 {habit.frequency === 'weekly' && habit.weeklyTimesPerWeek
@@ -732,154 +802,178 @@ function HabitCard({ habit, index, taskCount, onClick, onDelete, onEdit, onArchi
             </button>
 
             {/* Weekly Schedule Popup — rendered via portal */}
-            {showWeeklySchedule && habit.frequency === 'weekly' && habit.weeklyTimesPerWeek && createPortal(
-              <>
-                {/* Backdrop — covers entire screen */}
-                <div
-                  className="fixed inset-0 z-[9998] bg-black/0"
-                  onMouseDown={(e) => {
-                    e.stopPropagation()
-                    e.preventDefault()
-                  }}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    e.preventDefault()
-                    setShowWeeklySchedule(false)
-                  }}
-                />
-                <motion.div
-                  initial={{ opacity: 0, y: -8, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -8, scale: 0.95 }}
-                  transition={{ duration: 0.2 }}
-                  className="fixed z-[9999] w-64 rounded-xl border border-slate-200 bg-white p-4 shadow-xl dark:border-white/10 dark:bg-slate-800"
-                  style={{ top: popupPosition.top, left: popupPosition.left }}
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <div className="flex items-center justify-between mb-3">
-                    <h4 className="text-sm font-bold text-slate-800 dark:text-white">Weekly Schedule</h4>
-                    <button
-                      type="button"
-                      onClick={() => setShowWeeklySchedule(false)}
-                      className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
-                    >
-                      <span className="material-symbols-outlined text-lg">close</span>
-                    </button>
-                  </div>
-
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-                      <span className="material-symbols-outlined text-base text-purple-500">repeat</span>
-                      <span>
-                        <strong className="text-slate-800 dark:text-white">{habit.weeklyTimesPerWeek}</strong> time{habit.weeklyTimesPerWeek > 1 ? 's' : ''} per week
-                      </span>
+            {showWeeklySchedule &&
+              habit.frequency === 'weekly' &&
+              habit.weeklyTimesPerWeek &&
+              createPortal(
+                <>
+                  {/* Backdrop — covers entire screen */}
+                  <div
+                    className="fixed inset-0 z-[9998] bg-black/0"
+                    onMouseDown={(e) => {
+                      e.stopPropagation()
+                      e.preventDefault()
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      e.preventDefault()
+                      setShowWeeklySchedule(false)
+                    }}
+                  />
+                  <motion.div
+                    initial={{ opacity: 0, y: -8, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -8, scale: 0.95 }}
+                    transition={{ duration: 0.2 }}
+                    className="fixed z-[9999] w-64 rounded-xl border border-slate-200 bg-white p-4 shadow-xl dark:border-white/10 dark:bg-slate-800"
+                    style={{ top: popupPosition.top, left: popupPosition.left }}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <div className="mb-3 flex items-center justify-between">
+                      <h4 className="text-sm font-bold text-slate-800 dark:text-white">
+                        Weekly Schedule
+                      </h4>
+                      <button
+                        type="button"
+                        onClick={() => setShowWeeklySchedule(false)}
+                        className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                      >
+                        <span className="material-symbols-outlined text-lg">close</span>
+                      </button>
                     </div>
 
-                    {habit.weeklyDays && habit.weeklyDays.length > 0 && (
-                      <div>
-                        <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-2">Selected Days</p>
-                        <div className="flex gap-1.5">
-                          {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, idx) => {
-                            const isSelected = habit.weeklyDays!.includes(idx)
-                            return (
-                              <div
-                                key={day}
-                                className={clsx(
-                                  'flex-1 rounded-lg py-1.5 text-center text-[10px] font-bold',
-                                  isSelected
-                                    ? 'bg-purple-500 text-white shadow-sm'
-                                    : 'bg-slate-100 text-slate-300 dark:bg-slate-700 dark:text-slate-600'
-                                )}
-                              >
-                                {day}
-                              </div>
-                            )
-                          })}
-                        </div>
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+                        <span className="material-symbols-outlined text-base text-purple-500">
+                          repeat
+                        </span>
+                        <span>
+                          <strong className="text-slate-800 dark:text-white">
+                            {habit.weeklyTimesPerWeek}
+                          </strong>{' '}
+                          time{habit.weeklyTimesPerWeek > 1 ? 's' : ''} per week
+                        </span>
                       </div>
-                    )}
-                  </div>
-                </motion.div>
-              </>,
-              document.body
-            )}
-            
+
+                      {habit.weeklyDays && habit.weeklyDays.length > 0 && (
+                        <div>
+                          <p className="mb-2 text-xs font-medium text-slate-500 dark:text-slate-400">
+                            Selected Days
+                          </p>
+                          <div className="flex gap-1.5">
+                            {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, idx) => {
+                              const isSelected = habit.weeklyDays!.includes(idx)
+                              return (
+                                <div
+                                  key={day}
+                                  className={clsx(
+                                    'flex-1 rounded-lg py-1.5 text-center text-[10px] font-bold',
+                                    isSelected
+                                      ? 'bg-purple-500 text-white shadow-sm'
+                                      : 'bg-slate-100 text-slate-300 dark:bg-slate-700 dark:text-slate-600'
+                                  )}
+                                >
+                                  {day}
+                                </div>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+                </>,
+                document.body
+              )}
+
             {/* Monthly Schedule Popup — rendered via portal */}
-            {showMonthlySchedule && habit.frequency === 'monthly' && habit.monthlyTimesPerMonth && createPortal(
-              <>
-                {/* Backdrop */}
-                <div
-                  className="fixed inset-0 z-[9998] bg-black/0"
-                  onMouseDown={(e) => {
-                    e.stopPropagation()
-                    e.preventDefault()
-                  }}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    e.preventDefault()
-                    setShowMonthlySchedule(false)
-                  }}
-                />
-                <motion.div
-                  initial={{ opacity: 0, y: -8, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -8, scale: 0.95 }}
-                  transition={{ duration: 0.2 }}
-                  className="fixed z-[9999] w-[268px] rounded-xl border border-slate-200 bg-white p-4 shadow-xl dark:border-white/10 dark:bg-slate-800"
-                  style={{ top: popupPosition.top, left: popupPosition.left }}
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <div className="flex items-center justify-between mb-3">
-                    <h4 className="text-sm font-bold text-slate-800 dark:text-white">Monthly Schedule</h4>
-                    <button
-                      type="button"
-                      onClick={() => setShowMonthlySchedule(false)}
-                      className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
-                    >
-                      <span className="material-symbols-outlined text-lg">close</span>
-                    </button>
-                  </div>
-
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-                      <span className="material-symbols-outlined text-base text-blue-500">repeat</span>
-                      <span>
-                        <strong className="text-slate-800 dark:text-white">{habit.monthlyTimesPerMonth}</strong> time{habit.monthlyTimesPerMonth > 1 ? 's' : ''} per month
-                      </span>
+            {showMonthlySchedule &&
+              habit.frequency === 'monthly' &&
+              habit.monthlyTimesPerMonth &&
+              createPortal(
+                <>
+                  {/* Backdrop */}
+                  <div
+                    className="fixed inset-0 z-[9998] bg-black/0"
+                    onMouseDown={(e) => {
+                      e.stopPropagation()
+                      e.preventDefault()
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      e.preventDefault()
+                      setShowMonthlySchedule(false)
+                    }}
+                  />
+                  <motion.div
+                    initial={{ opacity: 0, y: -8, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -8, scale: 0.95 }}
+                    transition={{ duration: 0.2 }}
+                    className="fixed z-[9999] w-[268px] rounded-xl border border-slate-200 bg-white p-4 shadow-xl dark:border-white/10 dark:bg-slate-800"
+                    style={{ top: popupPosition.top, left: popupPosition.left }}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <div className="mb-3 flex items-center justify-between">
+                      <h4 className="text-sm font-bold text-slate-800 dark:text-white">
+                        Monthly Schedule
+                      </h4>
+                      <button
+                        type="button"
+                        onClick={() => setShowMonthlySchedule(false)}
+                        className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                      >
+                        <span className="material-symbols-outlined text-lg">close</span>
+                      </button>
                     </div>
 
-                    {habit.monthlyDays && habit.monthlyDays.length > 0 && (
-                      <div>
-                        <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-2">Selected Dates</p>
-                        <div className="grid grid-cols-7 gap-1">
-                          {Array.from({ length: 31 }, (_, i) => i + 1).map((date) => {
-                            const isSelected = habit.monthlyDays!.includes(date)
-                            return (
-                              <div
-                                key={date}
-                                className={clsx(
-                                  'rounded-md py-1 text-center text-[10px] font-bold',
-                                  isSelected
-                                    ? 'bg-blue-500 text-white shadow-sm'
-                                    : 'bg-slate-100 text-slate-300 dark:bg-slate-700 dark:text-slate-600'
-                                )}
-                              >
-                                {date}
-                              </div>
-                            )
-                          })}
-                        </div>
-                        <p className="mt-2 text-[9px] text-slate-400 dark:text-slate-500">
-                          💡 Dates 29-31 roll to last day in shorter months
-                        </p>
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+                        <span className="material-symbols-outlined text-base text-blue-500">
+                          repeat
+                        </span>
+                        <span>
+                          <strong className="text-slate-800 dark:text-white">
+                            {habit.monthlyTimesPerMonth}
+                          </strong>{' '}
+                          time{habit.monthlyTimesPerMonth > 1 ? 's' : ''} per month
+                        </span>
                       </div>
-                    )}
-                  </div>
-                </motion.div>
-              </>,
-              document.body
-            )}
-            
+
+                      {habit.monthlyDays && habit.monthlyDays.length > 0 && (
+                        <div>
+                          <p className="mb-2 text-xs font-medium text-slate-500 dark:text-slate-400">
+                            Selected Dates
+                          </p>
+                          <div className="grid grid-cols-7 gap-1">
+                            {Array.from({ length: 31 }, (_, i) => i + 1).map((date) => {
+                              const isSelected = habit.monthlyDays!.includes(date)
+                              return (
+                                <div
+                                  key={date}
+                                  className={clsx(
+                                    'rounded-md py-1 text-center text-[10px] font-bold',
+                                    isSelected
+                                      ? 'bg-blue-500 text-white shadow-sm'
+                                      : 'bg-slate-100 text-slate-300 dark:bg-slate-700 dark:text-slate-600'
+                                  )}
+                                >
+                                  {date}
+                                </div>
+                              )
+                            })}
+                          </div>
+                          <p className="mt-2 text-[9px] text-slate-400 dark:text-slate-500">
+                            💡 Dates 29-31 roll to last day in shorter months
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+                </>,
+                document.body
+              )}
+
             {/* Notes Badge */}
             {habit.notes && habit.notes.length > 0 && (
               <button
@@ -897,9 +991,9 @@ function HabitCard({ habit, index, taskCount, onClick, onDelete, onEdit, onArchi
         </div>
 
         {/* 3-Dot Menu */}
-        <div 
+        <div
           ref={menuRef}
-          className="absolute right-3 top-1/2 -translate-y-1/2 z-20"
+          className="absolute right-3 top-1/2 z-20 -translate-y-1/2"
           data-no-propagate="true"
           onClick={(e) => e.stopPropagation()}
           onMouseDown={(e) => e.stopPropagation()}
@@ -909,7 +1003,8 @@ function HabitCard({ habit, index, taskCount, onClick, onDelete, onEdit, onArchi
             type="button"
             className={clsx(
               'flex h-9 w-9 items-center justify-center rounded-full bg-black/20 text-white backdrop-blur-sm transition-colors hover:bg-black/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50',
-              !isMenuOpen && 'opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 mobile-touch:opacity-100'
+              !isMenuOpen &&
+                'mobile-touch:opacity-100 opacity-0 group-focus-within:opacity-100 group-hover:opacity-100'
             )}
             aria-label="Habit actions"
             aria-haspopup="menu"
@@ -959,7 +1054,7 @@ function HabitCard({ habit, index, taskCount, onClick, onDelete, onEdit, onArchi
                     <span className="material-symbols-outlined text-xl">edit</span>
                     Edit
                   </button>
-                  
+
                   <button
                     type="button"
                     role="menuitem"
@@ -973,7 +1068,7 @@ function HabitCard({ habit, index, taskCount, onClick, onDelete, onEdit, onArchi
                     <span className="material-symbols-outlined text-xl">note_add</span>
                     Add Notes
                   </button>
-                  
+
                   <button
                     type="button"
                     role="menuitem"
@@ -988,7 +1083,7 @@ function HabitCard({ habit, index, taskCount, onClick, onDelete, onEdit, onArchi
                     <span className="material-symbols-outlined text-xl">archive</span>
                     Make Archive
                   </button>
-                  
+
                   <button
                     type="button"
                     role="menuitem"
@@ -1012,7 +1107,6 @@ function HabitCard({ habit, index, taskCount, onClick, onDelete, onEdit, onArchi
   )
 }
 
-
 interface EmptyStateProps {
   icon: string
   title: string
@@ -1027,7 +1121,7 @@ function EmptyState({ icon, title, description, actionLabel, onAction }: EmptySt
       initial={{ scale: 0.9, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
       transition={{ duration: 0.4 }}
-      className="rounded-3xl border border-slate-200 bg-white/80 backdrop-blur-xl p-8 text-center shadow-lg dark:border-white/10 dark:bg-slate-900/80"
+      className="rounded-3xl border border-slate-200 bg-white/80 p-8 text-center shadow-lg backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/80"
     >
       <motion.div
         initial={{ scale: 0 }}
@@ -1044,7 +1138,7 @@ function EmptyState({ icon, title, description, actionLabel, onAction }: EmptySt
         whileTap={{ scale: 0.95 }}
         type="button"
         onClick={onAction}
-        className="mt-6 inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-primary to-emerald-400 px-6 py-3 text-sm font-bold text-slate-900 shadow-lg shadow-primary/25 transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+        className="mt-6 inline-flex cursor-pointer items-center gap-2 rounded-2xl bg-gradient-to-r from-primary to-emerald-400 px-6 py-3 text-sm font-bold text-slate-900 shadow-lg shadow-primary/25 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
       >
         <span className="material-symbols-outlined">add</span>
         {actionLabel}

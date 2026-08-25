@@ -1,11 +1,9 @@
-// @ts-nocheck
 /**
  * Phase 5 - Categories tasks integration test (Tasks chip filters categories with tasks)
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { Categories } from '@/pages/bottomNav/Categories'
 import type { Category } from '@/types/category'
@@ -32,7 +30,8 @@ vi.mock('@/store/useCategoryStore', () => ({
       togglePinned: vi.fn(),
       deleteCategory: vi.fn(),
       reorderCategories: vi.fn(),
-      getPinnedCategories: () => mockCategories.filter((c) => c.isPinned).sort((a, b) => a.order - b.order),
+      getPinnedCategories: () =>
+        mockCategories.filter((c) => c.isPinned).sort((a, b) => a.order - b.order),
       getAllCategories: () => [...mockCategories].sort((a, b) => a.order - b.order),
     }
     return typeof selector === 'function' ? selector(state) : state
@@ -43,7 +42,8 @@ vi.mock('@/store/useHabitStore', () => ({
   useHabitStore: (selector?: any) => {
     const state = {
       habits: mockHabits,
-      getHabitsByCategory: (categoryId: string) => mockHabits.filter((h) => h.categoryId === categoryId),
+      getHabitsByCategory: (categoryId: string) =>
+        mockHabits.filter((h) => h.categoryId === categoryId),
       isHabitCompletedToday: () => false,
       clearCategoryFromHabits: vi.fn(),
     }

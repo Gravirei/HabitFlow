@@ -1,10 +1,9 @@
-// @ts-nocheck
 /**
  * Phase 4 - Categories enhanced UX tests (search / filters / sorting / empty states)
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, within, waitFor } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { Categories } from '@/pages/bottomNav/Categories'
@@ -64,7 +63,8 @@ vi.mock('@/store/useCategoryStore', () => ({
       togglePinned: vi.fn(),
       deleteCategory: vi.fn(),
       reorderCategories: reorderCategoriesMock,
-      getPinnedCategories: () => mockCategories.filter((c) => c.isPinned).sort((a, b) => a.order - b.order),
+      getPinnedCategories: () =>
+        mockCategories.filter((c) => c.isPinned).sort((a, b) => a.order - b.order),
       getAllCategories: () => [...mockCategories].sort((a, b) => a.order - b.order),
     }
 
@@ -76,7 +76,8 @@ vi.mock('@/store/useHabitStore', () => ({
   useHabitStore: (selector?: any) => {
     const state: HabitStoreState = {
       habits: mockHabits,
-      getHabitsByCategory: (categoryId: string) => mockHabits.filter((h) => h.categoryId === categoryId),
+      getHabitsByCategory: (categoryId: string) =>
+        mockHabits.filter((h) => h.categoryId === categoryId),
       isHabitCompletedToday: (habitId: string) => completedTodayIds.has(habitId),
       clearCategoryFromHabits: vi.fn(),
     }
@@ -210,7 +211,7 @@ describe('Categories (Phase 4 UX)', () => {
         completionRate: 0,
         totalCompletions: 0,
         completedDates: [],
-      } as Habit,
+      } as unknown as Habit,
     ]
 
     renderCategories()

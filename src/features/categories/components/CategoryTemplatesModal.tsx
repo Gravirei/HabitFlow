@@ -1,5 +1,4 @@
-// @ts-nocheck
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import clsx from 'clsx'
 
 import { AccessibleModal } from '@/shared/ui/AccessibleModal'
@@ -27,11 +26,6 @@ export function CategoryTemplatesModal({ isOpen, onClose }: CategoryTemplatesMod
   const [selectedPackId, setSelectedPackId] = useState<CategoryTemplatePack['id'] | null>(null)
   const [summary, setSummary] = useState<TemplatePackImportSummary | null>(null)
   const [isImporting, setIsImporting] = useState(false)
-
-  const selectedPack = useMemo(() => {
-    if (!selectedPackId) return null
-    return CATEGORY_TEMPLATE_PACKS.find((pack) => pack.id === selectedPackId) ?? null
-  }, [selectedPackId])
 
   const handleImport = async (packId: CategoryTemplatePack['id']) => {
     // Keep this synchronous (store updates) but allow UI to show disabled state.
