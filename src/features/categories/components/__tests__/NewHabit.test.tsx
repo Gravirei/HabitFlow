@@ -238,7 +238,7 @@ describe('NewHabit Form', () => {
 
       await waitFor(() => {
         expect(toast.success).toHaveBeenCalledWith('🎉 Habit created successfully!')
-        expect(mockNavigate).toHaveBeenCalledWith('/')
+        expect(mockNavigate).toHaveBeenCalledWith('/today')
       })
     })
 
@@ -408,7 +408,7 @@ describe('NewHabit Form', () => {
       const closeButton = screen.getByRole('button', { name: /close/i })
       fireEvent.click(closeButton)
 
-      expect(mockNavigate).toHaveBeenCalledWith('/')
+      expect(mockNavigate).toHaveBeenCalledWith('/today')
     })
   })
 

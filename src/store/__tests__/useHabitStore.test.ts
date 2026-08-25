@@ -419,8 +419,9 @@ describe('useHabitStore', () => {
         result1.current.clearCategoryFromHabits('cat-1')
       })
 
+      // Deleting a category permanently deletes its habits (matches the
+      // "Delete Permanently" confirm dialog in Categories.tsx)
       expect(result1.current.habits.map((h) => h.categoryId)).toEqual([
-        undefined,
         'cat-2',
         undefined,
       ])
@@ -428,13 +429,12 @@ describe('useHabitStore', () => {
       // Simulate new session
       const { result: result2 } = renderHook(() => useHabitStore())
       expect(result2.current.habits.map((h) => h.categoryId)).toEqual([
-        undefined,
         'cat-2',
         undefined,
       ])
 
-      // Ensure legacy `category` field remains
-      expect(result2.current.habits[2].category).toBe('personal')
+      // Ensure legacy `category` field remains on the surviving habit
+      expect(result2.current.habits[1].category).toBe('personal')
     })
   })
 

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import App from '@/App'
 import { AuthProvider } from '@/lib/auth/AuthContext'
@@ -6,9 +6,6 @@ import { AuthProvider } from '@/lib/auth/AuthContext'
 // Avoid side effects from global UI that initializes storage/persistent timer features
 vi.mock('@/features/timer/components/sidebar/achievements', () => ({
   AchievementNotifications: () => null,
-}))
-vi.mock('@/features/onboarding/components/OnboardingModal', () => ({
-  OnboardingModal: () => null,
 }))
 
 describe('App', () => {
@@ -19,17 +16,17 @@ describe('App', () => {
       </AuthProvider>
     )
 
-    // When not authenticated, the app should redirect to /login
-    expect(screen.getByText(/sign in to continue/i)).toBeInTheDocument()
+    // Unauthenticated visitors land on the splash screen before routing
+    expect(screen.getByText('HabitFlow')).toBeInTheDocument()
   })
 
-  it('renders login screen when unauthenticated', () => {
+  it('renders the splash screen when unauthenticated', () => {
     render(
       <AuthProvider>
         <App />
       </AuthProvider>
     )
 
-    expect(screen.getByText(/sign in to continue/i)).toBeInTheDocument()
+    expect(screen.getByText(/Build Better Habits/i)).toBeInTheDocument()
   })
 })

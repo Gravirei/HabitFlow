@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { renderHook, act } from '@testing-library/react'
+import { renderHook, act, waitFor } from '@testing-library/react'
 import { useCountdown } from '@/features/timer/hooks/useCountdown'
 import { useStopwatch } from '@/features/timer/hooks/useStopwatch'
 import { useIntervals } from '@/features/timer/hooks/useIntervals'
@@ -348,13 +348,16 @@ describe('Hook Error Handling', () => {
       expect(result.current.history.length).toBe(0)
     })
 
-    it('should handle corrupted localStorage data', () => {
-      localStorage.setItem('test-corrupted-history', 'invalid{json}')
+    it('should handle corrupted localStorage data', async () => {
+      vi.useRealTimers()
+      localStorage.setItem('timer-stopwatch-history', 'invalid{json}')
 
       const { result } = renderHook(() => useTimerHistory({
         mode: 'Stopwatch',
         storageKey: 'test-corrupted-history'
       }))
+
+      await waitFor(() => expect(result.current.isLoading).toBe(false))
 
       // Should recover with empty array
       expect(result.current.history).toEqual([])

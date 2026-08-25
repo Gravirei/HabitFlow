@@ -86,7 +86,7 @@ describe('useTaskStore (helpers + migration)', () => {
     expect(result.current.getTasksByCategory('home').map((t) => t.id)).toEqual(['t2'])
   })
 
-  it('clearCategoryFromTasks(categoryId) clears association but does not delete tasks', async () => {
+  it('clearCategoryFromTasks(categoryId) deletes tasks in the category but keeps others', async () => {
     const { useTaskStore } = await import('@/store/useTaskStore')
 
     const { result } = renderHook(() => useTaskStore())
@@ -96,11 +96,11 @@ describe('useTaskStore (helpers + migration)', () => {
       result.current.clearCategoryFromTasks('home')
     })
 
-    const t2 = result.current.tasks.find((t) => t.id === 't2')
-    expect(t2).toBeTruthy()
-    expect(t2!.categoryId).toBeUndefined()
+    // Deleting a category permanently deletes its tasks (matches the
+    // "Delete Permanently" confirm dialog in Categories.tsx)
+    expect(result.current.tasks.find((t) => t.id === 't2')).toBeUndefined()
 
-    expect(result.current.tasks).toHaveLength(3)
+    expect(result.current.tasks.map((t) => t.id)).toEqual(['t1', 't3'])
   })
 
   it("migrates legacy localStorage['tasks'] into task-storage when task-storage is empty", async () => {

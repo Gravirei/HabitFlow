@@ -10,10 +10,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { act } from "@testing-library/react"
-// Unused import removed
-// Unused import removed
-import { renderHook } from '@testing-library/react'
+import { renderHook, act, waitFor } from '@testing-library/react'
 import { useCountdown } from '@/features/timer/hooks/useCountdown'
 import { useTimerHistory } from '@/features/timer/hooks/useTimerHistory'
 import { useTimerPersistence } from '@/features/timer/hooks/useTimerPersistence'
@@ -101,13 +98,16 @@ describe('Error Scenarios', () => {
       window.localStorage.getItem = originalGetItem
     })
 
-    it('should handle corrupted JSON in localStorage', () => {
-      localStorage.setItem('test_history', 'invalid json {{{')
+    it('should handle corrupted JSON in localStorage', async () => {
+      vi.useRealTimers()
+      localStorage.setItem('timer-stopwatch-history', 'invalid json {{{')
 
       const { result } = renderHook(() => useTimerHistory({
         mode: 'Stopwatch',
         storageKey: 'test_history'
       }))
+
+      await waitFor(() => expect(result.current.isLoading).toBe(false))
 
       expect(result.current.history).toEqual([])
       expect(consoleErrorSpy).toHaveBeenCalled()

@@ -5,12 +5,15 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { renderHook, act } from '@testing-library/react'
+import { renderHook, act, waitFor } from '@testing-library/react'
 import { useTimerHistory } from '@/features/timer/hooks/useTimerHistory'
 import { useCountdown } from '@/features/timer/hooks/useCountdown'
 
 // Default options for useTimerHistory tests
 const defaultHistoryOptions = { mode: 'Stopwatch' as const, storageKey: 'test-history' }
+
+// The hook persists through tiered storage under this key (see lib/storage/tieredStorage.ts)
+const STOPWATCH_HISTORY_KEY = 'timer-stopwatch-history'
 
 describe('Error Recovery', () => {
   let consoleErrorSpy: ReturnType<typeof vi.spyOn>
@@ -29,18 +32,22 @@ describe('Error Recovery', () => {
   })
 
   describe('Automatic Recovery', () => {
-    it('should automatically recover from corrupted history', () => {
-      localStorage.setItem('test-history', 'corrupted{json}')
+    it('should automatically recover from corrupted history', async () => {
+      vi.useRealTimers()
+      localStorage.setItem(STOPWATCH_HISTORY_KEY, 'corrupted{json}')
 
       const { result } = renderHook(() => useTimerHistory(defaultHistoryOptions))
+
+      await waitFor(() => expect(result.current.isLoading).toBe(false))
 
       // Should recover with empty history
       expect(result.current.history).toEqual([])
       expect(consoleErrorSpy).toHaveBeenCalled()
     })
 
-    it('should recover from partial data corruption', () => {
-      localStorage.setItem('test-history', JSON.stringify([
+    it('should recover from partial data corruption', async () => {
+      vi.useRealTimers()
+      localStorage.setItem(STOPWATCH_HISTORY_KEY, JSON.stringify([
         { id: '1', mode: 'Stopwatch', duration: 1000, timestamp: Date.now() },
         { invalid: 'data' },
         { id: '2', mode: 'Countdown', duration: 2000, timestamp: Date.now() }
@@ -49,7 +56,7 @@ describe('Error Recovery', () => {
       const { result } = renderHook(() => useTimerHistory(defaultHistoryOptions))
 
       // Should keep valid records only
-      expect(result.current.history.length).toBe(2)
+      await waitFor(() => expect(result.current.history.length).toBe(2))
       expect(result.current.history[0].id).toBe('1')
       expect(result.current.history[1].id).toBe('2')
     })
@@ -182,8 +189,9 @@ describe('Error Recovery', () => {
   })
 
   describe('Data Migration', () => {
-    it('should accept legacy number ID format', () => {
-      localStorage.setItem('test-history', JSON.stringify([
+    it('should accept legacy number ID format', async () => {
+      vi.useRealTimers()
+      localStorage.setItem(STOPWATCH_HISTORY_KEY, JSON.stringify([
         { id: 1, mode: 'Stopwatch', duration: 1000, timestamp: Date.now() },
         { id: 2, mode: 'Countdown', duration: 2000, timestamp: Date.now() }
       ]))
@@ -191,14 +199,15 @@ describe('Error Recovery', () => {
       const { result } = renderHook(() => useTimerHistory(defaultHistoryOptions))
 
       // Should load records with legacy number IDs
-      expect(result.current.history.length).toBe(2)
+      await waitFor(() => expect(result.current.history.length).toBe(2))
       // Note: The hook uses useLocalStorage which doesn't migrate - it accepts both formats
       expect(result.current.history[0].id).toBeDefined()
       expect(result.current.history[1].id).toBeDefined()
     })
 
-    it('should handle mixed ID formats', () => {
-      localStorage.setItem('test-history', JSON.stringify([
+    it('should handle mixed ID formats', async () => {
+      vi.useRealTimers()
+      localStorage.setItem(STOPWATCH_HISTORY_KEY, JSON.stringify([
         { id: 1, mode: 'Stopwatch', duration: 1000, timestamp: Date.now() },
         { id: 'uuid-123', mode: 'Countdown', duration: 2000, timestamp: Date.now() }
       ]))
@@ -206,7 +215,7 @@ describe('Error Recovery', () => {
       const { result } = renderHook(() => useTimerHistory(defaultHistoryOptions))
 
       // Should handle both formats
-      expect(result.current.history.length).toBe(2)
+      await waitFor(() => expect(result.current.history.length).toBe(2))
       expect(result.current.history[0].id).toBeDefined()
       expect(result.current.history[1].id).toBe('uuid-123')
     })

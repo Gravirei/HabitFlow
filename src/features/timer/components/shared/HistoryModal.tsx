@@ -300,9 +300,10 @@ export const HistoryModal: React.FC<HistoryModalProps> = React.memo(({ isOpen, o
                 )}
                 <button
                   onClick={onClose}
+                  aria-label="Close History"
                   className="p-2.5 rounded-full bg-white/5 hover:bg-white/10 text-white transition-all active:scale-95 border border-white/5"
                 >
-                  <span className="material-symbols-outlined text-xl">close</span>
+                  <span className="material-symbols-outlined text-xl" aria-hidden="true">close</span>
                 </button>
               </div>
             </div>
@@ -355,10 +356,13 @@ export const HistoryModal: React.FC<HistoryModalProps> = React.memo(({ isOpen, o
               </div>
 
               {/* Filter Tabs */}
-              <div className="flex p-1 bg-white/5 rounded-xl overflow-x-auto scrollbar-hide w-full sm:w-auto">
+              <div className="flex p-1 bg-white/5 rounded-xl overflow-x-auto scrollbar-hide w-full sm:w-auto" role="tablist" aria-label="Filter history by mode">
                 {(['All', 'Stopwatch', 'Countdown', 'Intervals'] as FilterMode[]).map((mode) => (
                   <button
                     key={mode}
+                    role="tab"
+                    aria-selected={filterMode === mode}
+                    aria-label={`Filter by ${mode}`}
                     onClick={() => setFilterMode(mode)}
                     className={`relative px-4 py-1.5 text-sm font-medium rounded-lg transition-all whitespace-nowrap flex-1 sm:flex-none ${
                         filterMode === mode ? 'text-white' : 'text-white/40 hover:text-white/70'
@@ -378,7 +382,7 @@ export const HistoryModal: React.FC<HistoryModalProps> = React.memo(({ isOpen, o
             </div>
 
             {/* List */}
-            <div className="flex-1 overflow-y-auto px-6 py-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10">
+            <div className="flex-1 overflow-y-auto px-6 py-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10" role="region" aria-label="Timer history">
               {allHistory.length === 0 ? (
                 <EmptyState searchQuery={searchQuery} filterMode={filterMode} />
               ) : (
@@ -590,7 +594,8 @@ const HistoryCard = React.forwardRef<HTMLDivElement, {
 HistoryCard.displayName = 'HistoryCard'
 
 const EmptyState = ({ searchQuery, filterMode }: { searchQuery: string, filterMode: string }) => (
-  <motion.div 
+  <motion.div
+    role="status"
     initial={{ opacity: 0, scale: 0.9 }}
     animate={{ opacity: 1, scale: 1 }}
     className="flex flex-col items-center justify-center h-[50vh] text-center px-4"

@@ -7,6 +7,7 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { Categories } from '@/pages/bottomNav/Categories'
+import { CATEGORY_TEMPLATE_LIBRARY } from '@/constants/categoryTemplateLibrary'
 import type { Category } from '@/types/category'
 import type { Habit } from '@/types/habit'
 import type { Task } from '@/types/task'
@@ -112,7 +113,7 @@ describe('Categories Templates Modal (Phase 6)', () => {
     mockTasks = []
   })
 
-  it('opens Templates modal and imports a pack', async () => {
+  it('opens the Template Store modal and imports a pack', async () => {
     const user = userEvent.setup()
 
     mockCategories = [
@@ -136,27 +137,31 @@ describe('Categories Templates Modal (Phase 6)', () => {
 
     // Modal should open
     await waitFor(() => {
-      expect(screen.getByText('Category templates')).toBeInTheDocument()
+      expect(screen.getByText('Template Store')).toBeInTheDocument()
     })
 
-    // Find and click Import button for a pack (e.g., Fitness)
-    const importButtons = screen.getAllByRole('button', { name: /Import.*template pack/i })
-    expect(importButtons.length).toBeGreaterThan(0)
+    // Open the preview for the first library pack (all categories preselected)
+    const packCard = await screen.findByRole('button', {
+      name: new RegExp(CATEGORY_TEMPLATE_LIBRARY[0].name),
+    })
+    await user.click(packCard)
 
-    await user.click(importButtons[0])
+    // Confirm the selective-import preview
+    const importButton = await screen.findByRole('button', { name: /Import Selected/i })
+    await user.click(importButton)
 
     // Verify that addCategory was called (categories were imported)
     await waitFor(() => {
       expect(addCategoryMock).toHaveBeenCalled()
     })
 
-    // Success message should appear
+    // Sample habits for the imported categories are created too
     await waitFor(() => {
-      expect(screen.getByText(/Imported/i)).toBeInTheDocument()
+      expect(addHabitMock).toHaveBeenCalled()
     })
-  })
+  }, 20000)
 
-  it('shows all three template packs', async () => {
+  it('shows every template pack from the library', async () => {
     const user = userEvent.setup()
 
     renderPage()
@@ -166,11 +171,14 @@ describe('Categories Templates Modal (Phase 6)', () => {
     await user.click(templatesButton)
 
     await waitFor(() => {
-      expect(screen.getByText('Category templates')).toBeInTheDocument()
+      expect(screen.getByText('Template Store')).toBeInTheDocument()
     })
 
-    // Should show three import buttons (one for each pack)
-    const importButtons = screen.getAllByRole('button', { name: /Import.*template pack/i })
-    expect(importButtons.length).toBe(3)
-  })
+    // Every pack in the library should be rendered as an importable card
+    for (const pack of CATEGORY_TEMPLATE_LIBRARY) {
+      expect(
+        await screen.findByRole('button', { name: new RegExp(pack.name) })
+      ).toBeInTheDocument()
+    }
+  }, 20000)
 })
