@@ -7,6 +7,7 @@
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useHabitStore } from '@/store/useHabitStore'
+import { useNewHabitModalStore } from '@/store/useNewHabitModalStore'
 import {
   buildHeatmapData,
   getSparklineData,
@@ -348,6 +349,7 @@ function StatusBadge({ status }: { status: 'on-track' | 'behind' | 'ahead' }) {
 
 export function ProgressOverview() {
   const navigate = useNavigate()
+  const openNewHabit = useNewHabitModalStore((s) => s.open)
   const { getActiveHabits } = useHabitStore()
   const [timePeriod, setTimePeriod] = useState<TimePeriod>('week')
 
@@ -812,7 +814,7 @@ export function ProgressOverview() {
                 Start adding habits to see your progress, streaks, heatmap, and insights here.
               </p>
               <button
-                onClick={() => navigate('/new-habit')}
+                onClick={() => openNewHabit()}
                 className="cursor-pointer inline-flex items-center gap-2 bg-primary hover:bg-primary-focus text-slate-900 font-bold px-6 py-3 rounded-xl transition-colors duration-200 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950"
               >
                 <span className="material-symbols-outlined text-lg">add</span>

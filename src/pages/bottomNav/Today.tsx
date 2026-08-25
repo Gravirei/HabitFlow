@@ -18,6 +18,7 @@ import { GreetingHero, HabitCard, HydrationCard, TaskCard, DateStrip } from '@/f
 import { cn } from '@/utils/cn'
 import { shouldResetTaskForStartFresh } from '@/utils/habitResetUtils'
 import { createPortal } from 'react-dom'
+import { useNewHabitModalStore } from '@/store/useNewHabitModalStore'
 
 // ─── Mock tasks ───────────────────────────────────────────────────────────────
 const tasks = [
@@ -277,6 +278,7 @@ function HabitSheetHeader({ habit }: { habit: any }) {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export function Today() {
   const navigate = useNavigate()
+  const openNewHabit = useNewHabitModalStore((s) => s.open)
   const [isSideNavOpen, setIsSideNavOpen] = useState(false)
   const { habits, toggleHabitCompletion, isHabitCompletedOnDate } = useHabitStore()
   const { getTaskCount, getTasksByHabitId, updateTask, resetTasksIfNeeded } = useHabitTaskStore()
@@ -824,7 +826,7 @@ export function Today() {
       {/* ── FAB ──────────────────────────────────────────────────────── */}
       <div className="fixed bottom-24 right-6 z-30 lg:right-10">
         <motion.button
-          onClick={() => navigate('/new-habit')}
+          onClick={() => openNewHabit()}
           aria-label="Add new habit"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}

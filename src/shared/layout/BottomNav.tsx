@@ -1,5 +1,6 @@
 import { useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useNewHabitModalStore } from '@/store/useNewHabitModalStore'
 
 interface NavItem {
   id: string
@@ -21,6 +22,7 @@ const navItems: NavItem[] = [
 export function BottomNav() {
   const navigate = useNavigate()
   const location = useLocation()
+  const openNewHabit = useNewHabitModalStore((s) => s.open)
   const leftItems = navItems.slice(0, 3)
   const rightItems = navItems.slice(3)
 
@@ -76,7 +78,7 @@ export function BottomNav() {
 
             <motion.button
               type="button"
-              onClick={() => navigate('/new-habit')}
+              onClick={() => openNewHabit()}
               whileTap={{ scale: 0.94 }}
               className="group relative mx-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-800/95 text-white shadow-[0_8px_18px_rgba(0,0,0,0.22)]"
               aria-label="Create new habit"

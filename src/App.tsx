@@ -18,6 +18,7 @@ import { Settings } from '@/pages/sideNav/Settings'
 import { EditProfile } from '@/pages/sideNav/EditProfile'
 import { Calendar } from '@/pages/Calendar'
 import { NewHabit } from '@/pages/NewHabit'
+import { NewHabitModal } from '@/features/habits/components/NewHabitModal'
 import { ProgressOverview } from '@/pages/sideNav/ProgressOverview'
 import { Today } from '@/pages/bottomNav/Today'
 import { Habits } from '@/pages/bottomNav/Habits'
@@ -163,6 +164,7 @@ function App() {
           <Route path="/integrations" element={<RequireAuth><Integrations /></RequireAuth>} />
           <Route path="/social" element={<RequireAuth><RequireVerifiedEmail><Social /></RequireVerifiedEmail></RequireAuth>} />
         </Routes>
+        <NewHabitModal />
         </BrowserRouter>
     </ErrorBoundary>
   )
