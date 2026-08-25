@@ -85,16 +85,16 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
-// Validate environment variables
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn(
-    'Missing Supabase environment variables. Please check your .env file and ensure VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are set.'
-  )
-  // Create a dummy client to prevent app crashes
-  // This allows the app to run without Supabase configured
-}
-
 const isTestEnv = import.meta.env.MODE === 'test'
+
+// Validate environment variables — fail fast outside of tests so a missing
+// configuration surfaces immediately with actionable guidance, instead of a
+// silently broken app talking to a placeholder project.
+if ((!supabaseUrl || !supabaseAnonKey) && !isTestEnv) {
+  throw new Error(
+    'Missing Supabase environment variables. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your .env file (see .env.example).'
+  )
+}
 
 const hasValidStorage = (() => {
   try {

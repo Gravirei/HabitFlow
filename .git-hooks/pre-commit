@@ -1,15 +1,12 @@
 #!/bin/sh
-# Pre-commit hook to prevent committing sensitive files
+# Pre-commit hook: sensitive-file guard + staged-file lint/format.
 
 echo "🔍 Checking for sensitive files..."
 
 # Check if .env files are being committed
-if git diff --cached --name-only | grep -E '^\.env$|^\.env\.local$'; then
+if git diff --cached --name-only | grep -E '^\.env$|^\.env\.local$' >/dev/null; then
   echo ""
   echo "❌ ERROR: Attempting to commit .env file!"
-  echo ""
-  echo "The following files contain sensitive credentials:"
-  git diff --cached --name-only | grep -E '^\.env'
   echo ""
   echo "These files should NEVER be committed to version control."
   echo ""
@@ -21,22 +18,51 @@ if git diff --cached --name-only | grep -E '^\.env$|^\.env\.local$'; then
   exit 1
 fi
 
-# Check for hardcoded secrets in staged files
-if git diff --cached | grep -iE '(password|secret|api[_-]?key|token|private[_-]?key).*=.*["\'][^"\']{20,}'; then
+# Check for hardcoded secrets in staged changes.
+# Fails closed: review the diff, then re-commit with the value removed or moved
+# to environment variables. Intentional non-secret matches (e.g. docs) can be
+# bypassed once with `git commit --no-verify`.
+# .git-hooks is excluded so this script does not match its own pattern.
+if git diff --cached -- . ':(exclude).git-hooks' | grep -iE '(password|secret|api[_-]?key|token|private[_-]?key).*=.*["\x27][^"\x27]{20,}' >/dev/null; then
   echo ""
-  echo "⚠️  WARNING: Possible hardcoded credentials detected!"
+  echo "❌ Possible hardcoded credentials detected in staged changes!"
   echo ""
   echo "Found patterns that look like hardcoded secrets."
-  echo "Please review your changes carefully."
+  echo "If these are real credentials, DO NOT commit them —"
+  echo "use environment variables instead."
   echo ""
-  echo "If these are real credentials, DO NOT commit them."
-  echo "Use environment variables instead."
+  echo "If this match is a false positive (e.g. documentation),"
+  echo "re-run with: git commit --no-verify"
   echo ""
-  read -p "Continue anyway? (y/N) " -n 1 -r
-  echo
-  if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+  exit 1
+fi
+
+# Lint & format staged source files (lint-staged-style, dependency-free).
+# Only files already being committed are touched — no repo-wide churn.
+STAGED_SRC=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '\.(ts|tsx|js|jsx)$')
+if [ -n "$STAGED_SRC" ]; then
+  echo "🧹 Linting & formatting staged files..."
+
+  # Prettier: write formatting directly onto staged files
+  # shellcheck disable=SC2086
+  echo "$STAGED_SRC" | xargs npx prettier --write >/dev/null 2>&1
+
+  # ESLint: auto-fix what's fixable; fail on unexpected errors.
+  # (Warnings are tolerated here — the warning budget is enforced in CI.)
+  # shellcheck disable=SC2086
+  if ! echo "$STAGED_SRC" | xargs npx eslint --fix >/tmp/habitflow-precommit-eslint.log 2>&1; then
+    echo ""
+    echo "❌ ESLint reported errors in staged files:"
+    tail -n 20 /tmp/habitflow-precommit-eslint.log
+    echo ""
+    echo "Fix them or bypass once with --no-verify."
+    echo ""
     exit 1
   fi
+
+  # Re-stage any files modified by the fixers above
+  # shellcheck disable=SC2086
+  git add $STAGED_SRC
 fi
 
 echo "✅ Pre-commit checks passed!"

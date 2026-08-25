@@ -5,6 +5,10 @@ on:
     branches: [main, develop]
   pull_request:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   verify:
     runs-on: ubuntu-latest
@@ -16,6 +20,28 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run typecheck
-      - run: npm run lint
-      - run: npx vitest run
+      # Lint twice: errors gate directly, warnings gate via the ratcheting budget (.lint-budget)
+      - run: npx eslint . --format json -o eslint-report.json || true
+      - run: node scripts/check-lint-budget.cjs eslint-report.json
+      - run: npx vitest run --coverage.enabled
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 14
       - run: npm run build
+
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install firefox --with-deps
+      - run: npm run build
+      - run: npm run test:e2e

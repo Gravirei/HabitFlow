@@ -1,0 +1,17 @@
+#!/bin/sh
+# Pre-push hook: fast correctness gate before leaving the machine.
+# Full unit tests + e2e run in CI; this keeps push feedback quick.
+
+echo "🔍 Typechecking..."
+npm run typecheck || exit 1
+
+echo "🔍 Linting for errors (--max-warnings ignored; budget enforced in CI)..."
+if ! npx eslint . --quiet; then
+  echo ""
+  echo "❌ ESLint errors found. Fix them before pushing."
+  echo ""
+  exit 1
+fi
+
+echo "✅ Pre-push checks passed!"
+exit 0
