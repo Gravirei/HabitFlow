@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { Habit } from '@/types/habit'
+import type { Habit } from '@/types/habit'
 import { format } from 'date-fns'
 import { SAMPLE_HABITS } from '@/constants/sampleData'
 import { calculateStreaks } from '@/utils/streakUtils'
@@ -10,7 +10,17 @@ import { calculateCompletionRate } from '@/utils/progressUtils'
 interface HabitState {
   habits: Habit[]
   isFirstVisit: boolean
-  addHabit: (habit: Omit<Habit, 'id' | 'currentStreak' | 'bestStreak' | 'completionRate' | 'totalCompletions' | 'completedDates'>) => void
+  addHabit: (
+    habit: Omit<
+      Habit,
+      | 'id'
+      | 'currentStreak'
+      | 'bestStreak'
+      | 'completionRate'
+      | 'totalCompletions'
+      | 'completedDates'
+    >
+  ) => void
   updateHabit: (id: string, habit: Partial<Habit>) => void
   deleteHabit: (id: string) => void
   toggleHabitCompletion: (habitId: string, date?: string) => void
@@ -54,9 +64,7 @@ interface HabitState {
   hideHabitForToday: (habitId: string, date: string) => void
 }
 
-const mapLegacyCategoryToCategoryId = (
-  legacy?: Habit['category']
-): string | undefined => {
+const mapLegacyCategoryToCategoryId = (legacy?: Habit['category']): string | undefined => {
   if (!legacy) return undefined
 
   // Minimal compatibility mapping during migration.
@@ -78,7 +86,7 @@ export const useHabitStore = create<HabitState>()(
     (set, get) => ({
       habits: [],
       isFirstVisit: true,
-      
+
       addHabit: (habitData) => {
         const newHabit: Habit = {
           ...habitData,
@@ -91,7 +99,7 @@ export const useHabitStore = create<HabitState>()(
         }
         set((state) => ({ habits: [...state.habits, newHabit] }))
       },
-      
+
       updateHabit: (id, updatedData) => {
         set((state) => ({
           habits: state.habits.map((habit) =>
@@ -99,39 +107,39 @@ export const useHabitStore = create<HabitState>()(
           ),
         }))
       },
-      
+
       deleteHabit: (id) => {
         set((state) => ({
           habits: state.habits.filter((habit) => habit.id !== id),
         }))
       },
-      
+
       toggleHabitCompletion: (habitId, date = format(new Date(), 'yyyy-MM-dd')) => {
         set((state) => {
           const habits = state.habits.map((habit) => {
             if (habit.id !== habitId) return habit
-            
+
             const isCompleted = habit.completedDates.includes(date)
             const completedDates = isCompleted
               ? habit.completedDates.filter((d) => d !== date)
               : [...habit.completedDates, date]
-            
+
             const totalCompletions = isCompleted
               ? habit.totalCompletions - 1
               : habit.totalCompletions + 1
-            
+
             // Calculate streaks using modern yesterday-tolerant algorithm
             const { currentStreak, bestStreak } = calculateStreaks(completedDates)
-            
+
             // Recalculate completion rate based on frequency and time elapsed
             const completionRate = calculateCompletionRate(
               habit.frequency,
               habit.startDate,
               completedDates.length,
               habit.goal,
-              habit.weeklyTimesPerWeek,
+              habit.weeklyTimesPerWeek
             )
-            
+
             return {
               ...habit,
               completedDates,
@@ -141,29 +149,29 @@ export const useHabitStore = create<HabitState>()(
               completionRate,
             }
           })
-          
+
           return { habits }
         })
       },
-      
+
       isHabitCompletedToday: (habitId) => {
         const habit = get().habits.find((h) => h.id === habitId)
         const today = format(new Date(), 'yyyy-MM-dd')
         return habit?.completedDates.includes(today) || false
       },
-      
+
       isHabitCompletedOnDate: (habitId: string, date: string) => {
         const habit = get().habits.find((h) => h.id === habitId)
         return habit?.completedDates.includes(date) || false
       },
-      
+
       loadSampleHabits: () => {
-        set({ 
+        set({
           habits: SAMPLE_HABITS,
-          isFirstVisit: false 
+          isFirstVisit: false,
         })
       },
-      
+
       markOnboardingComplete: () => {
         set({ isFirstVisit: false })
       },
@@ -191,9 +199,7 @@ export const useHabitStore = create<HabitState>()(
       },
 
       getUncategorizedHabits: () => {
-        return get().habits.filter(
-          (habit) => !habit.categoryId && !habit.category
-        )
+        return get().habits.filter((habit) => !habit.categoryId && !habit.category)
       },
 
       clearCategoryFromHabits: (categoryId) => {
@@ -215,9 +221,7 @@ export const useHabitStore = create<HabitState>()(
       unarchiveHabit: (habitId) => {
         set((state) => ({
           habits: state.habits.map((habit) =>
-            habit.id === habitId
-              ? { ...habit, archived: false, archivedDate: undefined }
-              : habit
+            habit.id === habitId ? { ...habit, archived: false, archivedDate: undefined } : habit
           ),
         }))
       },
@@ -226,13 +230,13 @@ export const useHabitStore = create<HabitState>()(
         set((state) => ({
           habits: state.habits.map((habit) => {
             if (habit.id !== habitId) return habit
-            
+
             const newNote = {
               id: Date.now().toString(),
               text: noteText,
               createdAt: new Date().toISOString(),
             }
-            
+
             return {
               ...habit,
               notes: [...(habit.notes || []), newNote],
@@ -245,7 +249,7 @@ export const useHabitStore = create<HabitState>()(
         set((state) => ({
           habits: state.habits.map((habit) => {
             if (habit.id !== habitId) return habit
-            
+
             return {
               ...habit,
               notes: (habit.notes || []).filter((note) => note.id !== noteId),
@@ -298,7 +302,7 @@ export const useHabitStore = create<HabitState>()(
         },
         removeItem: (name) => {
           localStorage.removeItem(name)
-        }
+        },
       },
       migrate: (persistedState: unknown, version: number) => {
         const state = persistedState as Record<string, unknown>
@@ -322,7 +326,7 @@ export const useHabitStore = create<HabitState>()(
               h.startDate,
               h.completedDates.length,
               h.goal,
-              h.weeklyTimesPerWeek,
+              h.weeklyTimesPerWeek
             )
             return { ...h, currentStreak, bestStreak, completionRate }
           })

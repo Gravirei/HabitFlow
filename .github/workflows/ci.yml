@@ -20,6 +20,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run typecheck
+      - run: node scripts/check-type-imports.cjs
       - run: sh scripts/check-deploy-parity.sh
       # Lint twice: errors gate directly, warnings gate via the ratcheting budget (.lint-budget)
       - run: npx eslint . --format json -o eslint-report.json || true
