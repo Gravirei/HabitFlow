@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { motion, AnimatePresence } from 'framer-motion'
 import { useHabitStore } from '@/store/useHabitStore'
 import { useCategoryStore } from '@/store/useCategoryStore'
@@ -15,16 +14,17 @@ interface HabitDetailsModalProps {
 export function HabitDetailsModal({ isOpen, onClose, habitId }: HabitDetailsModalProps) {
   const { habits } = useHabitStore()
   const { categories } = useCategoryStore()
-  const { habitTasks } = useHabitTaskStore()
+  const { tasks: habitTasks } = useHabitTaskStore()
 
   const habit = habits.find((h) => h.id === habitId)
   const category = categories.find((c) => c.id === habit?.categoryId)
-  const tasks = habitTasks?.filter((t) => t.habitId === habitId) || []
+  const tasks = habitTasks.filter((t) => t.habitId === habitId)
 
   if (!habit) return null
 
   const iconColor = iconColorOptions[habit.iconColor ?? 0]
-  const createdDate = habit.createdAt ? new Date(habit.createdAt) : null
+  // Habit has no createdAt; startDate is the closest recorded origin date
+  const createdDate = habit.startDate ? new Date(habit.startDate) : null
 
   return (
     <AnimatePresence>
@@ -34,16 +34,15 @@ export function HabitDetailsModal({ isOpen, onClose, habitId }: HabitDetailsModa
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="relative w-full max-w-2xl max-h-[90vh] overflow-hidden rounded-3xl bg-white shadow-2xl dark:bg-slate-800"
+            className="relative max-h-[90vh] w-full max-w-2xl overflow-hidden rounded-3xl bg-white shadow-2xl dark:bg-slate-800"
           >
             {/* Header */}
             <div className="flex items-center justify-between border-b border-slate-200 p-6 dark:border-slate-700">
               <div className="flex items-center gap-4">
                 <div
-                  className="flex h-14 w-14 items-center justify-center rounded-2xl"
-                  style={{ backgroundColor: iconColor.bg }}
+                  className={`flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${iconColor.gradient}`}
                 >
-                  <span className="material-symbols-outlined text-3xl" style={{ color: iconColor.text }}>
+                  <span className={`material-symbols-outlined text-3xl ${iconColor.textColor}`}>
                     {habit.icon}
                   </span>
                 </div>
@@ -52,9 +51,7 @@ export function HabitDetailsModal({ isOpen, onClose, habitId }: HabitDetailsModa
                     {habit.name}
                   </h2>
                   {category && (
-                    <p className="text-sm text-slate-500 dark:text-slate-400">
-                      {category.name}
-                    </p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">{category.name}</p>
                   )}
                 </div>
               </div>
@@ -80,17 +77,9 @@ export function HabitDetailsModal({ isOpen, onClose, habitId }: HabitDetailsModa
                       label="Frequency"
                       value={habit.frequency.charAt(0).toUpperCase() + habit.frequency.slice(1)}
                     />
-                    <InfoRow
-                      icon="flag"
-                      label="Goal"
-                      value={`${habit.goal} ${habit.goalPeriod}`}
-                    />
+                    <InfoRow icon="flag" label="Goal" value={`${habit.goal} ${habit.goalPeriod}`} />
                     {habit.description && (
-                      <InfoRow
-                        icon="description"
-                        label="Description"
-                        value={habit.description}
-                      />
+                      <InfoRow icon="description" label="Description" value={habit.description} />
                     )}
                     {createdDate && (
                       <InfoRow
@@ -152,9 +141,9 @@ export function HabitDetailsModal({ isOpen, onClose, habitId }: HabitDetailsModa
                           className="flex items-center gap-3 text-sm text-slate-700 dark:text-slate-300"
                         >
                           <span className="material-symbols-outlined text-lg text-purple-500">
-                            {task.isCompleted ? 'check_circle' : 'radio_button_unchecked'}
+                            {task.completed ? 'check_circle' : 'radio_button_unchecked'}
                           </span>
-                          <span className={task.isCompleted ? 'line-through opacity-60' : ''}>
+                          <span className={task.completed ? 'line-through opacity-60' : ''}>
                             {task.title}
                           </span>
                         </div>
@@ -171,13 +160,8 @@ export function HabitDetailsModal({ isOpen, onClose, habitId }: HabitDetailsModa
                     </h3>
                     <div className="space-y-3 rounded-xl bg-amber-50 p-4 dark:bg-amber-500/10">
                       {habit.notes.map((note) => (
-                        <div
-                          key={note.id}
-                          className="rounded-lg bg-white p-3 dark:bg-slate-700"
-                        >
-                          <p className="text-sm text-slate-700 dark:text-slate-300">
-                            {note.text}
-                          </p>
+                        <div key={note.id} className="rounded-lg bg-white p-3 dark:bg-slate-700">
+                          <p className="text-sm text-slate-700 dark:text-slate-300">{note.text}</p>
                           <p className="mt-1 text-xs text-slate-400">
                             {format(new Date(note.createdAt), 'MMM dd, yyyy • hh:mm a')}
                           </p>
@@ -208,9 +192,7 @@ export function HabitDetailsModal({ isOpen, onClose, habitId }: HabitDetailsModa
                           ))}
                       </div>
                       {habit.completedDates.length > 10 && (
-                        <p className="mt-2 text-xs text-slate-500">
-                          Showing last 10 completions
-                        </p>
+                        <p className="mt-2 text-xs text-slate-500">Showing last 10 completions</p>
                       )}
                     </div>
                   </section>
@@ -230,9 +212,7 @@ export function HabitDetailsModal({ isOpen, onClose, habitId }: HabitDetailsModa
                     {habit.archived && (
                       <StatusBadge icon="archive" label="Archived" color="orange" />
                     )}
-                    {habit.pinned && (
-                      <StatusBadge icon="push_pin" label="Pinned" color="blue" />
-                    )}
+                    {habit.pinned && <StatusBadge icon="push_pin" label="Pinned" color="blue" />}
                   </div>
                 </section>
               </div>
@@ -247,9 +227,7 @@ export function HabitDetailsModal({ isOpen, onClose, habitId }: HabitDetailsModa
 function InfoRow({ icon, label, value }: { icon: string; label: string; value: string }) {
   return (
     <div className="flex items-start gap-3">
-      <span className="material-symbols-outlined text-lg text-slate-400">
-        {icon}
-      </span>
+      <span className="material-symbols-outlined text-lg text-slate-400">{icon}</span>
       <div className="flex-1">
         <p className="text-xs font-medium text-slate-500 dark:text-slate-400">{label}</p>
         <p className="text-sm text-slate-700 dark:text-slate-200">{value}</p>
@@ -274,13 +252,9 @@ function StatCard({
   return (
     <div className={`rounded-xl p-4 ${bgColor}`}>
       <div className="flex items-center gap-2">
-        <span className={`material-symbols-outlined text-2xl ${iconColor}`}>
-          {icon}
-        </span>
+        <span className={`material-symbols-outlined text-2xl ${iconColor}`}>{icon}</span>
         <div>
-          <p className="text-2xl font-bold text-slate-700 dark:text-slate-200">
-            {value}
-          </p>
+          <p className="text-2xl font-bold text-slate-700 dark:text-slate-200">{value}</p>
           <p className="text-xs text-slate-500 dark:text-slate-400">{label}</p>
         </div>
       </div>
@@ -297,7 +271,9 @@ function StatusBadge({ icon, label, color }: { icon: string; label: string; colo
   }
 
   return (
-    <div className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold ${colorClasses[color as keyof typeof colorClasses]}`}>
+    <div
+      className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold ${colorClasses[color as keyof typeof colorClasses]}`}
+    >
       <span className="material-symbols-outlined text-sm">{icon}</span>
       <span>{label}</span>
     </div>

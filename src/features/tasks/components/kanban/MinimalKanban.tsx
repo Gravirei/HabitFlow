@@ -1,5 +1,4 @@
-// @ts-nocheck
-import { Task } from '@/types/task'
+import type { Task } from '@/types/task'
 import { cn } from '@/utils/cn'
 
 interface MinimalKanbanProps {
@@ -9,12 +8,7 @@ interface MinimalKanbanProps {
   onDeleteTask: (taskId: string) => void
 }
 
-export function MinimalKanban({
-  tasks,
-  onTaskClick,
-  onTaskStatusChange,
-  onDeleteTask,
-}: MinimalKanbanProps) {
+export function MinimalKanban({ tasks, onTaskClick, onTaskStatusChange }: MinimalKanbanProps) {
   const todoTasks = tasks.filter((t) => t.status === 'todo' && !t.completed)
   const inProgressTasks = tasks.filter((t) => t.status === 'in_progress')
   const doneTasks = tasks.filter((t) => t.completed || t.status === 'completed')

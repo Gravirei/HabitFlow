@@ -1,5 +1,4 @@
-// @ts-nocheck
-import { Task } from '@/types/task'
+import type { Task } from '@/types/task'
 import { cn } from '@/utils/cn'
 
 interface TrelloKanbanProps {
@@ -9,12 +8,7 @@ interface TrelloKanbanProps {
   onDeleteTask: (taskId: string) => void
 }
 
-export function TrelloKanban({
-  tasks,
-  onTaskClick,
-  onTaskStatusChange,
-  onDeleteTask,
-}: TrelloKanbanProps) {
+export function TrelloKanban({ tasks, onTaskClick }: TrelloKanbanProps) {
   const todoTasks = tasks.filter((t) => t.status === 'todo' && !t.completed)
   const inProgressTasks = tasks.filter((t) => t.status === 'in_progress')
   const doneTasks = tasks.filter((t) => t.completed || t.status === 'completed')
