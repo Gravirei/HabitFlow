@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
@@ -204,7 +203,7 @@ export function Settings() {
   const [accentColor, setAccentColor] = useState('green')
 
   // General
-  const [language, setLanguage] = useState<Language>('en')
+  const [language, _setLanguage] = useState<Language>('en')
   const [startOfWeek, setStartOfWeek] = useState<StartOfWeek>('monday')
   const [showCompleted, setShowCompleted] = useState(true)
   const [compactMode, setCompactMode] = useState(false)
