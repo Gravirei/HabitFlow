@@ -2,6 +2,45 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Global Scrollbar Hiding for Native App Feel */
+::-webkit-scrollbar {
+  display: none;
+  width: 0px;
+  height: 0px;
+  background: transparent;
+}
+*::-webkit-scrollbar {
+  display: none;
+  width: 0px;
+  height: 0px;
+  background: transparent;
+}
+html, body, * {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+/* Custom font families for template preview */
+.font-lora {
+  font-family: 'Lora', serif;
+}
+
+.font-raleway {
+  font-family: 'Raleway', sans-serif;
+}
+
+@layer utilities {
+  .bg-size-200 {
+    background-size: 200%;
+  }
+  .bg-pos-0 {
+    background-position: 0%;
+  }
+  .bg-pos-100 {
+    background-position: 100%;
+  }
+}
+
 /* ============================================
    THEME SYSTEM - CSS Variables
    ============================================ */
@@ -481,5 +520,65 @@ select:focus-visible {
   to {
     opacity: 1;
     transform: scale(1);
+  }
+}
+
+@keyframes slideUpFade {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes slideDownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Marquee / Scrolling Text Animation ─────────────────────────────────────── */
+@keyframes marquee-scroll {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.marquee-container {
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+  mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+}
+
+.marquee-track {
+  display: flex;
+  width: 200%;
+  white-space: nowrap;
+  animation: marquee-scroll 14s linear infinite;
+  will-change: transform;
+}
+
+.marquee-track > span {
+  flex: 0 0 50%;
+  padding-right: 3rem;
+  box-sizing: border-box;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none !important;
   }
 }

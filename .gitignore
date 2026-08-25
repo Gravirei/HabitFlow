@@ -8,8 +8,10 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
+android
 dist
 dist-ssr
+android
 *.local
 
 # Editor directories and files
@@ -27,9 +29,16 @@ archive
 TIMER_MD
 .agent
 
+.cursor
+.claude
+.codex
+
 
 # Testing
 coverage
+
+# Codegen intermediate (scripts/gen_leagues.js stdout)
+leagues_output.txt
 
 # Environment variables
 .env
@@ -41,3 +50,11 @@ coverage
 *.pem
 secrets/
 credentials/
+
+# ByteRover
+.brv
+.env
+
+# Playwright artifacts
+playwright-report
+test-results

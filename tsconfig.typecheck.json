@@ -1,0 +1,11 @@
+{
+  "//": [
+    "Typecheck gate for CI/build. Strict everywhere EXCEPT files carrying a '// @ts-nocheck' debt marker.",
+    "Ledger burn-down = remove @ts-nocheck headers. List: grep -rl '@ts-nocheck' src | sort.",
+    "Must be ZERO when the structural refactor completes. Do not add new entries."
+  ],
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true
+  }
+}

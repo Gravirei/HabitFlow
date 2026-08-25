@@ -1,5 +1,5 @@
 // Add custom matchers or setup code for tests
-import { expect, afterEach, vi, beforeAll } from 'vitest'
+import { afterEach, vi, beforeAll } from 'vitest'
 import { cleanup } from '@testing-library/react'
 import '@testing-library/jest-dom'
 
@@ -70,14 +70,14 @@ afterEach(() => {
     if (window.localStorage?.clear) {
       window.localStorage.clear()
     }
-  } catch (e) {
+  } catch {
     // localStorage might be mocked in tests
   }
   try {
     if (window.sessionStorage?.clear) {
       window.sessionStorage.clear()
     }
-  } catch (e) {
+  } catch {
     // sessionStorage might be mocked in tests
   }
   // Clear all mocks

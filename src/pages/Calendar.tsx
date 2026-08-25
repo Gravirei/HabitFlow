@@ -49,7 +49,7 @@ export function Calendar() {
       {/* Glassmorphism Header */}
       <div className="sticky top-0 z-10 flex h-16 items-center bg-white/70 dark:bg-slate-950/70 px-4 pb-2 backdrop-blur-xl border-b border-slate-200/50 dark:border-slate-800/50 justify-between pt-safe shrink-0">
         <button
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/today')}
           className="text-slate-800 dark:text-white flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-slate-200/50 dark:hover:bg-white/10 transition-colors active:scale-95 touch-manipulation"
         >
           <span className="material-symbols-outlined">arrow_back</span>

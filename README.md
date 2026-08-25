@@ -1,6 +1,21 @@
-# React + TypeScript + Vite Template
+# HabitFlow
 
-A modern, production-ready template for building React applications with TypeScript and Vite, including a comprehensive set of libraries and tools.
+A modern, full-featured habit tracking and productivity application built with React, TypeScript, and Vite.
+
+## 🌳 Branch Structure
+
+We follow a structured branching strategy for organized development:
+
+- **`main`** - Production-ready code (protected)
+- **`develop`** - Integration branch for active development (default)
+- **`staging`** - Pre-production testing environment
+- **`feature/*`** - Feature development branches
+- **`bugfix/*`** - Bug fix branches
+- **`hotfix/*`** - Critical production fixes
+
+📖 See [BRANCHING_STRATEGY.md](./BRANCHING_STRATEGY.md) for complete workflow details.
+
+---
 
 ## ✨ Features
 
@@ -38,23 +53,30 @@ A modern, production-ready template for building React applications with TypeScr
 
 ## 📁 Project Structure
 
+Feature-sliced architecture — domain code lives in `src/features/<domain>/`,
+cross-domain primitives in `src/shared/` and the shared layers. See
+[AGENTS.md](AGENTS.md) for the full architecture guide, dependency rules,
+and testing policy.
+
 ```
 .
 ├── src/
-│   ├── components/     # Reusable components
-│   ├── hooks/          # Custom React hooks
-│   ├── utils/          # Utility functions
-│   ├── types/          # TypeScript type definitions
-│   ├── test/           # Test setup and utilities
+│   ├── features/       # Domain features (timer, social, tasks, habits,
+│   │                   #   categories, today, integrations, auth,
+│   │                   #   accessibility, onboarding)
+│   ├── shared/         # Cross-domain UI primitives + layout shell
+│   ├── lib/            # Framework-free logic (auth, storage, security)
+│   ├── store/          # Global persisted Zustand stores
+│   ├── pages/          # Routing composition
+│   ├── hooks/ utils/ schemas/ types/ constants/
+│   ├── __tests__/      # Cross-cutting tests only
 │   ├── App.tsx         # Main App component
-│   ├── main.tsx        # Application entry point
-│   └── index.css       # Global styles
+│   └── main.tsx        # Application entry point
+├── e2e/                # Playwright specs (Firefox)
+├── scripts/            # Codegen tooling (leagues → constants)
 ├── public/             # Static assets
 ├── index.html          # HTML template
-├── package.json        # Dependencies and scripts
-├── tsconfig.json       # TypeScript configuration
-├── vite.config.ts      # Vite configuration
-└── README.md          # This file
+└── vite.config.ts      # Vite configuration
 ```
 
 ## 🚀 Getting Started

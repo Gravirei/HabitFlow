@@ -24,7 +24,7 @@ export function Welcome() {
 
   const handleLater = () => {
     // Skip authentication for now and go to home
-    navigate('/')
+    navigate('/today')
   }
 
   return (

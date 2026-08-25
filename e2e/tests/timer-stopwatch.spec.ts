@@ -4,7 +4,7 @@
  * stop, reset, lap recording, and session persistence.
  */
 
-import { test, expect, STORAGE_KEYS } from '../fixtures';
+import { test, expect } from '../fixtures';
 import { TimerPage } from '../pages/timer.page';
 
 test.describe('Stopwatch Timer', () => {
@@ -36,7 +36,7 @@ test.describe('Stopwatch Timer', () => {
   });
 
   test.describe('Timer Controls', () => {
-    test('start button starts the timer', async ({ page }) => {
+    test('start button starts the timer', async () => {
       await timerPage.start();
       
       // Timer should be running (pause button visible)
@@ -108,7 +108,7 @@ test.describe('Stopwatch Timer', () => {
       await expect(timerPage.killConfirmModal).toBeVisible();
     });
 
-    test('stop and save preserves session', async ({ page, getStorageItem }) => {
+    test('stop and save preserves session', async () => {
       await timerPage.start();
       await page.waitForTimeout(1500);
       

@@ -13,7 +13,7 @@
  */
 
 import { supabase } from '@/lib/supabase'
-import type { TimerHistoryRecord, TimerMode } from '@/components/timer/types/timer.types'
+import type { TimerHistoryRecord, TimerMode } from './timerHistory.types'
 
 // Storage keys
 const STORAGE_KEYS = {
@@ -118,7 +118,7 @@ function getStorageKey(mode: TimerMode): string {
  * LocalStorage helpers with integrity checks
  * Security: Uses checksums to detect tampering
  */
-import { secureGetItem, secureSetItem } from '@/components/timer/utils/storageIntegrity'
+import { secureGetItem, secureSetItem } from './storageIntegrity'
 
 const localStorageHelper = {
   get<T>(key: string, defaultValue: T): T {
@@ -209,8 +209,10 @@ export class TieredStorageService {
 
   /**
    * Get all history records for a mode
+   * @param mode - Timer mode to get history for
+   * @param forceCloud - Force fetch from Supabase instead of using cache (default: false)
    */
-  async getHistory(mode: TimerMode): Promise<TimerHistoryRecord[]> {
+  async getHistory(mode: TimerMode, forceCloud: boolean = false): Promise<TimerHistoryRecord[]> {
     const storageKey = getStorageKey(mode)
     const localHistory = localStorageHelper.get<TimerHistoryRecord[]>(storageKey, [])
 
@@ -219,7 +221,13 @@ export class TieredStorageService {
       return localHistory
     }
 
-    // If logged in, try to get from Supabase
+    // If logged in and not forcing cloud fetch, return local cache (fast path)
+    // This is the optimization: trust the local cache for real-time updates
+    if (!forceCloud) {
+      return localHistory
+    }
+
+    // Only fetch from Supabase when explicitly requested (e.g., initial load, manual refresh)
     try {
       const { data, error } = await supabase
         .from(TABLE_NAME)

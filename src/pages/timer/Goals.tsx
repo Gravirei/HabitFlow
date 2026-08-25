@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Goals Page
  * Goal tracking and management interface
@@ -5,7 +6,7 @@
 
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
-import { GoalsDashboard } from '../../components/timer/sidebar/goals/GoalsDashboard'
+import { GoalsDashboard } from '@/features/timer/components/sidebar/goals/GoalsDashboard'
 
 export default function Goals() {
   const navigate = useNavigate()

@@ -3,7 +3,7 @@
  * Tests settings modal, preferences, and persistence
  */
 
-import { test, expect, STORAGE_KEYS } from '../fixtures';
+import { test, expect } from '../fixtures';
 import { TimerPage } from '../pages';
 
 test.describe('Timer Settings', () => {
@@ -43,7 +43,7 @@ test.describe('Timer Settings', () => {
   });
 
   test.describe('Sound Settings', () => {
-    test('sound settings toggle works', async ({ page }) => {
+    test('sound settings toggle works', async () => {
       await timerPage.openSettings();
       
       // Find sound toggle in settings
@@ -68,7 +68,7 @@ test.describe('Timer Settings', () => {
       }
     });
 
-    test('volume slider changes volume', async ({ page }) => {
+    test('volume slider changes volume', async () => {
       await timerPage.openSettings();
       
       // Find volume slider
@@ -91,7 +91,7 @@ test.describe('Timer Settings', () => {
   });
 
   test.describe('Notification Settings', () => {
-    test('notification settings toggle works', async ({ page, mockNotifications }) => {
+    test('notification settings toggle works', async ({ page: _page, mockNotifications }) => {
       await mockNotifications();
       await timerPage.goto();
       await timerPage.openSettings();
@@ -120,7 +120,7 @@ test.describe('Timer Settings', () => {
   });
 
   test.describe('Vibration Settings', () => {
-    test('vibration settings toggle works', async ({ page }) => {
+    test('vibration settings toggle works', async () => {
       await timerPage.openSettings();
       
       // Find vibration toggle in settings
@@ -147,7 +147,7 @@ test.describe('Timer Settings', () => {
   });
 
   test.describe('Auto-start Settings', () => {
-    test('auto-start settings work', async ({ page }) => {
+    test('auto-start settings work', async () => {
       await timerPage.openSettings();
       
       // Find auto-start toggle in settings
@@ -174,16 +174,12 @@ test.describe('Timer Settings', () => {
   });
 
   test.describe('Keyboard Shortcuts', () => {
-    test('keyboard shortcuts settings visible', async ({ page }) => {
+    test('keyboard shortcuts settings visible', async () => {
       await timerPage.openSettings();
       
       // Look for keyboard shortcuts section
-      const shortcutsSection = timerPage.settingsModal.locator('text=/keyboard.*shortcut/i')
-        .or(timerPage.settingsModal.locator('text=/hotkey/i'))
-        .or(timerPage.settingsModal.locator('[class*="shortcut"]'));
       
       // This may or may not be visible depending on implementation
-      const isVisible = await shortcutsSection.first().isVisible().catch(() => false);
       
       // Just verify the settings modal is open
       await expect(timerPage.settingsModal).toBeVisible();
@@ -191,7 +187,7 @@ test.describe('Timer Settings', () => {
   });
 
   test.describe('Settings Persistence', () => {
-    test('settings persist after page reload', async ({ page, getStorageItem }) => {
+    test('settings persist after page reload', async () => {
       await timerPage.openSettings();
       
       // Find and toggle a setting

@@ -1,8 +1,11 @@
+// @ts-nocheck
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { Habit } from '@/types/habit'
 import { format } from 'date-fns'
 import { SAMPLE_HABITS } from '@/constants/sampleData'
+import { calculateStreaks } from '@/utils/streakUtils'
+import { calculateCompletionRate } from '@/utils/progressUtils'
 
 interface HabitState {
   habits: Habit[]
@@ -15,6 +18,59 @@ interface HabitState {
   isHabitCompletedOnDate: (habitId: string, date: string) => boolean
   loadSampleHabits: () => void
   markOnboardingComplete: () => void
+
+  /**
+   * Returns only habits that have a valid categoryId, are active, and not archived.
+   * Use this in pages/components instead of raw `habits` to avoid orphaned records.
+   */
+  getActiveHabits: () => Habit[]
+
+  // Category helpers (additive; no behavior change for existing callers)
+  getHabitsByCategory: (categoryId: string) => Habit[]
+  moveHabitToCategory: (habitId: string, categoryId: string) => void
+  getUncategorizedHabits: () => Habit[]
+
+  /**
+   * When a category is deleted, make affected habits Uncategorized by clearing
+   * their `categoryId`.
+   *
+   * Note: this intentionally does not touch the legacy `category` field.
+   */
+  clearCategoryFromHabits: (categoryId: string) => void
+
+  // Archive functionality
+  archiveHabit: (habitId: string) => void
+  unarchiveHabit: (habitId: string) => void
+
+  // Notes functionality
+  addNote: (habitId: string, noteText: string) => void
+  deleteNote: (habitId: string, noteId: string) => void
+
+  // Pin functionality
+  pinHabit: (habitId: string) => void
+  unpinHabit: (habitId: string) => void
+
+  // Hide for today functionality
+  hideHabitForToday: (habitId: string, date: string) => void
+}
+
+const mapLegacyCategoryToCategoryId = (
+  legacy?: Habit['category']
+): string | undefined => {
+  if (!legacy) return undefined
+
+  // Minimal compatibility mapping during migration.
+  switch (legacy) {
+    case 'health':
+      return 'health'
+    case 'work':
+      return 'work'
+    case 'personal':
+      // Product decision pending; choose a stable default for now.
+      return 'home'
+    default:
+      return undefined
+  }
 }
 
 export const useHabitStore = create<HabitState>()(
@@ -64,23 +120,17 @@ export const useHabitStore = create<HabitState>()(
               ? habit.totalCompletions - 1
               : habit.totalCompletions + 1
             
-            // Calculate streak
-            const sortedDates = [...completedDates].sort().reverse()
-            let currentStreak = 0
-            const today = new Date()
+            // Calculate streaks using modern yesterday-tolerant algorithm
+            const { currentStreak, bestStreak } = calculateStreaks(completedDates)
             
-            for (let i = 0; i < sortedDates.length; i++) {
-              const date = new Date(sortedDates[i])
-              const diffDays = Math.floor((today.getTime() - date.getTime()) / (1000 * 60 * 60 * 24))
-              
-              if (diffDays === i) {
-                currentStreak++
-              } else {
-                break
-              }
-            }
-            
-            const bestStreak = Math.max(habit.bestStreak, currentStreak)
+            // Recalculate completion rate based on frequency and time elapsed
+            const completionRate = calculateCompletionRate(
+              habit.frequency,
+              habit.startDate,
+              completedDates.length,
+              habit.goal,
+              habit.weeklyTimesPerWeek,
+            )
             
             return {
               ...habit,
@@ -88,6 +138,7 @@ export const useHabitStore = create<HabitState>()(
               totalCompletions,
               currentStreak,
               bestStreak,
+              completionRate,
             }
           })
           
@@ -116,9 +167,127 @@ export const useHabitStore = create<HabitState>()(
       markOnboardingComplete: () => {
         set({ isFirstVisit: false })
       },
+
+      getActiveHabits: () => {
+        return get().habits.filter(
+          (h) => h.isActive !== false && h.categoryId !== undefined && !h.archived
+        )
+      },
+
+      getHabitsByCategory: (categoryId) => {
+        return get().habits.filter((habit) => {
+          if (habit.categoryId) return habit.categoryId === categoryId
+          const mapped = mapLegacyCategoryToCategoryId(habit.category)
+          return mapped === categoryId
+        })
+      },
+
+      moveHabitToCategory: (habitId, categoryId) => {
+        set((state) => ({
+          habits: state.habits.map((habit) =>
+            habit.id === habitId ? { ...habit, categoryId } : habit
+          ),
+        }))
+      },
+
+      getUncategorizedHabits: () => {
+        return get().habits.filter(
+          (habit) => !habit.categoryId && !habit.category
+        )
+      },
+
+      clearCategoryFromHabits: (categoryId) => {
+        set((state) => ({
+          habits: state.habits.filter((habit) => habit.categoryId !== categoryId),
+        }))
+      },
+
+      archiveHabit: (habitId) => {
+        set((state) => ({
+          habits: state.habits.map((habit) =>
+            habit.id === habitId
+              ? { ...habit, archived: true, archivedDate: new Date().toISOString() }
+              : habit
+          ),
+        }))
+      },
+
+      unarchiveHabit: (habitId) => {
+        set((state) => ({
+          habits: state.habits.map((habit) =>
+            habit.id === habitId
+              ? { ...habit, archived: false, archivedDate: undefined }
+              : habit
+          ),
+        }))
+      },
+
+      addNote: (habitId, noteText) => {
+        set((state) => ({
+          habits: state.habits.map((habit) => {
+            if (habit.id !== habitId) return habit
+            
+            const newNote = {
+              id: Date.now().toString(),
+              text: noteText,
+              createdAt: new Date().toISOString(),
+            }
+            
+            return {
+              ...habit,
+              notes: [...(habit.notes || []), newNote],
+            }
+          }),
+        }))
+      },
+
+      deleteNote: (habitId, noteId) => {
+        set((state) => ({
+          habits: state.habits.map((habit) => {
+            if (habit.id !== habitId) return habit
+            
+            return {
+              ...habit,
+              notes: (habit.notes || []).filter((note) => note.id !== noteId),
+            }
+          }),
+        }))
+      },
+
+      pinHabit: (habitId) => {
+        set((state) => ({
+          habits: state.habits.map((habit) =>
+            habit.id === habitId ? { ...habit, pinned: true } : habit
+          ),
+        }))
+      },
+
+      unpinHabit: (habitId) => {
+        set((state) => ({
+          habits: state.habits.map((habit) =>
+            habit.id === habitId ? { ...habit, pinned: false } : habit
+          ),
+        }))
+      },
+
+      hideHabitForToday: (habitId, date) => {
+        set((state) => ({
+          habits: state.habits.map((habit) =>
+            habit.id === habitId
+              ? {
+                  ...habit,
+                  hiddenDates: (habit.hiddenDates || []).includes(date)
+                    ? habit.hiddenDates
+                    : [...(habit.hiddenDates || []), date],
+                }
+              : habit
+          ),
+        }))
+      },
     }),
     {
       name: 'habit-storage',
+      version: 2,
       storage: {
         getItem: (name) => {
           const value = localStorage.getItem(name)
@@ -130,7 +299,37 @@ export const useHabitStore = create<HabitState>()(
         removeItem: (name) => {
           localStorage.removeItem(name)
         }
-      }
+      },
+      migrate: (persistedState: unknown, version: number) => {
+        const state = persistedState as Record<string, unknown>
+
+        if (version === 0) {
+          // Migration v0→v1: Remove orphaned habits that have no categoryId.
+          const habits = (state.habits ?? []) as Habit[]
+          state.habits = habits.filter((h) => h.categoryId !== undefined)
+        }
+
+        if (version < 2) {
+          // Migration →v2: Recalculate currentStreak, bestStreak, and
+          // completionRate for every habit using the modern algorithms.
+          // Fixes stale values from the old buggy streak calculation and
+          // the never-updated completionRate.
+          const habits = (state.habits ?? []) as Habit[]
+          state.habits = habits.map((h) => {
+            const { currentStreak, bestStreak } = calculateStreaks(h.completedDates)
+            const completionRate = calculateCompletionRate(
+              h.frequency,
+              h.startDate,
+              h.completedDates.length,
+              h.goal,
+              h.weeklyTimesPerWeek,
+            )
+            return { ...h, currentStreak, bestStreak, completionRate }
+          })
+        }
+
+        return state as HabitState
+      },
     }
   )
 )

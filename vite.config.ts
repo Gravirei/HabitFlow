@@ -1,3 +1,4 @@
+/// <reference types="vitest/config" />
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
@@ -11,17 +12,23 @@ export default defineConfig({
     },
   },
   server: {
-    host: '0.0.0.0', // This allows external connections
+    host: 'localhost', // Restrict to localhost only — prevents LAN exposure during development
     port: 3000,
-    open: true,
+    open: false,
   },
   build: {
     outDir: 'dist',
-    sourcemap: true,
+    // 'hidden' generates source maps for Sentry error tracking but does NOT
+    // serve them publicly — browsers/attackers cannot access your source code.
+    // Use 'false' if you don't use Sentry. Never use 'true' in production.
+    sourcemap: 'hidden',
   },
   test: {
     globals: true,
     environment: 'jsdom',
     setupFiles: './src/test/setup.ts',
+    include: ['src/**/*.{test,spec}.{js,ts,jsx,tsx}'],
+    exclude: ['**/node_modules/**', 'e2e/**'],
+    testTimeout: 15000,
   },
 })

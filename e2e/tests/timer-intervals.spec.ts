@@ -278,7 +278,7 @@ test.describe('Intervals Timer', () => {
   });
 
   test.describe('Session Completion', () => {
-    test('completion modal shows summary', async ({ page }) => {
+    test('completion modal shows summary', async () => {
       // Verify completion modal can be detected
       expect(timerPage.completionModal).toBeDefined();
       expect(timerPage.completionConfirmButton).toBeDefined();

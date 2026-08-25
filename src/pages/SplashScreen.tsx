@@ -19,7 +19,7 @@ export function SplashScreen() {
 
     // Navigate to home after 3 seconds
     const timer = setTimeout(() => {
-      navigate('/')
+      navigate('/today')
     }, 3000)
 
     return () => {

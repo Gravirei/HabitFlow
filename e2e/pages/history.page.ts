@@ -149,12 +149,10 @@ export class HistoryPage {
     await this.page.waitForTimeout(300);
   }
 
-  async filterByDateRange(start: Date, end: Date): Promise<void> {
+  async filterByDateRange(_start: Date, _end: Date): Promise<void> {
     await this.dateRangePicker.click();
     // Date picker interaction - implementation depends on the actual picker component
     // This is a placeholder for the actual implementation
-    const startStr = start.toISOString().split('T')[0];
-    const endStr = end.toISOString().split('T')[0];
     
     // Would need to interact with the date picker modal here
     await this.page.waitForTimeout(300);

@@ -3,7 +3,7 @@
  * Tests goal creation, tracking, and management
  */
 
-import { test, expect, STORAGE_KEYS } from '../fixtures';
+import { test, expect } from '../fixtures';
 import { GoalsPage, TimerPage } from '../pages';
 
 test.describe('Goals', () => {
@@ -77,10 +77,6 @@ test.describe('Goals', () => {
       await page.waitForTimeout(500);
       
       // Check that goal card has progress indicator
-      const goalCard = goalsPage.goalCards.first();
-      const progressBar = goalCard.locator('[role="progressbar"], [class*="progress"]');
-      
-      const hasProgress = await progressBar.isVisible().catch(() => false);
       // Progress bar may or may not be visible depending on implementation
       expect(await goalsPage.getGoalCount()).toBe(1);
     });

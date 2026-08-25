@@ -110,7 +110,7 @@ export async function mockNotificationAPI(page: Page): Promise<void> {
  */
 export async function mockAudioAPI(page: Page): Promise<void> {
   await page.addInitScript(() => {
-    ;(window as any).__audioPlayed = []
+    (window as any).__audioPlayed = []
     
     // Mock AudioContext
     ;(window as any).AudioContext = class MockAudioContext {
@@ -158,7 +158,7 @@ export async function mockAudioAPI(page: Page): Promise<void> {
       }
       
       play() {
-        ;(window as any).__audioPlayed.push(this.src)
+        (window as any).__audioPlayed.push(this.src)
         return Promise.resolve()
       }
       
