@@ -1,202 +1,202 @@
-// @ts-nocheck
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import toast from 'react-hot-toast';
-import { spotifyService } from './spotify';
-import { useIntegrationStore } from '../store/integrationStore';
+import { useState, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import toast from 'react-hot-toast'
+import { spotifyService } from './spotify'
+import { useIntegrationStore } from '../store/integrationStore'
 
 interface Playlist {
-  id: string;
-  name: string;
-  images: Array<{ url: string }>;
-  tracks: { total: number };
-  uri: string;
+  id: string
+  name: string
+  images: Array<{ url: string }>
+  tracks: { total: number }
+  uri: string
 }
 
 interface CurrentTrack {
-  id: string;
-  name: string;
-  artists: Array<{ name: string }>;
-  album: { images: Array<{ url: string }> };
-  uri: string;
+  id: string
+  name: string
+  artists: Array<{ name: string }>
+  album: { images: Array<{ url: string }> }
+  uri: string
 }
 
 export function SpotifySettings() {
-  const connection = useIntegrationStore((s) => s.connections['spotify']);
-  const { updateSettings, disconnect: disconnectIntegration } = useIntegrationStore();
+  const connection = useIntegrationStore((s) => s.connections['spotify'])
+  const { updateSettings } = useIntegrationStore()
 
-  const [isConnected, setIsConnected] = useState(connection.status === 'connected' && !!connection.accessToken);
-  const [isLoading, setIsLoading] = useState(false);
-  const [currentTrack, setCurrentTrack] = useState<CurrentTrack | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [userPlaylists, setUserPlaylists] = useState<Playlist[]>([]);
-  const [focusPlaylists, setFocusPlaylists] = useState<Playlist[]>([]);
+  const [isConnected, setIsConnected] = useState(
+    connection.status === 'connected' && !!connection.accessToken
+  )
+  const [isLoading, setIsLoading] = useState(false)
+  const [currentTrack, setCurrentTrack] = useState<CurrentTrack | null>(null)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [userPlaylists, setUserPlaylists] = useState<Playlist[]>([])
+  const [focusPlaylists, setFocusPlaylists] = useState<Playlist[]>([])
   const [selectedPlaylistId, setSelectedPlaylistId] = useState<string | null>(
     (connection.settings?.selectedPlaylistId as string) || null
-  );
+  )
   const [selectedGenres, setSelectedGenres] = useState<string[]>(
-    connection.settings?.genres as string[] || []
-  );
-  const [volume, setVolume] = useState(50);
-  const [activeTab, setActiveTab] = useState<'user' | 'focus'>('user');
+    (connection.settings?.genres as string[]) || []
+  )
+  const [volume, setVolume] = useState(50)
+  const [activeTab, setActiveTab] = useState<'user' | 'focus'>('user')
   const [autoPlayOnTimer, setAutoPlayOnTimer] = useState(
     (connection.settings?.autoPlayOnTimer as boolean) ?? true
-  );
+  )
   const [pauseOnTimerPause, setPauseOnTimerPause] = useState(
     (connection.settings?.pauseOnTimerPause as boolean) ?? true
-  );
+  )
 
-  const GENRES = ['Lo-fi', 'Classical', 'Ambient', 'Jazz', 'Electronic', 'Nature'];
+  const GENRES = ['Lo-fi', 'Classical', 'Ambient', 'Jazz', 'Electronic', 'Nature']
 
   // Load playlists and current playback on connect
   useEffect(() => {
     if (isConnected && connection.accessToken) {
-      loadPlaylists();
-      loadCurrentPlayback();
+      loadPlaylists()
+      loadCurrentPlayback()
     }
-  }, [isConnected, connection.accessToken]);
+  }, [isConnected, connection.accessToken])
 
   // Refresh playback every 5 seconds
   useEffect(() => {
-    if (!isConnected || !connection.accessToken) return;
+    if (!isConnected || !connection.accessToken) return
 
     const interval = setInterval(() => {
-      loadCurrentPlayback();
-    }, 5000);
+      loadCurrentPlayback()
+    }, 5000)
 
-    return () => clearInterval(interval);
-  }, [isConnected, connection.accessToken]);
+    return () => clearInterval(interval)
+  }, [isConnected, connection.accessToken])
 
   const loadPlaylists = async () => {
-    if (!connection.accessToken) return;
+    if (!connection.accessToken) return
 
     try {
-      setIsLoading(true);
+      setIsLoading(true)
       const [user, focus] = await Promise.all([
         spotifyService.getUserPlaylists(connection.accessToken),
         spotifyService.getFocusPlaylists(connection.accessToken),
-      ]);
-      setUserPlaylists(user);
-      setFocusPlaylists(focus);
+      ])
+      setUserPlaylists(user)
+      setFocusPlaylists(focus)
     } catch (error) {
-      console.error('Error loading playlists:', error);
-      toast.error('Failed to load playlists');
+      console.error('Error loading playlists:', error)
+      toast.error('Failed to load playlists')
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   const loadCurrentPlayback = async () => {
-    if (!connection.accessToken) return;
+    if (!connection.accessToken) return
 
     try {
-      const playback = await spotifyService.getCurrentPlayback(connection.accessToken);
+      const playback = await spotifyService.getCurrentPlayback(connection.accessToken)
       if (playback) {
-        setIsPlaying(playback.is_playing);
+        setIsPlaying(playback.is_playing)
         if (playback.current_track) {
-          setCurrentTrack(playback.current_track);
+          setCurrentTrack(playback.current_track)
         }
         if (playback.device?.volume_percent !== undefined) {
-          setVolume(playback.device.volume_percent);
+          setVolume(playback.device.volume_percent)
         }
       }
     } catch (error) {
-      console.error('Error loading playback:', error);
+      console.error('Error loading playback:', error)
     }
-  };
+  }
 
   const handleConnect = async () => {
     try {
-      setIsLoading(true);
-      spotifyService.initiateAuth();
+      setIsLoading(true)
+      spotifyService.initiateAuth()
     } catch (error) {
-      console.error('Error initiating auth:', error);
-      toast.error('Failed to connect to Spotify');
+      console.error('Error initiating auth:', error)
+      toast.error('Failed to connect to Spotify')
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   const handleDisconnect = () => {
-    spotifyService.disconnect();
-    setIsConnected(false);
-    setCurrentTrack(null);
-    setUserPlaylists([]);
-    setFocusPlaylists([]);
-    setSelectedPlaylistId(null);
-    toast.success('Disconnected from Spotify');
-  };
+    spotifyService.disconnect()
+    setIsConnected(false)
+    setCurrentTrack(null)
+    setUserPlaylists([])
+    setFocusPlaylists([])
+    setSelectedPlaylistId(null)
+    toast.success('Disconnected from Spotify')
+  }
 
   const handlePlayPause = async () => {
-    if (!connection.accessToken) return;
+    if (!connection.accessToken) return
 
     try {
       if (isPlaying) {
-        await spotifyService.pause(connection.accessToken);
-        setIsPlaying(false);
+        await spotifyService.pause(connection.accessToken)
+        setIsPlaying(false)
       } else {
-        await spotifyService.play(connection.accessToken);
-        setIsPlaying(true);
+        await spotifyService.play(connection.accessToken)
+        setIsPlaying(true)
       }
     } catch (error) {
-      console.error('Error toggling playback:', error);
-      toast.error('Failed to toggle playback');
+      console.error('Error toggling playback:', error)
+      toast.error('Failed to toggle playback')
     }
-  };
+  }
 
   const handleVolumeChange = async (newVolume: number) => {
-    setVolume(newVolume);
+    setVolume(newVolume)
 
-    if (!connection.accessToken) return;
+    if (!connection.accessToken) return
 
     try {
-      await spotifyService.setVolume(connection.accessToken, newVolume);
+      await spotifyService.setVolume(connection.accessToken, newVolume)
     } catch (error) {
-      console.error('Error setting volume:', error);
-      toast.error('Failed to set volume');
+      console.error('Error setting volume:', error)
+      toast.error('Failed to set volume')
     }
-  };
+  }
 
   const handlePlaylistSelect = (playlistId: string) => {
-    setSelectedPlaylistId(playlistId);
+    setSelectedPlaylistId(playlistId)
     updateSettings('spotify', {
       selectedPlaylistId,
-    });
-    toast.success('Playlist selected');
-  };
+    })
+    toast.success('Playlist selected')
+  }
 
   const handleGenreToggle = (genre: string) => {
     const updated = selectedGenres.includes(genre)
       ? selectedGenres.filter((g) => g !== genre)
-      : [...selectedGenres, genre];
-    setSelectedGenres(updated);
+      : [...selectedGenres, genre]
+    setSelectedGenres(updated)
     updateSettings('spotify', {
       genres: updated,
-    });
-  };
+    })
+  }
 
   const handleAutoPlayToggle = () => {
-    const newValue = !autoPlayOnTimer;
-    setAutoPlayOnTimer(newValue);
+    const newValue = !autoPlayOnTimer
+    setAutoPlayOnTimer(newValue)
     updateSettings('spotify', {
       autoPlayOnTimer: newValue,
-    });
-  };
+    })
+  }
 
   const handlePauseOnTimerToggle = () => {
-    const newValue = !pauseOnTimerPause;
-    setPauseOnTimerPause(newValue);
+    const newValue = !pauseOnTimerPause
+    setPauseOnTimerPause(newValue)
     updateSettings('spotify', {
       pauseOnTimerPause: newValue,
-    });
-  };
+    })
+  }
 
-  const selectedPlaylist = [
-    ...userPlaylists,
-    ...focusPlaylists,
-  ].find((p) => p.id === selectedPlaylistId);
+  const selectedPlaylist = [...userPlaylists, ...focusPlaylists].find(
+    (p) => p.id === selectedPlaylistId
+  )
 
-  const displayPlaylists = activeTab === 'user' ? userPlaylists : focusPlaylists;
+  const displayPlaylists = activeTab === 'user' ? userPlaylists : focusPlaylists
 
   return (
     <motion.div
@@ -215,11 +215,7 @@ export function SpotifySettings() {
         >
           <div className="mb-6 flex justify-center">
             <div className="rounded-full bg-green-600/20 p-4">
-              <svg
-                className="h-12 w-12 text-green-500"
-                fill="currentColor"
-                viewBox="0 0 24 24"
-              >
+              <svg className="h-12 w-12 text-green-500" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.6 0 12 0zm5.5 17.5c-1.5 1.5-3.6 2.5-6 2.5s-4.5-1-6-2.5c-.5-.5-.5-1.5 0-2s1.5-.5 2 0c1 1 2.5 1.5 4 1.5s3-0.5 4-1.5c0.5-0.5 1.5-0.5 2 0s0.5 1.5 0 2zm-5.5-5c-0.8 0-1.5-0.7-1.5-1.5s0.7-1.5 1.5-1.5 1.5 0.7 1.5 1.5-0.7 1.5-1.5 1.5z" />
               </svg>
             </div>
@@ -259,17 +255,11 @@ export function SpotifySettings() {
         </motion.div>
       ) : (
         // Connected UI
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="space-y-6"
-        >
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
           {/* Connection Status */}
           <div className="flex items-center gap-3 rounded-2xl bg-slate-800/50 p-4">
             <div className="flex h-3 w-3 items-center justify-center rounded-full bg-green-500" />
-            <span className="text-sm font-medium text-slate-300">
-              Connected to Spotify
-            </span>
+            <span className="text-sm font-medium text-slate-300">Connected to Spotify</span>
           </div>
 
           {/* Current Playback Card */}
@@ -291,9 +281,7 @@ export function SpotifySettings() {
                       />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center">
-                        <span className="material-symbols-outlined text-slate-500">
-                          music_note
-                        </span>
+                        <span className="material-symbols-outlined text-slate-500">music_note</span>
                       </div>
                     )}
                     {isPlaying && (
@@ -309,12 +297,8 @@ export function SpotifySettings() {
                   </div>
 
                   <div className="flex-1">
-                    <p className="line-clamp-2 font-semibold text-white">
-                      {currentTrack.name}
-                    </p>
-                    <p className="text-sm text-slate-400">
-                      {currentTrack.artists[0]?.name}
-                    </p>
+                    <p className="line-clamp-2 font-semibold text-white">{currentTrack.name}</p>
+                    <p className="text-sm text-slate-400">{currentTrack.artists[0]?.name}</p>
                     <div className="mt-2 flex gap-2">
                       <button
                         onClick={handlePlayPause}
@@ -397,9 +381,7 @@ export function SpotifySettings() {
                   )}
                   <div>
                     <p className="font-semibold text-white">{selectedPlaylist.name}</p>
-                    <p className="text-sm text-slate-400">
-                      {selectedPlaylist.tracks.total} tracks
-                    </p>
+                    <p className="text-sm text-slate-400">{selectedPlaylist.tracks.total} tracks</p>
                   </div>
                 </div>
               </motion.div>
@@ -445,9 +427,7 @@ export function SpotifySettings() {
               <span className="text-sm text-slate-400">{volume}%</span>
             </div>
             <div className="flex items-center gap-3">
-              <span className="material-symbols-outlined text-slate-400">
-                volume_mute
-              </span>
+              <span className="material-symbols-outlined text-slate-400">volume_mute</span>
               <input
                 type="range"
                 min="0"
@@ -456,9 +436,7 @@ export function SpotifySettings() {
                 onChange={(e) => handleVolumeChange(Number(e.target.value))}
                 className="flex-1 cursor-pointer accent-green-600"
               />
-              <span className="material-symbols-outlined text-slate-400">
-                volume_up
-              </span>
+              <span className="material-symbols-outlined text-slate-400">volume_up</span>
             </div>
           </motion.div>
 
@@ -474,9 +452,7 @@ export function SpotifySettings() {
             {/* Auto-play toggle */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-slate-400">
-                  play_arrow
-                </span>
+                <span className="material-symbols-outlined text-slate-400">play_arrow</span>
                 <label className="text-sm font-medium text-slate-300">
                   Auto-play on timer start
                 </label>
@@ -498,12 +474,8 @@ export function SpotifySettings() {
             {/* Pause on timer pause toggle */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-slate-400">
-                  pause
-                </span>
-                <label className="text-sm font-medium text-slate-300">
-                  Pause on timer pause
-                </label>
+                <span className="material-symbols-outlined text-slate-400">pause</span>
+                <label className="text-sm font-medium text-slate-300">Pause on timer pause</label>
               </div>
               <button
                 onClick={handlePauseOnTimerToggle}
@@ -533,5 +505,5 @@ export function SpotifySettings() {
         </motion.div>
       )}
     </motion.div>
-  );
+  )
 }

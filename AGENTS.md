@@ -75,7 +75,7 @@ src/
 
 ## Known debt (tracked, do not silently grow)
 
-1. **Type-debt ledger:** 142 files carry a first-line `// @ts-nocheck`
+1. **Type-debt ledger:** 134 files carry a first-line `// @ts-nocheck`
    (~684 real errors behind them: missing imports, unused vars, implicit anys).
    Removing a header means fixing that file's errors — verify with
    `npm run typecheck`. Burn-down is ongoing (hardening phase 5, smallest
