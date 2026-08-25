@@ -1,3 +1,10 @@
+# SPA fallback: serve index.html for all paths without a matching file.
+# Keep header/redirect config in sync with vercel.json (checked by scripts/check-deploy-parity.sh).
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
 [[headers]]
   for = "/*"
 

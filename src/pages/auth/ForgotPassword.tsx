@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { TurnstileWidget } from '@/shared/ui/TurnstileWidget'
 import { callAuthGateway } from '@/lib/security/authGatewayClient'
-import { supabase } from '@/lib/supabase'
+import { resetPasswordForEmail } from '@/lib/auth/api'
+import { env, isSupabaseConfigured } from '@/lib/env'
 
 /**
  * Detects if running in a mobile app WebView (Capacitor/Cordova)
@@ -53,8 +54,8 @@ export function ForgotPassword() {
     }
 
     // Check if Turnstile is configured and token is required (not needed for mobile)
-    const turnstileSiteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY
-    const turnstileDisabled = import.meta.env.VITE_TURNSTILE_DISABLED === 'true'
+    const turnstileSiteKey = env.turnstileSiteKey
+    const turnstileDisabled = env.turnstileDisabled
     const isMobile = isMobileApp()
     const isTurnstileRequired = turnstileSiteKey && !turnstileDisabled && !isMobile
 
@@ -64,10 +65,7 @@ export function ForgotPassword() {
     }
 
     // Check if Supabase is configured
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
-
-    if (!supabaseUrl || !supabaseAnonKey) {
+    if (!isSupabaseConfigured()) {
       toast.error(
         'Supabase is not configured. Please add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your .env file.'
       )
@@ -84,9 +82,10 @@ export function ForgotPassword() {
 
       if (useDirectAuth) {
         // use direct Supabase auth
-        const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: `${window.location.origin}/reset-password`,
-        })
+        const { error } = await resetPasswordForEmail(
+          email,
+          `${window.location.origin}/reset-password`
+        )
 
         if (error) {
           toast.error(error.message || 'Failed to send reset email')

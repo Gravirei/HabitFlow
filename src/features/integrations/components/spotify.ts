@@ -1,4 +1,5 @@
 import { useIntegrationStore } from '../store/integrationStore';
+import { callOAuthProxy } from '@/lib/security/oauthProxyClient';
 
 interface AccessTokenResponse {
   access_token: string;
@@ -42,11 +43,12 @@ interface SearchResponse {
 
 const SPOTIFY_AUTH_URL = 'https://accounts.spotify.com/authorize';
 const SPOTIFY_API_BASE = 'https://api.spotify.com/v1';
-const SPOTIFY_TOKEN_URL = 'https://accounts.spotify.com/api/token';
 
 const CLIENT_ID = import.meta.env.VITE_SPOTIFY_CLIENT_ID || 'your_client_id';
-const CLIENT_SECRET = import.meta.env.VITE_SPOTIFY_CLIENT_SECRET || 'your_client_secret';
-const REDIRECT_URI = import.meta.env.VITE_SPOTIFY_REDIRECT_URI || 'http://localhost:5173/callback';
+// Must exactly match a redirect URI registered in the Spotify developer dashboard.
+const REDIRECT_URI =
+  import.meta.env.VITE_SPOTIFY_REDIRECT_URI ||
+  `${window.location.origin}/integrations/callback/spotify`;
 
 const SCOPES = [
   'user-read-playback-state',
@@ -73,31 +75,18 @@ export const spotifyService = {
   },
 
   /**
-   * Exchanges authorization code for access token
+   * Exchanges authorization code for access token.
+   * Secret-handled token exchange goes through the oauth-token-proxy Edge Function.
    */
   async exchangeCode(code: string): Promise<AccessTokenResponse> {
     try {
-      const params = new URLSearchParams({
-        grant_type: 'authorization_code',
+      return await callOAuthProxy({
+        provider: 'spotify',
+        action: 'exchange',
         code,
-        redirect_uri: REDIRECT_URI,
-        client_id: CLIENT_ID,
-        client_secret: CLIENT_SECRET,
+        redirectUri: REDIRECT_URI,
+        clientId: CLIENT_ID,
       });
-
-      const response = await fetch(SPOTIFY_TOKEN_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: params.toString(),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Token exchange failed: ${response.statusText}`);
-      }
-
-      return response.json();
     } catch (error) {
       console.error('Error exchanging code for token:', error);
       throw error;
@@ -109,26 +98,12 @@ export const spotifyService = {
    */
   async refreshAccessToken(refreshToken: string): Promise<AccessTokenResponse> {
     try {
-      const params = new URLSearchParams({
-        grant_type: 'refresh_token',
-        refresh_token: refreshToken,
-        client_id: CLIENT_ID,
-        client_secret: CLIENT_SECRET,
+      return await callOAuthProxy({
+        provider: 'spotify',
+        action: 'refresh',
+        refreshToken,
+        clientId: CLIENT_ID,
       });
-
-      const response = await fetch(SPOTIFY_TOKEN_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: params.toString(),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Token refresh failed: ${response.statusText}`);
-      }
-
-      return response.json();
     } catch (error) {
       console.error('Error refreshing access token:', error);
       throw error;
@@ -331,8 +306,6 @@ export const spotifyService = {
    * Disconnects Spotify integration
    */
   disconnect(): void {
-    const integrationStore = // eslint-disable-next-line react-hooks/rules-of-hooks -- TODO(burn-down): zustand hook called inside plain function; should be getState(), see refactor plan P1
-    useIntegrationStore();
-    integrationStore.disconnect('spotify');
+    useIntegrationStore.getState().disconnect('spotify');
   },
 };

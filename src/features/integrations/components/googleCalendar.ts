@@ -1,7 +1,7 @@
 import { useIntegrationStore } from '../store/integrationStore'
+import { callOAuthProxy } from '@/lib/security/oauthProxyClient'
 
 const GOOGLE_AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth'
-const GOOGLE_TOKEN_URL = 'https://oauth2.googleapis.com/token'
 const GOOGLE_CALENDAR_API = 'https://www.googleapis.com/calendar/v3'
 
 const SCOPES = [
@@ -30,26 +30,21 @@ export const googleCalendarService = {
   },
 
   /**
-   * Exchange authorization code for access and refresh tokens
+   * Exchange authorization code for access and refresh tokens.
+   * Secret-handled token exchange goes through the oauth-token-proxy Edge Function.
    */
   async exchangeCode(
     code: string
   ): Promise<{ accessToken: string; refreshToken: string; expiresAt: string }> {
-    const response = await fetch(GOOGLE_TOKEN_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        code,
-        client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID',
-        client_secret: import.meta.env.VITE_GOOGLE_CLIENT_SECRET || 'YOUR_GOOGLE_CLIENT_SECRET',
-        redirect_uri:
-          import.meta.env.VITE_GOOGLE_REDIRECT_URI ||
-          `${window.location.origin}/integrations/callback/google`,
-        grant_type: 'authorization_code',
-      }),
+    const data = await callOAuthProxy({
+      provider: 'google-calendar',
+      action: 'exchange',
+      code,
+      redirectUri:
+        import.meta.env.VITE_GOOGLE_REDIRECT_URI ||
+        `${window.location.origin}/integrations/callback/google`,
+      clientId: import.meta.env.VITE_GOOGLE_CLIENT_ID,
     })
-    if (!response.ok) throw new Error('Failed to exchange authorization code')
-    const data = await response.json()
     return {
       accessToken: data.access_token,
       refreshToken: data.refresh_token,
@@ -61,18 +56,12 @@ export const googleCalendarService = {
    * Refresh access token using refresh token
    */
   async refreshAccessToken(refreshToken: string): Promise<{ accessToken: string; expiresAt: string }> {
-    const response = await fetch(GOOGLE_TOKEN_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        refresh_token: refreshToken,
-        client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID',
-        client_secret: import.meta.env.VITE_GOOGLE_CLIENT_SECRET || 'YOUR_GOOGLE_CLIENT_SECRET',
-        grant_type: 'refresh_token',
-      }),
+    const data = await callOAuthProxy({
+      provider: 'google-calendar',
+      action: 'refresh',
+      refreshToken,
+      clientId: import.meta.env.VITE_GOOGLE_CLIENT_ID,
     })
-    if (!response.ok) throw new Error('Failed to refresh token')
-    const data = await response.json()
     return {
       accessToken: data.access_token,
       expiresAt: new Date(Date.now() + data.expires_in * 1000).toISOString(),

@@ -1,7 +1,7 @@
 import { useIntegrationStore } from '../store/integrationStore'
+import { callOAuthProxy } from '@/lib/security/oauthProxyClient'
 
 const NOTION_AUTH_URL = 'https://api.notion.com/v1/oauth/authorize'
-const NOTION_TOKEN_URL = 'https://api.notion.com/v1/oauth/token'
 const NOTION_API = 'https://api.notion.com/v1'
 const NOTION_VERSION = '2022-06-28'
 
@@ -22,29 +22,22 @@ export const notionService = {
     window.location.href = `${NOTION_AUTH_URL}?${params.toString()}`
   },
 
+  /**
+   * Exchange authorization code for an access token.
+   * Secret-handled token exchange goes through the oauth-token-proxy Edge Function.
+   */
   async exchangeCode(
     code: string
   ): Promise<{ accessToken: string; workspaceId: string }> {
-    const clientId =
-      import.meta.env.VITE_NOTION_CLIENT_ID || 'YOUR_NOTION_CLIENT_ID'
-    const clientSecret =
-      import.meta.env.VITE_NOTION_CLIENT_SECRET || 'YOUR_NOTION_CLIENT_SECRET'
-    const response = await fetch(NOTION_TOKEN_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Basic ${btoa(`${clientId}:${clientSecret}`)}`,
-      },
-      body: JSON.stringify({
-        grant_type: 'authorization_code',
-        code,
-        redirect_uri:
-          import.meta.env.VITE_NOTION_REDIRECT_URI ||
-          `${window.location.origin}/integrations/callback/notion`,
-      }),
+    const data = await callOAuthProxy({
+      provider: 'notion',
+      action: 'exchange',
+      code,
+      redirectUri:
+        import.meta.env.VITE_NOTION_REDIRECT_URI ||
+        `${window.location.origin}/integrations/callback/notion`,
+      clientId: import.meta.env.VITE_NOTION_CLIENT_ID,
     })
-    if (!response.ok) throw new Error('Failed to exchange code')
-    const data = await response.json()
     return { accessToken: data.access_token, workspaceId: data.workspace_id }
   },
 

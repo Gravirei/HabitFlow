@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { supabase } from '@/lib/supabase'
+import { getAuthSession, signOutSession } from '@/lib/auth/api'
 import { useAuth } from '@/lib/auth/AuthContext'
 import { useNavigate } from 'react-router-dom'
 
@@ -28,7 +29,7 @@ export function SessionManagement() {
   // which row in user_sessions belongs to this device/tab.
   useEffect(() => {
     let mounted = true
-    supabase.auth.getSession().then(({ data }) => {
+    getAuthSession().then(({ data }) => {
       if (mounted) setCurrentSessionToken(data.session?.access_token ?? null)
     }).catch((e) => {
       if (mounted && e?.name !== 'AbortError') console.error(e)
@@ -141,7 +142,7 @@ export function SessionManagement() {
                             // Terminating the current session: revoke the JWT by
                             // signing out locally. This clears the refresh token so
                             // it can no longer be used to obtain new access tokens.
-                            await supabase.auth.signOut({ scope: 'local' })
+                            await signOutSession('local')
                             navigate('/login')
                             return
                           }
@@ -193,7 +194,7 @@ export function SessionManagement() {
                   // refresh token issued to this user, not just the local one.
                   // This is the closest a client-side app can get to true
                   // global JWT revocation without the Admin API.
-                  await supabase.auth.signOut({ scope: 'global' })
+                  await signOutSession('global')
                   navigate('/login')
                 } catch (e: any) {
                   console.error(e)

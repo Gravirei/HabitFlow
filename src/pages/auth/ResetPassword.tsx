@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
-import { supabase } from '@/lib/supabase'
+import { getAuthSession, updateUserPassword } from '@/lib/auth/api'
 
 function calculatePasswordStrength(password: string) {
   let strength = 0
@@ -40,7 +40,7 @@ export function ResetPassword() {
     // supabase-js will pick them up (detectSessionInUrl: true).
     // We can optionally validate that a session exists.
     (async () => {
-      const { data } = await supabase.auth.getSession()
+      const { data } = await getAuthSession()
       // If there is no session, the user likely opened this page directly.
       if (!data.session) {
         // Don't hard-block; just inform.
@@ -82,7 +82,7 @@ export function ResetPassword() {
     setIsLoading(true)
 
     try {
-      const { error } = await supabase.auth.updateUser({ password })
+      const { error } = await updateUserPassword(password)
       if (error) throw error
 
       toast.success('Password updated successfully. Please sign in.')

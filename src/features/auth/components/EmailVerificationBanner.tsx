@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import toast from 'react-hot-toast'
-import { supabase } from '@/lib/supabase'
 import { isEmailVerified, useAuth } from '@/lib/auth/AuthContext'
 import { logout } from '@/lib/auth/logout'
+import { resendVerificationEmail } from '@/lib/auth/api'
 
 /**
  * Shows a banner for users who are signed in but have not confirmed their email.
@@ -48,10 +48,7 @@ export function EmailVerificationBanner() {
               setIsResending(true)
               try {
                 // Resend confirmation email
-                const { error } = await supabase.auth.resend({
-                  type: 'signup',
-                  email,
-                })
+                const { error } = await resendVerificationEmail(email)
 
                 if (error) throw error
 

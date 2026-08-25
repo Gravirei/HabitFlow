@@ -4,7 +4,8 @@ import { TurnstileWidget } from '@/shared/ui/TurnstileWidget'
 import { applySupabaseSessionFromGateway, callAuthGateway } from '@/lib/security/authGatewayClient'
 import toast from 'react-hot-toast'
 import { TwoFactorChallengeModal } from '@/features/auth/components/TwoFactorChallengeModal'
-import { supabase } from '@/lib/supabase'
+import { signInWithOAuth, signInWithPassword } from '@/lib/auth/api'
+import { env } from '@/lib/env'
 
 /**
  * Detects if running in a mobile app WebView (Capacitor/Cordova)
@@ -75,8 +76,8 @@ export function Login() {
     }
 
     // Turnstile token is mandatory when configured on web (not needed for mobile)
-    const turnstileSiteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY
-    const turnstileDisabled = import.meta.env.VITE_TURNSTILE_DISABLED === 'true'
+    const turnstileSiteKey = env.turnstileSiteKey
+    const turnstileDisabled = env.turnstileDisabled
     const isMobile = isMobileApp()
     // Only require token if Turnstile is enabled AND not disabled for this platform
     const isTurnstileRequired = turnstileSiteKey && !turnstileDisabled && !isMobile
@@ -95,7 +96,7 @@ export function Login() {
       const useDirectAuth = turnstileDisabled || !turnstileSiteKey
 
       if (useDirectAuth) {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { error } = await signInWithPassword({
           email,
           password,
         })
@@ -175,12 +176,7 @@ export function Login() {
 
   const handleGoogleLogin = async () => {
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/`,
-        },
-      })
+      const { error } = await signInWithOAuth('google', `${window.location.origin}/`)
       if (error) throw error
     } catch (error: any) {
       console.error('Google login error:', error)
@@ -190,12 +186,7 @@ export function Login() {
 
   const handleAppleLogin = async () => {
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'apple',
-        options: {
-          redirectTo: `${window.location.origin}/`,
-        },
-      })
+      const { error } = await signInWithOAuth('apple', `${window.location.origin}/`)
       if (error) throw error
     } catch (error: any) {
       console.error('Apple login error:', error)
