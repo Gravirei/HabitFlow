@@ -82,9 +82,10 @@ src/
    features first); don't add new headers.
    ESLint auto-detects ledger files at config load and relaxes only mechanical
    rules for them, so deleting a header also tightens lint on that file.
-2. **Lint warnings:** 552 (mostly `no-explicit-any`), hard-capped by the
-   ratcheting `.lint-budget` gate in CI. `lint:strict` flips automatically
-   once the ledger burn-down finishes.
+2. **Lint warnings:** 548 (mostly `no-explicit-any`), hard-capped by the
+   ratcheting `.lint-budget` gate in CI — lower it in the same commit as any
+   burn-down that removes warnings. `lint:strict` flips automatically once the
+   ledger burn-down finishes.
 3. **E2E:** Playwright specs live under `e2e/`; vitest no longer collects
    them (its include pattern matches `src/**` only). Run them with
    `npm run test:e2e` after `npx playwright install firefox`.
