@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
+import type { Variants } from 'framer-motion'
 import { useNewHabitModalStore } from '@/store/useNewHabitModalStore'
 import { NewHabitWizard } from './NewHabitWizard'
 
@@ -8,11 +9,41 @@ import { NewHabitWizard } from './NewHabitWizard'
  * Slides up over the current page (no navigation) with a blurred backdrop,
  * landing as a centered card at every breakpoint.
  */
+/**
+ * Panel motion: rises in on a critically damped spring (glides, no bounce)
+ * while fading in; dismissal is a quicker ease-out slide. Reduced motion
+ * gets a plain crossfade.
+ */
+const panelVariants: Variants = {
+  enter: (reduced: boolean) => (reduced ? { y: 0, opacity: 0 } : { y: '100%', opacity: 0.4 }),
+  center: (reduced: boolean) => ({
+    y: 0,
+    opacity: 1,
+    transition: reduced
+      ? { duration: 0.2, ease: 'easeOut' }
+      : {
+          y: { type: 'spring', stiffness: 380, damping: 40, mass: 0.9 },
+          opacity: { duration: 0.25, ease: 'easeOut' },
+        },
+  }),
+  exit: (reduced: boolean) => ({
+    y: reduced ? 0 : '100%',
+    opacity: 0,
+    transition: reduced
+      ? { duration: 0.15, ease: 'easeIn' }
+      : {
+          y: { duration: 0.28, ease: [0.4, 0, 1, 1] },
+          opacity: { duration: 0.28, ease: 'easeIn' },
+        },
+  }),
+}
+
 export function NewHabitModal() {
   const isOpen = useNewHabitModalStore((s) => s.isOpen)
   const close = useNewHabitModalStore((s) => s.close)
   const defaultFrequency = useNewHabitModalStore((s) => s.defaultFrequency)
   const categoryId = useNewHabitModalStore((s) => s.categoryId)
+  const reducedMotion = useReducedMotion() ?? false
 
   const [dirty, setDirty] = useState(false)
   const [confirmingDiscard, setConfirmingDiscard] = useState(false)
@@ -63,24 +94,24 @@ export function NewHabitModal() {
           {/* Blurred backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
+            animate={{ opacity: 1, transition: { duration: 0.25, ease: 'easeOut' } }}
+            exit={{ opacity: 0, transition: { duration: 0.2, ease: 'easeIn' } }}
             onClick={requestClose}
             className="absolute inset-0 bg-black/40 backdrop-blur-md"
             aria-hidden="true"
           />
 
-          {/* Sliding panel */}
+          {/* Sliding panel — springs into place, eases out on dismiss */}
           <motion.div
             role="dialog"
             aria-modal="true"
             aria-label="Create new habit"
-            className="relative z-10 flex w-full flex-col items-center"
-            initial={{ y: '100%' }}
-            animate={{ y: 0 }}
-            exit={{ y: '100%' }}
-            transition={{ type: 'tween', duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
+            className="relative z-10 flex w-full flex-col items-center transform-gpu will-change-transform"
+            custom={reducedMotion}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            variants={panelVariants}
           >
             <NewHabitWizard
               variant="sheet"
