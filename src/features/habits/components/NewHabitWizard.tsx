@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import toast from 'react-hot-toast'
 import { motion, useReducedMotion } from 'framer-motion'
 import { useHabitStore } from '@/store/useHabitStore'
+import { useCategoryStore } from '@/store/useCategoryStore'
 import {
   sidebarEdge,
   sidebarItem,
@@ -63,6 +64,7 @@ export function NewHabitWizard({
   onDirtyChange
 }: NewHabitWizardProps) {
   const { addHabit } = useHabitStore()
+  const ensureGeneralCategory = useCategoryStore((s) => s.ensureGeneralCategory)
   const [step, setStep] = useState(0)
   const [maxVisitedStep, setMaxVisitedStep] = useState(0)
   const reducedMotion = useReducedMotion() ?? false
@@ -111,6 +113,10 @@ export function NewHabitWizard({
   const onSubmit = (data: HabitFormData) => {
     const goalPeriod = data.frequency === 'daily' ? 'day' : data.frequency === 'weekly' ? 'week' : 'month'
 
+    // Habits created without picking a category land in the built-in
+    // General category so they show up on Today/Habits right away.
+    const targetCategoryId = categoryId ?? ensureGeneralCategory().id
+
     addHabit({
       name: data.name,
       description: data.description || undefined,
@@ -118,10 +124,11 @@ export function NewHabitWizard({
       frequency: data.frequency,
       goal: data.goal,
       goalPeriod,
+      isActive: true,
       reminderEnabled: data.reminderEnabled,
       reminderTime: data.reminderEnabled ? data.reminderTime : undefined,
       startDate: format(new Date(), 'yyyy-MM-dd'),
-      categoryId,
+      categoryId: targetCategoryId,
     })
 
     toast.success('Habit created successfully!')

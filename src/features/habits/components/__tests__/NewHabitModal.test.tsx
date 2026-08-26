@@ -78,8 +78,32 @@ describe('NewHabitModal', () => {
     expect(screen.getByRole('radio', { name: /monthly/i })).toBeChecked()
   }, 10000)
 
-  it('creates a habit in the category passed via open() options', async () => {
+  it('files habits created without a category under the built-in General category', async () => {
     const user = userEvent.setup()
+    openModal()
+
+    await user.type(screen.getByPlaceholderText('Name your habit…'), 'No Category Habit')
+
+    // Walk through all steps
+    const markers = [
+      /how often will you do it/i,
+      /set a gentle goal/i,
+      /stay on track/i,
+    ]
+    fireEvent.click(screen.getByRole('button', { name: /continue/i }))
+    for (const marker of markers) {
+      await screen.findByText(marker)
+      fireEvent.click(screen.getByRole('button', { name: /continue|create habit/i }))
+    }
+
+    await waitFor(() => {
+      expect(addHabitMock).toHaveBeenCalledWith(
+        expect.objectContaining({ name: 'No Category Habit', categoryId: 'general' })
+      )
+    })
+  }, 10000)
+
+  it('creates a habit in the category passed via open() options', async () => {    const user = userEvent.setup()
     useNewHabitModalStore.getState().open({ categoryId: 'cat-123' })
     render(<NewHabitModal />)
 

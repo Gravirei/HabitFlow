@@ -43,6 +43,7 @@ import {
 import type { CategoryTemplatePack } from '@/types/categoryTemplate'
 import { ConfirmDialog } from '@/shared/ui/ConfirmDialog'
 import { useCategoryStore } from '@/store/useCategoryStore'
+import { GENERAL_CATEGORY_ID } from '@/constants/defaultCategories'
 import { useHabitStore } from '@/store/useHabitStore'
 import { useTaskStore } from '@/store/useTaskStore'
 import type { Category as StoreCategory } from '@/types/category'
@@ -252,16 +253,6 @@ export function Categories() {
     return [...categories].sort((a, b) => a.order - b.order)
   }, [categories])
 
-  const pinnedStoreCategories = useMemo(
-    () => orderedCategories.filter((category) => category.isPinned),
-    [orderedCategories]
-  )
-
-  const unpinnedStoreCategories = useMemo(
-    () => orderedCategories.filter((category) => !category.isPinned),
-    [orderedCategories]
-  )
-
   const derivedStatsByCategoryId = useMemo(() => {
     const map = new Map<
       string,
@@ -313,6 +304,27 @@ export function Categories() {
 
     return map
   }, [orderedCategories, habits, tasks, isHabitCompletedToday])
+
+  // The built-in General category stays hidden until it actually holds habits.
+  const visibleStoreCategories = useMemo(
+    () =>
+      orderedCategories.filter(
+        (category) =>
+          category.id !== GENERAL_CATEGORY_ID ||
+          (derivedStatsByCategoryId.get(GENERAL_CATEGORY_ID)?.habitCount ?? 0) > 0
+      ),
+    [orderedCategories, derivedStatsByCategoryId]
+  )
+
+  const pinnedStoreCategories = useMemo(
+    () => visibleStoreCategories.filter((category) => category.isPinned),
+    [visibleStoreCategories]
+  )
+
+  const unpinnedStoreCategories = useMemo(
+    () => visibleStoreCategories.filter((category) => !category.isPinned),
+    [visibleStoreCategories]
+  )
 
   const deferredSearchQuery = useDeferredValue(searchQuery)
 
@@ -483,6 +495,11 @@ export function Categories() {
 
   const handleConfirmDelete = () => {
     if (!deleteCategoryId) return
+    if (deleteCategoryId === GENERAL_CATEGORY_ID) {
+      toast.error("The General category can't be deleted.")
+      setDeleteCategoryId(null)
+      return
+    }
     clearCategoryFromHabits(deleteCategoryId)
     clearCategoryFromTasks(deleteCategoryId)
     deleteCategory(deleteCategoryId)
