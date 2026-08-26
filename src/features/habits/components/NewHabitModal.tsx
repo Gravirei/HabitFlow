@@ -11,6 +11,8 @@ import { NewHabitWizard } from './NewHabitWizard'
 export function NewHabitModal() {
   const isOpen = useNewHabitModalStore((s) => s.isOpen)
   const close = useNewHabitModalStore((s) => s.close)
+  const defaultFrequency = useNewHabitModalStore((s) => s.defaultFrequency)
+  const categoryId = useNewHabitModalStore((s) => s.categoryId)
 
   const [dirty, setDirty] = useState(false)
   const [confirmingDiscard, setConfirmingDiscard] = useState(false)
@@ -82,6 +84,8 @@ export function NewHabitModal() {
           >
             <NewHabitWizard
               variant="sheet"
+              defaultFrequency={defaultFrequency}
+              categoryId={categoryId}
               onClose={doClose}
               onRequestClose={requestClose}
               onDirtyChange={setDirty}

@@ -1,8 +1,16 @@
 import { create } from 'zustand'
 
-interface NewHabitModalState {
+/** Optional presets forwarded to the wizard when the modal opens. */
+export interface NewHabitModalOptions {
+  /** Preselect a frequency (e.g. from the Habits page tabs or speed dial). */
+  defaultFrequency?: 'daily' | 'weekly' | 'monthly'
+  /** Preselect a category (e.g. adding a habit from CategoryDetail). */
+  categoryId?: string
+}
+
+interface NewHabitModalState extends NewHabitModalOptions {
   isOpen: boolean
-  open: () => void
+  open: (options?: NewHabitModalOptions) => void
   close: () => void
 }
 
@@ -13,6 +21,7 @@ interface NewHabitModalState {
  */
 export const useNewHabitModalStore = create<NewHabitModalState>()((set) => ({
   isOpen: false,
-  open: () => set({ isOpen: true }),
-  close: () => set({ isOpen: false }),
+  open: (options) => set({ isOpen: true, ...options }),
+  // Clear presets on close so the next plain open() starts fresh
+  close: () => set({ isOpen: false, defaultFrequency: undefined, categoryId: undefined }),
 }))
