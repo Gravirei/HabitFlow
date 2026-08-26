@@ -5,8 +5,8 @@ import { NewHabitWizard } from './NewHabitWizard'
 
 /**
  * In-place "Create new habit" overlay.
- * Slides up over the current page (no navigation) with a blurred backdrop.
- * Bottom sheet on mobile, centered card on larger screens.
+ * Slides up over the current page (no navigation) with a blurred backdrop,
+ * landing as a centered card at every breakpoint.
  */
 export function NewHabitModal() {
   const isOpen = useNewHabitModalStore((s) => s.isOpen)
@@ -57,7 +57,7 @@ export function NewHabitModal() {
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
           {/* Blurred backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -74,7 +74,7 @@ export function NewHabitModal() {
             role="dialog"
             aria-modal="true"
             aria-label="Create new habit"
-            className="relative z-10 flex w-full flex-col items-stretch"
+            className="relative z-10 flex w-full flex-col items-center"
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
@@ -95,7 +95,7 @@ export function NewHabitModal() {
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.2 }}
-                  className="absolute inset-0 z-30 flex items-center justify-center rounded-t-[2rem] bg-black/40 p-6 backdrop-blur-sm sm:rounded-[2rem]"
+                  className="absolute inset-0 z-30 flex items-center justify-center rounded-[2rem] bg-black/40 p-6 backdrop-blur-sm"
                 >
                   <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}

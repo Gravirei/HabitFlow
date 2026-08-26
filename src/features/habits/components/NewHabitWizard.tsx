@@ -31,7 +31,7 @@ export interface NewHabitWizardProps {
   /**
    * Visual context the wizard renders in:
    * - `page`: standalone route — fills the viewport, centered card on md+
-   * - `sheet`: inside a modal overlay — bottom-sheet on mobile, card on sm+
+   * - `sheet`: inside a modal overlay — a centered card capped to the viewport
    */
   variant?: 'page' | 'sheet'
   /** Preselected category (e.g. via /new-habit?categoryId=fitness deep link). */
@@ -145,7 +145,7 @@ export function NewHabitWizard({
   const rootClass =
     variant === 'page'
       ? 'relative flex h-dvh w-full max-w-md flex-col overflow-hidden bg-background-light dark:bg-background-dark md:h-auto md:min-h-[600px] md:max-w-4xl md:flex-row md:rounded-[2rem] md:border md:border-gray-200/70 md:bg-surface-light md:shadow-large dark:md:border-white/10 dark:md:bg-surface-dark lg:max-w-5xl'
-      : 'relative flex h-[92dvh] w-full max-w-none flex-col overflow-hidden rounded-t-[2rem] border border-gray-200/70 bg-background-light shadow-large dark:border-white/10 dark:bg-background-dark sm:h-auto sm:min-h-[560px] sm:max-h-[90vh] sm:max-w-4xl sm:rounded-[2rem] md:flex-row lg:max-w-5xl'
+      : 'relative flex max-h-[calc(100dvh_-_2rem)] w-full max-w-none flex-col overflow-hidden rounded-[2rem] border border-gray-200/70 bg-background-light shadow-large dark:border-white/10 dark:bg-background-dark sm:min-h-[560px] sm:max-h-[90vh] sm:max-w-4xl md:flex-row lg:max-w-5xl'
 
   return (
     <div className={rootClass}>
