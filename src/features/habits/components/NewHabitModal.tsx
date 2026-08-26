@@ -97,7 +97,7 @@ export function NewHabitModal() {
             animate={{ opacity: 1, transition: { duration: 0.25, ease: 'easeOut' } }}
             exit={{ opacity: 0, transition: { duration: 0.2, ease: 'easeIn' } }}
             onClick={requestClose}
-            className="absolute inset-0 bg-black/40 backdrop-blur-md"
+            className="absolute inset-0 bg-black/40 backdrop-blur-xl dark:bg-black/70"
             aria-hidden="true"
           />
 
@@ -139,7 +139,7 @@ export function NewHabitModal() {
                     transition={{ duration: 0.2 }}
                     role="alertdialog"
                     aria-label="Discard this habit?"
-                    className="w-full max-w-xs rounded-3xl border border-gray-200/70 bg-surface-light p-6 text-center shadow-large dark:border-white/10 dark:bg-surface-dark"
+                    className="w-full max-w-xs rounded-3xl border border-white/40 bg-white/80 p-6 text-center shadow-2xl backdrop-blur-2xl dark:border-white/10 dark:bg-gray-900/90"
                   >
                     <span
                       className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-warning-light/15 text-warning-light dark:text-warning-dark"
@@ -156,7 +156,7 @@ export function NewHabitModal() {
                     <button
                       type="button"
                       onClick={() => setConfirmingDiscard(false)}
-                      className="mt-5 w-full cursor-pointer rounded-full bg-primary py-3 text-sm font-bold text-[#003811] shadow-medium transition-all duration-200 hover:bg-primary-focus active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-primary"
+                      className="mt-5 w-full cursor-pointer rounded-full bg-gradient-to-r from-violet-500 to-purple-600 py-3 text-sm font-bold text-white shadow-lg shadow-violet-500/30 transition-all duration-200 hover:from-violet-600 hover:to-purple-700 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-violet-500"
                     >
                       Keep editing
                     </button>

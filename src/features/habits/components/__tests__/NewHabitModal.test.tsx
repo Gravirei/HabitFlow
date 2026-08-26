@@ -146,7 +146,7 @@ describe('NewHabitModal', () => {
 
     // Wait for AnimatePresence to mount the backdrop
     const backdrop = await waitFor(() => {
-      const el = container.querySelector<HTMLElement>('.bg-black\\/40.backdrop-blur-md')
+      const el = container.querySelector<HTMLElement>('.bg-black\\/40.backdrop-blur-xl')
       expect(el).not.toBeNull()
       return el!
     })
