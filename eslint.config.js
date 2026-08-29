@@ -50,7 +50,11 @@ export default tseslint.config(
   // landing page, native Android project, historical backups.
   { ignores: ['dist', 'coverage', 'node_modules', 'supabase', 'landing_page', 'android', 'archive'] },
   {
-    files: ['**/*.{ts,tsx}'],
+    // In strict mode (`lint:debt`), restrict the lint to the ledger files so
+    // we see only the burn-down metric — the errors hidden by @ts-nocheck.
+    // In default mode, lint the whole tree (with the ledger relaxation
+    // applied below).
+    files: debtModeStrict ? debtFiles : ['**/*.{ts,tsx}'],
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     languageOptions: {
       ecmaVersion: 2020,
