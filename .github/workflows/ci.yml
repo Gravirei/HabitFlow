@@ -38,9 +38,14 @@ jobs:
       - name: Unit tests
         run: npx vitest run
 
-      # Coverage — uploaded as an artifact. Threshold enforcement is
-      # left to a follow-up (debt-ledger burn-down in Phase 3) so this
-      # job stays green while we're still on the legacy baseline.
+      # Coverage — v8 provider configured in vite.config.ts. The report
+      # is uploaded as an artifact for visibility. Threshold enforcement
+      # is deferred to Phase 6: the pre-existing test failures (3 files /
+      # 5 tests per AGENTS.md known red baseline) cause vitest 4 to
+      # suppress the coverage table entirely, so any threshold would be
+      # either silently bypassed or spuriously failing. The gate lands
+      # once the test infrastructure is fixed and coverage can be
+      # measured on a known-good suite.
       - name: Unit tests (with coverage)
         run: npm run test:coverage
 
