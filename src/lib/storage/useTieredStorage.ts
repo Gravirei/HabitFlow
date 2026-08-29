@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * useTieredStorage Hook
  *
@@ -6,7 +5,7 @@
  * Automatically syncs with auth state and provides reactive updates
  */
 
-import { useEffect, useState, useCallback, useRef, useContext } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
 import { tieredStorage, type SyncStatus } from './tieredStorage'
 import type { TimerHistoryRecord, TimerMode } from './timerHistory.types'

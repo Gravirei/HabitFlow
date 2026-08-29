@@ -1,7 +1,6 @@
-// @ts-nocheck
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { Task } from '@/types/task'
+import type { Task, TaskStatus } from '@/types/task'
 
 interface TaskState {
   tasks: Task[]
@@ -55,7 +54,7 @@ export const useTaskStore = create<TaskState>()(
             ? {
                 ...t,
                 completed: !t.completed,
-                status: !t.completed ? 'completed' : 'todo',
+                status: (!t.completed ? 'completed' : 'todo') as TaskStatus,
                 updatedAt: new Date().toISOString(),
               }
             : t

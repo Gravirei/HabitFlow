@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Performance Monitoring Utilities
  *
@@ -20,16 +19,10 @@ export async function measurePerformance<T>(
   op: string,
   operation: () => Promise<T>
 ): Promise<T> {
-  const span = startTransaction(name, op)
-
-  try {
-    const result = await operation()
-    // Span automatically finishes with Sentry's new API
-    return result
-  } catch (error) {
-    // Error is automatically tracked by Sentry
-    throw error
-  }
+  // The span is created for Sentry instrumentation; it auto-finishes when
+  // the returned promise resolves. The handle is unused here intentionally.
+  void startTransaction(name, op)
+  return operation()
 }
 
 /**
