@@ -5,19 +5,22 @@
 
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { Tag, TaggedSession } from '@/features/timer/components/premium-history/custom-tags/types'
+import type {
+  Tag,
+  TaggedSession,
+} from '@/features/timer/components/premium-history/custom-tags/types'
 
 interface TagStore {
   tags: Tag[]
   sessionTags: TaggedSession[]
-  
+
   // Tag management
   addTag: (tag: Omit<Tag, 'id' | 'createdAt' | 'usageCount'>) => void
   updateTag: (id: string, updates: Partial<Tag>) => void
   deleteTag: (id: string) => void
   getTag: (id: string) => Tag | undefined
   getAllTags: () => Tag[]
-  
+
   // Session tagging
   addTagToSession: (sessionId: string, tagId: string) => void
   removeTagFromSession: (sessionId: string, tagId: string) => void
@@ -73,15 +76,13 @@ export const useTagStore = create<TagStore>()(
       addTagToSession: (sessionId, tagId) => {
         set((state) => {
           const existingSession = state.sessionTags.find((st) => st.sessionId === sessionId)
-          
+
           if (existingSession) {
             // Add tag if not already present
             if (!existingSession.tagIds.includes(tagId)) {
               return {
                 sessionTags: state.sessionTags.map((st) =>
-                  st.sessionId === sessionId
-                    ? { ...st, tagIds: [...st.tagIds, tagId] }
-                    : st
+                  st.sessionId === sessionId ? { ...st, tagIds: [...st.tagIds, tagId] } : st
                 ),
                 tags: state.tags.map((t) =>
                   t.id === tagId ? { ...t, usageCount: t.usageCount + 1 } : t
@@ -97,7 +98,7 @@ export const useTagStore = create<TagStore>()(
               ),
             }
           }
-          
+
           return state
         })
       },

@@ -12,27 +12,35 @@ export default function Analytics() {
   const navigate = useNavigate()
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white flex flex-col relative overflow-hidden">
+    <div className="relative flex min-h-screen flex-col overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white">
       {/* Animated Background Glow Effects */}
-      <div className="fixed top-0 left-1/4 -translate-x-1/2 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none z-0 animate-pulse" />
-      <div className="fixed top-1/3 right-0 w-80 h-80 bg-violet-500/5 rounded-full blur-3xl pointer-events-none z-0 animate-pulse" style={{ animationDelay: '2s' }} />
-      <div className="fixed bottom-0 left-1/3 w-96 h-96 bg-pink-500/5 rounded-full blur-3xl pointer-events-none z-0 animate-pulse" style={{ animationDelay: '4s' }} />
+      <div className="pointer-events-none fixed left-1/4 top-0 z-0 h-96 w-96 -translate-x-1/2 animate-pulse rounded-full bg-cyan-500/5 blur-3xl" />
+      <div
+        className="pointer-events-none fixed right-0 top-1/3 z-0 h-80 w-80 animate-pulse rounded-full bg-violet-500/5 blur-3xl"
+        style={{ animationDelay: '2s' }}
+      />
+      <div
+        className="pointer-events-none fixed bottom-0 left-1/3 z-0 h-96 w-96 animate-pulse rounded-full bg-pink-500/5 blur-3xl"
+        style={{ animationDelay: '4s' }}
+      />
 
       {/* Subtle Pattern Overlay */}
-      <div className="fixed inset-0 opacity-[0.015] bg-[radial-gradient(circle_at_1px_1px_rgba(255,255,255,0.4)_1px)] [background-size:48px_48px] pointer-events-none z-0" />
+      <div className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(circle_at_1px_1px_rgba(255,255,255,0.4)_1px)] opacity-[0.015] [background-size:48px_48px]" />
 
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-slate-900/80 backdrop-blur-2xl border-b border-white/10 shadow-lg">
-        <div className="flex items-center px-5 py-4 justify-between h-16">
+      <header className="sticky top-0 z-40 border-b border-white/10 bg-slate-900/80 shadow-lg backdrop-blur-2xl">
+        <div className="flex h-16 items-center justify-between px-5 py-4">
           <button
             onClick={() => navigate(-1)}
-            className="group flex size-11 items-center justify-center rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-white/10 hover:border-white/20 transition-all duration-300 active:scale-95"
+            className="group flex size-11 items-center justify-center rounded-xl border border-white/10 bg-slate-800/80 transition-all duration-300 hover:border-white/20 hover:bg-slate-700/80 active:scale-95"
             aria-label="Go back"
           >
-            <span className="material-symbols-outlined text-white group-hover:text-cyan-300 transition-colors">arrow_back</span>
+            <span className="material-symbols-outlined text-white transition-colors group-hover:text-cyan-300">
+              arrow_back
+            </span>
           </button>
-          <div className="flex-1 flex items-center justify-center pr-11">
-            <h2 className="text-xl font-black leading-tight tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-white to-cyan-300">
+          <div className="flex flex-1 items-center justify-center pr-11">
+            <h2 className="bg-gradient-to-r from-white via-white to-cyan-300 bg-clip-text text-xl font-black leading-tight tracking-tight text-transparent">
               Analytics Dashboard
             </h2>
           </div>
@@ -40,7 +48,7 @@ export default function Analytics() {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col pb-28 w-full max-w-4xl mx-auto relative z-10 px-4 sm:px-6 py-6">
+      <main className="relative z-10 mx-auto flex w-full max-w-4xl flex-1 flex-col px-4 py-6 pb-28 sm:px-6">
         {/* Content */}
         <div className="space-y-6">
           <AnalyticsDashboard />

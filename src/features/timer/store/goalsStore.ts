@@ -6,11 +6,16 @@
 
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { Goal, GoalType, GoalPeriod, TimerMode } from '@/features/timer/components/sidebar/goals/types'
+import type {
+  Goal,
+  GoalType,
+  GoalPeriod,
+  TimerMode,
+} from '@/features/timer/components/sidebar/goals/types'
 
 interface GoalsState {
   goals: Goal[]
-  
+
   // Actions
   addGoal: (goal: Omit<Goal, 'id' | 'current' | 'createdAt' | 'status'>) => void
   updateGoal: (id: string, updates: Partial<Goal>) => void
@@ -19,7 +24,7 @@ interface GoalsState {
   completeGoal: (id: string) => void
   pauseGoal: (id: string) => void
   resumeGoal: (id: string) => void
-  
+
   // Getters
   getActiveGoals: () => Goal[]
   getCompletedGoals: () => Goal[]
@@ -44,9 +49,7 @@ export const useGoalsStore = create<GoalsState>()(
 
       updateGoal: (id, updates) => {
         set((state) => ({
-          goals: state.goals.map((goal) =>
-            goal.id === id ? { ...goal, ...updates } : goal
-          ),
+          goals: state.goals.map((goal) => (goal.id === id ? { ...goal, ...updates } : goal)),
         }))
       },
 
@@ -61,7 +64,7 @@ export const useGoalsStore = create<GoalsState>()(
         if (!goal) return
 
         const updates: Partial<Goal> = { current: progress }
-        
+
         // Auto-complete if target reached
         if (progress >= goal.target && goal.status === 'active') {
           updates.status = 'completed'

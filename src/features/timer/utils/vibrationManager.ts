@@ -24,8 +24,8 @@ class VibrationManager {
    */
   public vibrate(pattern: VibrationPattern): void {
     if (!this.isSupported()) {
-      logger.warn('Vibration API not supported on this device/browser', { 
-        context: 'vibrationManager.vibrate' 
+      logger.warn('Vibration API not supported on this device/browser', {
+        context: 'vibrationManager.vibrate',
       })
       return
     }
@@ -33,16 +33,16 @@ class VibrationManager {
     try {
       // Define vibration patterns (in milliseconds)
       const patterns: Record<VibrationPattern, number | number[]> = {
-        short: 200,                       // Single 200ms vibration
-        long: 500,                        // Single 500ms vibration
-        pulse: [100, 50, 100, 50, 100]   // Triple pulse: vibrate-pause-vibrate-pause-vibrate
+        short: 200, // Single 200ms vibration
+        long: 500, // Single 500ms vibration
+        pulse: [100, 50, 100, 50, 100], // Triple pulse: vibrate-pause-vibrate-pause-vibrate
       }
 
       const selectedPattern = patterns[pattern]
-      
+
       if (!selectedPattern) {
-        logger.warn(`Unknown vibration pattern: ${pattern}`, { 
-          context: 'vibrationManager.vibrate' 
+        logger.warn(`Unknown vibration pattern: ${pattern}`, {
+          context: 'vibrationManager.vibrate',
         })
         return
       }

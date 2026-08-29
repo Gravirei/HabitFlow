@@ -61,7 +61,9 @@ export function GradientPicker({
   return (
     <div className={clsx('w-full', className)}>
       <div className="mb-2 flex items-center justify-between">
-        <label className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">{label}</label>
+        <label className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+          {label}
+        </label>
         {value && (
           <button
             type="button"
@@ -82,15 +84,20 @@ export function GradientPicker({
               type="button"
               onClick={() => onChange(g.value)}
               className={clsx(
-                'group flex items-center gap-3 rounded-xl border p-2 text-left transition-colors duration-200 cursor-pointer',
+                'group flex cursor-pointer items-center gap-3 rounded-xl border p-2 text-left transition-colors duration-200',
                 'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50',
                 isSelected
                   ? 'border-primary bg-primary/10'
                   : 'border-gray-200 bg-white hover:bg-gray-50 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10'
               )}
             >
-              <span className={clsx('h-8 w-8 rounded-lg bg-gradient-to-br', g.value)} aria-hidden="true" />
-              <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">{g.name}</span>
+              <span
+                className={clsx('h-8 w-8 rounded-lg bg-gradient-to-br', g.value)}
+                aria-hidden="true"
+              />
+              <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+                {g.name}
+              </span>
             </button>
           )
         })}

@@ -917,12 +917,12 @@ export const DEFAULT_TEMPLATES: TaskTemplate[] = [
   },
 ]
 
-function LibraryTemplateCard({ 
-  template, 
+function LibraryTemplateCard({
+  template,
   onClick,
   isAdded,
-  isModified 
-}: { 
+  isModified,
+}: {
   template: TaskTemplate
   onClick: () => void
   isAdded?: boolean
@@ -931,7 +931,7 @@ function LibraryTemplateCard({
   // Get hex color from template (supports both colorHex and color properties)
   const getTemplateColorHex = (tmpl: TaskTemplate) => {
     if (tmpl.colorHex) return tmpl.colorHex
-    
+
     // Fallback: Extract from Tailwind class
     const colorMap: Record<string, string> = {
       'bg-blue-500': '#3b82f6',
@@ -945,66 +945,76 @@ function LibraryTemplateCard({
       'bg-teal-500': '#14b8a6',
       'bg-cyan-500': '#06b6d4',
     }
-    
+
     if (colorMap[tmpl.color]) return colorMap[tmpl.color]
-    
+
     // Extract from custom bg-[...] format
     const customMatch = tmpl.color.match(/bg-\[([a-fA-F0-9]{6})\]/)
     if (customMatch) return '#' + customMatch[1]
-    
+
     return '#3b82f6' // fallback
   }
 
   return (
     <button
       onClick={onClick}
-      className="group relative flex flex-col text-left h-full min-h-[180px] p-6 rounded-3xl bg-white/40 dark:bg-gray-800/40 backdrop-blur-md border border-white/20 dark:border-white/5 hover:bg-white/60 dark:hover:bg-gray-800/60 hover:border-white/40 dark:hover:border-white/10 shadow-sm hover:shadow-xl hover:shadow-indigo-500/10 hover:-translate-y-1 transition-all duration-300 overflow-hidden"
+      className="group relative flex h-full min-h-[180px] flex-col overflow-hidden rounded-3xl border border-white/20 bg-white/40 p-6 text-left shadow-sm backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-white/40 hover:bg-white/60 hover:shadow-xl hover:shadow-indigo-500/10 dark:border-white/5 dark:bg-gray-800/40 dark:hover:border-white/10 dark:hover:bg-gray-800/60"
     >
       {/* Background Gradient Mesh */}
-      <div 
-        className="absolute top-0 right-0 -mt-8 -mr-8 w-32 h-32 rounded-full blur-3xl opacity-0 group-hover:opacity-20 transition-opacity duration-500"
+      <div
+        className="absolute right-0 top-0 -mr-8 -mt-8 h-32 w-32 rounded-full opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-20"
         style={{ backgroundColor: getTemplateColorHex(template) }}
       ></div>
-      
+
       {/* Badge - Show "Used & Modified" if modified, otherwise "Added" */}
       {isAdded && isModified && (
-        <div className="absolute top-4 right-4 z-20 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-purple-500 shadow-lg shadow-purple-500/30 animate-in fade-in zoom-in duration-300">
+        <div className="animate-in fade-in zoom-in absolute right-4 top-4 z-20 flex items-center gap-1.5 rounded-full bg-purple-500 px-3 py-1.5 shadow-lg shadow-purple-500/30 duration-300">
           <span className="material-symbols-outlined text-[14px] text-white">edit_note</span>
-          <span className="text-[11px] font-bold text-white uppercase tracking-wide">Used & Modified</span>
+          <span className="text-[11px] font-bold uppercase tracking-wide text-white">
+            Used & Modified
+          </span>
         </div>
       )}
-      
+
       {isAdded && !isModified && (
-        <div className="absolute top-4 right-4 z-20 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green-500 shadow-lg shadow-green-500/30 animate-in fade-in zoom-in duration-300">
+        <div className="animate-in fade-in zoom-in absolute right-4 top-4 z-20 flex items-center gap-1.5 rounded-full bg-green-500 px-3 py-1.5 shadow-lg shadow-green-500/30 duration-300">
           <span className="material-symbols-outlined text-[14px] text-white">check_circle</span>
-          <span className="text-[11px] font-bold text-white uppercase tracking-wide">Added</span>
+          <span className="text-[11px] font-bold uppercase tracking-wide text-white">Added</span>
         </div>
       )}
-      
-      <div className="relative z-10 flex flex-col h-full">
-        <div className="flex items-start justify-between mb-4">
-          <div 
-            className="w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-black/5 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300"
+
+      <div className="relative z-10 flex h-full flex-col">
+        <div className="mb-4 flex items-start justify-between">
+          <div
+            className="flex h-14 w-14 items-center justify-center rounded-2xl text-white shadow-lg shadow-black/5 transition-all duration-300 group-hover:rotate-3 group-hover:scale-110"
             style={{ backgroundColor: getTemplateColorHex(template) }}
           >
             <span className="material-symbols-outlined text-2xl">{template.icon}</span>
           </div>
         </div>
 
-        <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-2 leading-tight group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+        <h4 className="mb-2 text-lg font-bold leading-tight text-gray-900 transition-colors group-hover:text-indigo-600 dark:text-white dark:group-hover:text-indigo-400">
           {template.name || '(No name)'}
         </h4>
-        
-        <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 mb-4 leading-relaxed">
+
+        <p className="mb-4 line-clamp-2 text-sm leading-relaxed text-gray-500 dark:text-gray-400">
           {template.description || '(No description)'}
         </p>
 
         <div className="mt-auto space-y-2">
           {/* Category, Priority, Time Badges */}
-          <div className="flex items-center gap-2 flex-wrap">
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gray-100/50 dark:bg-white/5 border border-gray-200/50 dark:border-white/5">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-1.5 rounded-lg border border-gray-200/50 bg-gray-100/50 px-2.5 py-1 dark:border-white/5 dark:bg-white/5">
               <span className="material-symbols-outlined text-[14px] text-gray-400">
-                {template.category === 'Work' ? 'business_center' : template.category === 'Personal' ? 'person' : template.category === 'Health' ? 'favorite' : template.category === 'Creative' ? 'palette' : 'school'}
+                {template.category === 'Work'
+                  ? 'business_center'
+                  : template.category === 'Personal'
+                    ? 'person'
+                    : template.category === 'Health'
+                      ? 'favorite'
+                      : template.category === 'Creative'
+                        ? 'palette'
+                        : 'school'}
               </span>
               <span className="text-[11px] font-medium text-gray-600 dark:text-gray-300">
                 {template.category}
@@ -1012,29 +1022,45 @@ function LibraryTemplateCard({
             </div>
 
             {template.template.priority && (
-              <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-gray-200/50 dark:border-white/5 ${
-                template.template.priority === 'high' ? 'bg-red-50 dark:bg-red-500/10' :
-                template.template.priority === 'medium' ? 'bg-yellow-50 dark:bg-yellow-500/10' :
-                'bg-green-50 dark:bg-green-500/10'
-              }`}>
-                <span className={`material-symbols-outlined text-[14px] ${
-                  template.template.priority === 'high' ? 'text-red-500' :
-                  template.template.priority === 'medium' ? 'text-yellow-500' :
-                  'text-green-500'
-                }`}>flag</span>
-                <span className={`text-[11px] font-medium capitalize ${
-                  template.template.priority === 'high' ? 'text-red-600 dark:text-red-400' :
-                  template.template.priority === 'medium' ? 'text-yellow-600 dark:text-yellow-400' :
-                  'text-green-600 dark:text-green-400'
-                }`}>
+              <div
+                className={`flex items-center gap-1.5 rounded-lg border border-gray-200/50 px-2.5 py-1 dark:border-white/5 ${
+                  template.template.priority === 'high'
+                    ? 'bg-red-50 dark:bg-red-500/10'
+                    : template.template.priority === 'medium'
+                      ? 'bg-yellow-50 dark:bg-yellow-500/10'
+                      : 'bg-green-50 dark:bg-green-500/10'
+                }`}
+              >
+                <span
+                  className={`material-symbols-outlined text-[14px] ${
+                    template.template.priority === 'high'
+                      ? 'text-red-500'
+                      : template.template.priority === 'medium'
+                        ? 'text-yellow-500'
+                        : 'text-green-500'
+                  }`}
+                >
+                  flag
+                </span>
+                <span
+                  className={`text-[11px] font-medium capitalize ${
+                    template.template.priority === 'high'
+                      ? 'text-red-600 dark:text-red-400'
+                      : template.template.priority === 'medium'
+                        ? 'text-yellow-600 dark:text-yellow-400'
+                        : 'text-green-600 dark:text-green-400'
+                  }`}
+                >
                   {template.template.priority}
                 </span>
               </div>
             )}
-            
+
             {template.template.timeEstimate && (
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gray-100/50 dark:bg-white/5 border border-gray-200/50 dark:border-white/5">
-                <span className="material-symbols-outlined text-[14px] text-gray-400">schedule</span>
+              <div className="flex items-center gap-1.5 rounded-lg border border-gray-200/50 bg-gray-100/50 px-2.5 py-1 dark:border-white/5 dark:bg-white/5">
+                <span className="material-symbols-outlined text-[14px] text-gray-400">
+                  schedule
+                </span>
                 <span className="text-[11px] font-medium text-gray-600 dark:text-gray-300">
                   {template.template.timeEstimate}m
                 </span>
@@ -1044,11 +1070,11 @@ function LibraryTemplateCard({
 
           {/* Tags - Show up to 3 */}
           {template.template.tags && template.template.tags.length > 0 && (
-            <div className="flex items-center gap-1.5 flex-wrap">
+            <div className="flex flex-wrap items-center gap-1.5">
               {template.template.tags.slice(0, 3).map((tag, index) => (
                 <span
                   key={index}
-                  className="px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-[10px] font-bold border border-indigo-200/30 dark:border-indigo-500/20"
+                  className="rounded-full border border-indigo-200/30 bg-indigo-50 px-2 py-0.5 text-[10px] font-bold text-indigo-600 dark:border-indigo-500/20 dark:bg-indigo-500/10 dark:text-indigo-400"
                 >
                   #{tag}
                 </span>
@@ -1077,7 +1103,9 @@ export function TemplateLibraryModal({
   onSaveToMyTemplates,
   customTemplates = [],
 }: TemplateLibraryModalProps) {
-  const [selectedCategory, setSelectedCategory] = useState<'all' | 'work' | 'personal' | 'health' | 'creative' | 'learning'>('all')
+  const [selectedCategory, setSelectedCategory] = useState<
+    'all' | 'work' | 'personal' | 'health' | 'creative' | 'learning'
+  >('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [previewTemplate, setPreviewTemplate] = useState<TaskTemplate | null>(null)
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
@@ -1094,7 +1122,7 @@ export function TemplateLibraryModal({
         setSearchQuery('')
       }
     }
-    
+
     document.addEventListener('mousedown', handleClickOutside)
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
@@ -1127,10 +1155,12 @@ export function TemplateLibraryModal({
     return () => clearTimeout(timer)
   }, [selectedCategory, isOpen])
 
-  const filteredTemplates = DEFAULT_TEMPLATES.filter(template => {
-    const matchesCategory = selectedCategory === 'all' || template.category.toLowerCase() === selectedCategory
-    const matchesSearch = template.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         template.description?.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredTemplates = DEFAULT_TEMPLATES.filter((template) => {
+    const matchesCategory =
+      selectedCategory === 'all' || template.category.toLowerCase() === selectedCategory
+    const matchesSearch =
+      template.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      template.description?.toLowerCase().includes(searchQuery.toLowerCase())
     return matchesCategory && matchesSearch
   })
 
@@ -1145,25 +1175,28 @@ export function TemplateLibraryModal({
         isOpen={isOpen}
         onClose={onClose}
         title="Template Store"
-        className="!bg-transparent !shadow-none !border-0 p-0 overflow-visible"
+        className="overflow-visible !border-0 !bg-transparent p-0 !shadow-none"
         maxWidth="max-w-[90rem]"
       >
-        <div className="flex flex-col h-[90vh] md:h-[50rem] w-full bg-white/95 dark:bg-gray-950/90 backdrop-blur-3xl rounded-[2.5rem] shadow-2xl border border-white/20 dark:border-white/5 overflow-hidden ring-1 ring-black/5 relative">
-          
+        <div className="relative flex h-[90vh] w-full flex-col overflow-hidden rounded-[2.5rem] border border-white/20 bg-white/95 shadow-2xl ring-1 ring-black/5 backdrop-blur-3xl dark:border-white/5 dark:bg-gray-950/90 md:h-[50rem]">
           {/* Decorative Background Elements */}
-          <div className="absolute top-0 left-0 w-96 h-96 bg-purple-500/10 rounded-full blur-[100px] pointer-events-none"></div>
-          <div className="absolute bottom-0 right-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-[100px] pointer-events-none"></div>
+          <div className="pointer-events-none absolute left-0 top-0 h-96 w-96 rounded-full bg-purple-500/10 blur-[100px]"></div>
+          <div className="pointer-events-none absolute bottom-0 right-0 h-96 w-96 rounded-full bg-indigo-500/10 blur-[100px]"></div>
 
           {/* Header */}
-          <div className="p-8 pb-6 border-b border-gray-200/50 dark:border-white/5 relative z-10 backdrop-blur-xl bg-white/50 dark:bg-gray-950/50">
+          <div className="relative z-10 border-b border-gray-200/50 bg-white/50 p-8 pb-6 backdrop-blur-xl dark:border-white/5 dark:bg-gray-950/50">
             <div className="flex items-center justify-between gap-6">
               <div className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-purple-500/30 ring-1 ring-black/5">
-                  <span className="material-symbols-outlined text-white text-2xl">store</span>
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 shadow-lg shadow-purple-500/30 ring-1 ring-black/5">
+                  <span className="material-symbols-outlined text-2xl text-white">store</span>
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white leading-none mb-1">Template Store</h2>
-                  <p className="text-sm text-gray-500 font-medium">Browse and save professional templates</p>
+                  <h2 className="mb-1 text-2xl font-bold leading-none text-gray-900 dark:text-white">
+                    Template Store
+                  </h2>
+                  <p className="text-sm font-medium text-gray-500">
+                    Browse and save professional templates
+                  </p>
                 </div>
               </div>
 
@@ -1174,7 +1207,7 @@ export function TemplateLibraryModal({
                   {!isSearchOpen && (
                     <button
                       onClick={() => setIsSearchOpen(true)}
-                      className="flex size-10 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-white/5 active:scale-95 transition-all duration-150 text-gray-400 dark:text-gray-500 relative z-10"
+                      className="relative z-10 flex size-10 items-center justify-center rounded-full text-gray-400 transition-all duration-150 hover:bg-gray-100 active:scale-95 dark:text-gray-500 dark:hover:bg-white/5"
                       aria-label="Search"
                     >
                       <span className="material-symbols-outlined text-xl font-bold">search</span>
@@ -1185,8 +1218,8 @@ export function TemplateLibraryModal({
                     placeholder="Search templates..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className={`h-10 pl-4 pr-10 rounded-full bg-gray-100 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:rounded-full transition-all duration-300 ease-out absolute right-0 ${
-                      isSearchOpen ? 'w-64 opacity-100' : 'w-10 opacity-0 pointer-events-none'
+                    className={`absolute right-0 h-10 rounded-full border border-gray-200 bg-gray-100 pl-4 pr-10 text-sm text-gray-900 transition-all duration-300 ease-out placeholder:text-gray-400 focus:rounded-full focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 dark:border-gray-700 dark:bg-gray-800/50 dark:text-white ${
+                      isSearchOpen ? 'w-64 opacity-100' : 'pointer-events-none w-10 opacity-0'
                     }`}
                     autoFocus={isSearchOpen}
                   />
@@ -1196,7 +1229,7 @@ export function TemplateLibraryModal({
                         setSearchQuery('')
                         setIsSearchOpen(false)
                       }}
-                      className="flex size-8 items-center justify-center rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-150 text-gray-400 dark:text-gray-500 absolute right-1 z-10"
+                      className="absolute right-1 z-10 flex size-8 items-center justify-center rounded-full text-gray-400 transition-all duration-150 hover:bg-gray-200 dark:text-gray-500 dark:hover:bg-gray-700"
                       aria-label="Close search"
                     >
                       <span className="material-symbols-outlined text-lg font-bold">close</span>
@@ -1205,10 +1238,10 @@ export function TemplateLibraryModal({
                 </div>
 
                 {/* Category Filters with Sliding Background */}
-                <div className="relative flex items-center gap-2 bg-gray-100/50 dark:bg-gray-800/30 p-1 rounded-2xl">
+                <div className="relative flex items-center gap-2 rounded-2xl bg-gray-100/50 p-1 dark:bg-gray-800/30">
                   {/* Sliding background indicator */}
                   <div
-                    className="absolute bg-indigo-600 rounded-xl shadow-lg shadow-indigo-500/30 transition-all duration-300 ease-out"
+                    className="absolute rounded-xl bg-indigo-600 shadow-lg shadow-indigo-500/30 transition-all duration-300 ease-out"
                     style={{
                       left: `${indicatorStyle.left}px`,
                       width: `${indicatorStyle.width}px`,
@@ -1216,7 +1249,7 @@ export function TemplateLibraryModal({
                       top: '4px',
                     }}
                   />
-                  
+
                   {[
                     { id: 'all', label: 'All', icon: 'grid_view' },
                     { id: 'work', label: 'Work', icon: 'business_center' },
@@ -1228,11 +1261,15 @@ export function TemplateLibraryModal({
                     <button
                       key={cat.id}
                       ref={(el) => (categoryRefs.current[cat.id] = el)}
-                      onClick={() => setSelectedCategory(cat.id as 'all' | 'work' | 'personal' | 'health' | 'creative' | 'learning')}
-                      className={`relative z-10 flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors duration-200 whitespace-nowrap ${
+                      onClick={() =>
+                        setSelectedCategory(
+                          cat.id as 'all' | 'work' | 'personal' | 'health' | 'creative' | 'learning'
+                        )
+                      }
+                      className={`relative z-10 flex items-center gap-2 whitespace-nowrap rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors duration-200 ${
                         selectedCategory === cat.id
                           ? 'text-white'
-                          : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                          : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white'
                       }`}
                     >
                       <span className="material-symbols-outlined text-[18px]">{cat.icon}</span>
@@ -1241,9 +1278,9 @@ export function TemplateLibraryModal({
                   ))}
                 </div>
 
-                <button 
+                <button
                   onClick={onClose}
-                  className="flex size-10 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-white/5 active:scale-95 transition-all duration-150 text-gray-400 dark:text-gray-500"
+                  className="flex size-10 items-center justify-center rounded-full text-gray-400 transition-all duration-150 hover:bg-gray-100 active:scale-95 dark:text-gray-500 dark:hover:bg-white/5"
                   aria-label="Close"
                 >
                   <span className="material-symbols-outlined text-xl font-bold">close</span>
@@ -1253,60 +1290,80 @@ export function TemplateLibraryModal({
           </div>
 
           {/* Grid */}
-          <div className="flex-1 overflow-y-auto p-8 custom-scrollbar relative z-10">
+          <div className="custom-scrollbar relative z-10 flex-1 overflow-y-auto p-8">
             {filteredTemplates.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-24 text-center">
-                <div className="w-24 h-24 rounded-3xl bg-gray-50 dark:bg-white/5 flex items-center justify-center mb-6 shadow-inner">
-                  <span className="material-symbols-outlined text-4xl text-gray-300 dark:text-gray-600">search_off</span>
+                <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-3xl bg-gray-50 shadow-inner dark:bg-white/5">
+                  <span className="material-symbols-outlined text-4xl text-gray-300 dark:text-gray-600">
+                    search_off
+                  </span>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">No matches found</h3>
+                <h3 className="mb-2 text-xl font-bold text-gray-900 dark:text-white">
+                  No matches found
+                </h3>
                 <p className="text-gray-500">Try adjusting your search for "{searchQuery}"</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 pb-12">
+              <div className="grid grid-cols-1 gap-5 pb-12 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {filteredTemplates.map((template) => {
                   // Find if template is saved in customTemplates
-                  const savedTemplate = customTemplates.find(t => 
-                    t.id === template.id || t.sourceTemplateId === template.id
+                  const savedTemplate = customTemplates.find(
+                    (t) => t.id === template.id || t.sourceTemplateId === template.id
                   )
-                  
+
                   const isAdded = !!savedTemplate
-                  
+
                   // Check if template has been modified from original
                   let isModified = false
                   if (savedTemplate) {
                     // Compare only the actual content, normalize undefined/null/empty values
-                    const normalizeValue = (val: unknown) => val === undefined || val === null || val === '' ? '' : val
+                    const normalizeValue = (val: unknown) =>
+                      val === undefined || val === null || val === '' ? '' : val
                     const normalizeArray = <T,>(arr: T[] | undefined) => arr || []
-                    
+
                     // Normalize subtasks to handle both 'text' and 'title' fields
-                    const normalizeSubtasks = (subtasks: Array<{ title?: string; text?: string; completed?: boolean }>) => {
-                      return subtasks.map(st => ({
+                    const normalizeSubtasks = (
+                      subtasks: Array<{ title?: string; text?: string; completed?: boolean }>
+                    ) => {
+                      return subtasks.map((st) => ({
                         title: st.title || st.text || '',
-                        completed: st.completed || false
+                        completed: st.completed || false,
                       }))
                     }
-                    
+
                     // Only compare template.template.* fields (actual editable content)
                     // Don't compare name because library templates have name != template.title by design
-                    isModified = 
+                    isModified =
                       // Compare top-level fields that user can edit
-                      normalizeValue(savedTemplate.description) !== normalizeValue(template.description) ||
-                      normalizeValue(savedTemplate.category) !== normalizeValue(template.category) ||
+                      normalizeValue(savedTemplate.description) !==
+                        normalizeValue(template.description) ||
+                      normalizeValue(savedTemplate.category) !==
+                        normalizeValue(template.category) ||
                       // Compare template fields (the actual task content)
-                      normalizeValue(savedTemplate.template.title) !== normalizeValue(template.template.title) ||
-                      normalizeValue(savedTemplate.template.description) !== normalizeValue(template.template.description) ||
-                      normalizeValue(savedTemplate.template.priority) !== normalizeValue(template.template.priority) ||
-                      normalizeValue(savedTemplate.template.category) !== normalizeValue(template.template.category) ||
-                      normalizeValue(savedTemplate.template.timeEstimate) !== normalizeValue(template.template.timeEstimate) ||
-                      JSON.stringify(normalizeArray(savedTemplate.template.tags).sort()) !== JSON.stringify(normalizeArray(template.template.tags).sort()) ||
-                      JSON.stringify(normalizeSubtasks(normalizeArray(savedTemplate.template.subtasks))) !== JSON.stringify(normalizeSubtasks(normalizeArray(template.template.subtasks)))
+                      normalizeValue(savedTemplate.template.title) !==
+                        normalizeValue(template.template.title) ||
+                      normalizeValue(savedTemplate.template.description) !==
+                        normalizeValue(template.template.description) ||
+                      normalizeValue(savedTemplate.template.priority) !==
+                        normalizeValue(template.template.priority) ||
+                      normalizeValue(savedTemplate.template.category) !==
+                        normalizeValue(template.template.category) ||
+                      normalizeValue(savedTemplate.template.timeEstimate) !==
+                        normalizeValue(template.template.timeEstimate) ||
+                      JSON.stringify(normalizeArray(savedTemplate.template.tags).sort()) !==
+                        JSON.stringify(normalizeArray(template.template.tags).sort()) ||
+                      JSON.stringify(
+                        normalizeSubtasks(normalizeArray(savedTemplate.template.subtasks))
+                      ) !==
+                        JSON.stringify(
+                          normalizeSubtasks(normalizeArray(template.template.subtasks))
+                        )
                   }
-                  
+
                   return (
-                    <LibraryTemplateCard 
+                    <LibraryTemplateCard
                       key={template.id}
-                      template={template} 
+                      template={template}
                       onClick={() => handleTemplateClick(template)}
                       isAdded={isAdded}
                       isModified={isModified}

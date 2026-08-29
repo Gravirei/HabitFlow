@@ -17,7 +17,7 @@ describe.skip('Export Data Feature', () => {
       mode: 'Stopwatch' as const,
       duration: 1500,
       timestamp: Date.now() - 86400000,
-      completed: true
+      completed: true,
     },
     {
       id: '2',
@@ -25,7 +25,7 @@ describe.skip('Export Data Feature', () => {
       duration: 900,
       timestamp: Date.now() - 43200000,
       completed: true,
-      targetTime: 1800
+      targetTime: 1800,
     },
     {
       id: '3',
@@ -35,19 +35,13 @@ describe.skip('Export Data Feature', () => {
       completed: true,
       workDuration: 1500,
       breakDuration: 300,
-      rounds: 4
-    }
+      rounds: 4,
+    },
   ]
 
   describe('ExportModal Component', () => {
     it('renders export modal when open', () => {
-      render(
-        <ExportModal
-          isOpen={true}
-          onClose={vi.fn()}
-          sessions={mockSessions}
-        />
-      )
+      render(<ExportModal isOpen={true} onClose={vi.fn()} sessions={mockSessions} />)
 
       expect(screen.getByText('Export Data')).toBeInTheDocument()
       expect(screen.getByText(/export your timer sessions/i)).toBeInTheDocument()
@@ -55,24 +49,14 @@ describe.skip('Export Data Feature', () => {
 
     it('does not render when closed', () => {
       const { container } = render(
-        <ExportModal
-          isOpen={false}
-          onClose={vi.fn()}
-          sessions={mockSessions}
-        />
+        <ExportModal isOpen={false} onClose={vi.fn()} sessions={mockSessions} />
       )
 
       expect(container).toBeEmptyDOMElement()
     })
 
     it('displays all export format options', () => {
-      render(
-        <ExportModal
-          isOpen={true}
-          onClose={vi.fn()}
-          sessions={mockSessions}
-        />
-      )
+      render(<ExportModal isOpen={true} onClose={vi.fn()} sessions={mockSessions} />)
 
       expect(screen.getByText('CSV (Spreadsheet)')).toBeInTheDocument()
       expect(screen.getByText('JSON (Developer)')).toBeInTheDocument()
@@ -80,13 +64,7 @@ describe.skip('Export Data Feature', () => {
     })
 
     it('shows session count', () => {
-      render(
-        <ExportModal
-          isOpen={true}
-          onClose={vi.fn()}
-          sessions={mockSessions}
-        />
-      )
+      render(<ExportModal isOpen={true} onClose={vi.fn()} sessions={mockSessions} />)
 
       expect(screen.getByText(/3 sessions/i)).toBeInTheDocument()
     })
@@ -94,11 +72,7 @@ describe.skip('Export Data Feature', () => {
     it('calls onClose when clicking backdrop', () => {
       const onClose = vi.fn()
       const { container } = render(
-        <ExportModal
-          isOpen={true}
-          onClose={onClose}
-          sessions={mockSessions}
-        />
+        <ExportModal isOpen={true} onClose={onClose} sessions={mockSessions} />
       )
 
       const backdrop = container.querySelector('.fixed.inset-0')
@@ -110,17 +84,11 @@ describe.skip('Export Data Feature', () => {
 
     it('calls onClose when clicking close button', () => {
       const onClose = vi.fn()
-      render(
-        <ExportModal
-          isOpen={true}
-          onClose={onClose}
-          sessions={mockSessions}
-        />
-      )
+      render(<ExportModal isOpen={true} onClose={onClose} sessions={mockSessions} />)
 
-      const closeButtons = screen.getAllByRole('button').filter(btn =>
-        btn.querySelector('.material-symbols-outlined')?.textContent === 'close'
-      )
+      const closeButtons = screen
+        .getAllByRole('button')
+        .filter((btn) => btn.querySelector('.material-symbols-outlined')?.textContent === 'close')
 
       if (closeButtons.length > 0) {
         fireEvent.click(closeButtons[0])
@@ -129,13 +97,7 @@ describe.skip('Export Data Feature', () => {
     })
 
     it('handles empty sessions array', () => {
-      render(
-        <ExportModal
-          isOpen={true}
-          onClose={vi.fn()}
-          sessions={[]}
-        />
-      )
+      render(<ExportModal isOpen={true} onClose={vi.fn()} sessions={[]} />)
 
       expect(screen.getByText(/0 sessions/i)).toBeInTheDocument()
     })
@@ -215,7 +177,7 @@ describe.skip('Export Data Feature', () => {
         text: vi.fn(),
         line: vi.fn(),
         setFontSize: vi.fn(),
-        setFont: vi.fn()
+        setFont: vi.fn(),
       })) as any
 
       await exportToPDF(mockSessions)
@@ -231,7 +193,7 @@ describe.skip('Export Data Feature', () => {
         text: vi.fn(),
         line: vi.fn(),
         setFontSize: vi.fn(),
-        setFont: vi.fn()
+        setFont: vi.fn(),
       })) as any
 
       await exportToPDF([])
@@ -263,7 +225,7 @@ describe.skip('Export Data Feature', () => {
         mode: 'Stopwatch' as const,
         duration: 1500 + i,
         timestamp: Date.now() - i * 1000,
-        completed: true
+        completed: true,
       }))
 
       const csv = await exportToCSV(largeSessions)
@@ -276,52 +238,28 @@ describe.skip('Export Data Feature', () => {
 
   describe('Export UI Interactions', () => {
     it('allows selecting CSV format', () => {
-      render(
-        <ExportModal
-          isOpen={true}
-          onClose={vi.fn()}
-          sessions={mockSessions}
-        />
-      )
+      render(<ExportModal isOpen={true} onClose={vi.fn()} sessions={mockSessions} />)
 
       const csvButton = screen.getByText('CSV (Spreadsheet)').closest('button')
       expect(csvButton).toBeInTheDocument()
     })
 
     it('allows selecting JSON format', () => {
-      render(
-        <ExportModal
-          isOpen={true}
-          onClose={vi.fn()}
-          sessions={mockSessions}
-        />
-      )
+      render(<ExportModal isOpen={true} onClose={vi.fn()} sessions={mockSessions} />)
 
       const jsonButton = screen.getByText('JSON (Developer)').closest('button')
       expect(jsonButton).toBeInTheDocument()
     })
 
     it('allows selecting PDF format', () => {
-      render(
-        <ExportModal
-          isOpen={true}
-          onClose={vi.fn()}
-          sessions={mockSessions}
-        />
-      )
+      render(<ExportModal isOpen={true} onClose={vi.fn()} sessions={mockSessions} />)
 
       const pdfButton = screen.getByText('PDF (Report)').closest('button')
       expect(pdfButton).toBeInTheDocument()
     })
 
     it('displays export preview before download', async () => {
-      render(
-        <ExportModal
-          isOpen={true}
-          onClose={vi.fn()}
-          sessions={mockSessions}
-        />
-      )
+      render(<ExportModal isOpen={true} onClose={vi.fn()} sessions={mockSessions} />)
 
       // Check if preview section exists
       const modal = screen.getByText('Export Data').closest('div')

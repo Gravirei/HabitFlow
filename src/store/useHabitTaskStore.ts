@@ -6,20 +6,23 @@ import { getLocalToday, toLocalDateString } from '@/utils/dateUtils'
 
 interface HabitTaskStore {
   tasks: HabitTask[]
-  
+
   // CRUD operations
   addTask: (task: Omit<HabitTask, 'id' | 'createdAt' | 'updatedAt'>) => void
-  updateTask: (id: string, updates: Partial<Omit<HabitTask, 'id' | 'habitId' | 'createdAt'>>) => void
+  updateTask: (
+    id: string,
+    updates: Partial<Omit<HabitTask, 'id' | 'habitId' | 'createdAt'>>
+  ) => void
   deleteTask: (id: string) => void
-  
+
   // Queries
   getTasksByHabitId: (habitId: string) => HabitTask[]
   getTaskCount: (habitId: string) => number
   getCompletedTaskCount: (habitId: string) => number
-  
+
   // Reset tasks based on frequency
   resetTasksIfNeeded: (habitId: string, frequency: 'daily' | 'weekly' | 'monthly') => void
-  
+
   // Batch reset all tasks for a new day (called by day-change detector)
   resetAllTasksForNewDay: () => void
 }
@@ -45,17 +48,17 @@ export const useHabitTaskStore = create<HabitTaskStore>()(
           tasks: state.tasks.map((task) => {
             if (task.id === id) {
               const updatedTask = { ...task, ...updates, updatedAt: new Date().toISOString() }
-              
+
               // If marking as completed, set completedDate (use provided date or default to today)
               if (updates.completed === true && !task.completed) {
                 updatedTask.completedDate = updates.completedDate || getLocalToday()
               }
-              
+
               // If marking as uncompleted, clear completedDate
               if (updates.completed === false && task.completed) {
                 updatedTask.completedDate = undefined
               }
-              
+
               return updatedTask
             }
             return task
@@ -83,12 +86,12 @@ export const useHabitTaskStore = create<HabitTaskStore>()(
 
       resetTasksIfNeeded: (habitId, frequency) => {
         const today = getLocalToday()
-        
+
         set((state) => ({
           tasks: state.tasks.map((task) => {
             if (task.habitId !== habitId) return task
             if (!task.completed || !task.completedDate) return task
-            
+
             // Check if task should be reset based on frequency
             const shouldReset = (() => {
               if (frequency === 'daily') {
@@ -98,7 +101,7 @@ export const useHabitTaskStore = create<HabitTaskStore>()(
                 // Reset if completed in a different week
                 const completedDate = new Date(task.completedDate)
                 const todayDate = new Date(today)
-                
+
                 // Get Monday of the week for both dates
                 const getMonday = (d: Date) => {
                   const clone = new Date(d.getTime())
@@ -107,7 +110,7 @@ export const useHabitTaskStore = create<HabitTaskStore>()(
                   clone.setDate(diff)
                   return toLocalDateString(clone)
                 }
-                
+
                 return getMonday(completedDate) !== getMonday(todayDate)
               } else if (frequency === 'monthly') {
                 // Reset if completed in a different month
@@ -117,7 +120,7 @@ export const useHabitTaskStore = create<HabitTaskStore>()(
               }
               return false
             })()
-            
+
             if (shouldReset) {
               return {
                 ...task,
@@ -126,7 +129,7 @@ export const useHabitTaskStore = create<HabitTaskStore>()(
                 updatedAt: new Date().toISOString(),
               }
             }
-            
+
             return task
           }),
         }))
@@ -134,13 +137,13 @@ export const useHabitTaskStore = create<HabitTaskStore>()(
 
       resetAllTasksForNewDay: () => {
         const today = getLocalToday()
-        
+
         set((state) => ({
           tasks: state.tasks.map((task) => {
             // Only reset completed tasks from previous days
             if (!task.completed || !task.completedDate) return task
             if (task.completedDate === today) return task
-            
+
             return {
               ...task,
               completed: false,

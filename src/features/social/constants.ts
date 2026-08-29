@@ -31,23 +31,23 @@ export const SOCIAL_DESIGN_TOKENS = {
 
   /** Badge rarity colors — start/end of each gradient */
   rarity: {
-    common: { from: '#64748b', to: '#94a3b8' },   // slate-500 → slate-400
-    rare: { from: '#3b82f6', to: '#22d3ee' },       // blue-500 → cyan-400
-    epic: { from: '#a855f7', to: '#f472b6' },       // purple-500 → pink-400
-    legendary: { from: '#f59e0b', to: '#fb923c' },  // amber-500 → orange-400
+    common: { from: '#64748b', to: '#94a3b8' }, // slate-500 → slate-400
+    rare: { from: '#3b82f6', to: '#22d3ee' }, // blue-500 → cyan-400
+    epic: { from: '#a855f7', to: '#f472b6' }, // purple-500 → pink-400
+    legendary: { from: '#f59e0b', to: '#fb923c' }, // amber-500 → orange-400
   },
 
   /** Surface card backgrounds — use with `bg-white/[value]` */
   surface: {
-    subtle: 0.015,    // barely visible — hero ambient areas
-    default: 0.025,   // standard card background
-    raised: 0.04,     // hover state or elevated cards
+    subtle: 0.015, // barely visible — hero ambient areas
+    default: 0.025, // standard card background
+    raised: 0.04, // hover state or elevated cards
   },
 
   /** Border opacities — use with `border-white/[value]` */
   border: {
-    subtle: 0.04,     // default card border
-    default: 0.06,    // elevated card / input border
+    subtle: 0.04, // default card border
+    default: 0.06, // elevated card / input border
   },
 } as const
 
@@ -61,8 +61,16 @@ export const SOCIAL_ANIMATIONS = {
     trigger: 'Screen mount (Leaderboard, Profile)',
     duration: 800,
     easing: 'easeOut',
-    framerProps: { initial: { width: 0 }, animate: { width: 'auto' }, transition: { duration: 0.8, ease: 'easeOut' } },
-    reducedMotion: { initial: { width: 'auto' }, animate: { width: 'auto' }, transition: { duration: 0 } },
+    framerProps: {
+      initial: { width: 0 },
+      animate: { width: 'auto' },
+      transition: { duration: 0.8, ease: 'easeOut' },
+    },
+    reducedMotion: {
+      initial: { width: 'auto' },
+      animate: { width: 'auto' },
+      transition: { duration: 0 },
+    },
     notes: 'Width is set dynamically via percentage. Shine sweep starts after fill.',
   },
 
@@ -81,8 +89,16 @@ export const SOCIAL_ANIMATIONS = {
     trigger: 'checkAndUnlockBadges() unlocks a new badge',
     duration: 600,
     easing: 'spring',
-    framerProps: { initial: { scale: 0, opacity: 0 }, animate: { scale: 1, opacity: 1 }, transition: { type: 'spring', damping: 15, stiffness: 300 } },
-    reducedMotion: { initial: { scale: 1, opacity: 1 }, animate: { scale: 1, opacity: 1 }, transition: { duration: 0 } },
+    framerProps: {
+      initial: { scale: 0, opacity: 0 },
+      animate: { scale: 1, opacity: 1 },
+      transition: { type: 'spring', damping: 15, stiffness: 300 },
+    },
+    reducedMotion: {
+      initial: { scale: 1, opacity: 1 },
+      animate: { scale: 1, opacity: 1 },
+      transition: { duration: 0 },
+    },
     notes: 'Slight overshoot (damping 15) for celebratory feel. Glow pulse overlay follows.',
   },
 
@@ -91,7 +107,10 @@ export const SOCIAL_ANIMATIONS = {
     trigger: 'Mouse hover on SocialBadgeCard',
     duration: 200,
     easing: 'ease-out',
-    framerProps: { whileHover: { scale: 1.02, y: -2 }, transition: { duration: 0.2, ease: 'easeOut' } },
+    framerProps: {
+      whileHover: { scale: 1.02, y: -2 },
+      transition: { duration: 0.2, ease: 'easeOut' },
+    },
     reducedMotion: { whileHover: {}, transition: { duration: 0 } },
     notes: 'CSS transition-all duration-200 as fallback for non-Framer hover.',
   },
@@ -111,8 +130,16 @@ export const SOCIAL_ANIMATIONS = {
     trigger: 'Nudge sent within last 24h to this friend',
     duration: 300,
     easing: 'easeOut',
-    framerProps: { initial: { opacity: 0.4 }, animate: { opacity: 0.4 }, transition: { duration: 0.3, ease: 'easeOut' } },
-    reducedMotion: { initial: { opacity: 0.4 }, animate: { opacity: 0.4 }, transition: { duration: 0 } },
+    framerProps: {
+      initial: { opacity: 0.4 },
+      animate: { opacity: 0.4 },
+      transition: { duration: 0.3, ease: 'easeOut' },
+    },
+    reducedMotion: {
+      initial: { opacity: 0.4 },
+      animate: { opacity: 0.4 },
+      transition: { duration: 0 },
+    },
     notes: 'Icon swaps to schedule (clock). cursor-not-allowed applied via CSS.',
   },
 
@@ -121,8 +148,16 @@ export const SOCIAL_ANIMATIONS = {
     trigger: 'LeaderboardScreen mounts with data',
     duration: 400,
     easing: 'easeOut',
-    framerProps: { initial: { height: 0 }, animate: { height: 'auto' }, transition: { duration: 0.4, ease: 'easeOut' } },
-    reducedMotion: { initial: { height: 'auto' }, animate: { height: 'auto' }, transition: { duration: 0 } },
+    framerProps: {
+      initial: { height: 0 },
+      animate: { height: 'auto' },
+      transition: { duration: 0.4, ease: 'easeOut' },
+    },
+    reducedMotion: {
+      initial: { height: 'auto' },
+      animate: { height: 'auto' },
+      transition: { duration: 0 },
+    },
     notes: 'Delays: 1st=200ms, 2nd=350ms, 3rd=450ms. Staggered after avatar entrance.',
   },
 
@@ -131,8 +166,16 @@ export const SOCIAL_ANIMATIONS = {
     trigger: 'LeaderboardScreen list rows mount',
     duration: 250,
     easing: 'easeOut',
-    framerProps: { initial: { opacity: 0, x: -16 }, animate: { opacity: 1, x: 0 }, transition: { ease: 'easeOut' } },
-    reducedMotion: { initial: { opacity: 1, x: 0 }, animate: { opacity: 1, x: 0 }, transition: { duration: 0 } },
+    framerProps: {
+      initial: { opacity: 0, x: -16 },
+      animate: { opacity: 1, x: 0 },
+      transition: { ease: 'easeOut' },
+    },
+    reducedMotion: {
+      initial: { opacity: 1, x: 0 },
+      animate: { opacity: 1, x: 0 },
+      transition: { duration: 0 },
+    },
     notes: 'Delay per row: 300ms base + index * 35ms.',
   },
 
@@ -141,8 +184,16 @@ export const SOCIAL_ANIMATIONS = {
     trigger: 'Rank number appears on leaderboard row',
     duration: 500,
     easing: 'easeOut',
-    framerProps: { initial: { opacity: 0, y: 8 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.5, ease: 'easeOut' } },
-    reducedMotion: { initial: { opacity: 1, y: 0 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0 } },
+    framerProps: {
+      initial: { opacity: 0, y: 8 },
+      animate: { opacity: 1, y: 0 },
+      transition: { duration: 0.5, ease: 'easeOut' },
+    },
+    reducedMotion: {
+      initial: { opacity: 1, y: 0 },
+      animate: { opacity: 1, y: 0 },
+      transition: { duration: 0 },
+    },
     notes: 'Applied to rank change badge (+N / -N / NEW). Staggered with parent row.',
   },
 
@@ -151,8 +202,16 @@ export const SOCIAL_ANIMATIONS = {
     trigger: 'TierBadge component mounts (League screen)',
     duration: 2500,
     easing: 'easeInOut',
-    framerProps: { initial: { x: '-100%' }, animate: { x: '200%' }, transition: { duration: 2.5, ease: 'easeInOut', repeat: Infinity, repeatDelay: 4 } },
-    reducedMotion: { initial: { x: '-100%' }, animate: { x: '-100%' }, transition: { duration: 0 } },
+    framerProps: {
+      initial: { x: '-100%' },
+      animate: { x: '200%' },
+      transition: { duration: 2.5, ease: 'easeInOut', repeat: Infinity, repeatDelay: 4 },
+    },
+    reducedMotion: {
+      initial: { x: '-100%' },
+      animate: { x: '-100%' },
+      transition: { duration: 0 },
+    },
     notes: 'Skewed gradient (skewX -20deg). via-white/20. Disabled entirely in reduced motion.',
   },
 
@@ -161,9 +220,18 @@ export const SOCIAL_ANIMATIONS = {
     trigger: 'User finishes week in top 5 of their league',
     duration: 1200,
     easing: 'spring',
-    framerProps: { initial: { scale: 0.8, opacity: 0 }, animate: { scale: 1, opacity: 1 }, transition: { type: 'spring', damping: 20, stiffness: 200, duration: 1.2 } },
-    reducedMotion: { initial: { scale: 1, opacity: 1 }, animate: { scale: 1, opacity: 1 }, transition: { duration: 0 } },
-    notes: 'Full-screen modal with confetti dots. New tier badge grows in with spring. Manual dismiss only.',
+    framerProps: {
+      initial: { scale: 0.8, opacity: 0 },
+      animate: { scale: 1, opacity: 1 },
+      transition: { type: 'spring', damping: 20, stiffness: 200, duration: 1.2 },
+    },
+    reducedMotion: {
+      initial: { scale: 1, opacity: 1 },
+      animate: { scale: 1, opacity: 1 },
+      transition: { duration: 0 },
+    },
+    notes:
+      'Full-screen modal with confetti dots. New tier badge grows in with spring. Manual dismiss only.',
   },
 
   /** League demotion warning toast */
@@ -171,8 +239,16 @@ export const SOCIAL_ANIMATIONS = {
     trigger: 'User in bottom 5 with <=2 days remaining',
     duration: 400,
     easing: 'easeOut',
-    framerProps: { initial: { opacity: 0, y: -20 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.4, ease: 'easeOut' } },
-    reducedMotion: { initial: { opacity: 1, y: 0 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0 } },
+    framerProps: {
+      initial: { opacity: 0, y: -20 },
+      animate: { opacity: 1, y: 0 },
+      transition: { duration: 0.4, ease: 'easeOut' },
+    },
+    reducedMotion: {
+      initial: { opacity: 1, y: 0 },
+      animate: { opacity: 1, y: 0 },
+      transition: { duration: 0 },
+    },
     notes: 'Amber-toned toast. Encouraging tone, not punishing. Max once per day.',
   },
 
@@ -183,11 +259,19 @@ export const SOCIAL_ANIMATIONS = {
     easing: 'easeOut',
     framerProps: {
       exit: { opacity: 0, y: -8, transition: { duration: 0.22, ease: 'easeOut' } },
-      enter: { initial: { opacity: 0, y: 12 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.22, ease: 'easeOut' } },
+      enter: {
+        initial: { opacity: 0, y: 12 },
+        animate: { opacity: 1, y: 0 },
+        transition: { duration: 0.22, ease: 'easeOut' },
+      },
     },
     reducedMotion: {
       exit: { opacity: 0, transition: { duration: 0 } },
-      enter: { initial: { opacity: 1, y: 0 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0 } },
+      enter: {
+        initial: { opacity: 1, y: 0 },
+        animate: { opacity: 1, y: 0 },
+        transition: { duration: 0 },
+      },
     },
     notes: 'AnimatePresence mode="wait". Old exits up, new enters from below.',
   },
@@ -198,12 +282,28 @@ export const SOCIAL_ANIMATIONS = {
     duration: 200,
     easing: 'easeOut',
     framerProps: {
-      expand: { initial: { height: 0, opacity: 0 }, animate: { height: 'auto', opacity: 1 }, transition: { duration: 0.2, ease: 'easeOut' } },
-      collapse: { initial: { height: 'auto', opacity: 1 }, animate: { height: 0, opacity: 0 }, transition: { duration: 0.2, ease: 'easeOut' } },
+      expand: {
+        initial: { height: 0, opacity: 0 },
+        animate: { height: 'auto', opacity: 1 },
+        transition: { duration: 0.2, ease: 'easeOut' },
+      },
+      collapse: {
+        initial: { height: 'auto', opacity: 1 },
+        animate: { height: 0, opacity: 0 },
+        transition: { duration: 0.2, ease: 'easeOut' },
+      },
     },
     reducedMotion: {
-      expand: { initial: { height: 'auto', opacity: 1 }, animate: { height: 'auto', opacity: 1 }, transition: { duration: 0 } },
-      collapse: { initial: { height: 0, opacity: 0 }, animate: { height: 0, opacity: 0 }, transition: { duration: 0 } },
+      expand: {
+        initial: { height: 'auto', opacity: 1 },
+        animate: { height: 'auto', opacity: 1 },
+        transition: { duration: 0 },
+      },
+      collapse: {
+        initial: { height: 0, opacity: 0 },
+        animate: { height: 0, opacity: 0 },
+        transition: { duration: 0 },
+      },
     },
     notes: 'AnimatePresence wraps action panel. overflow-hidden on container.',
   },
@@ -215,11 +315,19 @@ export const SOCIAL_ANIMATIONS = {
     easing: 'spring',
     framerProps: {
       backdrop: { initial: { opacity: 0 }, animate: { opacity: 1 }, transition: { duration: 0.3 } },
-      card: { initial: { opacity: 0, scale: 0.9, y: 20 }, animate: { opacity: 1, scale: 1, y: 0 }, transition: { type: 'spring', damping: 25, stiffness: 300 } },
+      card: {
+        initial: { opacity: 0, scale: 0.9, y: 20 },
+        animate: { opacity: 1, scale: 1, y: 0 },
+        transition: { type: 'spring', damping: 25, stiffness: 300 },
+      },
     },
     reducedMotion: {
       backdrop: { initial: { opacity: 1 }, animate: { opacity: 1 }, transition: { duration: 0 } },
-      card: { initial: { opacity: 1, scale: 1, y: 0 }, animate: { opacity: 1, scale: 1, y: 0 }, transition: { duration: 0 } },
+      card: {
+        initial: { opacity: 1, scale: 1, y: 0 },
+        animate: { opacity: 1, scale: 1, y: 0 },
+        transition: { duration: 0 },
+      },
     },
     notes: 'Spring-bounce card with backdrop fade. Trophy icon has additional 200ms delay.',
   },
@@ -231,7 +339,10 @@ export const SOCIAL_ANIMATIONS = {
     easing: 'easeIn',
     framerProps: {
       backdrop: { exit: { opacity: 0 }, transition: { duration: 0.25 } },
-      card: { exit: { opacity: 0, scale: 0.9, y: 20 }, transition: { duration: 0.25, ease: 'easeIn' } },
+      card: {
+        exit: { opacity: 0, scale: 0.9, y: 20 },
+        transition: { duration: 0.25, ease: 'easeIn' },
+      },
     },
     reducedMotion: {
       backdrop: { exit: { opacity: 0 }, transition: { duration: 0 } },
@@ -248,12 +359,20 @@ export const SOCIAL_ANIMATIONS = {
     framerProps: {
       bar: { animate: { width: '100%' }, transition: { duration: 0.4, ease: 'easeOut' } },
       flash: { animate: { opacity: [0, 1, 0] }, transition: { duration: 0.6, delay: 0.4 } },
-      newBar: { initial: { width: 0 }, animate: { width: 'auto' }, transition: { duration: 0.4, ease: 'easeOut', delay: 0.8 } },
+      newBar: {
+        initial: { width: 0 },
+        animate: { width: 'auto' },
+        transition: { duration: 0.4, ease: 'easeOut', delay: 0.8 },
+      },
     },
     reducedMotion: {
       bar: { animate: { width: 'auto' }, transition: { duration: 0 } },
       flash: { animate: { opacity: 0 }, transition: { duration: 0 } },
-      newBar: { initial: { width: 'auto' }, animate: { width: 'auto' }, transition: { duration: 0 } },
+      newBar: {
+        initial: { width: 'auto' },
+        animate: { width: 'auto' },
+        transition: { duration: 0 },
+      },
     },
     notes: '3-phase: fill to 100%, white flash, reset and fill new level progress. Total 1200ms.',
   },
@@ -263,8 +382,16 @@ export const SOCIAL_ANIMATIONS = {
     trigger: 'Any toast notification (nudge, badge, level-up, etc.)',
     duration: 300,
     easing: 'spring',
-    framerProps: { initial: { opacity: 0, y: -20, scale: 0.95 }, animate: { opacity: 1, y: 0, scale: 1 }, transition: { type: 'spring', damping: 25, stiffness: 350, duration: 0.3 } },
-    reducedMotion: { initial: { opacity: 1, y: 0, scale: 1 }, animate: { opacity: 1, y: 0, scale: 1 }, transition: { duration: 0 } },
+    framerProps: {
+      initial: { opacity: 0, y: -20, scale: 0.95 },
+      animate: { opacity: 1, y: 0, scale: 1 },
+      transition: { type: 'spring', damping: 25, stiffness: 350, duration: 0.3 },
+    },
+    reducedMotion: {
+      initial: { opacity: 1, y: 0, scale: 1 },
+      animate: { opacity: 1, y: 0, scale: 1 },
+      transition: { duration: 0 },
+    },
     notes: 'react-hot-toast handles this, but custom styling uses these values.',
   },
 
@@ -273,7 +400,10 @@ export const SOCIAL_ANIMATIONS = {
     trigger: 'Toast auto-dismisses or user swipes',
     duration: 200,
     easing: 'easeIn',
-    framerProps: { exit: { opacity: 0, y: -10, scale: 0.95 }, transition: { duration: 0.2, ease: 'easeIn' } },
+    framerProps: {
+      exit: { opacity: 0, y: -10, scale: 0.95 },
+      transition: { duration: 0.2, ease: 'easeIn' },
+    },
     reducedMotion: { exit: { opacity: 0 }, transition: { duration: 0 } },
     notes: 'Slides up and fades. Faster than entrance for snappy feel.',
   },
@@ -318,28 +448,108 @@ export const XP_SOURCE_LABELS: Record<string, { label: string; icon: string }> =
 export function generateLevels(): XPLevel[] {
   const levels: XPLevel[] = []
   const titles = [
-    'Seedling', 'Sprout', 'Sapling', 'Bloom', 'Bud',
-    'Leaf', 'Branch', 'Tree', 'Grove', 'Forest',
-    'Explorer', 'Adventurer', 'Pathfinder', 'Trailblazer', 'Pioneer',
-    'Achiever', 'Performer', 'Champion', 'Warrior', 'Hero',
-    'Master', 'Expert', 'Virtuoso', 'Sage', 'Oracle',
-    'Guardian', 'Sentinel', 'Warden', 'Protector', 'Shield',
-    'Titan', 'Colossus', 'Olympian', 'Immortal', 'Ascendant',
-    'Mystic', 'Arcane', 'Ethereal', 'Celestial', 'Cosmic',
-    'Radiant', 'Luminous', 'Stellar', 'Supernova', 'Nebula',
-    'Phoenix', 'Dragon', 'Sovereign', 'Emperor', 'Legend',
+    'Seedling',
+    'Sprout',
+    'Sapling',
+    'Bloom',
+    'Bud',
+    'Leaf',
+    'Branch',
+    'Tree',
+    'Grove',
+    'Forest',
+    'Explorer',
+    'Adventurer',
+    'Pathfinder',
+    'Trailblazer',
+    'Pioneer',
+    'Achiever',
+    'Performer',
+    'Champion',
+    'Warrior',
+    'Hero',
+    'Master',
+    'Expert',
+    'Virtuoso',
+    'Sage',
+    'Oracle',
+    'Guardian',
+    'Sentinel',
+    'Warden',
+    'Protector',
+    'Shield',
+    'Titan',
+    'Colossus',
+    'Olympian',
+    'Immortal',
+    'Ascendant',
+    'Mystic',
+    'Arcane',
+    'Ethereal',
+    'Celestial',
+    'Cosmic',
+    'Radiant',
+    'Luminous',
+    'Stellar',
+    'Supernova',
+    'Nebula',
+    'Phoenix',
+    'Dragon',
+    'Sovereign',
+    'Emperor',
+    'Legend',
   ]
   const icons = [
-    'eco', 'eco', 'park', 'local_florist', 'spa',
-    'energy_savings_leaf', 'nature', 'forest', 'forest', 'forest',
-    'explore', 'hiking', 'map', 'route', 'flag',
-    'emoji_events', 'stars', 'military_tech', 'shield', 'workspace_premium',
-    'school', 'psychology', 'auto_awesome', 'self_improvement', 'visibility',
-    'security', 'verified_user', 'admin_panel_settings', 'health_and_safety', 'shield',
-    'diamond', 'castle', 'stadium', 'bolt', 'rocket_launch',
-    'auto_fix_high', 'blur_on', 'air', 'nightlight', 'dark_mode',
-    'light_mode', 'wb_sunny', 'star', 'flare', 'brightness_7',
-    'whatshot', 'pets', 'crown', 'king_bed', 'rewarded_ads',
+    'eco',
+    'eco',
+    'park',
+    'local_florist',
+    'spa',
+    'energy_savings_leaf',
+    'nature',
+    'forest',
+    'forest',
+    'forest',
+    'explore',
+    'hiking',
+    'map',
+    'route',
+    'flag',
+    'emoji_events',
+    'stars',
+    'military_tech',
+    'shield',
+    'workspace_premium',
+    'school',
+    'psychology',
+    'auto_awesome',
+    'self_improvement',
+    'visibility',
+    'security',
+    'verified_user',
+    'admin_panel_settings',
+    'health_and_safety',
+    'shield',
+    'diamond',
+    'castle',
+    'stadium',
+    'bolt',
+    'rocket_launch',
+    'auto_fix_high',
+    'blur_on',
+    'air',
+    'nightlight',
+    'dark_mode',
+    'light_mode',
+    'wb_sunny',
+    'star',
+    'flare',
+    'brightness_7',
+    'whatshot',
+    'pets',
+    'crown',
+    'king_bed',
+    'rewarded_ads',
   ]
 
   for (let i = 0; i < 50; i++) {
@@ -372,7 +582,11 @@ export function getLevelForXP(totalXP: number): XPLevel {
   return LEVELS[0]
 }
 
-export function getLevelProgress(totalXP: number): { current: number; required: number; percentage: number } {
+export function getLevelProgress(totalXP: number): {
+  current: number
+  required: number
+  percentage: number
+} {
   const level = getLevelForXP(totalXP)
   const current = totalXP - level.minXP
   const required = level.maxXP - level.minXP
@@ -955,125 +1169,125 @@ export const LEAGUE_CONFIGS: LeagueConfig[] = [
     promoteCount: 0,
     demoteCount: 5,
   },
-];
+]
 
 export function getLeagueConfig(tier: string): LeagueConfig {
-  return LEAGUE_CONFIGS.find(c => c.tier === tier) || LEAGUE_CONFIGS[0]
+  return LEAGUE_CONFIGS.find((c) => c.tier === tier) || LEAGUE_CONFIGS[0]
 }
 
 export function getLeagueTierColor(tier: string): string {
   const colors: Record<string, string> = {
-  'reis': '#6400c8',
-  'gravirei': '#6a00ce',
-  'gigano_reis': '#7000d4',
-  'ion_gravirei': '#7600da',
-  'rioru_reis': '#7d00e1',
-  'oruga_reis': '#8300e7',
-  'baber_gravidon': '#8900ed',
-  'dioga_gravidon': '#8f00f3',
-  'diborudo_jii_gravidon': '#9600fa',
-  'nyuborutsu_ma_gurabirei': '#9c00100',
-  'nyuborutsu_shin_gurabirei': '#a200106',
-  'berudo_gravirei': '#a80010c',
-  'bidom_gravirei': '#af00113',
-  'kueaborutsu_gravirei': '#b500119',
-  'digou_gurabiruku': '#bb0011f',
-  'shin_baberuga_gravidon': '#c100125',
-  'zaker': '#FFc800',
-  'zakeruga': '#FFc300',
-  'teozaker': '#FFbe00',
-  'ganreizu_zakeru': '#FFb900',
-  'rashirudo': '#FFb400',
-  'jikerudo': '#FFaf00',
-  'maazu_jikerudon': '#FFaa00',
-  'rauzaruku': '#FFa500',
-  'zaguruzemu': '#FFa000',
-  'bao_zakeruga': '#FF9b00',
-  'baou_kurou_disugurugu': '#FF9600',
-  'jiou_renzu_zakeruga': '#FF9100',
-  'shin_beruwan_bao_zakeruga': '#FF8c00',
-  'barudo_forusu': '#FF8700',
-  'seoshi': '#FF6496',
-  'ma_seshield': '#FF6ea0',
-  'giga_la_seoshi': '#FF78aa',
-  'chajiru_seshieldon': '#FF82b4',
-  'rima_chajiru_seshieldon': '#FF8cbe',
-  'saifojio': '#FF96c8',
-  'shin_saifojio': '#FFa0d2',
-  'saisu': '#FFaadc',
-  'gigano_saisu': '#FFb4e6',
-  'chajiru_saifodon': '#FFbef0',
-  'radisu': '#c8c8c8',
-  'rajia_radisu': '#cccccc',
-  'teoradisu': '#d0d0d0',
-  'ba_radisu': '#d4d4d4',
-  'giru_ranzu_radisu': '#d8d8d8',
-  'dioga_ranzu_radisu': '#dcdcdc',
-  'ranzu_radisu': '#e0e0e0',
-  'supurifo': '#e4e4e4',
-  'ba_supurifo': '#e8e8e8',
-  'qua_supurifo': '#ececec',
-  'shin_kuria_seunousu': '#f0f0f0',
-  'ria_uruku': '#f4f4f4',
-};
+    reis: '#6400c8',
+    gravirei: '#6a00ce',
+    gigano_reis: '#7000d4',
+    ion_gravirei: '#7600da',
+    rioru_reis: '#7d00e1',
+    oruga_reis: '#8300e7',
+    baber_gravidon: '#8900ed',
+    dioga_gravidon: '#8f00f3',
+    diborudo_jii_gravidon: '#9600fa',
+    nyuborutsu_ma_gurabirei: '#9c00100',
+    nyuborutsu_shin_gurabirei: '#a200106',
+    berudo_gravirei: '#a80010c',
+    bidom_gravirei: '#af00113',
+    kueaborutsu_gravirei: '#b500119',
+    digou_gurabiruku: '#bb0011f',
+    shin_baberuga_gravidon: '#c100125',
+    zaker: '#FFc800',
+    zakeruga: '#FFc300',
+    teozaker: '#FFbe00',
+    ganreizu_zakeru: '#FFb900',
+    rashirudo: '#FFb400',
+    jikerudo: '#FFaf00',
+    maazu_jikerudon: '#FFaa00',
+    rauzaruku: '#FFa500',
+    zaguruzemu: '#FFa000',
+    bao_zakeruga: '#FF9b00',
+    baou_kurou_disugurugu: '#FF9600',
+    jiou_renzu_zakeruga: '#FF9100',
+    shin_beruwan_bao_zakeruga: '#FF8c00',
+    barudo_forusu: '#FF8700',
+    seoshi: '#FF6496',
+    ma_seshield: '#FF6ea0',
+    giga_la_seoshi: '#FF78aa',
+    chajiru_seshieldon: '#FF82b4',
+    rima_chajiru_seshieldon: '#FF8cbe',
+    saifojio: '#FF96c8',
+    shin_saifojio: '#FFa0d2',
+    saisu: '#FFaadc',
+    gigano_saisu: '#FFb4e6',
+    chajiru_saifodon: '#FFbef0',
+    radisu: '#c8c8c8',
+    rajia_radisu: '#cccccc',
+    teoradisu: '#d0d0d0',
+    ba_radisu: '#d4d4d4',
+    giru_ranzu_radisu: '#d8d8d8',
+    dioga_ranzu_radisu: '#dcdcdc',
+    ranzu_radisu: '#e0e0e0',
+    supurifo: '#e4e4e4',
+    ba_supurifo: '#e8e8e8',
+    qua_supurifo: '#ececec',
+    shin_kuria_seunousu: '#f0f0f0',
+    ria_uruku: '#f4f4f4',
+  }
   return colors[tier] || colors.reis
 }
 
 export function getLeagueTierGradient(tier: string): string {
   const gradients: Record<string, string> = {
-  'reis': 'from-purple-500 to-fuchsia-600',
-  'gravirei': 'from-purple-600 to-fuchsia-500',
-  'gigano_reis': 'from-purple-700 to-fuchsia-400',
-  'ion_gravirei': 'from-purple-800 to-fuchsia-600',
-  'rioru_reis': 'from-purple-500 to-fuchsia-500',
-  'oruga_reis': 'from-purple-600 to-fuchsia-400',
-  'baber_gravidon': 'from-purple-700 to-fuchsia-600',
-  'dioga_gravidon': 'from-purple-800 to-fuchsia-500',
-  'diborudo_jii_gravidon': 'from-purple-500 to-fuchsia-400',
-  'nyuborutsu_ma_gurabirei': 'from-purple-600 to-fuchsia-600',
-  'nyuborutsu_shin_gurabirei': 'from-purple-700 to-fuchsia-500',
-  'berudo_gravirei': 'from-purple-800 to-fuchsia-400',
-  'bidom_gravirei': 'from-purple-500 to-fuchsia-600',
-  'kueaborutsu_gravirei': 'from-purple-600 to-fuchsia-500',
-  'digou_gurabiruku': 'from-purple-700 to-fuchsia-400',
-  'shin_baberuga_gravidon': 'from-purple-800 to-fuchsia-600',
-  'zaker': 'from-yellow-400 to-amber-500',
-  'zakeruga': 'from-yellow-500 to-amber-400',
-  'teozaker': 'from-yellow-600 to-amber-300',
-  'ganreizu_zakeru': 'from-yellow-700 to-amber-500',
-  'rashirudo': 'from-yellow-400 to-amber-400',
-  'jikerudo': 'from-yellow-500 to-amber-300',
-  'maazu_jikerudon': 'from-yellow-600 to-amber-500',
-  'rauzaruku': 'from-yellow-700 to-amber-400',
-  'zaguruzemu': 'from-yellow-400 to-amber-300',
-  'bao_zakeruga': 'from-yellow-500 to-amber-500',
-  'baou_kurou_disugurugu': 'from-yellow-600 to-amber-400',
-  'jiou_renzu_zakeruga': 'from-yellow-700 to-amber-300',
-  'shin_beruwan_bao_zakeruga': 'from-yellow-400 to-amber-500',
-  'barudo_forusu': 'from-yellow-500 to-amber-400',
-  'seoshi': 'from-pink-400 to-rose-500',
-  'ma_seshield': 'from-pink-500 to-rose-400',
-  'giga_la_seoshi': 'from-pink-600 to-rose-300',
-  'chajiru_seshieldon': 'from-pink-700 to-rose-500',
-  'rima_chajiru_seshieldon': 'from-pink-400 to-rose-400',
-  'saifojio': 'from-pink-500 to-rose-300',
-  'shin_saifojio': 'from-pink-600 to-rose-500',
-  'saisu': 'from-pink-700 to-rose-400',
-  'gigano_saisu': 'from-pink-400 to-rose-300',
-  'chajiru_saifodon': 'from-pink-500 to-rose-500',
-  'radisu': 'from-slate-300 to-gray-400',
-  'rajia_radisu': 'from-slate-400 to-gray-300',
-  'teoradisu': 'from-slate-500 to-gray-200',
-  'ba_radisu': 'from-slate-600 to-gray-400',
-  'giru_ranzu_radisu': 'from-slate-300 to-gray-300',
-  'dioga_ranzu_radisu': 'from-slate-400 to-gray-200',
-  'ranzu_radisu': 'from-slate-500 to-gray-400',
-  'supurifo': 'from-slate-600 to-gray-300',
-  'ba_supurifo': 'from-slate-300 to-gray-200',
-  'qua_supurifo': 'from-slate-400 to-gray-400',
-  'shin_kuria_seunousu': 'from-slate-500 to-gray-300',
-  'ria_uruku': 'from-slate-600 to-gray-200',
-};
+    reis: 'from-purple-500 to-fuchsia-600',
+    gravirei: 'from-purple-600 to-fuchsia-500',
+    gigano_reis: 'from-purple-700 to-fuchsia-400',
+    ion_gravirei: 'from-purple-800 to-fuchsia-600',
+    rioru_reis: 'from-purple-500 to-fuchsia-500',
+    oruga_reis: 'from-purple-600 to-fuchsia-400',
+    baber_gravidon: 'from-purple-700 to-fuchsia-600',
+    dioga_gravidon: 'from-purple-800 to-fuchsia-500',
+    diborudo_jii_gravidon: 'from-purple-500 to-fuchsia-400',
+    nyuborutsu_ma_gurabirei: 'from-purple-600 to-fuchsia-600',
+    nyuborutsu_shin_gurabirei: 'from-purple-700 to-fuchsia-500',
+    berudo_gravirei: 'from-purple-800 to-fuchsia-400',
+    bidom_gravirei: 'from-purple-500 to-fuchsia-600',
+    kueaborutsu_gravirei: 'from-purple-600 to-fuchsia-500',
+    digou_gurabiruku: 'from-purple-700 to-fuchsia-400',
+    shin_baberuga_gravidon: 'from-purple-800 to-fuchsia-600',
+    zaker: 'from-yellow-400 to-amber-500',
+    zakeruga: 'from-yellow-500 to-amber-400',
+    teozaker: 'from-yellow-600 to-amber-300',
+    ganreizu_zakeru: 'from-yellow-700 to-amber-500',
+    rashirudo: 'from-yellow-400 to-amber-400',
+    jikerudo: 'from-yellow-500 to-amber-300',
+    maazu_jikerudon: 'from-yellow-600 to-amber-500',
+    rauzaruku: 'from-yellow-700 to-amber-400',
+    zaguruzemu: 'from-yellow-400 to-amber-300',
+    bao_zakeruga: 'from-yellow-500 to-amber-500',
+    baou_kurou_disugurugu: 'from-yellow-600 to-amber-400',
+    jiou_renzu_zakeruga: 'from-yellow-700 to-amber-300',
+    shin_beruwan_bao_zakeruga: 'from-yellow-400 to-amber-500',
+    barudo_forusu: 'from-yellow-500 to-amber-400',
+    seoshi: 'from-pink-400 to-rose-500',
+    ma_seshield: 'from-pink-500 to-rose-400',
+    giga_la_seoshi: 'from-pink-600 to-rose-300',
+    chajiru_seshieldon: 'from-pink-700 to-rose-500',
+    rima_chajiru_seshieldon: 'from-pink-400 to-rose-400',
+    saifojio: 'from-pink-500 to-rose-300',
+    shin_saifojio: 'from-pink-600 to-rose-500',
+    saisu: 'from-pink-700 to-rose-400',
+    gigano_saisu: 'from-pink-400 to-rose-300',
+    chajiru_saifodon: 'from-pink-500 to-rose-500',
+    radisu: 'from-slate-300 to-gray-400',
+    rajia_radisu: 'from-slate-400 to-gray-300',
+    teoradisu: 'from-slate-500 to-gray-200',
+    ba_radisu: 'from-slate-600 to-gray-400',
+    giru_ranzu_radisu: 'from-slate-300 to-gray-300',
+    dioga_ranzu_radisu: 'from-slate-400 to-gray-200',
+    ranzu_radisu: 'from-slate-500 to-gray-400',
+    supurifo: 'from-slate-600 to-gray-300',
+    ba_supurifo: 'from-slate-300 to-gray-200',
+    qua_supurifo: 'from-slate-400 to-gray-400',
+    shin_kuria_seunousu: 'from-slate-500 to-gray-300',
+    ria_uruku: 'from-slate-600 to-gray-200',
+  }
   return gradients[tier] || gradients.reis
 }
 
@@ -1081,47 +1295,225 @@ export function getLeagueTierGradient(tier: string): string {
 
 export const SOCIAL_BADGE_DEFINITIONS: Omit<SocialBadge, 'earnedAt' | 'unlocked'>[] = [
   // Streak badges
-  { id: 'streak-7', name: '7-Day Streak', description: 'Complete habits for 7 days in a row', icon: 'local_fire_department', category: 'streak', rarity: 'common' },
-  { id: 'streak-30', name: '30-Day Streak', description: 'Complete habits for 30 days in a row', icon: 'local_fire_department', category: 'streak', rarity: 'rare' },
-  { id: 'streak-100', name: 'Century Streak', description: '100-day streak — incredible dedication', icon: 'whatshot', category: 'streak', rarity: 'epic' },
-  { id: 'streak-365', name: 'Year of Fire', description: '365-day streak — legendary commitment', icon: 'whatshot', category: 'streak', rarity: 'legendary' },
+  {
+    id: 'streak-7',
+    name: '7-Day Streak',
+    description: 'Complete habits for 7 days in a row',
+    icon: 'local_fire_department',
+    category: 'streak',
+    rarity: 'common',
+  },
+  {
+    id: 'streak-30',
+    name: '30-Day Streak',
+    description: 'Complete habits for 30 days in a row',
+    icon: 'local_fire_department',
+    category: 'streak',
+    rarity: 'rare',
+  },
+  {
+    id: 'streak-100',
+    name: 'Century Streak',
+    description: '100-day streak — incredible dedication',
+    icon: 'whatshot',
+    category: 'streak',
+    rarity: 'epic',
+  },
+  {
+    id: 'streak-365',
+    name: 'Year of Fire',
+    description: '365-day streak — legendary commitment',
+    icon: 'whatshot',
+    category: 'streak',
+    rarity: 'legendary',
+  },
 
   // Social badges
-  { id: 'first-friend', name: 'Social Butterfly', description: 'Add your first friend', icon: 'person_add', category: 'social', rarity: 'common' },
-  { id: 'nudge-5', name: 'Encourager', description: 'Send 5 nudges to friends', icon: 'notifications_active', category: 'social', rarity: 'common' },
-  { id: 'friend-streak-7', name: 'Accountability Duo', description: '7-day mutual streak with a friend', icon: 'group', category: 'social', rarity: 'rare' },
-  { id: 'friend-10', name: 'Popular', description: 'Have 10 friends', icon: 'groups', category: 'social', rarity: 'rare' },
+  {
+    id: 'first-friend',
+    name: 'Social Butterfly',
+    description: 'Add your first friend',
+    icon: 'person_add',
+    category: 'social',
+    rarity: 'common',
+  },
+  {
+    id: 'nudge-5',
+    name: 'Encourager',
+    description: 'Send 5 nudges to friends',
+    icon: 'notifications_active',
+    category: 'social',
+    rarity: 'common',
+  },
+  {
+    id: 'friend-streak-7',
+    name: 'Accountability Duo',
+    description: '7-day mutual streak with a friend',
+    icon: 'group',
+    category: 'social',
+    rarity: 'rare',
+  },
+  {
+    id: 'friend-10',
+    name: 'Popular',
+    description: 'Have 10 friends',
+    icon: 'groups',
+    category: 'social',
+    rarity: 'rare',
+  },
 
   // Milestone badges
-  { id: 'level-10', name: 'Rising Star', description: 'Reach Level 10', icon: 'star', category: 'milestone', rarity: 'common' },
-  { id: 'level-25', name: 'Seasoned Pro', description: 'Reach Level 25', icon: 'star', category: 'milestone', rarity: 'rare' },
-  { id: 'level-50', name: 'Grandmaster', description: 'Reach the maximum Level 50', icon: 'star', category: 'milestone', rarity: 'legendary' },
-  { id: 'xp-1000', name: 'XP Hunter', description: 'Earn 1,000 total XP', icon: 'bolt', category: 'milestone', rarity: 'common' },
-  { id: 'xp-10000', name: 'XP Master', description: 'Earn 10,000 total XP', icon: 'bolt', category: 'milestone', rarity: 'epic' },
-  { id: 'perfect-week', name: 'Perfect Week', description: 'Complete all habits every day for a week', icon: 'workspace_premium', category: 'milestone', rarity: 'rare' },
+  {
+    id: 'level-10',
+    name: 'Rising Star',
+    description: 'Reach Level 10',
+    icon: 'star',
+    category: 'milestone',
+    rarity: 'common',
+  },
+  {
+    id: 'level-25',
+    name: 'Seasoned Pro',
+    description: 'Reach Level 25',
+    icon: 'star',
+    category: 'milestone',
+    rarity: 'rare',
+  },
+  {
+    id: 'level-50',
+    name: 'Grandmaster',
+    description: 'Reach the maximum Level 50',
+    icon: 'star',
+    category: 'milestone',
+    rarity: 'legendary',
+  },
+  {
+    id: 'xp-1000',
+    name: 'XP Hunter',
+    description: 'Earn 1,000 total XP',
+    icon: 'bolt',
+    category: 'milestone',
+    rarity: 'common',
+  },
+  {
+    id: 'xp-10000',
+    name: 'XP Master',
+    description: 'Earn 10,000 total XP',
+    icon: 'bolt',
+    category: 'milestone',
+    rarity: 'epic',
+  },
+  {
+    id: 'perfect-week',
+    name: 'Perfect Week',
+    description: 'Complete all habits every day for a week',
+    icon: 'workspace_premium',
+    category: 'milestone',
+    rarity: 'rare',
+  },
 
   // League badges
-  { id: 'league-silver', name: 'Silver Rank', description: 'Reach the Silver League', icon: 'shield', category: 'league', rarity: 'common' },
-  { id: 'league-gold', name: 'Gold Rank', description: 'Reach the Gold League', icon: 'shield', category: 'league', rarity: 'rare' },
-  { id: 'league-platinum', name: 'Platinum Rank', description: 'Reach the Platinum League', icon: 'diamond', category: 'league', rarity: 'epic' },
-  { id: 'league-diamond', name: 'Diamond Rank', description: 'Reach the Diamond League', icon: 'diamond', category: 'league', rarity: 'legendary' },
-  { id: 'league-top3', name: 'Podium Finish', description: 'Finish in the top 3 of your league', icon: 'emoji_events', category: 'league', rarity: 'rare' },
+  {
+    id: 'league-silver',
+    name: 'Silver Rank',
+    description: 'Reach the Silver League',
+    icon: 'shield',
+    category: 'league',
+    rarity: 'common',
+  },
+  {
+    id: 'league-gold',
+    name: 'Gold Rank',
+    description: 'Reach the Gold League',
+    icon: 'shield',
+    category: 'league',
+    rarity: 'rare',
+  },
+  {
+    id: 'league-platinum',
+    name: 'Platinum Rank',
+    description: 'Reach the Platinum League',
+    icon: 'diamond',
+    category: 'league',
+    rarity: 'epic',
+  },
+  {
+    id: 'league-diamond',
+    name: 'Diamond Rank',
+    description: 'Reach the Diamond League',
+    icon: 'diamond',
+    category: 'league',
+    rarity: 'legendary',
+  },
+  {
+    id: 'league-top3',
+    name: 'Podium Finish',
+    description: 'Finish in the top 3 of your league',
+    icon: 'emoji_events',
+    category: 'league',
+    rarity: 'rare',
+  },
 
   // Special badges
-  { id: 'early-bird', name: 'Early Bird', description: 'Complete a habit before 7 AM', icon: 'wb_twilight', category: 'special', rarity: 'common' },
-  { id: 'night-owl', name: 'Night Owl', description: 'Complete a habit after 11 PM', icon: 'dark_mode', category: 'special', rarity: 'common' },
-  { id: 'comeback-kid', name: 'Comeback Kid', description: 'Return after 7+ days and complete a habit', icon: 'replay', category: 'special', rarity: 'rare' },
+  {
+    id: 'early-bird',
+    name: 'Early Bird',
+    description: 'Complete a habit before 7 AM',
+    icon: 'wb_twilight',
+    category: 'special',
+    rarity: 'common',
+  },
+  {
+    id: 'night-owl',
+    name: 'Night Owl',
+    description: 'Complete a habit after 11 PM',
+    icon: 'dark_mode',
+    category: 'special',
+    rarity: 'common',
+  },
+  {
+    id: 'comeback-kid',
+    name: 'Comeback Kid',
+    description: 'Return after 7+ days and complete a habit',
+    icon: 'replay',
+    category: 'special',
+    rarity: 'rare',
+  },
 ]
 
 // ─── Mock/Demo Data Generators ──────────────────────────────────────────────
 
 export const DEMO_NAMES = [
-  'Sarah Chen', 'Marcus Rivera', 'Aisha Patel', 'Liam O\'Brien', 'Yuki Tanaka',
-  'Zara Okafor', 'Noah Schmidt', 'Priya Sharma', 'Ethan Kim', 'Fatima Al-Hassan',
-  'Oliver James', 'Isabella Santos', 'Ahmed Khan', 'Emma Wilson', 'David Park',
-  'Sophia Liu', 'James Brown', 'Amara Diallo', 'Lucas Martin', 'Mia Thompson',
-  'Benjamin Lee', 'Chloe Wang', 'Ryan Murphy', 'Ava Johnson', 'Daniel Garcia',
-  'Grace Taylor', 'Alexander Wright', 'Lily Anderson', 'William Davis', 'Aria Nguyen',
+  'Sarah Chen',
+  'Marcus Rivera',
+  'Aisha Patel',
+  "Liam O'Brien",
+  'Yuki Tanaka',
+  'Zara Okafor',
+  'Noah Schmidt',
+  'Priya Sharma',
+  'Ethan Kim',
+  'Fatima Al-Hassan',
+  'Oliver James',
+  'Isabella Santos',
+  'Ahmed Khan',
+  'Emma Wilson',
+  'David Park',
+  'Sophia Liu',
+  'James Brown',
+  'Amara Diallo',
+  'Lucas Martin',
+  'Mia Thompson',
+  'Benjamin Lee',
+  'Chloe Wang',
+  'Ryan Murphy',
+  'Ava Johnson',
+  'Daniel Garcia',
+  'Grace Taylor',
+  'Alexander Wright',
+  'Lily Anderson',
+  'William Davis',
+  'Aria Nguyen',
 ]
 
 export function generateDemoLeaderboard(currentUserName: string, currentUserXP: number): any[] {
@@ -1135,7 +1527,13 @@ export function generateDemoLeaderboard(currentUserName: string, currentUserXP: 
       xp,
       rank: i + 1,
       previousRank: Math.random() > 0.2 ? prevRank : null,
-      rankChange: (prevRank > i + 1 ? 'up' : prevRank < i + 1 ? 'down' : Math.random() > 0.7 ? 'new' : 'same') as any,
+      rankChange: (prevRank > i + 1
+        ? 'up'
+        : prevRank < i + 1
+          ? 'down'
+          : Math.random() > 0.7
+            ? 'new'
+            : 'same') as any,
       level: Math.max(1, Math.floor(xp / 100)),
       leagueTier: 'reis' as const,
       isCurrentUser: false,
@@ -1184,23 +1582,27 @@ export function generateDemoFriends(): Friend[] {
 }
 
 export function generateDemoLeagueMembers(currentUserName: string): any[] {
-  return DEMO_NAMES.slice(0, 30).map((name, i) => {
-    const isCurrentUser = i === Math.floor(Math.random() * 10) + 5
-    const weeklyXP = Math.max(5, Math.round(600 - i * 18 + (Math.random() * 60 - 30)))
-    return {
-      userId: isCurrentUser ? 'current-user' : `league-${i}`,
-      displayName: isCurrentUser ? currentUserName : name,
-      avatarUrl: isCurrentUser ? `/images/avatars/avatar15.jpg` : `/images/avatars/avatar${(i % 14) + 1}.jpg`,
-      weeklyXP,
+  return DEMO_NAMES.slice(0, 30)
+    .map((name, i) => {
+      const isCurrentUser = i === Math.floor(Math.random() * 10) + 5
+      const weeklyXP = Math.max(5, Math.round(600 - i * 18 + (Math.random() * 60 - 30)))
+      return {
+        userId: isCurrentUser ? 'current-user' : `league-${i}`,
+        displayName: isCurrentUser ? currentUserName : name,
+        avatarUrl: isCurrentUser
+          ? `/images/avatars/avatar15.jpg`
+          : `/images/avatars/avatar${(i % 14) + 1}.jpg`,
+        weeklyXP,
+        rank: i + 1,
+        level: Math.max(1, Math.floor(weeklyXP / 50)),
+        isCurrentUser,
+        zone: i < 5 ? 'promotion' : i >= 25 ? 'demotion' : 'safe',
+      }
+    })
+    .sort((a, b) => b.weeklyXP - a.weeklyXP)
+    .map((m, i) => ({
+      ...m,
       rank: i + 1,
-      level: Math.max(1, Math.floor(weeklyXP / 50)),
-      isCurrentUser,
       zone: i < 5 ? 'promotion' : i >= 25 ? 'demotion' : 'safe',
-    }
-  }).sort((a, b) => b.weeklyXP - a.weeklyXP).map((m, i) => ({
-    ...m,
-    rank: i + 1,
-    zone: i < 5 ? 'promotion' : i >= 25 ? 'demotion' : 'safe',
-  }))
+    }))
 }
-

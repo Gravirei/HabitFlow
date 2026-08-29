@@ -20,13 +20,15 @@ const localStorageMock = (() => {
     },
     clear: () => {
       store = {}
-    }
+    },
   }
 })()
 
 // Set up localStorage mock properly
 global.Storage.prototype.getItem = vi.fn((key: string) => localStorageMock.getItem(key))
-global.Storage.prototype.setItem = vi.fn((key: string, value: string) => localStorageMock.setItem(key, value))
+global.Storage.prototype.setItem = vi.fn((key: string, value: string) =>
+  localStorageMock.setItem(key, value)
+)
 global.Storage.prototype.removeItem = vi.fn((key: string) => localStorageMock.removeItem(key))
 
 describe('useTimerHistory', () => {
@@ -35,13 +37,15 @@ describe('useTimerHistory', () => {
     vi.clearAllMocks()
     // Re-setup mocks after clearing
     global.Storage.prototype.getItem = vi.fn((key: string) => localStorageMock.getItem(key))
-    global.Storage.prototype.setItem = vi.fn((key: string, value: string) => localStorageMock.setItem(key, value))
+    global.Storage.prototype.setItem = vi.fn((key: string, value: string) =>
+      localStorageMock.setItem(key, value)
+    )
     global.Storage.prototype.removeItem = vi.fn((key: string) => localStorageMock.removeItem(key))
   })
 
   describe('Initialization', () => {
     it('should initialize with empty history', () => {
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         useTimerHistory({ mode: 'Stopwatch', storageKey: 'test-key' })
       )
 
@@ -50,7 +54,7 @@ describe('useTimerHistory', () => {
 
     it('should load existing history from localStorage', async () => {
       // First, save data using the hook itself to ensure proper persistence
-      const { result: setupResult, unmount } = renderHook(() => 
+      const { result: setupResult, unmount } = renderHook(() =>
         useTimerHistory({ mode: 'Stopwatch', storageKey: 'test-key' })
       )
 
@@ -62,12 +66,12 @@ describe('useTimerHistory', () => {
       await waitFor(() => {
         expect(setupResult.current.history).toHaveLength(1)
       })
-      
+
       // Unmount the hook
       unmount()
 
       // Now create a new hook instance - it should load the saved data
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         useTimerHistory({ mode: 'Stopwatch', storageKey: 'test-key' })
       )
 
@@ -75,7 +79,7 @@ describe('useTimerHistory', () => {
       await waitFor(() => {
         expect(result.current.history).toHaveLength(1)
       })
-      
+
       expect(result.current.history[0].duration).toBe(5000)
       expect(result.current.history[0].mode).toBe('Stopwatch')
     })
@@ -83,7 +87,7 @@ describe('useTimerHistory', () => {
 
   describe('saveToHistory', () => {
     it('should save a valid record to history', () => {
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         useTimerHistory({ mode: 'Stopwatch', storageKey: 'test-key' })
       )
 
@@ -99,7 +103,7 @@ describe('useTimerHistory', () => {
     })
 
     it('should not save record with zero duration', () => {
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         useTimerHistory({ mode: 'Stopwatch', storageKey: 'test-key' })
       )
 
@@ -111,7 +115,7 @@ describe('useTimerHistory', () => {
     })
 
     it('should not save record with negative duration', () => {
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         useTimerHistory({ mode: 'Stopwatch', storageKey: 'test-key' })
       )
 
@@ -123,7 +127,7 @@ describe('useTimerHistory', () => {
     })
 
     it('should save intervalCount for Intervals mode', () => {
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         useTimerHistory({ mode: 'Intervals', storageKey: 'test-key' })
       )
 
@@ -136,7 +140,7 @@ describe('useTimerHistory', () => {
     })
 
     it('should not include intervalCount when undefined', () => {
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         useTimerHistory({ mode: 'Stopwatch', storageKey: 'test-key' })
       )
 
@@ -148,7 +152,7 @@ describe('useTimerHistory', () => {
     })
 
     it('should add new records at the beginning', () => {
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         useTimerHistory({ mode: 'Stopwatch', storageKey: 'test-key' })
       )
 
@@ -166,7 +170,7 @@ describe('useTimerHistory', () => {
     })
 
     it('should limit history to MAX_HISTORY_RECORDS', () => {
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         useTimerHistory({ mode: 'Stopwatch', storageKey: 'test-key' })
       )
 
@@ -184,7 +188,7 @@ describe('useTimerHistory', () => {
     })
 
     it('should generate unique IDs for each record', () => {
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         useTimerHistory({ mode: 'Stopwatch', storageKey: 'test-key' })
       )
 
@@ -194,16 +198,16 @@ describe('useTimerHistory', () => {
         result.current.saveToHistory({ duration: 3000 })
       })
 
-      const ids = result.current.history.map(record => record.id)
+      const ids = result.current.history.map((record) => record.id)
       const uniqueIds = new Set(ids)
-      
+
       expect(uniqueIds.size).toBe(3) // All IDs should be unique
     })
   })
 
   describe('clearHistory', () => {
     it('should clear all history records', () => {
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         useTimerHistory({ mode: 'Stopwatch', storageKey: 'test-key' })
       )
 
@@ -222,7 +226,7 @@ describe('useTimerHistory', () => {
     })
 
     it('should persist cleared state to localStorage', () => {
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         useTimerHistory({ mode: 'Stopwatch', storageKey: 'test-key' })
       )
 
@@ -235,7 +239,7 @@ describe('useTimerHistory', () => {
       })
 
       // Re-mount the hook to verify persistence
-      const { result: newResult } = renderHook(() => 
+      const { result: newResult } = renderHook(() =>
         useTimerHistory({ mode: 'Stopwatch', storageKey: 'test-key' })
       )
 
@@ -245,7 +249,7 @@ describe('useTimerHistory', () => {
 
   describe('Different Timer Modes', () => {
     it('should correctly set mode for Stopwatch', () => {
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         useTimerHistory({ mode: 'Stopwatch', storageKey: 'test-key' })
       )
 
@@ -257,7 +261,7 @@ describe('useTimerHistory', () => {
     })
 
     it('should correctly set mode for Countdown', () => {
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         useTimerHistory({ mode: 'Countdown', storageKey: 'test-key' })
       )
 
@@ -269,7 +273,7 @@ describe('useTimerHistory', () => {
     })
 
     it('should correctly set mode for Intervals', () => {
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         useTimerHistory({ mode: 'Intervals', storageKey: 'test-key' })
       )
 
@@ -284,11 +288,11 @@ describe('useTimerHistory', () => {
 
   describe('Separate Storage Keys', () => {
     it('should keep histories separate for different storage keys', () => {
-      const { result: stopwatchResult } = renderHook(() => 
+      const { result: stopwatchResult } = renderHook(() =>
         useTimerHistory({ mode: 'Stopwatch', storageKey: 'stopwatch-key' })
       )
 
-      const { result: countdownResult } = renderHook(() => 
+      const { result: countdownResult } = renderHook(() =>
         useTimerHistory({ mode: 'Countdown', storageKey: 'countdown-key' })
       )
 
@@ -306,7 +310,7 @@ describe('useTimerHistory', () => {
 
   describe('Persistence', () => {
     it('should persist history to localStorage', () => {
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         useTimerHistory({ mode: 'Stopwatch', storageKey: 'test-key' })
       )
 
@@ -321,7 +325,7 @@ describe('useTimerHistory', () => {
     })
 
     it('should reload history after unmount and remount', async () => {
-      const { result, unmount } = renderHook(() => 
+      const { result, unmount } = renderHook(() =>
         useTimerHistory({ mode: 'Stopwatch', storageKey: 'test-key' })
       )
 
@@ -336,7 +340,7 @@ describe('useTimerHistory', () => {
 
       unmount()
 
-      const { result: newResult } = renderHook(() => 
+      const { result: newResult } = renderHook(() =>
         useTimerHistory({ mode: 'Stopwatch', storageKey: 'test-key' })
       )
 
@@ -344,14 +348,14 @@ describe('useTimerHistory', () => {
       await waitFor(() => {
         expect(newResult.current.history).toHaveLength(1)
       })
-      
+
       expect(newResult.current.history[0].duration).toBe(5000)
     })
   })
 
   describe('Edge Cases', () => {
     it('should handle very large durations', () => {
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         useTimerHistory({ mode: 'Stopwatch', storageKey: 'test-key' })
       )
 
@@ -367,7 +371,7 @@ describe('useTimerHistory', () => {
     })
 
     it('should handle zero intervalCount', () => {
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         useTimerHistory({ mode: 'Intervals', storageKey: 'test-key' })
       )
 
@@ -379,12 +383,12 @@ describe('useTimerHistory', () => {
     })
 
     it('should generate timestamps close to current time', () => {
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         useTimerHistory({ mode: 'Stopwatch', storageKey: 'test-key' })
       )
 
       const before = Date.now()
-      
+
       act(() => {
         result.current.saveToHistory({ duration: 5000 })
       })

@@ -221,7 +221,10 @@ export function CategoryImportExportModal({ isOpen, onClose }: CategoryImportExp
 
               {/* Import Error */}
               {importError && (
-                <div className="rounded-2xl border border-red-500/20 bg-red-500/10 p-5" role="alert">
+                <div
+                  className="rounded-2xl border border-red-500/20 bg-red-500/10 p-5"
+                  role="alert"
+                >
                   <div className="flex items-start gap-3">
                     <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-red-500/20 text-red-400">
                       <span className="material-symbols-outlined" aria-hidden="true">

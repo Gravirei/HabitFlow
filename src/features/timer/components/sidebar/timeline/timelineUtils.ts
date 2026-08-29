@@ -3,12 +3,12 @@
  * Helper functions for timeline data processing and calculations
  */
 
-import { 
-  startOfDay, 
-  endOfDay, 
-  startOfWeek, 
-  endOfWeek, 
-  startOfMonth, 
+import {
+  startOfDay,
+  endOfDay,
+  startOfWeek,
+  endOfWeek,
+  startOfMonth,
   endOfMonth,
   eachDayOfInterval,
   eachWeekOfInterval,
@@ -21,16 +21,22 @@ import {
   addMonths,
   subDays,
   subWeeks,
-  subMonths
+  subMonths,
 } from 'date-fns'
 
-import type { TimelineSession, TimelineDay, TimelineWeek, TimelineMonth, TimelineViewMode } from './types'
+import type {
+  TimelineSession,
+  TimelineDay,
+  TimelineWeek,
+  TimelineMonth,
+  TimelineViewMode,
+} from './types'
 
 /**
  * Convert timer history records to timeline sessions
  */
 export function convertToTimelineSessions(records: any[]): TimelineSession[] {
-  return records.map(record => ({
+  return records.map((record) => ({
     id: record.id,
     mode: record.mode,
     sessionName: record.sessionName,
@@ -48,13 +54,13 @@ export function convertToTimelineSessions(records: any[]): TimelineSession[] {
 export function groupSessionsByDay(sessions: TimelineSession[], date: Date): TimelineDay {
   const dayStart = startOfDay(date)
   const dayEnd = endOfDay(date)
-  
-  const daySessions = sessions.filter(session => 
+
+  const daySessions = sessions.filter((session) =>
     isWithinInterval(session.startTime, { start: dayStart, end: dayEnd })
   )
-  
+
   const totalDuration = daySessions.reduce((sum, s) => sum + s.duration, 0)
-  
+
   return {
     date: dayStart,
     sessions: daySessions,
@@ -69,14 +75,14 @@ export function groupSessionsByDay(sessions: TimelineSession[], date: Date): Tim
 export function groupSessionsByWeek(sessions: TimelineSession[], date: Date): TimelineWeek {
   const weekStart = startOfWeek(date, { weekStartsOn: 0 }) // Sunday
   const weekEnd = endOfWeek(date, { weekStartsOn: 0 })
-  
-  const days = eachDayOfInterval({ start: weekStart, end: weekEnd }).map(day =>
+
+  const days = eachDayOfInterval({ start: weekStart, end: weekEnd }).map((day) =>
     groupSessionsByDay(sessions, day)
   )
-  
+
   const totalDuration = days.reduce((sum, d) => sum + d.totalDuration, 0)
   const sessionCount = days.reduce((sum, d) => sum + d.sessionCount, 0)
-  
+
   return {
     weekStart,
     weekEnd,
@@ -92,15 +98,14 @@ export function groupSessionsByWeek(sessions: TimelineSession[], date: Date): Ti
 export function groupSessionsByMonth(sessions: TimelineSession[], date: Date): TimelineMonth {
   const monthStart = startOfMonth(date)
   const monthEnd = endOfMonth(date)
-  
-  const weeks = eachWeekOfInterval(
-    { start: monthStart, end: monthEnd },
-    { weekStartsOn: 0 }
-  ).map(week => groupSessionsByWeek(sessions, week))
-  
+
+  const weeks = eachWeekOfInterval({ start: monthStart, end: monthEnd }, { weekStartsOn: 0 }).map(
+    (week) => groupSessionsByWeek(sessions, week)
+  )
+
   const totalDuration = weeks.reduce((sum, w) => sum + w.totalDuration, 0)
   const sessionCount = weeks.reduce((sum, w) => sum + w.sessionCount, 0)
-  
+
   return {
     monthStart,
     monthEnd,
@@ -135,10 +140,10 @@ export function calculateSessionPosition(session: TimelineSession, dayStart: Dat
   const totalMinutes = differenceInMinutes(dayEnd, dayStart)
   const startMinutes = differenceInMinutes(session.startTime, dayStart)
   const durationMinutes = session.duration / (1000 * 60)
-  
+
   const left = (startMinutes / totalMinutes) * 100
   const width = (durationMinutes / totalMinutes) * 100
-  
+
   return {
     left: Math.max(0, Math.min(100, left)),
     width: Math.max(0.5, Math.min(100 - left, width)),
@@ -168,7 +173,7 @@ export function formatDuration(milliseconds: number): string {
   const totalMinutes = Math.floor(milliseconds / (1000 * 60))
   const hours = Math.floor(totalMinutes / 60)
   const minutes = totalMinutes % 60
-  
+
   if (hours > 0) {
     return `${hours}h ${minutes}m`
   }
@@ -232,16 +237,21 @@ export function getHourLabels(): string[] {
 /**
  * Get sessions for specific hour
  */
-export function getSessionsInHour(sessions: TimelineSession[], date: Date, hour: number): TimelineSession[] {
+export function getSessionsInHour(
+  sessions: TimelineSession[],
+  date: Date,
+  hour: number
+): TimelineSession[] {
   const hourStart = new Date(date)
   hourStart.setHours(hour, 0, 0, 0)
-  
+
   const hourEnd = new Date(date)
   hourEnd.setHours(hour, 59, 59, 999)
-  
-  return sessions.filter(session =>
-    isWithinInterval(session.startTime, { start: hourStart, end: hourEnd }) ||
-    isWithinInterval(session.endTime, { start: hourStart, end: hourEnd }) ||
-    (session.startTime < hourStart && session.endTime > hourEnd)
+
+  return sessions.filter(
+    (session) =>
+      isWithinInterval(session.startTime, { start: hourStart, end: hourEnd }) ||
+      isWithinInterval(session.endTime, { start: hourStart, end: hourEnd }) ||
+      (session.startTime < hourStart && session.endTime > hourEnd)
   )
 }

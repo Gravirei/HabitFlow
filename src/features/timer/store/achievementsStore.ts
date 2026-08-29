@@ -31,7 +31,7 @@ export const useAchievementsStore = create<AchievementsState>()(
        */
       initializeAchievements: () => {
         const currentAchievements = get().achievements
-        
+
         // If achievements already exist, don't reinitialize
         if (currentAchievements.length > 0) return
 

@@ -35,7 +35,7 @@ function formatTime(iso: string): string {
 }
 
 function buildAriaLabel(message: Message, isSent: boolean, senderName?: string): string {
-  const who = isSent ? 'You' : (senderName || 'Someone')
+  const who = isSent ? 'You' : senderName || 'Someone'
   const time = formatTime(message.createdAt)
 
   if (message.type === 'text') {
@@ -53,7 +53,15 @@ function buildAriaLabel(message: Message, isSent: boolean, senderName?: string):
   return `${who} ${typeLabels[message.type] ?? message.type}, ${time}`
 }
 
-function RichContent({ message, isSent, senderName }: { message: Message; isSent: boolean; senderName?: string }) {
+function RichContent({
+  message,
+  isSent,
+  senderName,
+}: {
+  message: Message
+  isSent: boolean
+  senderName?: string
+}) {
   if (message.type === 'habit_card' && message.habitCard) {
     return <HabitShareCard payload={message.habitCard} isOwnMessage={isSent} />
   }
@@ -65,7 +73,13 @@ function RichContent({ message, isSent, senderName }: { message: Message; isSent
     return <BadgeShareCard payload={message.badgeCard} isOwnMessage={isSent} />
   }
   if (message.type === 'nudge' && message.nudgeCard) {
-    return <NudgeMessageCard payload={message.nudgeCard} senderName={senderName ?? 'Someone'} isOwnMessage={isSent} />
+    return (
+      <NudgeMessageCard
+        payload={message.nudgeCard}
+        senderName={senderName ?? 'Someone'}
+        isOwnMessage={isSent}
+      />
+    )
   }
 
   // fallback
@@ -99,22 +113,28 @@ const MessageBubbleInner = ({
 
   const receipt = useMemo(() => DELIVERY[message.deliveryStatus], [message.deliveryStatus])
 
-  const bubbleClass = isSent
-    ? 'bg-[#32D74B] text-white'
-    : 'bg-[#2C2C2E] text-white'
+  const bubbleClass = isSent ? 'bg-[#32D74B] text-white' : 'bg-[#2C2C2E] text-white'
 
   // shape: last in group gets the "tail" corner
-  const radiusClass = isSent
-    ? 'rounded-[20px] rounded-br-[4px]'
-    : 'rounded-[20px] rounded-bl-[4px]'
+  const radiusClass = isSent ? 'rounded-[20px] rounded-br-[4px]' : 'rounded-[20px] rounded-bl-[4px]'
 
   // Soft-deleted messages: show an italicised placeholder instead of content
   if (message.isDeleted) {
     return (
       <motion.div {...motionProps}>
-        <div className={`flex items-end gap-2 ${isSent ? 'justify-end' : 'justify-start'}`} role="article" aria-label="Deleted message">
-          {!isSent && <div className="w-8 flex-shrink-0"><div className="size-7" aria-hidden="true" /></div>}
-          <div className={`flex flex-col gap-1 ${isSent ? 'items-end' : 'items-start'} max-w-[75%]`}>
+        <div
+          className={`flex items-end gap-2 ${isSent ? 'justify-end' : 'justify-start'}`}
+          role="article"
+          aria-label="Deleted message"
+        >
+          {!isSent && (
+            <div className="w-8 flex-shrink-0">
+              <div className="size-7" aria-hidden="true" />
+            </div>
+          )}
+          <div
+            className={`flex flex-col gap-1 ${isSent ? 'items-end' : 'items-start'} max-w-[75%]`}
+          >
             <div className="rounded-[20px] border border-[#38383A] bg-[#1C1C1E] px-[14px] py-[10px] text-[15px] italic text-[#8E8E93]">
               This message was deleted.
             </div>
@@ -126,7 +146,11 @@ const MessageBubbleInner = ({
 
   return (
     <motion.div {...motionProps}>
-      <div className={`flex items-end gap-2 ${isSent ? 'justify-end' : 'justify-start'}`} role="article" aria-label={ariaLabel}>
+      <div
+        className={`flex items-end gap-2 ${isSent ? 'justify-end' : 'justify-start'}`}
+        role="article"
+        aria-label={ariaLabel}
+      >
         {/* Avatar */}
         {!isSent && (
           <div className="w-8 flex-shrink-0">
@@ -134,7 +158,7 @@ const MessageBubbleInner = ({
               <img
                 src={senderAvatarUrl || '/images/avatars/avatar1.jpg'}
                 alt={senderName ?? ''}
-                className="size-7 rounded-full object-cover bg-[#1C1C1E]"
+                className="size-7 rounded-full bg-[#1C1C1E] object-cover"
               />
             ) : (
               <div className="size-7" aria-hidden="true" />
@@ -142,8 +166,7 @@ const MessageBubbleInner = ({
           </div>
         )}
 
-        <div className={`flex flex-col gap-1 ${isSent ? 'items-end' : 'items-start'} max-w-[75%]`}
-        >
+        <div className={`flex flex-col gap-1 ${isSent ? 'items-end' : 'items-start'} max-w-[75%]`}>
           {showSenderName && !isSent && senderName && (
             <span className="px-2 text-[12px] font-medium tracking-wide text-[#8E8E93]">
               {senderName}
@@ -161,7 +184,8 @@ const MessageBubbleInner = ({
               {/* Foot: time + receipt */}
               {isLastInGroup && (
                 <div className="mt-1 flex items-center justify-end gap-1">
-                  <span className={`text-[11px] font-medium ${isSent ? 'text-white/80' : 'text-[#8E8E93]'}`}
+                  <span
+                    className={`text-[11px] font-medium ${isSent ? 'text-white/80' : 'text-[#8E8E93]'}`}
                   >
                     {formatTime(message.createdAt)}
                   </span>
@@ -186,7 +210,8 @@ const MessageBubbleInner = ({
 
           {/* For non-text messages, still show time under group */}
           {message.type !== 'text' && isLastInGroup && (
-            <div className={`px-2 text-[11px] font-medium ${isSent ? 'text-right text-[#8E8E93]' : 'text-left text-[#8E8E93]'}`}
+            <div
+              className={`px-2 text-[11px] font-medium ${isSent ? 'text-right text-[#8E8E93]' : 'text-left text-[#8E8E93]'}`}
             >
               {formatTime(message.createdAt)}
             </div>

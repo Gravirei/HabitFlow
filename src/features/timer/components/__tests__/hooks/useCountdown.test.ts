@@ -750,10 +750,12 @@ describe('useCountdown', () => {
   describe('Auto-Save on Session Completion', () => {
     it('should auto-save to history when countdown reaches zero', () => {
       const mockOnSessionComplete = vi.fn()
-      
-      const { result } = renderHook(() => useCountdown({
-        onSessionComplete: mockOnSessionComplete
-      }))
+
+      const { result } = renderHook(() =>
+        useCountdown({
+          onSessionComplete: mockOnSessionComplete,
+        })
+      )
 
       act(() => {
         result.current.setSelectedMinutes(5)
@@ -781,10 +783,12 @@ describe('useCountdown', () => {
 
     it('should auto-save with correct duration for hours, minutes, and seconds', () => {
       const mockOnSessionComplete = vi.fn()
-      
-      const { result } = renderHook(() => useCountdown({
-        onSessionComplete: mockOnSessionComplete
-      }))
+
+      const { result } = renderHook(() =>
+        useCountdown({
+          onSessionComplete: mockOnSessionComplete,
+        })
+      )
 
       act(() => {
         result.current.setSelectedHours(1)
@@ -808,10 +812,12 @@ describe('useCountdown', () => {
 
     it('should NOT auto-save when countdown is manually killed before completion', () => {
       const mockOnSessionComplete = vi.fn()
-      
-      const { result } = renderHook(() => useCountdown({
-        onSessionComplete: mockOnSessionComplete
-      }))
+
+      const { result } = renderHook(() =>
+        useCountdown({
+          onSessionComplete: mockOnSessionComplete,
+        })
+      )
 
       act(() => {
         result.current.setSelectedMinutes(10)
@@ -837,10 +843,12 @@ describe('useCountdown', () => {
 
     it('should NOT auto-save when duration is zero', () => {
       const mockOnSessionComplete = vi.fn()
-      
-      const { result } = renderHook(() => useCountdown({
-        onSessionComplete: mockOnSessionComplete
-      }))
+
+      const { result } = renderHook(() =>
+        useCountdown({
+          onSessionComplete: mockOnSessionComplete,
+        })
+      )
 
       act(() => {
         result.current.setSelectedHours(0)
@@ -858,10 +866,12 @@ describe('useCountdown', () => {
 
     it('should auto-save after pause and resume', () => {
       const mockOnSessionComplete = vi.fn()
-      
-      const { result } = renderHook(() => useCountdown({
-        onSessionComplete: mockOnSessionComplete
-      }))
+
+      const { result } = renderHook(() =>
+        useCountdown({
+          onSessionComplete: mockOnSessionComplete,
+        })
+      )
 
       act(() => {
         result.current.setSelectedMinutes(3)
@@ -924,10 +934,12 @@ describe('useCountdown', () => {
 
     it('should auto-save short countdowns correctly', () => {
       const mockOnSessionComplete = vi.fn()
-      
-      const { result } = renderHook(() => useCountdown({
-        onSessionComplete: mockOnSessionComplete
-      }))
+
+      const { result } = renderHook(() =>
+        useCountdown({
+          onSessionComplete: mockOnSessionComplete,
+        })
+      )
 
       act(() => {
         result.current.setSelectedHours(0)
@@ -950,10 +962,12 @@ describe('useCountdown', () => {
 
     it('should only call onSessionComplete once when countdown completes', () => {
       const mockOnSessionComplete = vi.fn()
-      
-      const { result } = renderHook(() => useCountdown({
-        onSessionComplete: mockOnSessionComplete
-      }))
+
+      const { result } = renderHook(() =>
+        useCountdown({
+          onSessionComplete: mockOnSessionComplete,
+        })
+      )
 
       act(() => {
         result.current.setSelectedMinutes(1)

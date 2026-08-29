@@ -16,7 +16,8 @@ export const googleCalendarService = {
   initiateAuth(): void {
     const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID'
     const redirectUri =
-      import.meta.env.VITE_GOOGLE_REDIRECT_URI || `${window.location.origin}/integrations/callback/google`
+      import.meta.env.VITE_GOOGLE_REDIRECT_URI ||
+      `${window.location.origin}/integrations/callback/google`
     const params = new URLSearchParams({
       client_id: clientId,
       redirect_uri: redirectUri,
@@ -60,7 +61,9 @@ export const googleCalendarService = {
   /**
    * Refresh access token using refresh token
    */
-  async refreshAccessToken(refreshToken: string): Promise<{ accessToken: string; expiresAt: string }> {
+  async refreshAccessToken(
+    refreshToken: string
+  ): Promise<{ accessToken: string; expiresAt: string }> {
     const response = await fetch(GOOGLE_TOKEN_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },

@@ -13,16 +13,16 @@ import { vibrationManager } from '@/features/timer/utils/vibrationManager'
 vi.mock('@/features/timer/utils/soundManager', () => ({
   soundManager: {
     playSound: vi.fn(),
-    cleanup: vi.fn()
-  }
+    cleanup: vi.fn(),
+  },
 }))
 
 vi.mock('@/features/timer/utils/vibrationManager', () => ({
   vibrationManager: {
     vibrate: vi.fn(),
     stop: vi.fn(),
-    isSupported: vi.fn(() => true)
-  }
+    isSupported: vi.fn(() => true),
+  },
 }))
 
 vi.mock('@/features/timer/hooks/useTimerSettings', () => ({
@@ -32,9 +32,9 @@ vi.mock('@/features/timer/hooks/useTimerSettings', () => ({
       soundType: 'beep' as const,
       soundVolume: 70,
       vibrationEnabled: true,
-      vibrationPattern: 'short' as const
-    }
-  })
+      vibrationPattern: 'short' as const,
+    },
+  }),
 }))
 
 describe('useTimerSound', () => {

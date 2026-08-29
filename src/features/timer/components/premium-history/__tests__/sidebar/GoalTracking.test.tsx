@@ -21,63 +21,38 @@ describe.skip('Goal Tracking Feature', () => {
 
   describe('GoalsModal Component', () => {
     it('renders goals modal when open', () => {
-      render(
-        <GoalsModal
-          isOpen={true}
-          onClose={vi.fn()}
-        />
-      )
+      render(<GoalsModal isOpen={true} onClose={vi.fn()} />)
 
       expect(screen.getByText('Goals')).toBeInTheDocument()
       expect(screen.getByText(/track your progress/i)).toBeInTheDocument()
     })
 
     it('does not render when closed', () => {
-      const { container } = render(
-        <GoalsModal
-          isOpen={false}
-          onClose={vi.fn()}
-        />
-      )
+      const { container } = render(<GoalsModal isOpen={false} onClose={vi.fn()} />)
 
       expect(container).toBeEmptyDOMElement()
     })
 
     it('displays create goal button', () => {
-      render(
-        <GoalsModal
-          isOpen={true}
-          onClose={vi.fn()}
-        />
-      )
+      render(<GoalsModal isOpen={true} onClose={vi.fn()} />)
 
       const createButton = screen.getByText(/create goal/i)
       expect(createButton).toBeInTheDocument()
     })
 
     it('shows empty state when no goals exist', () => {
-      render(
-        <GoalsModal
-          isOpen={true}
-          onClose={vi.fn()}
-        />
-      )
+      render(<GoalsModal isOpen={true} onClose={vi.fn()} />)
 
       expect(screen.getByText(/no goals yet/i)).toBeInTheDocument()
     })
 
     it('calls onClose when clicking close button', () => {
       const onClose = vi.fn()
-      render(
-        <GoalsModal
-          isOpen={true}
-          onClose={onClose}
-        />
-      )
+      render(<GoalsModal isOpen={true} onClose={onClose} />)
 
-      const closeButton = screen.getAllByRole('button').find(btn =>
-        btn.querySelector('.material-symbols-outlined')?.textContent === 'close'
-      )
+      const closeButton = screen
+        .getAllByRole('button')
+        .find((btn) => btn.querySelector('.material-symbols-outlined')?.textContent === 'close')
 
       if (closeButton) {
         fireEvent.click(closeButton)
@@ -88,12 +63,7 @@ describe.skip('Goal Tracking Feature', () => {
 
   describe('Goal Creation', () => {
     it('opens create goal modal', () => {
-      render(
-        <GoalsModal
-          isOpen={true}
-          onClose={vi.fn()}
-        />
-      )
+      render(<GoalsModal isOpen={true} onClose={vi.fn()} />)
 
       const createButton = screen.getByText(/create goal/i)
       fireEvent.click(createButton)
@@ -103,12 +73,7 @@ describe.skip('Goal Tracking Feature', () => {
     })
 
     it('allows selecting goal type', () => {
-      render(
-        <GoalsModal
-          isOpen={true}
-          onClose={vi.fn()}
-        />
-      )
+      render(<GoalsModal isOpen={true} onClose={vi.fn()} />)
 
       const createButton = screen.getByText(/create goal/i)
       fireEvent.click(createButton)
@@ -119,12 +84,7 @@ describe.skip('Goal Tracking Feature', () => {
     })
 
     it('allows setting goal target', () => {
-      render(
-        <GoalsModal
-          isOpen={true}
-          onClose={vi.fn()}
-        />
-      )
+      render(<GoalsModal isOpen={true} onClose={vi.fn()} />)
 
       const createButton = screen.getByText(/create goal/i)
       fireEvent.click(createButton)
@@ -135,12 +95,7 @@ describe.skip('Goal Tracking Feature', () => {
     })
 
     it('validates goal input', () => {
-      render(
-        <GoalsModal
-          isOpen={true}
-          onClose={vi.fn()}
-        />
-      )
+      render(<GoalsModal isOpen={true} onClose={vi.fn()} />)
 
       const createButton = screen.getByText(/create goal/i)
       fireEvent.click(createButton)
@@ -161,7 +116,7 @@ describe.skip('Goal Tracking Feature', () => {
         startDate: new Date(),
         endDate: new Date(),
         status: 'active' as const,
-        createdAt: new Date()
+        createdAt: new Date(),
       }
 
       addGoal(newGoal)
@@ -185,7 +140,7 @@ describe.skip('Goal Tracking Feature', () => {
         startDate: new Date(),
         endDate: new Date(),
         status: 'active',
-        createdAt: new Date()
+        createdAt: new Date(),
       })
 
       const { goals } = useGoalsStore.getState()
@@ -204,7 +159,7 @@ describe.skip('Goal Tracking Feature', () => {
         startDate: new Date(),
         endDate: new Date(),
         status: 'active',
-        createdAt: new Date()
+        createdAt: new Date(),
       })
 
       const { goals } = useGoalsStore.getState()
@@ -223,7 +178,7 @@ describe.skip('Goal Tracking Feature', () => {
         startDate: new Date(),
         endDate: new Date(),
         status: 'active',
-        createdAt: new Date()
+        createdAt: new Date(),
       })
 
       const { goals } = useGoalsStore.getState()
@@ -243,7 +198,7 @@ describe.skip('Goal Tracking Feature', () => {
         startDate: new Date(),
         endDate: new Date(),
         status: 'active',
-        createdAt: new Date()
+        createdAt: new Date(),
       })
 
       const { goals } = useGoalsStore.getState()
@@ -265,7 +220,7 @@ describe.skip('Goal Tracking Feature', () => {
         startDate: new Date(),
         endDate: new Date(),
         status: 'active',
-        createdAt: new Date()
+        createdAt: new Date(),
       })
 
       updateGoalProgress('progress-goal', 1800)
@@ -286,7 +241,7 @@ describe.skip('Goal Tracking Feature', () => {
         startDate: new Date(),
         endDate: new Date(),
         status: 'active',
-        createdAt: new Date()
+        createdAt: new Date(),
       })
 
       const { goals } = useGoalsStore.getState()
@@ -306,7 +261,7 @@ describe.skip('Goal Tracking Feature', () => {
         startDate: new Date(),
         endDate: new Date(),
         status: 'active',
-        createdAt: new Date()
+        createdAt: new Date(),
       })
 
       updateGoalProgress('complete-goal', 5)
@@ -327,7 +282,7 @@ describe.skip('Goal Tracking Feature', () => {
         startDate: new Date(),
         endDate: new Date(),
         status: 'active',
-        createdAt: new Date()
+        createdAt: new Date(),
       })
 
       updateGoalProgress('max-goal', 4000)
@@ -350,15 +305,10 @@ describe.skip('Goal Tracking Feature', () => {
         startDate: new Date(),
         endDate: new Date(),
         status: 'active',
-        createdAt: new Date()
+        createdAt: new Date(),
       })
 
-      render(
-        <GoalsModal
-          isOpen={true}
-          onClose={vi.fn()}
-        />
-      )
+      render(<GoalsModal isOpen={true} onClose={vi.fn()} />)
 
       // Should display the goal
       const { goals } = useGoalsStore.getState()
@@ -377,15 +327,10 @@ describe.skip('Goal Tracking Feature', () => {
         startDate: new Date(),
         endDate: new Date(),
         status: 'active',
-        createdAt: new Date()
+        createdAt: new Date(),
       })
 
-      render(
-        <GoalsModal
-          isOpen={true}
-          onClose={vi.fn()}
-        />
-      )
+      render(<GoalsModal isOpen={true} onClose={vi.fn()} />)
 
       // Progress bar should exist
       expect(true).toBe(true) // Placeholder for progress bar check
@@ -403,15 +348,10 @@ describe.skip('Goal Tracking Feature', () => {
         startDate: new Date(),
         endDate: new Date(),
         status: 'completed',
-        createdAt: new Date()
+        createdAt: new Date(),
       })
 
-      render(
-        <GoalsModal
-          isOpen={true}
-          onClose={vi.fn()}
-        />
-      )
+      render(<GoalsModal isOpen={true} onClose={vi.fn()} />)
 
       // Completed goal should be shown
       const { goals } = useGoalsStore.getState()
@@ -432,7 +372,7 @@ describe.skip('Goal Tracking Feature', () => {
         startDate: new Date(),
         endDate: new Date(),
         status: 'active',
-        createdAt: new Date()
+        createdAt: new Date(),
       })
 
       updateGoal('edit-goal', { target: 7200 })
@@ -453,7 +393,7 @@ describe.skip('Goal Tracking Feature', () => {
         startDate: new Date(),
         endDate: new Date(),
         status: 'active',
-        createdAt: new Date()
+        createdAt: new Date(),
       })
 
       deleteGoal('delete-goal')
@@ -474,7 +414,7 @@ describe.skip('Goal Tracking Feature', () => {
         startDate: new Date(),
         endDate: new Date(),
         status: 'active',
-        createdAt: new Date()
+        createdAt: new Date(),
       })
 
       // Check localStorage
@@ -496,7 +436,7 @@ describe.skip('Goal Tracking Feature', () => {
         startDate: new Date(),
         endDate: new Date(),
         status: 'active',
-        createdAt: new Date()
+        createdAt: new Date(),
       })
 
       const { goals } = useGoalsStore.getState()
@@ -515,7 +455,7 @@ describe.skip('Goal Tracking Feature', () => {
         startDate: new Date(),
         endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
         status: 'active',
-        createdAt: new Date()
+        createdAt: new Date(),
       })
 
       const { goals } = useGoalsStore.getState()
@@ -534,7 +474,7 @@ describe.skip('Goal Tracking Feature', () => {
         startDate: new Date(),
         endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
         status: 'active',
-        createdAt: new Date()
+        createdAt: new Date(),
       })
 
       const { goals } = useGoalsStore.getState()
@@ -555,7 +495,7 @@ describe.skip('Goal Tracking Feature', () => {
         startDate: new Date(),
         endDate: new Date(),
         status: 'active',
-        createdAt: new Date()
+        createdAt: new Date(),
       })
 
       // Complete the goal
@@ -577,7 +517,7 @@ describe.skip('Goal Tracking Feature', () => {
         startDate: new Date(),
         endDate: new Date(),
         status: 'active',
-        createdAt: new Date()
+        createdAt: new Date(),
       })
 
       // Reach 50% milestone

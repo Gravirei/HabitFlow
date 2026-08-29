@@ -59,7 +59,8 @@ describe('categories import/export helpers', () => {
   })
 
   it('3) Import conflict strategy (I1): same-name categories are skipped', async () => {
-    const { parseCategoryExportBundle, applyCategoryImport } = await import('@/lib/categories/importExport')
+    const { parseCategoryExportBundle, applyCategoryImport } =
+      await import('@/lib/categories/importExport')
     const { useCategoryStore } = await import('@/store/useCategoryStore')
 
     // Existing store already includes default category "Work".

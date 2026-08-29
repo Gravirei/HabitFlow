@@ -18,7 +18,7 @@ const DEFAULT_VISIBILITY: FilterVisibility = {
   dateRange: true,
   duration: true,
   completion: true,
-  search: true
+  search: true,
 }
 
 export function useFilterVisibility() {
@@ -44,6 +44,6 @@ export function useFilterVisibility() {
 
   return {
     filterVisibility,
-    setFilterVisibility
+    setFilterVisibility,
   }
 }

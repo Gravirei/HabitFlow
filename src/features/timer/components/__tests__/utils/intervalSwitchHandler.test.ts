@@ -9,21 +9,21 @@ import {
   isFirstInterval,
   isBreakInterval,
   isWorkInterval,
-  getIntervalDescription
+  getIntervalDescription,
 } from '@/features/timer/utils/intervalSwitchHandler'
 
 describe('intervalSwitchHandler', () => {
   describe('calculateNextInterval', () => {
     it('should transition from work to break', () => {
       const result = calculateNextInterval('work', 0)
-      
+
       expect(result.nextInterval).toBe('break')
       expect(result.nextCount).toBe(0)
     })
 
     it('should transition from break to work and increment count', () => {
       const result = calculateNextInterval('break', 0)
-      
+
       expect(result.nextInterval).toBe('work')
       expect(result.nextCount).toBe(1)
     })
@@ -31,7 +31,7 @@ describe('intervalSwitchHandler', () => {
     it('should handle multiple transitions', () => {
       let result = calculateNextInterval('work', 2)
       expect(result).toEqual({ nextInterval: 'break', nextCount: 2 })
-      
+
       result = calculateNextInterval('break', 2)
       expect(result).toEqual({ nextInterval: 'work', nextCount: 3 })
     })
@@ -40,21 +40,21 @@ describe('intervalSwitchHandler', () => {
   describe('getPreviousInterval', () => {
     it('should go back from work to break', () => {
       const result = getPreviousInterval('work', 1)
-      
+
       expect(result.nextInterval).toBe('break')
       expect(result.nextCount).toBe(0)
     })
 
     it('should go back from break to work', () => {
       const result = getPreviousInterval('break', 1)
-      
+
       expect(result.nextInterval).toBe('work')
       expect(result.nextCount).toBe(1)
     })
 
     it('should handle first interval edge case', () => {
       const result = getPreviousInterval('work', 0)
-      
+
       expect(result.nextInterval).toBe('break')
       expect(result.nextCount).toBe(0)
     })

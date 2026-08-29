@@ -1,6 +1,6 @@
 /**
  * Error Scenarios Integration Tests
- * 
+ *
  * Tests for various error scenarios across the timer system:
  * - LocalStorage errors
  * - Invalid state transitions
@@ -32,7 +32,7 @@ describe('Error Scenarios', () => {
     vi.clearAllMocks()
     // Clear localStorage manually since .clear() might not be available
     try {
-      Object.keys(localStorage).forEach(key => localStorage.removeItem(key))
+      Object.keys(localStorage).forEach((key) => localStorage.removeItem(key))
     } catch {
       // localStorage might be mocked/unavailable
     }
@@ -44,7 +44,7 @@ describe('Error Scenarios', () => {
     it('should handle localStorage.setItem quota exceeded error', () => {
       // Save original setItem
       const originalSetItem = window.localStorage.setItem
-      
+
       // Mock setItem to throw QuotaExceededError
       // Create a custom error object since DOMException.name is read-only
       const mockSetItem = vi.fn().mockImplementation(() => {
@@ -52,13 +52,15 @@ describe('Error Scenarios', () => {
         error.name = 'QuotaExceededError'
         throw error
       })
-      
+
       window.localStorage.setItem = mockSetItem
 
-      const { result } = renderHook(() => useTimerHistory({
-        mode: 'Stopwatch',
-        storageKey: 'test_history'
-      }))
+      const { result } = renderHook(() =>
+        useTimerHistory({
+          mode: 'Stopwatch',
+          storageKey: 'test_history',
+        })
+      )
 
       act(() => {
         result.current.saveToHistory({ duration: 1000 })
@@ -67,7 +69,7 @@ describe('Error Scenarios', () => {
       // Should have called console.error for the quota exceeded error
       expect(consoleErrorSpy).toHaveBeenCalled()
       expect(mockSetItem).toHaveBeenCalled()
-      
+
       // Restore
       window.localStorage.setItem = originalSetItem
     })
@@ -75,25 +77,27 @@ describe('Error Scenarios', () => {
     it('should handle localStorage.getItem errors', () => {
       // Save original getItem
       const originalGetItem = window.localStorage.getItem
-      
+
       // Mock getItem to throw error
       const mockGetItem = vi.fn().mockImplementation(() => {
         throw new Error('Storage access denied')
       })
-      
+
       window.localStorage.getItem = mockGetItem
 
       // This should trigger getItem during hook initialization
-      const { result } = renderHook(() => useTimerHistory({
-        mode: 'Stopwatch',
-        storageKey: 'test_history'
-      }))
+      const { result } = renderHook(() =>
+        useTimerHistory({
+          mode: 'Stopwatch',
+          storageKey: 'test_history',
+        })
+      )
 
       expect(result.current.history).toEqual([])
       // getItem should have been called and error logged
       expect(mockGetItem).toHaveBeenCalled()
       expect(consoleErrorSpy).toHaveBeenCalled()
-      
+
       // Restore
       window.localStorage.getItem = originalGetItem
     })
@@ -102,10 +106,12 @@ describe('Error Scenarios', () => {
       vi.useRealTimers()
       localStorage.setItem('timer-stopwatch-history', 'invalid json {{{')
 
-      const { result } = renderHook(() => useTimerHistory({
-        mode: 'Stopwatch',
-        storageKey: 'test_history'
-      }))
+      const { result } = renderHook(() =>
+        useTimerHistory({
+          mode: 'Stopwatch',
+          storageKey: 'test_history',
+        })
+      )
 
       await waitFor(() => expect(result.current.isLoading).toBe(false))
 
@@ -114,10 +120,13 @@ describe('Error Scenarios', () => {
     })
 
     it('should recover from malformed timer state', () => {
-      localStorage.setItem('flowmodoro_active_timer', JSON.stringify({
-        mode: 'InvalidMode',
-        // Missing required fields
-      }))
+      localStorage.setItem(
+        'flowmodoro_active_timer',
+        JSON.stringify({
+          mode: 'InvalidMode',
+          // Missing required fields
+        })
+      )
 
       const onResume = vi.fn()
       const { result } = renderHook(() => useTimerPersistence('Countdown', onResume))
@@ -133,23 +142,25 @@ describe('Error Scenarios', () => {
     it('should handle localStorage unavailable (private browsing)', () => {
       // Save original localStorage
       const originalLocalStorage = Object.getOwnPropertyDescriptor(window, 'localStorage')
-      
+
       // Simulate private browsing where localStorage is unavailable
       Object.defineProperty(window, 'localStorage', {
         get: () => {
           throw new Error('localStorage is not available')
         },
-        configurable: true
+        configurable: true,
       })
 
-      const { result } = renderHook(() => useTimerHistory({
-        mode: 'Stopwatch',
-        storageKey: 'test_history'
-      }))
+      const { result } = renderHook(() =>
+        useTimerHistory({
+          mode: 'Stopwatch',
+          storageKey: 'test_history',
+        })
+      )
 
       // Should handle gracefully without crashing
       expect(result.current.history).toEqual([])
-      
+
       // Restore original localStorage
       if (originalLocalStorage) {
         Object.defineProperty(window, 'localStorage', originalLocalStorage)
@@ -159,22 +170,26 @@ describe('Error Scenarios', () => {
     it('should clear corrupted history data', () => {
       // Save original getItem
       const originalGetItem = Storage.prototype.getItem
-      
+
       // Mock localStorage to throw error instead of actually setting it
-      const getItemMock = vi.fn().mockReturnValue(JSON.stringify([
-        { id: 1, duration: 'not a number', timestamp: Date.now(), mode: 'Stopwatch' },
-        { id: 2, duration: 1000, timestamp: Date.now(), mode: 'InvalidMode' },
-      ]))
+      const getItemMock = vi.fn().mockReturnValue(
+        JSON.stringify([
+          { id: 1, duration: 'not a number', timestamp: Date.now(), mode: 'Stopwatch' },
+          { id: 2, duration: 1000, timestamp: Date.now(), mode: 'InvalidMode' },
+        ])
+      )
       Storage.prototype.getItem = getItemMock
 
-      const { result } = renderHook(() => useTimerHistory({
-        mode: 'Stopwatch',
-        storageKey: 'test_history'
-      }))
+      const { result } = renderHook(() =>
+        useTimerHistory({
+          mode: 'Stopwatch',
+          storageKey: 'test_history',
+        })
+      )
 
       // Should filter out invalid records
       expect(result.current.history.length).toBe(0)
-      
+
       // Restore original getItem
       Storage.prototype.getItem = originalGetItem
     })
@@ -337,8 +352,8 @@ describe('Error Scenarios', () => {
         writable: true,
         value: {
           permission: 'denied',
-          requestPermission: vi.fn().mockResolvedValue('denied')
-        }
+          requestPermission: vi.fn().mockResolvedValue('denied'),
+        },
       })
 
       // Attempt to request permission (this would be in notificationManager)
@@ -378,7 +393,7 @@ describe('Error Scenarios', () => {
   describe('Audio/Sound Errors', () => {
     it('should handle audio context creation failure', () => {
       const originalAudioContext = window.AudioContext
-      
+
       // Mock AudioContext to throw error
       ;(window as any).AudioContext = class {
         constructor() {
@@ -394,7 +409,7 @@ describe('Error Scenarios', () => {
 
     it('should handle audio file load failure', async () => {
       const audio = new Audio()
-      
+
       // Simulate load error
       const errorEvent = new Event('error')
       audio.dispatchEvent(errorEvent)
@@ -437,12 +452,14 @@ describe('Error Scenarios', () => {
       })
 
       // Simulate concurrent updates
-      const updates = Array(5).fill(null).map(() => 
-        act(() => {
-          result.current.pauseTimer()
-          result.current.continueTimer()
-        })
-      )
+      const updates = Array(5)
+        .fill(null)
+        .map(() =>
+          act(() => {
+            result.current.pauseTimer()
+            result.current.continueTimer()
+          })
+        )
 
       await Promise.all(updates)
 
@@ -510,10 +527,12 @@ describe('Error Scenarios', () => {
     })
 
     it('should handle large history without memory issues', () => {
-      const { result } = renderHook(() => useTimerHistory({
-        mode: 'Stopwatch',
-        storageKey: 'test_history'
-      }))
+      const { result } = renderHook(() =>
+        useTimerHistory({
+          mode: 'Stopwatch',
+          storageKey: 'test_history',
+        })
+      )
 
       // Add many records
       act(() => {
@@ -531,23 +550,25 @@ describe('Error Scenarios', () => {
     it('should handle missing localStorage gracefully', () => {
       // Save original getItem
       const originalGetItem = window.localStorage.getItem
-      
+
       // Mock localStorage to throw error when accessed
       const getItemMock = vi.fn().mockImplementation(() => {
         throw new Error('localStorage is not available')
       })
       window.localStorage.getItem = getItemMock
 
-      const { result } = renderHook(() => useTimerHistory({
-        mode: 'Stopwatch',
-        storageKey: 'test_history'
-      }))
+      const { result } = renderHook(() =>
+        useTimerHistory({
+          mode: 'Stopwatch',
+          storageKey: 'test_history',
+        })
+      )
 
       // Should handle gracefully and return empty array
       expect(result.current.history).toEqual([])
       // Verify the mock was actually called during hook initialization
       expect(getItemMock).toHaveBeenCalled()
-      
+
       // Restore original getItem
       window.localStorage.getItem = originalGetItem
     })
@@ -578,7 +599,7 @@ describe('Error Scenarios', () => {
     it('should handle offline state', () => {
       Object.defineProperty(navigator, 'onLine', {
         writable: true,
-        value: false
+        value: false,
       })
 
       expect(navigator.onLine).toBe(false)
@@ -586,7 +607,7 @@ describe('Error Scenarios', () => {
 
       Object.defineProperty(navigator, 'onLine', {
         writable: true,
-        value: true
+        value: true,
       })
     })
 
@@ -616,7 +637,7 @@ describe('Error Scenarios', () => {
       const visibilityEvent = new Event('visibilitychange')
       Object.defineProperty(document, 'hidden', {
         writable: true,
-        value: true
+        value: true,
       })
       document.dispatchEvent(visibilityEvent)
 
@@ -627,7 +648,7 @@ describe('Error Scenarios', () => {
       // Simulate page visible
       Object.defineProperty(document, 'hidden', {
         writable: true,
-        value: false
+        value: false,
       })
       document.dispatchEvent(visibilityEvent)
 

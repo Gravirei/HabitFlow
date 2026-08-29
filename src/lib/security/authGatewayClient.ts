@@ -140,7 +140,7 @@ function v2ToPublic<T>(v2: AuthGatewayV2Envelope<T>, status: number): AuthGatewa
 export async function callAuthGateway<T = any>(
   action: AuthGatewayAction,
   payload: Record<string, unknown>,
-  options: { shape?: 'v1' | 'v2' } = {},
+  options: { shape?: 'v1' | 'v2' } = {}
 ): Promise<AuthGatewayResponse<T>> {
   const baseUrl = getFunctionsBaseUrl()
   const anonKey = env.SUPABASE_ANON_KEY
@@ -193,9 +193,7 @@ export async function callAuthGateway<T = any>(
 export function toTypedError(res: AuthGatewayResponse<unknown>): AppError {
   const code = getErrorCode(res.error) ?? 'UNKNOWN'
   const message =
-    typeof res.error === 'object' && res.error
-      ? res.error.message
-      : (res.error ?? 'Request failed')
+    typeof res.error === 'object' && res.error ? res.error.message : (res.error ?? 'Request failed')
   return toAppErrorFromAuthGateway(code, message, res.meta ?? {}, res.status)
 }
 
@@ -206,7 +204,10 @@ export function toTypedError(res: AuthGatewayResponse<unknown>): AppError {
 export async function applySupabaseSessionFromGateway(data: unknown) {
   const d = data as { access_token?: string; refresh_token?: string } | null
   if (!d?.access_token || !d?.refresh_token) {
-    throw new AuthError('Missing access_token/refresh_token from gateway response', 'GATEWAY_SESSION_INVALID')
+    throw new AuthError(
+      'Missing access_token/refresh_token from gateway response',
+      'GATEWAY_SESSION_INVALID'
+    )
   }
 
   const { error } = await supabase.auth.setSession({
@@ -234,7 +235,7 @@ export async function verifyMfaWithGateway(params: {
       factor_id: params.factorId,
       code: params.code,
     },
-    { shape: 'v2' },
+    { shape: 'v2' }
   )
 
   if (!res.ok) {
@@ -245,11 +246,17 @@ export async function verifyMfaWithGateway(params: {
         : (res.error ?? 'MFA verification failed')
     switch (code) {
       case 'mfa_verification_failed':
-        throw new MfaError(message ?? 'Invalid 2FA code', 'MFA_VERIFICATION_FAILED', res.meta ?? undefined)
+        throw new MfaError(
+          message ?? 'Invalid 2FA code',
+          'MFA_VERIFICATION_FAILED',
+          res.meta ?? undefined
+        )
       case 'rate_limited':
         throw new RateLimitedError(message, {
           retryAfterMinutes:
-            typeof res.meta?.retryAfterMinutes === 'number' ? res.meta.retryAfterMinutes : undefined,
+            typeof res.meta?.retryAfterMinutes === 'number'
+              ? res.meta.retryAfterMinutes
+              : undefined,
         })
       case 'invalid_code_format':
         throw new ValidationError(message ?? 'Enter a valid 6-digit code.', 'INVALID_CODE_FORMAT')

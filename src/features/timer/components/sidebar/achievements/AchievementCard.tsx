@@ -22,7 +22,7 @@ interface AchievementCardProps {
 
 export function AchievementCard({ achievement, index = 0 }: AchievementCardProps) {
   const { name, description, icon, rarity, category, unlocked, progress, requirement } = achievement
-  
+
   const progressPercentage = Math.min(100, (progress / requirement) * 100)
   const isLocked = !unlocked
 
@@ -32,29 +32,27 @@ export function AchievementCard({ achievement, index = 0 }: AchievementCardProps
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05 }}
       className={`
-        relative rounded-2xl overflow-hidden transition-all
-        ${isLocked 
-          ? 'bg-slate-100 dark:bg-slate-800/50 border-2 border-slate-200 dark:border-white/5' 
-          : `bg-gradient-to-br ${getRarityColor(rarity)} shadow-lg ${getRarityGlow(rarity)}`
+        relative overflow-hidden rounded-2xl transition-all
+        ${
+          isLocked
+            ? 'border-2 border-slate-200 bg-slate-100 dark:border-white/5 dark:bg-slate-800/50'
+            : `bg-gradient-to-br ${getRarityColor(rarity)} shadow-lg ${getRarityGlow(rarity)}`
         }
       `}
     >
       {/* Locked Overlay */}
       {isLocked && (
-        <div className="absolute inset-0 bg-slate-900/5 dark:bg-slate-900/20 backdrop-blur-[1px] z-10" />
+        <div className="absolute inset-0 z-10 bg-slate-900/5 backdrop-blur-[1px] dark:bg-slate-900/20" />
       )}
 
       <div className={`p-4 ${isLocked ? 'opacity-60' : ''}`}>
         {/* Header */}
-        <div className="flex items-start gap-3 mb-3">
+        <div className="mb-3 flex items-start gap-3">
           {/* Icon */}
           <div
             className={`
-              size-12 rounded-xl flex items-center justify-center flex-shrink-0
-              ${isLocked 
-                ? 'bg-slate-200 dark:bg-slate-700' 
-                : 'bg-white/20 backdrop-blur-sm'
-              }
+              flex size-12 flex-shrink-0 items-center justify-center rounded-xl
+              ${isLocked ? 'bg-slate-200 dark:bg-slate-700' : 'bg-white/20 backdrop-blur-sm'}
             `}
           >
             <span
@@ -68,27 +66,25 @@ export function AchievementCard({ achievement, index = 0 }: AchievementCardProps
           </div>
 
           {/* Content */}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between gap-2 mb-1">
+          <div className="min-w-0 flex-1">
+            <div className="mb-1 flex items-start justify-between gap-2">
               <h3
                 className={`
-                  font-bold text-base leading-tight
-                  ${isLocked 
-                    ? 'text-slate-700 dark:text-slate-300' 
-                    : 'text-white'
-                  }
+                  text-base font-bold leading-tight
+                  ${isLocked ? 'text-slate-700 dark:text-slate-300' : 'text-white'}
                 `}
               >
                 {name}
               </h3>
-              
+
               {/* Rarity Badge */}
               <span
                 className={`
-                  px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider flex-shrink-0
-                  ${isLocked
-                    ? 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400'
-                    : 'bg-white/20 text-white'
+                  flex-shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider
+                  ${
+                    isLocked
+                      ? 'bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-400'
+                      : 'bg-white/20 text-white'
                   }
                 `}
               >
@@ -99,10 +95,7 @@ export function AchievementCard({ achievement, index = 0 }: AchievementCardProps
             <p
               className={`
                 text-xs leading-relaxed
-                ${isLocked 
-                  ? 'text-slate-600 dark:text-slate-400' 
-                  : 'text-white/90'
-                }
+                ${isLocked ? 'text-slate-600 dark:text-slate-400' : 'text-white/90'}
               `}
             >
               {description}
@@ -114,7 +107,7 @@ export function AchievementCard({ achievement, index = 0 }: AchievementCardProps
         {isLocked && (
           <div className="space-y-2">
             {/* Progress Bar */}
-            <div className="relative h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+            <div className="relative h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${progressPercentage}%` }}
@@ -125,10 +118,10 @@ export function AchievementCard({ achievement, index = 0 }: AchievementCardProps
 
             {/* Progress Text */}
             <div className="flex items-center justify-between text-[11px]">
-              <span className="text-slate-600 dark:text-slate-400 font-medium">
+              <span className="font-medium text-slate-600 dark:text-slate-400">
                 {formatAchievementProgress(achievement)}
               </span>
-              <span className="text-slate-500 dark:text-slate-500 font-bold">
+              <span className="font-bold text-slate-500 dark:text-slate-500">
                 {Math.round(progressPercentage)}%
               </span>
             </div>
@@ -137,11 +130,9 @@ export function AchievementCard({ achievement, index = 0 }: AchievementCardProps
 
         {/* Unlocked Badge */}
         {unlocked && achievement.unlockedAt && (
-          <div className="flex items-center gap-2 mt-3 pt-3 border-t border-white/20">
-            <span className="material-symbols-outlined text-white text-[16px]">
-              check_circle
-            </span>
-            <span className="text-[11px] text-white/80 font-medium">
+          <div className="mt-3 flex items-center gap-2 border-t border-white/20 pt-3">
+            <span className="material-symbols-outlined text-[16px] text-white">check_circle</span>
+            <span className="text-[11px] font-medium text-white/80">
               Unlocked {new Date(achievement.unlockedAt).toLocaleDateString()}
             </span>
           </div>
@@ -151,7 +142,7 @@ export function AchievementCard({ achievement, index = 0 }: AchievementCardProps
         <div className="absolute bottom-2 left-2">
           <div
             className={`
-              px-2 py-0.5 rounded-md text-[9px] font-bold text-white uppercase tracking-wider
+              rounded-md px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white
               ${getCategoryColor(category)}
             `}
           >
@@ -171,7 +162,7 @@ export function AchievementCard({ achievement, index = 0 }: AchievementCardProps
             repeatDelay: 5,
             ease: 'easeInOut',
           }}
-          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none"
+          className="pointer-events-none absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
           style={{ transform: 'skewX(-20deg)' }}
         />
       )}

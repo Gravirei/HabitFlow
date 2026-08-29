@@ -408,19 +408,19 @@ describe('useStopwatch', () => {
 
       // Record laps at different intervals
       const intervals = [300, 400, 500]
-      
+
       for (const interval of intervals) {
         act(() => {
           vi.advanceTimersByTime(interval)
         })
-        
+
         act(() => {
           result.current.addLap()
         })
       }
 
       expect(result.current.laps).toHaveLength(3)
-      
+
       // Laps are stored most recent first, so check in reverse order
       // laps[0] = most recent (1200ms total), laps[2] = oldest (300ms total)
       expect(result.current.laps[2].timeMs).toBeLessThan(result.current.laps[1].timeMs)

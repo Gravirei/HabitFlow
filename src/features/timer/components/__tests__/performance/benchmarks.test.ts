@@ -22,7 +22,7 @@ const localStorageMock = {
     mockStore = {}
   }),
   length: 0,
-  key: vi.fn(() => null)
+  key: vi.fn(() => null),
 }
 
 describe('Performance Benchmarks', () => {
@@ -39,14 +39,14 @@ describe('Performance Benchmarks', () => {
   describe('Timer Operations Performance', () => {
     it('should handle 100 start/stop operations efficiently', () => {
       const { result } = renderHook(() => useStopwatch())
-      
+
       const start = performance.now()
 
       for (let i = 0; i < 100; i++) {
         act(() => {
           result.current.startTimer()
         })
-        
+
         act(() => {
           result.current.killTimer()
         })
@@ -90,7 +90,7 @@ describe('Performance Benchmarks', () => {
         act(() => {
           result.current.pauseTimer()
         })
-        
+
         act(() => {
           result.current.continueTimer()
         })
@@ -126,7 +126,7 @@ describe('Performance Benchmarks', () => {
 
   describe('History Operations Performance', () => {
     it('should save 1000 history records within reasonable time', () => {
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         useTimerHistory({ mode: 'Stopwatch', storageKey: 'perf-test-1' })
       )
 
@@ -146,7 +146,7 @@ describe('Performance Benchmarks', () => {
     })
 
     it('should handle MAX_HISTORY_RECORDS truncation efficiently', () => {
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         useTimerHistory({ mode: 'Stopwatch', storageKey: 'perf-test-2' })
       )
 
@@ -163,14 +163,14 @@ describe('Performance Benchmarks', () => {
 
       expect(duration).toBeLessThan(150)
       expect(result.current.history).toHaveLength(100)
-      
+
       // Should keep most recent 100 (duration is now i, not i * 1000)
       expect(result.current.history[0].duration).toBe(199)
       expect(result.current.history[99].duration).toBe(100)
     })
 
     it('should clear large history quickly', () => {
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         useTimerHistory({ mode: 'Stopwatch', storageKey: 'perf-test-3' })
       )
 
@@ -239,9 +239,7 @@ describe('Performance Benchmarks', () => {
     it('should handle concurrent UUID generation', async () => {
       const start = performance.now()
 
-      const promises = Array.from({ length: 1000 }, () => 
-        Promise.resolve(generateUUID())
-      )
+      const promises = Array.from({ length: 1000 }, () => Promise.resolve(generateUUID()))
 
       const uuids = await Promise.all(promises)
 
@@ -258,7 +256,7 @@ describe('Performance Benchmarks', () => {
         id: `test-${i}`,
         mode: 'Stopwatch' as const,
         duration: i * 1000,
-        timestamp: Date.now() + i
+        timestamp: Date.now() + i,
       }))
 
       const start = performance.now()
@@ -281,7 +279,7 @@ describe('Performance Benchmarks', () => {
           id: `test-${i}`,
           mode: 'Stopwatch' as const,
           duration: i * 1000,
-          timestamp: Date.now() + i
+          timestamp: Date.now() + i,
         }
       })
 
@@ -300,7 +298,7 @@ describe('Performance Benchmarks', () => {
         id: i, // Number ID (legacy)
         mode: 'Stopwatch' as const,
         duration: i * 1000,
-        timestamp: Date.now() + i
+        timestamp: Date.now() + i,
       }))
 
       const start = performance.now()
@@ -311,9 +309,9 @@ describe('Performance Benchmarks', () => {
 
       expect(duration).toBeLessThan(150)
       expect(validated).toHaveLength(1000)
-      
+
       // All IDs should be strings now
-      validated.forEach(record => {
+      validated.forEach((record) => {
         expect(typeof record.id).toBe('string')
       })
     })
@@ -387,7 +385,7 @@ describe('Performance Benchmarks', () => {
         act(() => {
           vi.advanceTimersByTime(60100) // Work
         })
-        
+
         act(() => {
           vi.advanceTimersByTime(60100) // Break
         })
@@ -434,7 +432,7 @@ describe('Performance Benchmarks', () => {
 
       // Performance should remain consistent (more lenient threshold)
       const avgDuration = measurements.reduce((a, b) => a + b) / measurements.length
-      measurements.forEach(duration => {
+      measurements.forEach((duration) => {
         expect(duration).toBeLessThan(avgDuration * 2)
       })
 
@@ -451,11 +449,11 @@ describe('Performance Benchmarks', () => {
         act(() => {
           result.current.startTimer()
         })
-        
+
         act(() => {
           vi.advanceTimersByTime(100)
         })
-        
+
         act(() => {
           result.current.killTimer()
         })
@@ -492,7 +490,7 @@ describe('Performance Benchmarks', () => {
 
       // Kill should efficiently clear
       const clearStart = performance.now()
-      
+
       act(() => {
         result.current.killTimer()
       })
@@ -541,7 +539,7 @@ describe('Performance Benchmarks', () => {
         id: `test-${i}`,
         mode: 'Stopwatch',
         duration: i * 1000,
-        timestamp: Date.now() + i
+        timestamp: Date.now() + i,
       }))
 
       mockStore['timer-stopwatch-history'] = JSON.stringify(records)
@@ -564,7 +562,7 @@ describe('Performance Benchmarks', () => {
     it.skip('should handle complete timer lifecycle within performance budget', () => {
       // Skipped: This test requires fake timers and takes too long in coverage mode
       const { result: stopwatchResult } = renderHook(() => useStopwatch())
-      const { result: historyResult } = renderHook(() => 
+      const { result: historyResult } = renderHook(() =>
         useTimerHistory({ mode: 'Stopwatch', storageKey: 'perf-lifecycle' })
       )
 
@@ -636,7 +634,7 @@ describe('Performance Benchmarks', () => {
       }
 
       expect(measurements.length).toBe(100)
-      
+
       const avgDuration = measurements.reduce((a, b) => a + b, 0) / measurements.length
       expect(avgDuration).toBeLessThan(1000)
     })
@@ -645,32 +643,32 @@ describe('Performance Benchmarks', () => {
   describe('Edge Case Performance', () => {
     it('should handle extreme duration (23:59:59) efficiently', () => {
       const { result } = renderHook(() => useCountdown())
-      
+
       const startTime = performance.now()
-      
+
       // Set extreme duration: 23 hours, 59 minutes, 59 seconds
       act(() => {
         result.current.setSelectedHours(23)
         result.current.setSelectedMinutes(59)
         result.current.setSelectedSeconds(59)
       })
-      
+
       const setTime = performance.now() - startTime
-      
+
       // Setting extreme values should be instant
       expect(setTime).toBeLessThan(10) // Should take less than 10ms
-      
+
       // Calculate expected total duration
-      const totalMs = (23 * 60 * 60 * 1000) + (59 * 60 * 1000) + (59 * 1000)
+      const totalMs = 23 * 60 * 60 * 1000 + 59 * 60 * 1000 + 59 * 1000
       expect(totalMs).toBe(86399000) // 23:59:59 in milliseconds
-      
+
       // Start the timer with extreme duration
       const startTimerTime = performance.now()
       act(() => {
         result.current.startTimer()
       })
       const startDuration = performance.now() - startTimerTime
-      
+
       // Starting timer with extreme duration should be fast
       expect(startDuration).toBeLessThan(50) // Should take less than 50ms
       expect(result.current.isActive).toBe(true)
@@ -678,19 +676,19 @@ describe('Performance Benchmarks', () => {
 
     it('should handle minimum duration (0:00:01) efficiently', () => {
       const { result } = renderHook(() => useCountdown())
-      
+
       act(() => {
         result.current.setSelectedHours(0)
         result.current.setSelectedMinutes(0)
         result.current.setSelectedSeconds(1)
       })
-      
+
       const startTime = performance.now()
       act(() => {
         result.current.startTimer()
       })
       const duration = performance.now() - startTime
-      
+
       // Minimum duration should start instantly
       expect(duration).toBeLessThan(20)
       expect(result.current.isActive).toBe(true)
@@ -698,43 +696,43 @@ describe('Performance Benchmarks', () => {
 
     it('should handle zero values gracefully', () => {
       const { result } = renderHook(() => useCountdown())
-      
+
       act(() => {
         result.current.setSelectedHours(0)
         result.current.setSelectedMinutes(0)
         result.current.setSelectedSeconds(0)
       })
-      
+
       // Should not start with zero duration
       act(() => {
         result.current.startTimer()
       })
-      
+
       // Timer should not be active with zero duration
       expect(result.current.isActive).toBe(false)
     })
 
     it('should handle extreme interval counts efficiently', () => {
       const { result } = renderHook(() => useIntervals())
-      
+
       const startTime = performance.now()
-      
+
       // Set extreme work/break durations
       act(() => {
         result.current.setWorkMinutes(59)
         result.current.setBreakMinutes(59)
       })
-      
+
       const setTime = performance.now() - startTime
-      
+
       // Setting extreme values should be instant
       expect(setTime).toBeLessThan(10)
-      
+
       // Start with extreme loop count
       act(() => {
         result.current.startTimer('Extreme Session', 999)
       })
-      
+
       expect(result.current.isActive).toBe(true)
       expect(result.current.targetLoopCount).toBe(999)
     })
@@ -742,26 +740,26 @@ describe('Performance Benchmarks', () => {
     it('should handle rapid timer creation and destruction', () => {
       const startTime = performance.now()
       const iterations = 100
-      
+
       for (let i = 0; i < iterations; i++) {
         const { result, unmount } = renderHook(() => useStopwatch())
-        
+
         // Start and immediately stop
         act(() => {
           result.current.startTimer()
         })
-        
+
         act(() => {
           result.current.pauseTimer()
         })
-        
+
         // Unmount to clean up
         unmount()
       }
-      
+
       const totalTime = performance.now() - startTime
       const avgTime = totalTime / iterations
-      
+
       // Each create/destroy cycle should be fast
       expect(avgTime).toBeLessThan(50) // Less than 50ms per cycle on average
       expect(totalTime).toBeLessThan(5000) // Total should be under 5 seconds
@@ -771,29 +769,29 @@ describe('Performance Benchmarks', () => {
       const countdown = renderHook(() => useCountdown())
       const stopwatch = renderHook(() => useStopwatch())
       const intervals = renderHook(() => useIntervals())
-      
+
       const startTime = performance.now()
-      
+
       // Start all three timers simultaneously
       act(() => {
         countdown.result.current.setSelectedMinutes(5)
         countdown.result.current.startTimer()
-        
+
         stopwatch.result.current.startTimer()
-        
+
         intervals.result.current.startTimer('Concurrent Test', 4)
       })
-      
+
       const duration = performance.now() - startTime
-      
+
       // Starting multiple timers should be fast
       expect(duration).toBeLessThan(100)
-      
+
       // All timers should be active
       expect(countdown.result.current.isActive).toBe(true)
       expect(stopwatch.result.current.isActive).toBe(true)
       expect(intervals.result.current.isActive).toBe(true)
-      
+
       // Cleanup
       countdown.unmount()
       stopwatch.unmount()
@@ -802,7 +800,7 @@ describe('Performance Benchmarks', () => {
 
     it('should handle maximum safe integer values', () => {
       const { result } = renderHook(() => useCountdown())
-      
+
       // Try setting values near JavaScript's MAX_SAFE_INTEGER
       // This tests overflow protection
       act(() => {
@@ -810,7 +808,7 @@ describe('Performance Benchmarks', () => {
         result.current.setSelectedMinutes(999)
         result.current.setSelectedSeconds(999)
       })
-      
+
       // Values should be clamped to reasonable limits
       // (Implementation may vary, but should not crash)
       expect(result.current.selectedHours).toBeLessThanOrEqual(999)

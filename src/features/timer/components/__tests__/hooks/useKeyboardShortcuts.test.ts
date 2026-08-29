@@ -11,15 +11,15 @@ import { useKeyboardShortcuts } from '@/features/timer/hooks/useKeyboardShortcut
 vi.mock('../../hooks/useTimerSettings', () => ({
   useTimerSettings: () => ({
     settings: {
-      keyboardShortcutsEnabled: true
-    }
-  })
+      keyboardShortcutsEnabled: true,
+    },
+  }),
 }))
 
 vi.mock('../../TimerContainer', () => ({
   useKeyboardHelp: () => ({
-    showHelp: vi.fn()
-  })
+    showHelp: vi.fn(),
+  }),
 }))
 
 describe('useKeyboardShortcuts', () => {
@@ -38,7 +38,7 @@ describe('useKeyboardShortcuts', () => {
       onPause: vi.fn(),
       onContinue: vi.fn(),
       onStop: vi.fn(),
-      onLap: vi.fn()
+      onLap: vi.fn(),
     }
   })
 
@@ -55,7 +55,7 @@ describe('useKeyboardShortcuts', () => {
           isActive: false,
           isPaused: false,
           mode: 'Stopwatch',
-          ...mockCallbacks
+          ...mockCallbacks,
         })
       )
 
@@ -70,7 +70,7 @@ describe('useKeyboardShortcuts', () => {
           isActive: false,
           isPaused: false,
           mode: 'Stopwatch',
-          ...mockCallbacks
+          ...mockCallbacks,
         })
       )
 
@@ -87,7 +87,7 @@ describe('useKeyboardShortcuts', () => {
           isActive: false,
           isPaused: false,
           mode: 'Stopwatch',
-          ...mockCallbacks
+          ...mockCallbacks,
         })
       )
 
@@ -105,7 +105,7 @@ describe('useKeyboardShortcuts', () => {
           isActive: true,
           isPaused: false,
           mode: 'Stopwatch',
-          ...mockCallbacks
+          ...mockCallbacks,
         })
       )
 
@@ -123,7 +123,7 @@ describe('useKeyboardShortcuts', () => {
           isActive: true,
           isPaused: true,
           mode: 'Stopwatch',
-          ...mockCallbacks
+          ...mockCallbacks,
         })
       )
 
@@ -141,7 +141,7 @@ describe('useKeyboardShortcuts', () => {
           isActive: false,
           isPaused: false,
           mode: 'Stopwatch',
-          ...mockCallbacks
+          ...mockCallbacks,
         })
       )
 
@@ -160,7 +160,7 @@ describe('useKeyboardShortcuts', () => {
           isActive: true,
           isPaused: false,
           mode: 'Stopwatch',
-          ...mockCallbacks
+          ...mockCallbacks,
         })
       )
 
@@ -176,7 +176,7 @@ describe('useKeyboardShortcuts', () => {
           isActive: false,
           isPaused: false,
           mode: 'Stopwatch',
-          ...mockCallbacks
+          ...mockCallbacks,
         })
       )
 
@@ -192,7 +192,7 @@ describe('useKeyboardShortcuts', () => {
           isActive: true,
           isPaused: true,
           mode: 'Stopwatch',
-          ...mockCallbacks
+          ...mockCallbacks,
         })
       )
 
@@ -212,7 +212,7 @@ describe('useKeyboardShortcuts', () => {
           isPaused: false,
           mode: 'Stopwatch',
           ...mockCallbacks,
-          onKill
+          onKill,
         })
       )
 
@@ -230,7 +230,7 @@ describe('useKeyboardShortcuts', () => {
           isPaused: true,
           mode: 'Countdown',
           ...mockCallbacks,
-          onKill
+          onKill,
         })
       )
 
@@ -248,7 +248,7 @@ describe('useKeyboardShortcuts', () => {
           isPaused: false,
           mode: 'Intervals',
           ...mockCallbacks,
-          onKill
+          onKill,
         })
       )
 
@@ -266,7 +266,7 @@ describe('useKeyboardShortcuts', () => {
           isPaused: false,
           mode: 'Stopwatch',
           ...mockCallbacks,
-          onKill
+          onKill,
         })
       )
 
@@ -282,7 +282,7 @@ describe('useKeyboardShortcuts', () => {
           isActive: true,
           isPaused: false,
           mode: 'Stopwatch',
-          ...mockCallbacks
+          ...mockCallbacks,
           // onKill not provided
         })
       )
@@ -295,18 +295,22 @@ describe('useKeyboardShortcuts', () => {
     })
 
     it('should work across all timer modes', () => {
-      const modes: Array<'Stopwatch' | 'Countdown' | 'Intervals'> = ['Stopwatch', 'Countdown', 'Intervals']
+      const modes: Array<'Stopwatch' | 'Countdown' | 'Intervals'> = [
+        'Stopwatch',
+        'Countdown',
+        'Intervals',
+      ]
 
-      modes.forEach(mode => {
+      modes.forEach((mode) => {
         const onKill = vi.fn()
-        
+
         const { unmount } = renderHook(() =>
           useKeyboardShortcuts({
             isActive: true,
             isPaused: false,
             mode,
             ...mockCallbacks,
-            onKill
+            onKill,
           })
         )
 
@@ -314,7 +318,7 @@ describe('useKeyboardShortcuts', () => {
         window.dispatchEvent(event)
 
         expect(onKill).toHaveBeenCalledTimes(1)
-        
+
         unmount()
       })
     })
@@ -327,7 +331,7 @@ describe('useKeyboardShortcuts', () => {
           isPaused: false,
           mode: 'Stopwatch',
           ...mockCallbacks,
-          onKill
+          onKill,
         })
       )
 
@@ -346,7 +350,7 @@ describe('useKeyboardShortcuts', () => {
           isActive: true,
           isPaused: false,
           mode: 'Stopwatch',
-          ...mockCallbacks
+          ...mockCallbacks,
         })
       )
 
@@ -362,7 +366,7 @@ describe('useKeyboardShortcuts', () => {
           isActive: true,
           isPaused: false,
           mode: 'Stopwatch',
-          ...mockCallbacks
+          ...mockCallbacks,
         })
       )
 
@@ -378,7 +382,7 @@ describe('useKeyboardShortcuts', () => {
           isActive: true,
           isPaused: true,
           mode: 'Stopwatch',
-          ...mockCallbacks
+          ...mockCallbacks,
         })
       )
 
@@ -394,7 +398,7 @@ describe('useKeyboardShortcuts', () => {
           isActive: false,
           isPaused: false,
           mode: 'Stopwatch',
-          ...mockCallbacks
+          ...mockCallbacks,
         })
       )
 
@@ -410,7 +414,7 @@ describe('useKeyboardShortcuts', () => {
           isActive: true,
           isPaused: false,
           mode: 'Countdown',
-          ...mockCallbacks
+          ...mockCallbacks,
         })
       )
 
@@ -426,7 +430,7 @@ describe('useKeyboardShortcuts', () => {
           isActive: true,
           isPaused: false,
           mode: 'Intervals',
-          ...mockCallbacks
+          ...mockCallbacks,
         })
       )
 
@@ -444,12 +448,12 @@ describe('useKeyboardShortcuts', () => {
           isActive: true,
           isPaused: false,
           mode: 'Stopwatch',
-          ...callbacksWithoutLap
+          ...callbacksWithoutLap,
         })
       )
 
       const event = new KeyboardEvent('keydown', { key: 'l' })
-      
+
       // Should not throw error
       expect(() => window.dispatchEvent(event)).not.toThrow()
     })
@@ -462,7 +466,7 @@ describe('useKeyboardShortcuts', () => {
           isActive: false,
           isPaused: false,
           mode: 'Stopwatch',
-          ...mockCallbacks
+          ...mockCallbacks,
         })
       )
 
@@ -478,7 +482,7 @@ describe('useKeyboardShortcuts', () => {
           isActive: false,
           isPaused: false,
           mode: 'Stopwatch',
-          ...mockCallbacks
+          ...mockCallbacks,
         })
       )
 
@@ -494,7 +498,7 @@ describe('useKeyboardShortcuts', () => {
           isActive: true,
           isPaused: false,
           mode: 'Stopwatch',
-          ...mockCallbacks
+          ...mockCallbacks,
         })
       )
 
@@ -505,14 +509,18 @@ describe('useKeyboardShortcuts', () => {
     })
 
     it('should work in all timer modes', () => {
-      const modes: Array<'Stopwatch' | 'Countdown' | 'Intervals'> = ['Stopwatch', 'Countdown', 'Intervals']
+      const modes: Array<'Stopwatch' | 'Countdown' | 'Intervals'> = [
+        'Stopwatch',
+        'Countdown',
+        'Intervals',
+      ]
 
-      modes.forEach(mode => {
+      modes.forEach((mode) => {
         const callbacks = {
           onStart: vi.fn(),
           onPause: vi.fn(),
           onContinue: vi.fn(),
-          onStop: vi.fn()
+          onStop: vi.fn(),
         }
 
         renderHook(() =>
@@ -520,7 +528,7 @@ describe('useKeyboardShortcuts', () => {
             isActive: false,
             isPaused: false,
             mode,
-            ...callbacks
+            ...callbacks,
           })
         )
 
@@ -539,7 +547,7 @@ describe('useKeyboardShortcuts', () => {
           isActive: false,
           isPaused: false,
           mode: 'Stopwatch',
-          ...mockCallbacks
+          ...mockCallbacks,
         })
       )
 
@@ -548,9 +556,9 @@ describe('useKeyboardShortcuts', () => {
       input.focus()
 
       // Dispatch from the input element - event will bubble to window
-      const event = new KeyboardEvent('keydown', { 
+      const event = new KeyboardEvent('keydown', {
         key: ' ',
-        bubbles: true 
+        bubbles: true,
       })
       input.dispatchEvent(event)
 
@@ -565,7 +573,7 @@ describe('useKeyboardShortcuts', () => {
           isActive: true,
           isPaused: false,
           mode: 'Stopwatch',
-          ...mockCallbacks
+          ...mockCallbacks,
         })
       )
 
@@ -573,9 +581,9 @@ describe('useKeyboardShortcuts', () => {
       document.body.appendChild(textarea)
       textarea.focus()
 
-      const event = new KeyboardEvent('keydown', { 
+      const event = new KeyboardEvent('keydown', {
         key: 'l',
-        bubbles: true 
+        bubbles: true,
       })
       textarea.dispatchEvent(event)
 
@@ -590,7 +598,7 @@ describe('useKeyboardShortcuts', () => {
           isActive: false,
           isPaused: false,
           mode: 'Stopwatch',
-          ...mockCallbacks
+          ...mockCallbacks,
         })
       )
 
@@ -598,9 +606,9 @@ describe('useKeyboardShortcuts', () => {
       document.body.appendChild(select)
       select.focus()
 
-      const event = new KeyboardEvent('keydown', { 
+      const event = new KeyboardEvent('keydown', {
         key: ' ',
-        bubbles: true 
+        bubbles: true,
       })
       select.dispatchEvent(event)
 
@@ -615,7 +623,7 @@ describe('useKeyboardShortcuts', () => {
           isActive: false,
           isPaused: false,
           mode: 'Stopwatch',
-          ...mockCallbacks
+          ...mockCallbacks,
         })
       )
 
@@ -626,9 +634,9 @@ describe('useKeyboardShortcuts', () => {
       document.body.appendChild(div)
       div.focus()
 
-      const event = new KeyboardEvent('keydown', { 
+      const event = new KeyboardEvent('keydown', {
         key: ' ',
-        bubbles: true 
+        bubbles: true,
       })
       div.dispatchEvent(event)
 
@@ -643,7 +651,7 @@ describe('useKeyboardShortcuts', () => {
           isActive: false,
           isPaused: false,
           mode: 'Stopwatch',
-          ...mockCallbacks
+          ...mockCallbacks,
         })
       )
 
@@ -651,9 +659,9 @@ describe('useKeyboardShortcuts', () => {
       document.body.appendChild(div)
 
       // For regular div, dispatch from window (simulates no specific input focus)
-      const event = new KeyboardEvent('keydown', { 
+      const event = new KeyboardEvent('keydown', {
         key: ' ',
-        bubbles: true 
+        bubbles: true,
       })
       window.dispatchEvent(event)
 
@@ -673,7 +681,7 @@ describe('useKeyboardShortcuts', () => {
           isPaused: false,
           mode: 'Stopwatch',
           ...mockCallbacks,
-          enabled: false  // This simulates keyboardShortcutsEnabled: false
+          enabled: false, // This simulates keyboardShortcutsEnabled: false
         })
       )
 
@@ -690,7 +698,7 @@ describe('useKeyboardShortcuts', () => {
           isPaused: false,
           mode: 'Stopwatch',
           ...mockCallbacks,
-          enabled: false
+          enabled: false,
         })
       )
 
@@ -708,12 +716,12 @@ describe('useKeyboardShortcuts', () => {
           isActive: false,
           isPaused: false,
           mode: 'Stopwatch',
-          ...mockCallbacks
+          ...mockCallbacks,
         })
       )
 
       const event = new KeyboardEvent('keydown', { key: undefined as any })
-      
+
       expect(() => window.dispatchEvent(event)).not.toThrow()
     })
 
@@ -723,7 +731,7 @@ describe('useKeyboardShortcuts', () => {
           isActive: false,
           isPaused: false,
           mode: 'Stopwatch',
-          ...mockCallbacks
+          ...mockCallbacks,
         })
       )
 
@@ -744,7 +752,7 @@ describe('useKeyboardShortcuts', () => {
           isActive: false,
           isPaused: false,
           mode: 'Stopwatch',
-          ...mockCallbacks
+          ...mockCallbacks,
         })
       )
 
@@ -760,14 +768,18 @@ describe('useKeyboardShortcuts', () => {
 
   describe('Mode-Specific Behavior', () => {
     it('should work across all modes for common shortcuts', () => {
-      const modes: Array<'Stopwatch' | 'Countdown' | 'Intervals'> = ['Stopwatch', 'Countdown', 'Intervals']
+      const modes: Array<'Stopwatch' | 'Countdown' | 'Intervals'> = [
+        'Stopwatch',
+        'Countdown',
+        'Intervals',
+      ]
 
-      modes.forEach(mode => {
+      modes.forEach((mode) => {
         const callbacks = {
           onStart: vi.fn(),
           onPause: vi.fn(),
           onContinue: vi.fn(),
-          onStop: vi.fn()
+          onStop: vi.fn(),
         }
 
         renderHook(() =>
@@ -775,7 +787,7 @@ describe('useKeyboardShortcuts', () => {
             isActive: false,
             isPaused: false,
             mode,
-            ...callbacks
+            ...callbacks,
           })
         )
 

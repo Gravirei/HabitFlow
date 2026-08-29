@@ -8,7 +8,12 @@ interface HabitNotesViewModalProps {
   habitName: string
 }
 
-export function HabitNotesViewModal({ isOpen, onClose, habitId, habitName }: HabitNotesViewModalProps) {
+export function HabitNotesViewModal({
+  isOpen,
+  onClose,
+  habitId,
+  habitName,
+}: HabitNotesViewModalProps) {
   const { habits } = useHabitStore()
   const habit = habits.find((h) => h.id === habitId)
   const notes = habit?.notes || []

@@ -24,7 +24,7 @@ export function UserCard({ user, onAdd, onDismiss, showReason = false, index = 0
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, x: -40 }}
       transition={{ delay: index * 0.05 }}
-      className="flex items-center gap-3 rounded-2xl bg-white/[0.03] border border-white/[0.06] px-3.5 py-3"
+      className="flex items-center gap-3 rounded-2xl border border-white/[0.06] bg-white/[0.03] px-3.5 py-3"
     >
       {/* Avatar */}
       <div className="relative flex-shrink-0">
@@ -41,15 +41,12 @@ export function UserCard({ user, onAdd, onDismiss, showReason = false, index = 0
       </div>
 
       {/* Info */}
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-semibold text-white truncate">{user.displayName}</p>
-        <div className="flex items-center gap-1.5 mt-0.5">
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-sm font-semibold text-white">{user.displayName}</p>
+        <div className="mt-0.5 flex items-center gap-1.5">
           <span className="text-[11px] text-slate-400">Lv.{user.level}</span>
           <span className="text-slate-600">·</span>
-          <span
-            className="text-[11px] font-medium capitalize"
-            style={{ color: tierColor }}
-          >
+          <span className="text-[11px] font-medium capitalize" style={{ color: tierColor }}>
             {user.leagueTier}
           </span>
           {showReason && user.suggestionReason && (
@@ -62,23 +59,26 @@ export function UserCard({ user, onAdd, onDismiss, showReason = false, index = 0
       </div>
 
       {/* Actions */}
-      <div className="flex items-center gap-1.5 flex-shrink-0">
+      <div className="flex flex-shrink-0 items-center gap-1.5">
         {user.requestStatus === 'friend' ? (
-          <span className="flex items-center gap-1 text-[11px] text-emerald-400 font-medium px-2.5 py-1.5 rounded-xl bg-emerald-400/10">
-            <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>
+          <span className="flex items-center gap-1 rounded-xl bg-emerald-400/10 px-2.5 py-1.5 text-[11px] font-medium text-emerald-400">
+            <span
+              className="material-symbols-outlined text-sm"
+              style={{ fontVariationSettings: "'FILL' 1" }}
+            >
               group
             </span>
             Friends
           </span>
         ) : user.requestStatus === 'pending' ? (
-          <span className="flex items-center gap-1 text-[11px] text-amber-400 font-medium px-2.5 py-1.5 rounded-xl bg-amber-400/10">
+          <span className="flex items-center gap-1 rounded-xl bg-amber-400/10 px-2.5 py-1.5 text-[11px] font-medium text-amber-400">
             <span className="material-symbols-outlined text-sm">schedule</span>
             Pending
           </span>
         ) : (
           <button
             onClick={() => onAdd(user.userId)}
-            className="flex items-center gap-1 text-[11px] font-semibold text-primary px-2.5 py-1.5 rounded-xl bg-primary/10 hover:bg-primary/20 transition-colors cursor-pointer"
+            className="flex cursor-pointer items-center gap-1 rounded-xl bg-primary/10 px-2.5 py-1.5 text-[11px] font-semibold text-primary transition-colors hover:bg-primary/20"
           >
             <span className="material-symbols-outlined text-sm">person_add</span>
             Add
@@ -88,7 +88,7 @@ export function UserCard({ user, onAdd, onDismiss, showReason = false, index = 0
         {onDismiss && user.requestStatus === 'none' && (
           <button
             onClick={() => onDismiss(user.userId)}
-            className="p-1 text-slate-600 hover:text-slate-400 transition-colors cursor-pointer"
+            className="cursor-pointer p-1 text-slate-600 transition-colors hover:text-slate-400"
           >
             <span className="material-symbols-outlined text-lg">close</span>
           </button>

@@ -19,6 +19,7 @@ Some tests may fail until all dependencies (stores, services, components) are fu
 ### Current Implementation Status:
 
 ✅ **Fully Implemented & Working:**
+
 - Export Data (CSV, JSON, PDF)
 - Goal Tracking (4 goal types)
 - Achievements (47 achievements)
@@ -29,6 +30,7 @@ Some tests may fail until all dependencies (stores, services, components) are fu
 - Notifications
 
 ⚠️ **Tests Need Store Mocking:**
+
 - Tests require proper store initialization
 - Some components need dependency injection for testing
 - Integration tests need full setup

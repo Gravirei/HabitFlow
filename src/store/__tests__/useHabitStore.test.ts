@@ -24,8 +24,8 @@ describe('useHabitStore', () => {
 
     // Reset store to initial state - use partial update to preserve methods
     const state = useHabitStore.getState()
-    useHabitStore.setState({ 
-      isFirstVisit: true, 
+    useHabitStore.setState({
+      isFirstVisit: true,
       habits: [],
       // Preserve all the methods
       addHabit: state.addHabit,
@@ -39,7 +39,7 @@ describe('useHabitStore', () => {
       getHabitsByCategory: state.getHabitsByCategory,
       moveHabitToCategory: state.moveHabitToCategory,
       getUncategorizedHabits: state.getUncategorizedHabits,
-      clearCategoryFromHabits: state.clearCategoryFromHabits
+      clearCategoryFromHabits: state.clearCategoryFromHabits,
     })
   })
 
@@ -97,7 +97,7 @@ describe('useHabitStore', () => {
         result.current.loadSampleHabits()
       })
 
-      result.current.habits.forEach(habit => {
+      result.current.habits.forEach((habit) => {
         expect(habit.id).toMatch(/^sample-/)
       })
     })
@@ -208,7 +208,7 @@ describe('useHabitStore', () => {
         })
       })
 
-      const ids = result.current.habits.map(h => h.id)
+      const ids = result.current.habits.map((h) => h.id)
       expect(new Set(ids).size).toBe(2) // All IDs should be unique
     })
   })
@@ -216,7 +216,6 @@ describe('useHabitStore', () => {
   describe('deleteHabit', () => {
     it('should delete a habit by id', () => {
       const { result } = renderHook(() => useHabitStore())
-
 
       act(() => {
         result.current.addHabit({
@@ -254,14 +253,13 @@ describe('useHabitStore', () => {
       })
 
       expect(result.current.habits.length).toBe(3)
-      expect(result.current.habits.find(h => h.id === 'sample-1')).toBeUndefined()
+      expect(result.current.habits.find((h) => h.id === 'sample-1')).toBeUndefined()
     })
   })
 
   describe('updateHabit', () => {
     it('should update habit properties', () => {
       const { result } = renderHook(() => useHabitStore())
-
 
       act(() => {
         result.current.addHabit({
@@ -289,7 +287,6 @@ describe('useHabitStore', () => {
     it('should mark habit as completed for today', () => {
       const { result } = renderHook(() => useHabitStore())
 
-
       act(() => {
         result.current.addHabit({
           name: 'Test Habit',
@@ -313,7 +310,6 @@ describe('useHabitStore', () => {
 
     it('should increment totalCompletions when completing', () => {
       const { result } = renderHook(() => useHabitStore())
-
 
       act(() => {
         result.current.addHabit({
@@ -339,7 +335,6 @@ describe('useHabitStore', () => {
 
     it('should toggle completion status', () => {
       const { result } = renderHook(() => useHabitStore())
-
 
       act(() => {
         result.current.addHabit({
@@ -409,11 +404,7 @@ describe('useHabitStore', () => {
         })
       })
 
-      expect(result1.current.habits.map((h) => h.categoryId)).toEqual([
-        'cat-1',
-        'cat-2',
-        undefined,
-      ])
+      expect(result1.current.habits.map((h) => h.categoryId)).toEqual(['cat-1', 'cat-2', undefined])
 
       act(() => {
         result1.current.clearCategoryFromHabits('cat-1')
@@ -421,17 +412,11 @@ describe('useHabitStore', () => {
 
       // Deleting a category permanently deletes its habits (matches the
       // "Delete Permanently" confirm dialog in Categories.tsx)
-      expect(result1.current.habits.map((h) => h.categoryId)).toEqual([
-        'cat-2',
-        undefined,
-      ])
+      expect(result1.current.habits.map((h) => h.categoryId)).toEqual(['cat-2', undefined])
 
       // Simulate new session
       const { result: result2 } = renderHook(() => useHabitStore())
-      expect(result2.current.habits.map((h) => h.categoryId)).toEqual([
-        'cat-2',
-        undefined,
-      ])
+      expect(result2.current.habits.map((h) => h.categoryId)).toEqual(['cat-2', undefined])
 
       // Ensure legacy `category` field remains on the surviving habit
       expect(result2.current.habits[1].category).toBe('personal')
@@ -462,7 +447,7 @@ describe('useHabitStore', () => {
       })
 
       expect(result.current.habits.length).toBe(5)
-      expect(result.current.habits.some(h => h.name === 'My Custom Habit')).toBe(true)
+      expect(result.current.habits.some((h) => h.name === 'My Custom Habit')).toBe(true)
     })
 
     it('should persist all habits (sample and custom) to localStorage', () => {

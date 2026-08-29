@@ -16,24 +16,24 @@ const createMockOscillator = () => ({
   type: 'sine' as OscillatorType,
   frequency: { value: 0 },
   // connect returns the destination node (parameter), not 'this'
-  connect: vi.fn().mockImplementation(function(destination) {
+  connect: vi.fn().mockImplementation(function (destination) {
     return destination
   }),
   start: vi.fn(),
-  stop: vi.fn()
+  stop: vi.fn(),
 })
 
 // Helper to create fresh mock gain node
 const createMockGainNode = () => ({
-  gain: { 
+  gain: {
     value: 0,
     setValueAtTime: vi.fn(),
-    exponentialRampToValueAtTime: vi.fn()
+    exponentialRampToValueAtTime: vi.fn(),
   },
   // connect returns the destination node (parameter), not 'this'
-  connect: vi.fn().mockImplementation(function(destination) {
+  connect: vi.fn().mockImplementation(function (destination) {
     return destination
-  })
+  }),
 })
 
 // Store created mocks for assertions
@@ -57,7 +57,7 @@ const mockAudioContext = {
     createdGainNodes.push(gain)
     return gain
   }),
-  close: vi.fn()
+  close: vi.fn(),
 }
 
 describe('soundManager', () => {
@@ -66,7 +66,7 @@ describe('soundManager', () => {
     vi.clearAllMocks()
     createdOscillators = []
     createdGainNodes = []
-    
+
     // Reset mock functions to create fresh instances
     mockAudioContext.createOscillator = vi.fn(() => {
       const osc = createMockOscillator()
@@ -80,9 +80,9 @@ describe('soundManager', () => {
     })
     mockAudioContext.state = 'running'
     mockAudioContext.currentTime = 0
-    
+
     // Mock AudioContext as a proper constructor
-    global.AudioContext = vi.fn().mockImplementation(function(this: any) {
+    global.AudioContext = vi.fn().mockImplementation(function (this: any) {
       return mockAudioContext
     }) as any
     ;(global as any).webkitAudioContext = global.AudioContext
@@ -153,7 +153,7 @@ describe('soundManager', () => {
         soundManager.playSound('bell', 70)
 
         // All bell oscillators should be sine waves
-        createdOscillators.forEach(osc => {
+        createdOscillators.forEach((osc) => {
           expect(osc.type).toBe('sine')
         })
       })
@@ -172,7 +172,7 @@ describe('soundManager', () => {
         soundManager.playSound('chime', 70)
 
         // All chime oscillators should be triangle waves
-        createdOscillators.forEach(osc => {
+        createdOscillators.forEach((osc) => {
           expect(osc.type).toBe('triangle')
         })
       })
@@ -202,7 +202,7 @@ describe('soundManager', () => {
         soundManager.playSound('digital', 70)
 
         // All digital oscillators should be square waves
-        createdOscillators.forEach(osc => {
+        createdOscillators.forEach((osc) => {
           expect(osc.type).toBe('square')
         })
       })
@@ -277,7 +277,7 @@ describe('soundManager', () => {
 
       it('should log errors to console', () => {
         const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-        
+
         mockAudioContext.createOscillator = vi.fn(() => {
           throw new Error('AudioContext error')
         })
@@ -285,7 +285,7 @@ describe('soundManager', () => {
         soundManager.playSound('beep', 70)
 
         expect(consoleErrorSpy).toHaveBeenCalled()
-        
+
         consoleErrorSpy.mockRestore()
       })
 
@@ -312,7 +312,7 @@ describe('soundManager', () => {
 
     it('should handle cleanup when AudioContext already closed', () => {
       mockAudioContext.state = 'closed'
-      
+
       soundManager.playSound('beep', 70)
       soundManager.cleanup()
 
@@ -333,9 +333,14 @@ describe('soundManager', () => {
 
   describe('Sound Types', () => {
     it('should support all 4 sound types', () => {
-      const types: Array<'beep' | 'bell' | 'chime' | 'digital'> = ['beep', 'bell', 'chime', 'digital']
+      const types: Array<'beep' | 'bell' | 'chime' | 'digital'> = [
+        'beep',
+        'bell',
+        'chime',
+        'digital',
+      ]
 
-      types.forEach(type => {
+      types.forEach((type) => {
         vi.clearAllMocks()
         soundManager.playSound(type, 70)
         expect(mockAudioContext.createOscillator).toHaveBeenCalled()
@@ -344,11 +349,11 @@ describe('soundManager', () => {
 
     it('should handle unknown sound type gracefully', () => {
       const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
-      
+
       soundManager.playSound('unknown' as any, 70)
 
       expect(consoleWarnSpy).toHaveBeenCalled()
-      
+
       consoleWarnSpy.mockRestore()
     })
   })
@@ -389,10 +394,10 @@ describe('soundManager', () => {
 
       // Import module again
       const { soundManager: reimported } = await import('@/features/timer/utils/soundManager')
-      
+
       // Should be the same instance
       expect(reimported).toBe(soundManager)
-      
+
       // AudioContext should still be the same (no new creation)
       reimported.playSound('bell', 50)
       expect((global.AudioContext as any).mock.calls.length).toBe(firstCallCount)

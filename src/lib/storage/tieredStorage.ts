@@ -1,10 +1,10 @@
 /**
  * Tiered Storage Service
- * 
+ *
  * Implements a tiered storage strategy:
  * - Non-logged-in users: LocalStorage only
  * - Logged-in users: Supabase + LocalStorage cache with sync
- * 
+ *
  * Features:
  * - Automatic sync when online
  * - Offline queue for changes
@@ -243,7 +243,7 @@ export class TieredStorageService {
 
       // Convert and merge with local (local takes precedence for offline changes)
       const cloudHistory = (data || []).map(fromSupabaseRow)
-      
+
       // Update local cache
       localStorageHelper.set(storageKey, cloudHistory)
 
@@ -271,9 +271,7 @@ export class TieredStorageService {
     // If logged in, also save to Supabase
     if (this.userId) {
       try {
-        const { error } = await supabase
-          .from(TABLE_NAME)
-          .insert(toSupabaseRow(record, this.userId))
+        const { error } = await supabase.from(TABLE_NAME).insert(toSupabaseRow(record, this.userId))
 
         if (error) {
           console.error('[TieredStorage] Failed to save to Supabase:', error)

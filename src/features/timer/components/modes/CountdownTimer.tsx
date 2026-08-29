@@ -17,9 +17,19 @@ import { EditPresetModal } from '../shared/EditPresetModal'
 import { TimerCompletionModal } from '../shared/TimerCompletionModal'
 import { ResumeTimerModal } from '../shared/ResumeTimerModal'
 import { TimerAnnouncer } from '../shared/TimerAnnouncer'
-import { TIMER_CLASSES, MAX_HOURS, MAX_MINUTES, MAX_SECONDS, formatTime } from '@/features/timer/constants/timer.constants'
+import {
+  TIMER_CLASSES,
+  MAX_HOURS,
+  MAX_MINUTES,
+  MAX_SECONDS,
+  formatTime,
+} from '@/features/timer/constants/timer.constants'
 import { useTimerFocus } from '@/features/timer/hooks/useTimerFocus'
-import { timerPersistence, type CountdownTimerState, type SavedTimerState } from '@/features/timer/utils/timerPersistence'
+import {
+  timerPersistence,
+  type CountdownTimerState,
+  type SavedTimerState,
+} from '@/features/timer/utils/timerPersistence'
 import { soundManager } from '@/features/timer/utils/soundManager'
 import { useImmediateSave } from '@/hooks/useDebounce'
 
@@ -27,10 +37,10 @@ const STORAGE_KEY = 'timer-countdown-history'
 
 export const CountdownTimer: React.FC = () => {
   const { customPresets, updatePreset } = useCustomPresets()
-  
+
   const { saveToHistory } = useTimerHistory({
     mode: 'Countdown',
-    storageKey: STORAGE_KEY
+    storageKey: STORAGE_KEY,
   })
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
@@ -44,8 +54,8 @@ export const CountdownTimer: React.FC = () => {
     setIsCompletionModalOpen(true)
   }
 
-  const { 
-    timeLeft, 
+  const {
+    timeLeft,
     isActive,
     isPaused,
     startTimer,
@@ -63,7 +73,7 @@ export const CountdownTimer: React.FC = () => {
     pausedElapsed,
     totalDuration,
     restoreTimer,
-    settings
+    settings,
   } = useCountdown({
     onSessionComplete: (durationMs) => {
       // Auto-complete callback - convert to seconds and mark as completed
@@ -71,10 +81,10 @@ export const CountdownTimer: React.FC = () => {
         duration: Math.floor(durationMs / 1000),
         startTime: timerStartTime || undefined,
         targetDuration: Math.floor(totalDuration / 1000),
-        completed: true // Auto-complete is always completed
+        completed: true, // Auto-complete is always completed
       })
     },
-    onTimerComplete: handleTimerComplete
+    onTimerComplete: handleTimerComplete,
   })
 
   const { focusTimer, unfocusTimer } = useTimerFocus()
@@ -97,13 +107,8 @@ export const CountdownTimer: React.FC = () => {
     }
   }
 
-  const {
-    savedState,
-    showResumeModal,
-    resumeTimer,
-    discardTimer,
-    closeModal
-  } = useTimerPersistence('Countdown', handleResumeTimer)
+  const { savedState, showResumeModal, resumeTimer, discardTimer, closeModal } =
+    useTimerPersistence('Countdown', handleResumeTimer)
 
   // Check for repeat session configuration on mount
   useEffect(() => {
@@ -119,7 +124,9 @@ export const CountdownTimer: React.FC = () => {
       if (repeatConfig.seconds !== undefined) {
         setSelectedSeconds(repeatConfig.seconds)
       }
-      setAnnouncement(`Loaded countdown settings: ${repeatConfig.hours || 0}h ${repeatConfig.minutes || 0}m ${repeatConfig.seconds || 0}s`)
+      setAnnouncement(
+        `Loaded countdown settings: ${repeatConfig.hours || 0}h ${repeatConfig.minutes || 0}m ${repeatConfig.seconds || 0}s`
+      )
     }
   }, []) // Only run on mount
 
@@ -144,14 +151,14 @@ export const CountdownTimer: React.FC = () => {
   const handleKill = (shouldSave: boolean) => {
     const durationMs = killTimer()
     const wasCompleted = timeLeft === 0 // Check if completed before killing
-    
+
     if (shouldSave) {
       // Convert milliseconds to seconds and save with metadata
       saveToHistory({
         duration: Math.floor(durationMs / 1000), // Convert to seconds
         startTime: timerStartTime || undefined,
         targetDuration: Math.floor(totalDuration / 1000), // Goal in seconds
-        completed: wasCompleted // Completion status
+        completed: wasCompleted, // Completion status
       })
       setAnnouncement('Timer stopped and saved to history')
     } else {
@@ -180,7 +187,7 @@ export const CountdownTimer: React.FC = () => {
         totalDuration,
         pausedElapsed,
         savedAt: Date.now(),
-        version: 1
+        version: 1,
       }
       // Save immediately on pause, debounce during active timer
       if (isPaused) {
@@ -190,7 +197,15 @@ export const CountdownTimer: React.FC = () => {
         debouncedSave(state)
       }
     }
-  }, [isActive, isPaused, timerStartTime, totalDuration, pausedElapsed, debouncedSave, immediateSave])
+  }, [
+    isActive,
+    isPaused,
+    timerStartTime,
+    totalDuration,
+    pausedElapsed,
+    debouncedSave,
+    immediateSave,
+  ])
 
   // Emergency save on page unload and component unmount
   useEffect(() => {
@@ -200,7 +215,7 @@ export const CountdownTimer: React.FC = () => {
     }
 
     window.addEventListener('beforeunload', handleBeforeUnload)
-    
+
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload)
       // Flush on unmount as well
@@ -228,7 +243,7 @@ export const CountdownTimer: React.FC = () => {
 
   const handlePresetLongPress = (durationInSeconds: number) => {
     // Long press: Open edit modal
-    const presetIndex = customPresets.findIndex(p => p.duration === durationInSeconds)
+    const presetIndex = customPresets.findIndex((p) => p.duration === durationInSeconds)
     setSelectedPresetIndex(presetIndex >= 0 ? presetIndex : 0)
     setIsEditModalOpen(true)
   }
@@ -264,7 +279,7 @@ export const CountdownTimer: React.FC = () => {
     onPause: handlePause,
     onContinue: handleContinue,
     onStop: () => handleKill(true), // Save on keyboard stop
-    onKill: () => handleKill(true)  // K key - Kill and save
+    onKill: () => handleKill(true), // K key - Kill and save
   })
 
   return (
@@ -272,16 +287,12 @@ export const CountdownTimer: React.FC = () => {
       <div className={TIMER_CLASSES.container}>
         {/* Background glow */}
         <div className={TIMER_CLASSES.backgroundGlow}></div>
-        
+
         {/* Timer Display or Wheel Picker */}
-        {(isActive || isPaused || timeLeft > 0) ? (
+        {isActive || isPaused || timeLeft > 0 ? (
           <>
-            <TimerDisplay 
-              timeLeft={timeLeft}
-              progress={progress}
-              mode="Countdown"
-            />
-            
+            <TimerDisplay timeLeft={timeLeft} progress={progress} mode="Countdown" />
+
             {/* Animated Button Controls - Inline with Timer */}
             <AnimatedTimerButton
               isActive={isActive}
@@ -296,34 +307,32 @@ export const CountdownTimer: React.FC = () => {
         ) : (
           <>
             {/* Wheel Picker with Original Design */}
-            <div className="relative w-full max-w-sm h-96 flex items-center justify-center mask-gradient-y">
-
-              
+            <div className="mask-gradient-y relative flex h-96 w-full max-w-sm items-center justify-center">
               {/* Center highlight box */}
-              <div className="absolute top-1/2 left-4 right-4 -translate-y-1/2 h-20 bg-white/[0.02] rounded-2xl border border-white/[0.08] z-0">
-                <div className="absolute top-0 bottom-0 left-0 w-1.5 bg-primary/40 rounded-l-2xl shadow-[0_0_10px_rgba(19,236,91,0.3)]"></div>
-                <div className="absolute top-0 bottom-0 right-0 w-1.5 bg-primary/40 rounded-r-2xl shadow-[0_0_10px_rgba(19,236,91,0.3)]"></div>
+              <div className="absolute left-4 right-4 top-1/2 z-0 h-20 -translate-y-1/2 rounded-2xl border border-white/[0.08] bg-white/[0.02]">
+                <div className="absolute bottom-0 left-0 top-0 w-1.5 rounded-l-2xl bg-primary/40 shadow-[0_0_10px_rgba(19,236,91,0.3)]"></div>
+                <div className="absolute bottom-0 right-0 top-0 w-1.5 rounded-r-2xl bg-primary/40 shadow-[0_0_10px_rgba(19,236,91,0.3)]"></div>
               </div>
-              
+
               {/* Pickers */}
-              <div className="flex w-full justify-between items-center h-full z-10 px-8 py-4">
-                <WheelPicker 
+              <div className="z-10 flex h-full w-full items-center justify-between px-8 py-4">
+                <WheelPicker
                   value={selectedHours}
                   onChange={setSelectedHours}
                   max={MAX_HOURS}
                   label="HRS"
                   disabled={isActive}
                 />
-                <div className="text-white/10 text-3xl font-light pb-2 select-none">:</div>
-                <WheelPicker 
+                <div className="select-none pb-2 text-3xl font-light text-white/10">:</div>
+                <WheelPicker
                   value={selectedMinutes}
                   onChange={setSelectedMinutes}
                   max={MAX_MINUTES}
                   label="MIN"
                   disabled={isActive}
                 />
-                <div className="text-white/10 text-3xl font-light pb-2 select-none">:</div>
-                <WheelPicker 
+                <div className="select-none pb-2 text-3xl font-light text-white/10">:</div>
+                <WheelPicker
                   value={selectedSeconds}
                   onChange={setSelectedSeconds}
                   max={MAX_SECONDS}
@@ -332,15 +341,15 @@ export const CountdownTimer: React.FC = () => {
                 />
               </div>
             </div>
-            
+
             {/* Preset Buttons */}
-            <TimerPresets 
+            <TimerPresets
               presets={customPresets}
               onPresetSelect={handlePresetClick}
               onPresetLongPress={handlePresetLongPress}
               disabled={isActive}
             />
-            
+
             {/* Animated Button Controls - Inline after Presets */}
             <AnimatedTimerButton
               isActive={isActive}

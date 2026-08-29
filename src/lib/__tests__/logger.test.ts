@@ -238,7 +238,7 @@ describe('TimerLogger', () => {
       logger.persistence('Starting save')
       logger.debug('Serializing state', { context: 'Persistence' })
       logger.persistence('State saved', { mode: 'countdown' })
-      
+
       expect(console.log).toHaveBeenCalledTimes(3)
     })
 
@@ -247,7 +247,7 @@ describe('TimerLogger', () => {
       logger.warn('Invalid state detected', { context: 'Restore' })
       logger.error('Failed to parse state', new Error('Parse error'))
       logger.persistence('State cleared')
-      
+
       expect(console.warn).toHaveBeenCalledTimes(1)
       expect(console.error).toHaveBeenCalledTimes(1)
       expect(console.log).toHaveBeenCalledTimes(1)
@@ -258,7 +258,7 @@ describe('TimerLogger', () => {
       for (let i = 0; i < 100; i++) {
         logger.debug(`Log ${i}`)
       }
-      
+
       expect(console.log).toHaveBeenCalledTimes(100)
     })
   })
@@ -267,14 +267,14 @@ describe('TimerLogger', () => {
     it('should always log errors regardless of environment', () => {
       const error = new Error('Critical error')
       logger.error('System failure', error)
-      
+
       // Errors should always be logged
       expect(console.error).toHaveBeenCalled()
     })
 
     it('should always log warnings regardless of environment', () => {
       logger.warn('Important warning')
-      
+
       // Warnings should always be logged
       expect(console.warn).toHaveBeenCalled()
     })

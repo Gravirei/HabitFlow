@@ -109,7 +109,9 @@ describe('useReducedMotion', () => {
     unmount()
 
     // Should call either modern or legacy cleanup
-    expect(removeEventListener.mock.calls.length + removeListener.mock.calls.length).toBeGreaterThan(0)
+    expect(
+      removeEventListener.mock.calls.length + removeListener.mock.calls.length
+    ).toBeGreaterThan(0)
   })
 
   it('should return false as default when matchMedia is not available', () => {

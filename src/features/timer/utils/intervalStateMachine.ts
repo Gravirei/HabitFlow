@@ -1,9 +1,9 @@
 /**
  * Interval State Machine
- * 
+ *
  * Pure functions for managing interval timer state transitions.
  * No side effects, no React dependencies - easy to test and reason about.
- * 
+ *
  * @module intervalStateMachine
  */
 
@@ -28,13 +28,13 @@ export function getNextInterval(current: IntervalState): IntervalState {
     // After work comes break (count stays same)
     return {
       type: 'break',
-      count: current.count
+      count: current.count,
     }
   } else {
     // After break comes work (count increments)
     return {
       type: 'work',
-      count: current.count + 1
+      count: current.count + 1,
     }
   }
 }
@@ -43,15 +43,12 @@ export function getNextInterval(current: IntervalState): IntervalState {
  * Check if the session should complete
  * Session completes when we finish a break interval and reached target loop count
  */
-export function shouldCompleteSession(
-  state: IntervalState,
-  targetLoopCount?: number
-): boolean {
+export function shouldCompleteSession(state: IntervalState, targetLoopCount?: number): boolean {
   // If no target, never complete (infinite mode)
   if (targetLoopCount === undefined) {
     return false
   }
-  
+
   // Complete when finishing a break and reached target
   return state.type === 'break' && state.count + 1 >= targetLoopCount
 }
@@ -59,22 +56,14 @@ export function shouldCompleteSession(
 /**
  * Get the duration for the current interval
  */
-export function getCurrentDuration(
-  state: IntervalState,
-  config: IntervalConfig
-): number {
-  return state.type === 'work' 
-    ? config.workDuration 
-    : config.breakDuration
+export function getCurrentDuration(state: IntervalState, config: IntervalConfig): number {
+  return state.type === 'work' ? config.workDuration : config.breakDuration
 }
 
 /**
  * Get the next duration after switching intervals
  */
-export function getNextDuration(
-  state: IntervalState,
-  config: IntervalConfig
-): number {
+export function getNextDuration(state: IntervalState, config: IntervalConfig): number {
   const nextState = getNextInterval(state)
   return getCurrentDuration(nextState, config)
 }
@@ -82,10 +71,7 @@ export function getNextDuration(
 /**
  * Calculate progress for current interval (0 to 1)
  */
-export function calculateIntervalProgress(
-  elapsed: number,
-  duration: number
-): number {
+export function calculateIntervalProgress(elapsed: number, duration: number): number {
   if (duration <= 0) return 1
   const progress = elapsed / duration
   return Math.min(1, Math.max(0, progress))

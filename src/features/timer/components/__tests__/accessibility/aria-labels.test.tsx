@@ -136,7 +136,7 @@ describe('ARIA Labels - Accessibility', () => {
 
       // SVG icons should be aria-hidden since button has aria-label
       const svgs = container.querySelectorAll('svg')
-      svgs.forEach(svg => {
+      svgs.forEach((svg) => {
         expect(svg).toHaveAttribute('aria-hidden', 'true')
       })
     })
@@ -145,13 +145,7 @@ describe('ARIA Labels - Accessibility', () => {
   describe('WheelPicker ARIA Labels', () => {
     it('should have role="group" on container', () => {
       const { container } = render(
-        <WheelPicker
-          value={5}
-          onChange={vi.fn()}
-          max={59}
-          label="Minutes"
-          disabled={false}
-        />
+        <WheelPicker value={5} onChange={vi.fn()} max={59} label="Minutes" disabled={false} />
       )
 
       const group = container.querySelector('[role="group"]')
@@ -160,13 +154,7 @@ describe('ARIA Labels - Accessibility', () => {
 
     it('should have aria-label on container', () => {
       const { container } = render(
-        <WheelPicker
-          value={5}
-          onChange={vi.fn()}
-          max={59}
-          label="Minutes"
-          disabled={false}
-        />
+        <WheelPicker value={5} onChange={vi.fn()} max={59} label="Minutes" disabled={false} />
       )
 
       const group = container.querySelector('[aria-label*="Minutes"]')
@@ -174,40 +162,26 @@ describe('ARIA Labels - Accessibility', () => {
     })
 
     it('should have aria-label on value selection buttons', () => {
-      render(
-        <WheelPicker
-          value={5}
-          onChange={vi.fn()}
-          max={23}
-          label="Hours"
-          disabled={false}
-        />
-      )
+      render(<WheelPicker value={5} onChange={vi.fn()} max={23} label="Hours" disabled={false} />)
 
       // Should have buttons with descriptive labels
       const buttons = screen.getAllByRole('button')
       expect(buttons.length).toBeGreaterThan(0)
-      
-      buttons.forEach(button => {
+
+      buttons.forEach((button) => {
         expect(button).toHaveAttribute('aria-label')
       })
     })
 
     it('should have aria-labelledby on input field', () => {
       const { container } = render(
-        <WheelPicker
-          value={5}
-          onChange={vi.fn()}
-          max={59}
-          label="Seconds"
-          disabled={false}
-        />
+        <WheelPicker value={5} onChange={vi.fn()} max={59} label="Seconds" disabled={false} />
       )
 
       // Click on current value to trigger edit mode
       const currentValue = container.querySelector('[role="button"]')
       if (currentValue) {
-        currentValue.dispatchEvent(new MouseEvent("click", { bubbles: true }))
+        currentValue.dispatchEvent(new MouseEvent('click', { bubbles: true }))
       }
 
       const input = container.querySelector('input')
@@ -218,13 +192,7 @@ describe('ARIA Labels - Accessibility', () => {
 
     it('should mark label as aria-hidden since it is decorative', () => {
       const { container } = render(
-        <WheelPicker
-          value={5}
-          onChange={vi.fn()}
-          max={59}
-          label="Minutes"
-          disabled={false}
-        />
+        <WheelPicker value={5} onChange={vi.fn()} max={59} label="Minutes" disabled={false} />
       )
 
       const label = container.querySelector('#Minutes-label')
@@ -267,7 +235,7 @@ describe('ARIA Labels - Accessibility', () => {
 
       const tabs = screen.getAllByRole('tab')
       expect(tabs.length).toBeGreaterThan(0)
-      
+
       // Should have tabs for All, Stopwatch, Countdown, Intervals
       expect(tabs.length).toBe(4)
     })
@@ -276,8 +244,8 @@ describe('ARIA Labels - Accessibility', () => {
       render(<HistoryModalWithRouter isOpen={true} onClose={vi.fn()} />)
 
       const tabs = screen.getAllByRole('tab')
-      const selectedTabs = tabs.filter(tab => tab.getAttribute('aria-selected') === 'true')
-      
+      const selectedTabs = tabs.filter((tab) => tab.getAttribute('aria-selected') === 'true')
+
       // Exactly one tab should be selected
       expect(selectedTabs.length).toBe(1)
     })
@@ -286,7 +254,7 @@ describe('ARIA Labels - Accessibility', () => {
       render(<HistoryModalWithRouter isOpen={true} onClose={vi.fn()} />)
 
       const tabs = screen.getAllByRole('tab')
-      tabs.forEach(tab => {
+      tabs.forEach((tab) => {
         expect(tab).toHaveAttribute('aria-label')
       })
     })
@@ -320,7 +288,7 @@ describe('ARIA Labels - Accessibility', () => {
       // Most icons should be aria-hidden (decorative)
       // At least one should exist (close button icon)
       expect(icons.length).toBeGreaterThan(0)
-      
+
       // For now, just verify the close button has an aria-label
       // The icon itself doesn't need aria-hidden if the button has a label
       const closeButton = screen.getByRole('button', { name: /close history/i })

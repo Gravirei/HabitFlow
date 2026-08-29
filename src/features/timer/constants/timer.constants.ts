@@ -41,7 +41,7 @@ export const COUNTDOWN_PRESETS: PresetConfig[] = [
     description: 'Pomodoro focus session',
     icon: 'self_improvement',
     color: '#13ec5b',
-    bgColor: '#1c2e22'
+    bgColor: '#1c2e22',
   },
   {
     label: 'Break',
@@ -49,7 +49,7 @@ export const COUNTDOWN_PRESETS: PresetConfig[] = [
     description: 'Short break',
     icon: 'coffee',
     color: '#fb923c',
-    bgColor: '#2a1e16'
+    bgColor: '#2a1e16',
   },
   {
     label: 'Nap',
@@ -57,7 +57,7 @@ export const COUNTDOWN_PRESETS: PresetConfig[] = [
     description: 'Power nap',
     icon: 'bedtime',
     color: '#60a5fa',
-    bgColor: '#16202a'
+    bgColor: '#16202a',
   },
   {
     label: 'Meditate',
@@ -65,8 +65,8 @@ export const COUNTDOWN_PRESETS: PresetConfig[] = [
     description: 'Mindfulness session',
     icon: 'spa',
     color: '#c084fc',
-    bgColor: '#25162a'
-  }
+    bgColor: '#25162a',
+  },
 ]
 
 // Interval Presets
@@ -78,7 +78,7 @@ export const INTERVAL_PRESETS: IntervalPresetConfig[] = [
     loopCount: 3,
     description: 'Classic Pomodoro technique',
     icon: 'self_improvement',
-    color: '#13ec5b'
+    color: '#13ec5b',
   },
   {
     label: 'Extended',
@@ -87,7 +87,7 @@ export const INTERVAL_PRESETS: IntervalPresetConfig[] = [
     loopCount: 2,
     description: 'Longer focus sessions',
     icon: 'schedule',
-    color: '#60a5fa'
+    color: '#60a5fa',
   },
   {
     label: 'Short',
@@ -96,7 +96,7 @@ export const INTERVAL_PRESETS: IntervalPresetConfig[] = [
     loopCount: 5,
     description: 'Quick sprints',
     icon: 'bolt',
-    color: '#fb923c'
+    color: '#fb923c',
   },
   {
     label: 'Work',
@@ -105,54 +105,59 @@ export const INTERVAL_PRESETS: IntervalPresetConfig[] = [
     loopCount: 3,
     description: 'Standard work blocks',
     icon: 'work',
-    color: '#c084fc'
-  }
+    color: '#c084fc',
+  },
 ]
 
 // Timer Configuration
 export const TIMER_CONFIG: TimerConfig = {
   updateInterval: 10,
-  circleCircumference: CIRCLE_CIRCUMFERENCE
+  circleCircumference: CIRCLE_CIRCUMFERENCE,
 }
 
 // Tailwind Class Strings (reusable)
 export const TIMER_CLASSES = {
   // Containers
   container: 'relative flex w-full flex-grow flex-col items-center justify-center overflow-hidden',
-  backgroundGlow: 'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-primary/5 rounded-full blur-[80px] pointer-events-none',
-  
+  backgroundGlow:
+    'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-primary/5 rounded-full blur-[80px] pointer-events-none',
+
   // Timer Display
   timerRing: {
     container: 'flex flex-grow items-center justify-center px-4 py-8',
     wrapper: 'relative flex h-72 w-72 items-center justify-center sm:h-80 sm:w-80',
     svg: 'absolute inset-0',
     circleBackground: 'stroke-current text-black/10 dark:text-white/10',
-    circleProgress: 'stroke-current text-primary transition-all duration-100 ease-linear timer-ring-progress',
-    timeText: 'text-5xl font-bold tracking-tighter text-black dark:text-white tabular-nums'
+    circleProgress:
+      'stroke-current text-primary transition-all duration-100 ease-linear timer-ring-progress',
+    timeText: 'text-5xl font-bold tracking-tighter text-black dark:text-white tabular-nums',
   },
-  
+
   // Buttons
   button: {
-    primary: 'flex h-24 w-24 cursor-pointer items-center justify-center overflow-hidden rounded-full bg-primary text-background-dark text-xl font-bold leading-normal tracking-[0.015em] shadow-[0_0_20px_rgba(19,236,91,0.3)] hover:shadow-[0_0_40px_rgba(19,236,91,0.5)] transition-all hover:scale-105 active:scale-95',
-    secondary: 'flex h-16 w-16 cursor-pointer items-center justify-center overflow-hidden rounded-full bg-white/5 text-white/70 hover:bg-white/10 hover:text-white transition-all duration-200 active:scale-95 border border-white/5',
-    preset: 'shrink-0 px-5 py-2.5 rounded-full bg-white/5 border border-white/5 text-white/70 text-sm font-medium hover:bg-white/10 hover:text-white hover:border-white/20 transition-all active:scale-95 group',
+    primary:
+      'flex h-24 w-24 cursor-pointer items-center justify-center overflow-hidden rounded-full bg-primary text-background-dark text-xl font-bold leading-normal tracking-[0.015em] shadow-[0_0_20px_rgba(19,236,91,0.3)] hover:shadow-[0_0_40px_rgba(19,236,91,0.5)] transition-all hover:scale-105 active:scale-95',
+    secondary:
+      'flex h-16 w-16 cursor-pointer items-center justify-center overflow-hidden rounded-full bg-white/5 text-white/70 hover:bg-white/10 hover:text-white transition-all duration-200 active:scale-95 border border-white/5',
+    preset:
+      'shrink-0 px-5 py-2.5 rounded-full bg-white/5 border border-white/5 text-white/70 text-sm font-medium hover:bg-white/10 hover:text-white hover:border-white/20 transition-all active:scale-95 group',
     presetDisabled: 'disabled:opacity-50',
-    lap: 'flex items-center justify-between rounded-lg bg-white/5 p-4 backdrop-blur-sm border border-white/5 hover:bg-white/10 transition-colors'
+    lap: 'flex items-center justify-between rounded-lg bg-white/5 p-4 backdrop-blur-sm border border-white/5 hover:bg-white/10 transition-colors',
   },
-  
+
   // Control Groups
   controls: {
     wrapper: 'flex justify-stretch px-4 py-6 pb-24',
-    container: 'flex flex-1 gap-6 items-center justify-center'
+    container: 'flex flex-1 gap-6 items-center justify-center',
   },
-  
+
   // Preset Buttons
   presets: {
     wrapper: 'mt-6 mb-2 w-full z-10',
     container: 'flex gap-3 overflow-x-auto px-6 pb-2 no-scrollbar mask-gradient-x',
-    label: 'group-hover:text-primary transition-colors duration-300'
+    label: 'group-hover:text-primary transition-colors duration-300',
   },
-  
+
   // Wheel Picker
   wheel: {
     container: 'relative w-full max-w-sm h-96 flex items-center justify-center',
@@ -163,24 +168,25 @@ export const TIMER_CLASSES = {
     itemActive: 'text-primary scale-110',
     itemInactive: 'text-white/30',
     label: 'text-sm text-white/50 absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap',
-    highlight: 'absolute top-1/2 left-0 right-0 h-12 -translate-y-1/2 bg-primary/10 rounded-lg pointer-events-none border-y border-primary/20'
+    highlight:
+      'absolute top-1/2 left-0 right-0 h-12 -translate-y-1/2 bg-primary/10 rounded-lg pointer-events-none border-y border-primary/20',
   },
-  
+
   // Laps Display
   laps: {
     container: 'mt-8 h-40 w-full max-w-sm overflow-hidden relative mask-gradient-b',
     title: 'hidden',
     list: 'flex flex-col h-full overflow-y-auto scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent',
     item: 'flex justify-between items-center py-2 px-4 border-b border-white/5 text-white/40 text-sm font-bold',
-    empty: 'text-center text-white/50 py-8'
+    empty: 'text-center text-white/50 py-8',
   },
-  
+
   // Interval Status
   interval: {
     container: 'text-center mb-4 z-10',
     count: 'text-white/60 text-sm mb-1',
-    label: 'text-primary text-lg font-bold'
-  }
+    label: 'text-primary text-lg font-bold',
+  },
 }
 
 // Format helpers
@@ -194,17 +200,21 @@ export const formatTime = (ms: number): string => {
   if (hours > 0) {
     return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
   }
-  
+
   // Show centiseconds only for stopwatch under 1 minute
   if (totalSeconds < 60) {
     return `${minutes}:${seconds.toString().padStart(2, '0')}.${centiseconds.toString().padStart(2, '0')}`
   }
-  
+
   return `${minutes}:${seconds.toString().padStart(2, '0')}`
 }
 
 // Progress calculation helper
-export const calculateProgress = (timeLeft: number, totalTime: number, circumference: number): number => {
+export const calculateProgress = (
+  timeLeft: number,
+  totalTime: number,
+  circumference: number
+): number => {
   if (totalTime === 0) return 0
   return ((totalTime - timeLeft) / totalTime) * circumference
 }

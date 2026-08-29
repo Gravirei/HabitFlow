@@ -50,7 +50,8 @@ const getCategoryState = () => ({
   togglePinned: vi.fn(),
   deleteCategory: vi.fn(),
   reorderCategories: vi.fn(),
-  getPinnedCategories: () => mockCategories.filter((c) => c.isPinned).sort((a, b) => a.order - b.order),
+  getPinnedCategories: () =>
+    mockCategories.filter((c) => c.isPinned).sort((a, b) => a.order - b.order),
   getAllCategories: () => [...mockCategories].sort((a, b) => a.order - b.order),
 })
 
@@ -69,7 +70,8 @@ vi.mock('@/store/useCategoryStore', () => ({
 const getHabitState = () => ({
   habits: mockHabits,
   addHabit: addHabitMock,
-  getHabitsByCategory: (categoryId: string) => mockHabits.filter((h) => h.categoryId === categoryId),
+  getHabitsByCategory: (categoryId: string) =>
+    mockHabits.filter((h) => h.categoryId === categoryId),
   isHabitCompletedToday: () => false,
   clearCategoryFromHabits: vi.fn(),
 })
@@ -176,9 +178,7 @@ describe('Categories Templates Modal (Phase 6)', () => {
 
     // Every pack in the library should be rendered as an importable card
     for (const pack of CATEGORY_TEMPLATE_LIBRARY) {
-      expect(
-        await screen.findByRole('button', { name: new RegExp(pack.name) })
-      ).toBeInTheDocument()
+      expect(await screen.findByRole('button', { name: new RegExp(pack.name) })).toBeInTheDocument()
     }
   }, 20000)
 })

@@ -77,7 +77,7 @@ export async function recordLoginAttempt(
   userAgent: string,
   success: boolean,
   userId?: string,
-  action: string = 'login',
+  action: string = 'login'
 ): Promise<void> {
   try {
     await supabase.from('login_attempts').insert({
@@ -115,10 +115,7 @@ export function getUserAgent(): string {
 export async function clearOldAttempts(daysOld: number = 7): Promise<void> {
   try {
     const cutoffDate = new Date(Date.now() - daysOld * 24 * 60 * 60 * 1000)
-    await supabase
-      .from('login_attempts')
-      .delete()
-      .lt('created_at', cutoffDate.toISOString())
+    await supabase.from('login_attempts').delete().lt('created_at', cutoffDate.toISOString())
   } catch (error) {
     console.error('Failed to clear old attempts:', error)
   }

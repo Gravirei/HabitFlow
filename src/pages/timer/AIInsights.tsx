@@ -25,28 +25,43 @@ export default function AIInsights() {
   const [rawIntervalsHistory] = useLocalStorage<any[]>('timer-intervals-history', [])
 
   // Ensure history values are always arrays to prevent "not iterable" errors
-  const stopwatchHistory = useMemo(() => Array.isArray(rawStopwatchHistory) ? rawStopwatchHistory : [], [rawStopwatchHistory])
-  const countdownHistory = useMemo(() => Array.isArray(rawCountdownHistory) ? rawCountdownHistory : [], [rawCountdownHistory])
-  const intervalsHistory = useMemo(() => Array.isArray(rawIntervalsHistory) ? rawIntervalsHistory : [], [rawIntervalsHistory])
+  const stopwatchHistory = useMemo(
+    () => (Array.isArray(rawStopwatchHistory) ? rawStopwatchHistory : []),
+    [rawStopwatchHistory]
+  )
+  const countdownHistory = useMemo(
+    () => (Array.isArray(rawCountdownHistory) ? rawCountdownHistory : []),
+    [rawCountdownHistory]
+  )
+  const intervalsHistory = useMemo(
+    () => (Array.isArray(rawIntervalsHistory) ? rawIntervalsHistory : []),
+    [rawIntervalsHistory]
+  )
 
   // Combine all sessions and convert to AI Insights format
   const aiSessionsData = useMemo((): TimerSessionData[] => {
     const allHistory = [...stopwatchHistory, ...countdownHistory, ...intervalsHistory]
-    
-    return allHistory.map(record => ({
+
+    return allHistory.map((record) => ({
       id: record.id,
       mode: record.mode,
       duration: record.duration,
       startTime: new Date(record.timestamp),
       endTime: new Date(record.timestamp + record.duration * 1000),
-      completed: record.mode === 'Countdown' 
-        ? (record.targetTime ? record.duration >= record.targetTime : true)
-        : true,
-      intervals: record.mode === 'Intervals' ? {
-        workDuration: record.workDuration || 1500,
-        breakDuration: record.breakDuration || 300,
-        rounds: record.rounds || 4
-      } : undefined
+      completed:
+        record.mode === 'Countdown'
+          ? record.targetTime
+            ? record.duration >= record.targetTime
+            : true
+          : true,
+      intervals:
+        record.mode === 'Intervals'
+          ? {
+              workDuration: record.workDuration || 1500,
+              breakDuration: record.breakDuration || 300,
+              rounds: record.rounds || 4,
+            }
+          : undefined,
     }))
   }, [stopwatchHistory, countdownHistory, intervalsHistory])
 
@@ -55,34 +70,38 @@ export default function AIInsights() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/30 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200/50 dark:border-slate-800/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-14 sm:h-16">
+      <header className="sticky top-0 z-40 border-b border-slate-200/50 bg-white/80 backdrop-blur-xl dark:border-slate-800/50 dark:bg-slate-900/80">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex h-14 items-center justify-between sm:h-16">
             <div className="flex items-center gap-3">
-              <button 
+              <button
                 onClick={() => navigate(-1)}
-                className="flex size-9 items-center justify-center rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all active:scale-95"
+                className="flex size-9 items-center justify-center rounded-xl transition-all hover:bg-slate-100 active:scale-95 dark:hover:bg-slate-800"
                 aria-label="Go back"
               >
-                <span className="material-symbols-outlined text-[20px] text-slate-700 dark:text-slate-300">arrow_back</span>
+                <span className="material-symbols-outlined text-[20px] text-slate-700 dark:text-slate-300">
+                  arrow_back
+                </span>
               </button>
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center shadow-lg shadow-primary/25">
-                  <span className="material-symbols-outlined text-white text-[20px] sm:text-[22px]">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-purple-600 shadow-lg shadow-primary/25 sm:h-10 sm:w-10">
+                  <span className="material-symbols-outlined text-[20px] text-white sm:text-[22px]">
                     psychology
                   </span>
                 </div>
                 <div>
-                  <h1 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
+                  <h1 className="text-base font-bold text-slate-900 dark:text-white sm:text-lg">
                     AI Insights
                   </h1>
-                  <p className="text-[10px] sm:text-xs text-slate-600 dark:text-slate-400">
-                    {insights.dataRange.sessionsAnalyzed} sessions · {
-                      insights.dataQuality === 'excellent' ? '🌟 Excellent' : 
-                      insights.dataQuality === 'good' ? '✅ Good' : 
-                      insights.dataQuality === 'limited' ? '📊 Limited' : 
-                      '⚠️ Insufficient'
-                    }
+                  <p className="text-[10px] text-slate-600 dark:text-slate-400 sm:text-xs">
+                    {insights.dataRange.sessionsAnalyzed} sessions ·{' '}
+                    {insights.dataQuality === 'excellent'
+                      ? '🌟 Excellent'
+                      : insights.dataQuality === 'good'
+                        ? '✅ Good'
+                        : insights.dataQuality === 'limited'
+                          ? '📊 Limited'
+                          : '⚠️ Insufficient'}
                   </p>
                 </div>
               </div>
@@ -92,7 +111,7 @@ export default function AIInsights() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 pb-28">
+      <main className="mx-auto max-w-7xl px-4 py-4 pb-28 sm:px-6 sm:py-6 lg:px-8">
         {insights.dataQuality === 'insufficient' ? (
           <InsufficientDataView insights={insights} />
         ) : (
@@ -111,22 +130,23 @@ function InsufficientDataView({ insights }: { insights: any }) {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="max-w-2xl mx-auto"
+      className="mx-auto max-w-2xl"
     >
-      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 text-center">
-        <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 rounded-xl bg-gradient-to-br from-primary/20 to-purple-600/20 flex items-center justify-center">
-          <span className="material-symbols-outlined text-primary text-[40px] sm:text-[48px]">
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-xl dark:border-slate-800 dark:bg-slate-900 sm:p-8">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-purple-600/20 sm:h-20 sm:w-20">
+          <span className="material-symbols-outlined text-[40px] text-primary sm:text-[48px]">
             lightbulb
           </span>
         </div>
-        <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-3">
+        <h2 className="mb-3 text-xl font-bold text-slate-900 dark:text-white sm:text-2xl">
           Keep Building Your Data
         </h2>
-        <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-base mb-6">
-          Complete at least <strong className="text-primary">5 timer sessions</strong> to unlock personalized AI insights.
+        <p className="mb-6 text-sm text-slate-600 dark:text-slate-300 sm:text-base">
+          Complete at least <strong className="text-primary">5 timer sessions</strong> to unlock
+          personalized AI insights.
         </p>
-        <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl p-4 sm:p-6 border border-blue-200 dark:border-blue-800/50">
-          <p className="text-xs font-semibold text-blue-900 dark:text-blue-300 mb-3">
+        <div className="rounded-xl border border-blue-200 bg-gradient-to-br from-blue-50 to-purple-50 p-4 dark:border-blue-800/50 dark:from-blue-900/20 dark:to-purple-900/20 sm:p-6">
+          <p className="mb-3 text-xs font-semibold text-blue-900 dark:text-blue-300">
             What you'll discover:
           </p>
           <div className="grid gap-2 text-left">
@@ -135,10 +155,10 @@ function InsufficientDataView({ insights }: { insights: any }) {
               { icon: 'timer', text: 'Optimal session duration' },
               { icon: 'star', text: 'Best timer mode' },
               { icon: 'trending_up', text: 'Consistency and trends' },
-              { icon: 'tips_and_updates', text: 'Personalized tips' }
+              { icon: 'tips_and_updates', text: 'Personalized tips' },
             ].map((item, idx) => (
               <div key={idx} className="flex items-start gap-2.5">
-                <span className="material-symbols-outlined text-primary text-[18px] mt-0.5">
+                <span className="material-symbols-outlined mt-0.5 text-[18px] text-primary">
                   {item.icon}
                 </span>
                 <span className="text-sm text-slate-700 dark:text-slate-300">{item.text}</span>
@@ -146,14 +166,20 @@ function InsufficientDataView({ insights }: { insights: any }) {
             ))}
           </div>
         </div>
-        <div className="mt-6 pt-5 border-t border-slate-200 dark:border-slate-700">
+        <div className="mt-6 border-t border-slate-200 pt-5 dark:border-slate-700">
           <p className="text-xs text-slate-500 dark:text-slate-400">
-            Current sessions: <strong className="text-primary text-base">{insights.dataRange.sessionsAnalyzed}</strong> / 5 minimum
+            Current sessions:{' '}
+            <strong className="text-base text-primary">
+              {insights.dataRange.sessionsAnalyzed}
+            </strong>{' '}
+            / 5 minimum
           </p>
-          <div className="mt-3 w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
-            <div 
+          <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+            <div
               className="h-full bg-gradient-to-r from-primary to-purple-600 transition-all duration-500"
-              style={{ width: `${Math.min((insights.dataRange.sessionsAnalyzed / 5) * 100, 100)}%` }}
+              style={{
+                width: `${Math.min((insights.dataRange.sessionsAnalyzed / 5) * 100, 100)}%`,
+              }}
             />
           </div>
         </div>
@@ -192,11 +218,11 @@ function InsightsContent({ insights }: { insights: any }) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
       >
-        <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white mb-3 sm:mb-4 flex items-center gap-2">
-          <span className="material-symbols-outlined text-primary text-[22px]">analytics</span>
+        <h2 className="mb-3 flex items-center gap-2 text-base font-bold text-slate-900 dark:text-white sm:mb-4 sm:text-lg">
+          <span className="material-symbols-outlined text-[22px] text-primary">analytics</span>
           Key Insights
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+        <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-3">
           {/* Consistency */}
           <InsightCard
             icon="local_fire_department"
@@ -212,7 +238,10 @@ function InsightsContent({ insights }: { insights: any }) {
             <InsightCard
               icon="schedule"
               title="Peak Hours"
-              value={formatPeakHours(insights.peakHours.peakWindow.startHour, insights.peakHours.peakWindow.endHour)}
+              value={formatPeakHours(
+                insights.peakHours.peakWindow.startHour,
+                insights.peakHours.peakWindow.endHour
+              )}
               message={insights.peakHours.message}
               color="blue"
             />
@@ -224,7 +253,13 @@ function InsightsContent({ insights }: { insights: any }) {
               icon="timer"
               title="Optimal Duration"
               value={formatDuration(insights.durationPattern.optimalDuration.avgDuration)}
-              trend={insights.durationPattern.trend === 'increasing' ? 'improving' : insights.durationPattern.trend === 'decreasing' ? 'declining' : 'stable'}
+              trend={
+                insights.durationPattern.trend === 'increasing'
+                  ? 'improving'
+                  : insights.durationPattern.trend === 'decreasing'
+                    ? 'declining'
+                    : 'stable'
+              }
               message={insights.durationPattern.message}
               color="green"
             />
@@ -246,8 +281,20 @@ function InsightsContent({ insights }: { insights: any }) {
             <InsightCard
               icon="trending_up"
               title="Weekly Trend"
-              value={insights.productivityTrend.trend === 'up' ? '📈 Up' : insights.productivityTrend.trend === 'down' ? '📉 Down' : '📊 Stable'}
-              trend={insights.productivityTrend.trend === 'up' ? 'improving' : insights.productivityTrend.trend === 'down' ? 'declining' : 'stable'}
+              value={
+                insights.productivityTrend.trend === 'up'
+                  ? '📈 Up'
+                  : insights.productivityTrend.trend === 'down'
+                    ? '📉 Down'
+                    : '📊 Stable'
+              }
+              trend={
+                insights.productivityTrend.trend === 'up'
+                  ? 'improving'
+                  : insights.productivityTrend.trend === 'down'
+                    ? 'declining'
+                    : 'stable'
+              }
               message={insights.productivityTrend.message}
               color="indigo"
             />
@@ -262,11 +309,11 @@ function InsightsContent({ insights }: { insights: any }) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
         >
-          <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white mb-3 sm:mb-4 flex items-center gap-2">
-            <span className="material-symbols-outlined text-primary text-[22px]">schedule</span>
+          <h2 className="mb-3 flex items-center gap-2 text-base font-bold text-slate-900 dark:text-white sm:mb-4 sm:text-lg">
+            <span className="material-symbols-outlined text-[22px] text-primary">schedule</span>
             Hourly Distribution
           </h2>
-          <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-slate-200 dark:border-slate-800 p-3 sm:p-4">
+          <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-lg dark:border-slate-800 dark:bg-slate-900 sm:p-4">
             <PeakHoursChart data={insights.peakHours.hourlyDistribution} />
           </div>
         </motion.section>
@@ -279,8 +326,10 @@ function InsightsContent({ insights }: { insights: any }) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
         >
-          <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white mb-3 sm:mb-4 flex items-center gap-2">
-            <span className="material-symbols-outlined text-primary text-[22px]">tips_and_updates</span>
+          <h2 className="mb-3 flex items-center gap-2 text-base font-bold text-slate-900 dark:text-white sm:mb-4 sm:text-lg">
+            <span className="material-symbols-outlined text-[22px] text-primary">
+              tips_and_updates
+            </span>
             Recommendations
           </h2>
           <RecommendationsList recommendations={insights.recommendations} />
@@ -292,7 +341,7 @@ function InsightsContent({ insights }: { insights: any }) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.6 }}
-        className="text-center pt-6 border-t border-slate-200 dark:border-slate-800"
+        className="border-t border-slate-200 pt-6 text-center dark:border-slate-800"
       >
         <p className="text-xs text-slate-500 dark:text-slate-400">
           💡 Insights update automatically based on your sessions
@@ -317,7 +366,7 @@ function formatPeakHours(startHour: number, endHour: number): string {
 function formatDuration(seconds: number): string {
   const hours = Math.floor(seconds / 3600)
   const minutes = Math.floor((seconds % 3600) / 60)
-  
+
   if (hours > 0) {
     return `${hours}h ${minutes}m`
   }

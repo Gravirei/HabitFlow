@@ -16,22 +16,22 @@ describe.skip('Timeline View Feature', () => {
       mode: 'Stopwatch' as const,
       duration: 1500,
       timestamp: Date.now(),
-      completed: true
+      completed: true,
     },
     {
       id: '2',
       mode: 'Countdown' as const,
       duration: 1800,
       timestamp: Date.now() - 86400000,
-      completed: true
+      completed: true,
     },
     {
       id: '3',
       mode: 'Intervals' as const,
       duration: 2400,
       timestamp: Date.now() - 172800000,
-      completed: false
-    }
+      completed: false,
+    },
   ]
 
   describe('Timeline Component', () => {

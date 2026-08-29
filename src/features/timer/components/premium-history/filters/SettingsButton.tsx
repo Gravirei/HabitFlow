@@ -12,9 +12,9 @@ interface SettingsButtonProps {
 
 export function SettingsButton({ onOpenSettings }: SettingsButtonProps) {
   return (
-    <button 
+    <button
       onClick={onOpenSettings}
-      className="size-12 shrink-0 flex items-center justify-center rounded-2xl bg-white dark:bg-surface-dark text-slate-700 dark:text-gray-100 border border-transparent dark:border-white/5 shadow-sm active:scale-95 transition-all hover:text-primary"
+      className="flex size-12 shrink-0 items-center justify-center rounded-2xl border border-transparent bg-white text-slate-700 shadow-sm transition-all hover:text-primary active:scale-95 dark:border-white/5 dark:bg-surface-dark dark:text-gray-100"
       aria-label="View settings"
       title="View settings"
     >

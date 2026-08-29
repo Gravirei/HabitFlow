@@ -213,9 +213,7 @@ describe('useCategoryStore (ensureGeneralCategory)', () => {
   })
 
   it('creates the General category lazily with the fixed id', () => {
-    expect(
-      useCategoryStore.getState().categories.some((c) => c.id === 'general')
-    ).toBe(false)
+    expect(useCategoryStore.getState().categories.some((c) => c.id === 'general')).toBe(false)
 
     let created!: Category
     act(() => {
@@ -224,9 +222,7 @@ describe('useCategoryStore (ensureGeneralCategory)', () => {
 
     expect(created.id).toBe('general')
     expect(created.name).toBe('General')
-    expect(
-      useCategoryStore.getState().categories.some((c) => c.id === 'general')
-    ).toBe(true)
+    expect(useCategoryStore.getState().categories.some((c) => c.id === 'general')).toBe(true)
   })
 
   it('reuses the existing General category on subsequent calls', () => {

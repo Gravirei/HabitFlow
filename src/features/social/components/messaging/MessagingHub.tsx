@@ -61,9 +61,7 @@ function StatusDot({ isOnline }: { isOnline: boolean }) {
     <span
       className={
         `absolute -bottom-0.5 -right-0.5 size-3 rounded-full ring-[2.5px] ring-[#0F1117] ` +
-        (isOnline
-          ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.7)]'
-          : 'bg-white/20')
+        (isOnline ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.7)]' : 'bg-white/20')
       }
       aria-hidden="true"
     />
@@ -113,14 +111,16 @@ function DirectAvatar({
             className="size-12 rounded-[18px] object-cover"
           />
           {/* Subtle inner shadow overlay */}
-          <div className="absolute inset-0 rounded-[18px] ring-1 ring-inset ring-white/10 pointer-events-none" />
+          <div className="pointer-events-none absolute inset-0 rounded-[18px] ring-1 ring-inset ring-white/10" />
         </div>
       ) : (
-        <div className={`size-12 rounded-[18px] bg-gradient-to-br ${grad} flex items-center justify-center shadow-lg`}>
+        <div
+          className={`size-12 rounded-[18px] bg-gradient-to-br ${grad} flex items-center justify-center shadow-lg`}
+        >
           <span className={`text-[13px] font-black ${textColor} tracking-tight drop-shadow`}>
             {fallback}
           </span>
-          <div className="absolute inset-0 rounded-[18px] ring-1 ring-inset ring-white/20 pointer-events-none" />
+          <div className="pointer-events-none absolute inset-0 rounded-[18px] ring-1 ring-inset ring-white/20" />
         </div>
       )}
       <StatusDot isOnline={isOnline} />
@@ -145,7 +145,7 @@ function GroupAvatar({ conversation }: { conversation: Conversation }) {
       <img
         src={'/images/avatars/avatar1.jpg'}
         alt=""
-        className="absolute top-0 left-0 size-[30px] rounded-[11px] object-cover ring-[2px] ring-[#0F1117]"
+        className="absolute left-0 top-0 size-[30px] rounded-[11px] object-cover ring-[2px] ring-[#0F1117]"
       />
       <img
         src={'/images/avatars/avatar2.jpg'}
@@ -155,7 +155,7 @@ function GroupAvatar({ conversation }: { conversation: Conversation }) {
 
       {/* Group member count badge */}
       {conversation.memberCount > 2 && (
-        <span className="absolute -top-1 -right-1 h-4 min-w-[16px] rounded-full bg-white/[0.12] border border-white/[0.15] px-1 flex items-center justify-center text-[9px] font-black text-white/70 backdrop-blur-sm">
+        <span className="absolute -right-1 -top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full border border-white/[0.15] bg-white/[0.12] px-1 text-[9px] font-black text-white/70 backdrop-blur-sm">
           {conversation.memberCount}
         </span>
       )}
@@ -175,7 +175,7 @@ function ConversationsSkeleton({ reduced }: { reduced: boolean }) {
           key={i}
           className="flex items-center gap-3.5 rounded-[20px] border border-white/[0.06] bg-white/[0.025] px-4 py-3.5"
         >
-          <div className={`size-12 rounded-[18px] bg-white/[0.07] flex-shrink-0 ${pulse}`} />
+          <div className={`size-12 flex-shrink-0 rounded-[18px] bg-white/[0.07] ${pulse}`} />
           <div className="min-w-0 flex-1 space-y-2">
             <div className={`h-3.5 w-36 rounded-full bg-white/[0.07] ${pulse}`} />
             <div className={`h-2.5 w-52 rounded-full bg-white/[0.04] ${pulse}`} />
@@ -313,20 +313,26 @@ function ConversationRowInner({
 
   return (
     <>
-      <motion.div {...motionProps} ref={rowRef} className="relative rounded-[22px] overflow-visible">
+      <motion.div
+        {...motionProps}
+        ref={rowRef}
+        className="relative overflow-visible rounded-[22px]"
+      >
         {/* Swipe-left actions */}
-        <div className="absolute inset-y-[2px] right-0 z-0 flex rounded-r-[22px] overflow-hidden">
+        <div className="absolute inset-y-[2px] right-0 z-0 flex overflow-hidden rounded-r-[22px]">
           <button
             type="button"
             onClick={() => {
               pinConversation(conversation.id)
               setSwipeX(0)
             }}
-            className="flex w-[78px] items-center justify-center bg-gradient-to-b from-teal-500 to-teal-600 text-white cursor-pointer gap-1 flex-col"
+            className="flex w-[78px] cursor-pointer flex-col items-center justify-center gap-1 bg-gradient-to-b from-teal-500 to-teal-600 text-white"
             aria-label={conversation.isPinned ? 'Unpin conversation' : 'Pin conversation'}
           >
             <span className="material-symbols-outlined text-[18px]">push_pin</span>
-            <span className="text-[9px] font-bold tracking-wide">{conversation.isPinned ? 'Unpin' : 'Pin'}</span>
+            <span className="text-[9px] font-bold tracking-wide">
+              {conversation.isPinned ? 'Unpin' : 'Pin'}
+            </span>
           </button>
           <button
             type="button"
@@ -334,25 +340,27 @@ function ConversationRowInner({
               muteConversation(conversation.id)
               setSwipeX(0)
             }}
-            className="flex w-[78px] items-center justify-center bg-white/[0.10] text-white/70 cursor-pointer flex-col gap-1 backdrop-blur-sm"
+            className="flex w-[78px] cursor-pointer flex-col items-center justify-center gap-1 bg-white/[0.10] text-white/70 backdrop-blur-sm"
             aria-label={conversation.isMuted ? 'Unmute conversation' : 'Mute conversation'}
           >
             <span className="material-symbols-outlined text-[18px]">
               {conversation.isMuted ? 'notifications' : 'notifications_off'}
             </span>
-            <span className="text-[9px] font-bold tracking-wide">{conversation.isMuted ? 'Unmute' : 'Mute'}</span>
+            <span className="text-[9px] font-bold tracking-wide">
+              {conversation.isMuted ? 'Unmute' : 'Mute'}
+            </span>
           </button>
         </div>
 
         {/* Swipe-right action */}
-        <div className="absolute inset-y-[2px] left-0 z-0 flex rounded-l-[22px] overflow-hidden">
+        <div className="absolute inset-y-[2px] left-0 z-0 flex overflow-hidden rounded-l-[22px]">
           <button
             type="button"
             onClick={() => {
               setShowDeleteConfirm(true)
               setSwipeX(0)
             }}
-            className="flex w-[120px] items-center justify-center bg-gradient-to-b from-rose-500 to-rose-600 text-white cursor-pointer flex-col gap-1"
+            className="flex w-[120px] cursor-pointer flex-col items-center justify-center gap-1 bg-gradient-to-b from-rose-500 to-rose-600 text-white"
             aria-label="Delete conversation"
           >
             <span className="material-symbols-outlined text-[18px]">delete</span>
@@ -379,17 +387,17 @@ function ConversationRowInner({
             onPointerLeave={cancelLongPress}
             onPointerCancel={cancelLongPress}
             className={[
-              'group relative w-full flex items-center gap-3.5 rounded-[22px] px-4 py-3.5',
-              'text-left cursor-pointer border transition-all duration-200 select-none',
+              'group relative flex w-full items-center gap-3.5 rounded-[22px] px-4 py-3.5',
+              'cursor-pointer select-none border text-left transition-all duration-200',
               hasUnread
-                ? 'bg-[#131929] border-white/[0.09] shadow-[0_2px_20px_rgba(0,0,0,0.25)]'
-                : 'bg-[#0f1520] border-white/[0.055] hover:bg-[#141b2e] hover:border-white/[0.09]',
+                ? 'border-white/[0.09] bg-[#131929] shadow-[0_2px_20px_rgba(0,0,0,0.25)]'
+                : 'border-white/[0.055] bg-[#0f1520] hover:border-white/[0.09] hover:bg-[#141b2e]',
             ].join(' ')}
             aria-label={`${conversation.name}, ${hasUnread ? `${conversation.unreadCount} unread` : 'no unread'}, ${lastMsg ? `last message ${smartTimestamp(lastMsg.createdAt)}` : ''}`}
           >
             {/* Left accent bar for unread */}
             {hasUnread && (
-              <span className="absolute left-0 top-[20%] bottom-[20%] w-[3px] rounded-full bg-gradient-to-b from-teal-300 to-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]" />
+              <span className="absolute bottom-[20%] left-0 top-[20%] w-[3px] rounded-full bg-gradient-to-b from-teal-300 to-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]" />
             )}
 
             {conversation.type === 'group' ? (
@@ -402,7 +410,7 @@ function ConversationRowInner({
               <div className="flex items-start justify-between gap-2">
                 {/* Left: name + preview */}
                 <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-1.5 min-w-0">
+                  <div className="flex min-w-0 items-center gap-1.5">
                     <span
                       className={[
                         'truncate text-[14px] leading-snug',
@@ -413,24 +421,26 @@ function ConversationRowInner({
                       {conversation.name}
                     </span>
                     {conversation.isPinned && (
-                      <span className="material-symbols-outlined text-[11px] text-teal-400/60 flex-shrink-0">
+                      <span className="material-symbols-outlined flex-shrink-0 text-[11px] text-teal-400/60">
                         push_pin
                       </span>
                     )}
                     {conversation.isMuted && (
-                      <span className="material-symbols-outlined text-[11px] text-white/25 flex-shrink-0">
+                      <span className="material-symbols-outlined flex-shrink-0 text-[11px] text-white/25">
                         notifications_off
                       </span>
                     )}
                   </div>
 
-                  <div className={[
-                    'mt-1 flex items-center gap-1 text-[12px] leading-tight',
-                    hasUnread ? 'text-white/60' : 'text-white/35',
-                  ].join(' ')}>
+                  <div
+                    className={[
+                      'mt-1 flex items-center gap-1 text-[12px] leading-tight',
+                      hasUnread ? 'text-white/60' : 'text-white/35',
+                    ].join(' ')}
+                  >
                     {receipt && (
                       <span
-                        className={`material-symbols-outlined text-[13px] flex-shrink-0 ${receipt.className}`}
+                        className={`material-symbols-outlined flex-shrink-0 text-[13px] ${receipt.className}`}
                         style={{ fontVariationSettings: "'FILL' 1" }}
                       >
                         {receipt.icon}
@@ -441,18 +451,20 @@ function ConversationRowInner({
                 </div>
 
                 {/* Right: timestamp + badge */}
-                <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
+                <div className="flex flex-shrink-0 flex-col items-end gap-1.5">
                   {lastMsg && (
-                    <span className={[
-                      'text-[11px] tabular-nums font-medium',
-                      hasUnread ? 'text-teal-300' : 'text-white/25',
-                    ].join(' ')}>
+                    <span
+                      className={[
+                        'text-[11px] font-medium tabular-nums',
+                        hasUnread ? 'text-teal-300' : 'text-white/25',
+                      ].join(' ')}
+                    >
                       {smartTimestamp(lastMsg.createdAt)}
                     </span>
                   )}
 
                   {hasUnread ? (
-                    <span className="inline-flex min-w-[20px] h-5 items-center justify-center rounded-full bg-gradient-to-br from-teal-300 to-emerald-400 px-1.5 text-[10px] font-black text-[#050810] shadow-[0_4px_12px_rgba(0,229,204,0.35)]">
+                    <span className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-gradient-to-br from-teal-300 to-emerald-400 px-1.5 text-[10px] font-black text-[#050810] shadow-[0_4px_12px_rgba(0,229,204,0.35)]">
                       {conversation.unreadCount > 99 ? '99+' : conversation.unreadCount}
                     </span>
                   ) : (
@@ -481,11 +493,15 @@ function ConversationRowInner({
               aria-label="Close delete dialog"
             />
             <motion.div
-              className="relative z-10 mx-6 w-full max-w-sm rounded-2xl border border-white/[0.08] bg-[#0f1628]/80 p-6 backdrop-blur-2xl shadow-[0_24px_64px_rgba(0,0,0,0.6)]"
+              className="relative z-10 mx-6 w-full max-w-sm rounded-2xl border border-white/[0.08] bg-[#0f1628]/80 p-6 shadow-[0_24px_64px_rgba(0,0,0,0.6)] backdrop-blur-2xl"
               initial={prefersReducedMotion ? undefined : { opacity: 0, scale: 0.94, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.94, y: 10 }}
-              transition={prefersReducedMotion ? { duration: 0 } : { type: 'spring', damping: 22, stiffness: 320 }}
+              transition={
+                prefersReducedMotion
+                  ? { duration: 0 }
+                  : { type: 'spring', damping: 22, stiffness: 320 }
+              }
             >
               <p className="text-sm font-semibold text-white">Delete this conversation?</p>
               <p className="mt-1 text-xs text-white/50">This cannot be undone.</p>
@@ -493,7 +509,7 @@ function ConversationRowInner({
                 <button
                   type="button"
                   onClick={() => setShowDeleteConfirm(false)}
-                  className="flex-1 rounded-xl border border-white/[0.1] bg-white/[0.04] py-2.5 text-sm text-white/80 hover:bg-white/[0.06] transition-colors cursor-pointer"
+                  className="flex-1 cursor-pointer rounded-xl border border-white/[0.1] bg-white/[0.04] py-2.5 text-sm text-white/80 transition-colors hover:bg-white/[0.06]"
                 >
                   Cancel
                 </button>
@@ -503,7 +519,7 @@ function ConversationRowInner({
                     deleteConversation(conversation.id)
                     setShowDeleteConfirm(false)
                   }}
-                  className="flex-1 rounded-xl bg-rose-500/90 py-2.5 text-sm font-semibold text-white hover:bg-rose-500 transition-colors cursor-pointer"
+                  className="flex-1 cursor-pointer rounded-xl bg-rose-500/90 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-rose-500"
                 >
                   Delete
                 </button>
@@ -536,76 +552,110 @@ function ConversationRowInner({
               initial={prefersReducedMotion ? undefined : { opacity: 0, scale: 0.92 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.92 }}
-              transition={prefersReducedMotion ? { duration: 0 } : { type: 'spring', damping: 26, stiffness: 340 }}
+              transition={
+                prefersReducedMotion
+                  ? { duration: 0 }
+                  : { type: 'spring', damping: 26, stiffness: 340 }
+              }
             >
               {/* Conversation header inside menu */}
-              <div className="mb-2 flex items-center gap-3 px-4 py-3 rounded-2xl bg-white/[0.06] border border-white/[0.08]">
-                {conversation.type === 'group'
-                  ? <GroupAvatar conversation={conversation} />
-                  : <DirectAvatar conversation={conversation} isOnline={isOnline} />
-                }
+              <div className="mb-2 flex items-center gap-3 rounded-2xl border border-white/[0.08] bg-white/[0.06] px-4 py-3">
+                {conversation.type === 'group' ? (
+                  <GroupAvatar conversation={conversation} />
+                ) : (
+                  <DirectAvatar conversation={conversation} isOnline={isOnline} />
+                )}
                 <div className="min-w-0">
                   <p className="truncate text-[14px] font-bold text-white">{conversation.name}</p>
                   <p className="text-[11px] text-white/40">
-                    {conversation.type === 'group' ? `${conversation.memberCount} members` : (isOnline ? 'Online' : 'Offline')}
+                    {conversation.type === 'group'
+                      ? `${conversation.memberCount} members`
+                      : isOnline
+                        ? 'Online'
+                        : 'Offline'}
                   </p>
                 </div>
               </div>
 
               {/* Menu items */}
-              <div className="overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0f1628]/95 backdrop-blur-2xl shadow-[0_24px_64px_rgba(0,0,0,0.7)]">
+              <div className="overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0f1628]/95 shadow-[0_24px_64px_rgba(0,0,0,0.7)] backdrop-blur-2xl">
                 {[
                   {
                     icon: conversation.isPinned ? 'keep_off' : 'keep',
                     label: conversation.isPinned ? 'Unpin Conversation' : 'Pin Conversation',
                     color: 'text-teal-300',
-                    action: () => { pinConversation(conversation.id); setShowContextMenu(false) },
+                    action: () => {
+                      pinConversation(conversation.id)
+                      setShowContextMenu(false)
+                    },
                   },
                   {
                     icon: conversation.isMuted ? 'notifications' : 'notifications_off',
                     label: conversation.isMuted ? 'Unmute Notifications' : 'Mute Notifications',
                     color: 'text-violet-300',
-                    action: () => { muteConversation(conversation.id); setShowContextMenu(false) },
+                    action: () => {
+                      muteConversation(conversation.id)
+                      setShowContextMenu(false)
+                    },
                   },
                   {
                     icon: 'mark_chat_unread',
                     label: conversation.unreadCount > 0 ? 'Mark as Read' : 'Mark as Unread',
                     color: 'text-sky-300',
-                    action: () => { markConversationUnread(conversation.id); setShowContextMenu(false) },
+                    action: () => {
+                      markConversationUnread(conversation.id)
+                      setShowContextMenu(false)
+                    },
                   },
                   {
                     icon: 'hide_source',
                     label: 'Hide Conversation',
                     color: 'text-amber-300',
-                    action: () => { hideConversation(conversation.id); setShowContextMenu(false) },
+                    action: () => {
+                      hideConversation(conversation.id)
+                      setShowContextMenu(false)
+                    },
                   },
                   {
                     icon: 'archive',
                     label: 'Archive Conversation',
                     color: 'text-white/50',
-                    action: () => { archiveConversation(conversation.id); setShowContextMenu(false) },
+                    action: () => {
+                      archiveConversation(conversation.id)
+                      setShowContextMenu(false)
+                    },
                   },
                   {
                     icon: 'delete',
                     label: 'Delete Conversation',
                     color: 'text-rose-400',
-                    action: () => { setShowContextMenu(false); setShowDeleteConfirm(true) },
+                    action: () => {
+                      setShowContextMenu(false)
+                      setShowDeleteConfirm(true)
+                    },
                     danger: true,
                   },
-                  ...(conversation.type === 'group' ? [{
-                    icon: 'logout',
-                    label: 'Leave Group',
-                    color: 'text-rose-400',
-                    action: () => { leaveGroup(conversation.id); setShowContextMenu(false) },
-                    danger: true,
-                  }] : []),
+                  ...(conversation.type === 'group'
+                    ? [
+                        {
+                          icon: 'logout',
+                          label: 'Leave Group',
+                          color: 'text-rose-400',
+                          action: () => {
+                            leaveGroup(conversation.id)
+                            setShowContextMenu(false)
+                          },
+                          danger: true,
+                        },
+                      ]
+                    : []),
                 ].map((item, i, arr) => (
                   <button
                     key={item.label}
                     type="button"
                     onClick={item.action}
                     className={[
-                      'w-full flex items-center gap-4 px-5 py-4 text-left transition-colors cursor-pointer',
+                      'flex w-full cursor-pointer items-center gap-4 px-5 py-4 text-left transition-colors',
                       item.danger
                         ? 'hover:bg-rose-500/10 active:bg-rose-500/20'
                         : 'hover:bg-white/[0.05] active:bg-white/[0.08]',
@@ -618,13 +668,14 @@ function ConversationRowInner({
                     >
                       {item.icon}
                     </span>
-                    <span className={`text-[14px] font-medium ${item.danger ? 'text-rose-400' : 'text-white/90'}`}>
+                    <span
+                      className={`text-[14px] font-medium ${item.danger ? 'text-rose-400' : 'text-white/90'}`}
+                    >
                       {item.label}
                     </span>
                   </button>
                 ))}
               </div>
-
             </motion.div>
           </motion.div>
         )}
@@ -637,13 +688,8 @@ const ConversationRow = React.memo(ConversationRowInner)
 
 export function MessagingHub({ onSelectConversation, onCompose }: MessagingHubProps) {
   const reduced = useReducedMotion()
-  const {
-    conversations,
-    conversationFilter,
-    setConversationFilter,
-    onlineUsers,
-    totalUnread,
-  } = useMessagingStore()
+  const { conversations, conversationFilter, setConversationFilter, onlineUsers, totalUnread } =
+    useMessagingStore()
 
   const [search, setSearch] = useState('')
   const [debounced, setDebounced] = useState('')
@@ -680,9 +726,7 @@ export function MessagingHub({ onSelectConversation, onCompose }: MessagingHubPr
   const getOnlineStatus = useCallback(
     (conversation: Conversation) => {
       if (conversation.type !== 'direct') return false
-      const participantId = conversation.memberIds.find(
-        (id) => id !== 'current-user'
-      )
+      const participantId = conversation.memberIds.find((id) => id !== 'current-user')
       return participantId ? !!onlineUsers[participantId] : false
     },
     [onlineUsers]
@@ -695,7 +739,7 @@ export function MessagingHub({ onSelectConversation, onCompose }: MessagingHubPr
       {/* Title bar */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="size-9 rounded-xl bg-gradient-to-br from-teal-300 to-emerald-300 flex items-center justify-center shadow-[0_0_20px_rgba(0,229,204,0.18)]">
+          <div className="flex size-9 items-center justify-center rounded-xl bg-gradient-to-br from-teal-300 to-emerald-300 shadow-[0_0_20px_rgba(0,229,204,0.18)]">
             <span
               className="material-symbols-outlined text-[18px] text-[#050810]"
               style={{ fontVariationSettings: "'FILL' 1" }}
@@ -704,12 +748,8 @@ export function MessagingHub({ onSelectConversation, onCompose }: MessagingHubPr
             </span>
           </div>
           <div className="flex flex-col">
-            <span className="text-[13px] font-extrabold text-white tracking-tight">
-              Messages
-            </span>
-            <span className="text-[11px] text-white/35">
-              Stay accountable together
-            </span>
+            <span className="text-[13px] font-extrabold tracking-tight text-white">Messages</span>
+            <span className="text-[11px] text-white/35">Stay accountable together</span>
           </div>
           {totalUnread > 0 && (
             <span className="ml-2 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-rose-500/90 px-2 text-[10px] font-extrabold text-white">
@@ -722,14 +762,12 @@ export function MessagingHub({ onSelectConversation, onCompose }: MessagingHubPr
           <button
             type="button"
             onClick={() => setShowComposeMenu((v) => !v)}
-            className="size-9 rounded-xl border border-white/[0.1] bg-white/[0.03] text-white/60 hover:bg-white/[0.06] hover:text-teal-200 transition-colors cursor-pointer flex items-center justify-center"
+            className="flex size-9 cursor-pointer items-center justify-center rounded-xl border border-white/[0.1] bg-white/[0.03] text-white/60 transition-colors hover:bg-white/[0.06] hover:text-teal-200"
             aria-label="Compose"
           >
-            <span className="material-symbols-outlined text-[18px]">
-              edit_square
-            </span>
+            <span className="material-symbols-outlined text-[18px]">edit_square</span>
             {totalUnread > 0 && (
-              <span className="absolute -top-1 -right-1 size-2 rounded-full bg-rose-500 ring-2 ring-[#0F1117]" />
+              <span className="absolute -right-1 -top-1 size-2 rounded-full bg-rose-500 ring-2 ring-[#0F1117]" />
             )}
           </button>
 
@@ -743,11 +781,13 @@ export function MessagingHub({ onSelectConversation, onCompose }: MessagingHubPr
                   onClick={() => setShowComposeMenu(false)}
                 />
                 <motion.div
-                  className="absolute right-0 mt-2 z-30 w-[210px] overflow-hidden rounded-2xl border border-white/[0.1] bg-[#0f1628]/80 backdrop-blur-2xl shadow-[0_24px_64px_rgba(0,0,0,0.6)]"
+                  className="absolute right-0 z-30 mt-2 w-[210px] overflow-hidden rounded-2xl border border-white/[0.1] bg-[#0f1628]/80 shadow-[0_24px_64px_rgba(0,0,0,0.6)] backdrop-blur-2xl"
                   initial={reduced ? undefined : { opacity: 0, y: -10, scale: 0.98 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={reduced ? { opacity: 0 } : { opacity: 0, y: -10, scale: 0.98 }}
-                  transition={reduced ? { duration: 0 } : { type: 'spring', damping: 24, stiffness: 340 }}
+                  transition={
+                    reduced ? { duration: 0 } : { type: 'spring', damping: 24, stiffness: 340 }
+                  }
                 >
                   <button
                     type="button"
@@ -755,14 +795,12 @@ export function MessagingHub({ onSelectConversation, onCompose }: MessagingHubPr
                       setShowComposeMenu(false)
                       onCompose()
                     }}
-                    className="w-full px-4 py-3 flex items-center gap-3 hover:bg-white/[0.05] transition-colors cursor-pointer text-left"
+                    className="flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-white/[0.05]"
                   >
                     <span className="material-symbols-outlined text-[18px] text-teal-300">
                       chat_bubble
                     </span>
-                    <span className="text-[13px] font-semibold text-white">
-                      New Message
-                    </span>
+                    <span className="text-[13px] font-semibold text-white">New Message</span>
                   </button>
                   <button
                     type="button"
@@ -770,14 +808,12 @@ export function MessagingHub({ onSelectConversation, onCompose }: MessagingHubPr
                       setShowComposeMenu(false)
                       setShowGroupCreation(true)
                     }}
-                    className="w-full px-4 py-3 flex items-center gap-3 hover:bg-white/[0.05] transition-colors cursor-pointer text-left"
+                    className="flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-white/[0.05]"
                   >
                     <span className="material-symbols-outlined text-[18px] text-violet-300">
                       group_add
                     </span>
-                    <span className="text-[13px] font-semibold text-white">
-                      New Group
-                    </span>
+                    <span className="text-[13px] font-semibold text-white">New Group</span>
                   </button>
                 </motion.div>
               </>
@@ -789,21 +825,19 @@ export function MessagingHub({ onSelectConversation, onCompose }: MessagingHubPr
       {/* Search */}
       <div className="rounded-2xl border border-white/[0.055] bg-white/[0.028] px-3.5 py-2.5 backdrop-blur-xl">
         <div className="flex items-center gap-2">
-          <span className="material-symbols-outlined text-[18px] text-white/20">
-            search
-          </span>
+          <span className="material-symbols-outlined text-[18px] text-white/20">search</span>
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search conversations…"
             aria-label="Search conversations"
-            className="w-full bg-transparent text-[13px] text-white placeholder:text-white/25 outline-none"
+            className="w-full bg-transparent text-[13px] text-white outline-none placeholder:text-white/25"
           />
           {search && (
             <button
               type="button"
               onClick={() => setSearch('')}
-              className="text-white/35 hover:text-white/70 transition-colors cursor-pointer"
+              className="cursor-pointer text-white/35 transition-colors hover:text-white/70"
               aria-label="Clear search"
             >
               <span className="material-symbols-outlined text-[18px]">close</span>
@@ -829,10 +863,10 @@ export function MessagingHub({ onSelectConversation, onCompose }: MessagingHubPr
               aria-selected={on}
               onClick={() => setConversationFilter(f.id)}
               className={
-                'rounded-full px-3.5 py-2 text-[11px] font-semibold tracking-wide transition-colors cursor-pointer ' +
+                'cursor-pointer rounded-full px-3.5 py-2 text-[11px] font-semibold tracking-wide transition-colors ' +
                 (on
-                  ? 'bg-teal-300/15 border border-teal-300/30 text-teal-200 shadow-[0_10px_25px_rgba(0,229,204,0.08)]'
-                  : 'bg-transparent border border-white/[0.06] text-white/30 hover:text-white/55 hover:bg-white/[0.03]')
+                  ? 'border border-teal-300/30 bg-teal-300/15 text-teal-200 shadow-[0_10px_25px_rgba(0,229,204,0.08)]'
+                  : 'border border-white/[0.06] bg-transparent text-white/30 hover:bg-white/[0.03] hover:text-white/55')
               }
             >
               {f.label}
@@ -847,23 +881,17 @@ export function MessagingHub({ onSelectConversation, onCompose }: MessagingHubPr
         <div role="log" aria-live="polite" aria-label="Conversations" className="space-y-2.5">
           {showEmpty ? (
             <div className="flex flex-col items-center justify-center gap-3 py-16 text-center">
-              <div className="size-16 rounded-3xl border border-white/[0.06] bg-white/[0.028] flex items-center justify-center">
-                <span className="material-symbols-outlined text-[28px] text-white/20">
-                  forum
-                </span>
+              <div className="flex size-16 items-center justify-center rounded-3xl border border-white/[0.06] bg-white/[0.028]">
+                <span className="material-symbols-outlined text-[28px] text-white/20">forum</span>
               </div>
               <div>
-                <p className="text-sm font-semibold text-white/70">
-                  No conversations yet
-                </p>
-                <p className="mt-1 text-xs text-white/35">
-                  Start chatting with your friends.
-                </p>
+                <p className="text-sm font-semibold text-white/70">No conversations yet</p>
+                <p className="mt-1 text-xs text-white/35">Start chatting with your friends.</p>
               </div>
               <button
                 type="button"
                 onClick={onCompose}
-                className="mt-2 rounded-xl bg-gradient-to-br from-teal-300 to-emerald-300 px-5 py-2.5 text-[12px] font-extrabold text-[#050810] shadow-[0_10px_30px_rgba(0,229,204,0.2)] cursor-pointer active:scale-95 transition-transform"
+                className="mt-2 cursor-pointer rounded-xl bg-gradient-to-br from-teal-300 to-emerald-300 px-5 py-2.5 text-[12px] font-extrabold text-[#050810] shadow-[0_10px_30px_rgba(0,229,204,0.2)] transition-transform active:scale-95"
               >
                 New message
               </button>
@@ -872,7 +900,7 @@ export function MessagingHub({ onSelectConversation, onCompose }: MessagingHubPr
             <>
               {pinned.length > 0 && (
                 <div>
-                  <div className="px-2 pb-1 text-[10px] font-extrabold tracking-[0.18em] text-white/25 uppercase">
+                  <div className="px-2 pb-1 text-[10px] font-extrabold uppercase tracking-[0.18em] text-white/25">
                     Pinned
                   </div>
                   <div className="space-y-2.5">
@@ -893,7 +921,7 @@ export function MessagingHub({ onSelectConversation, onCompose }: MessagingHubPr
               {rest.length > 0 && (
                 <div>
                   {pinned.length > 0 && (
-                    <div className="mt-3 px-2 pb-1 text-[10px] font-extrabold tracking-[0.18em] text-white/25 uppercase">
+                    <div className="mt-3 px-2 pb-1 text-[10px] font-extrabold uppercase tracking-[0.18em] text-white/25">
                       Recent
                     </div>
                   )}

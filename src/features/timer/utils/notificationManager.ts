@@ -1,10 +1,10 @@
 /**
  * NotificationManager
- * 
+ *
  * Handles browser notifications for timer completions.
  * Provides a centralized interface for managing notification permissions,
  * displaying notifications, and handling browser compatibility.
- * 
+ *
  * Features:
  * - Permission management (request, check status)
  * - Browser support detection
@@ -12,14 +12,14 @@
  * - Error handling and graceful degradation
  * - Auto-close after duration
  * - Click to focus window
- * 
+ *
  * Usage:
  * ```typescript
  * // Check support
  * if (notificationManager.isSupported()) {
  *   // Request permission
  *   const granted = await notificationManager.requestPermission()
- *   
+ *
  *   // Show notification
  *   await notificationManager.showTimerComplete(
  *     'Time is up!',
@@ -28,7 +28,7 @@
  *   )
  * }
  * ```
- * 
+ *
  * @module notificationManager
  */
 
@@ -85,13 +85,13 @@ class NotificationManager {
    */
   private logBrowserSupport(): void {
     if (this.isSupported()) {
-      logger.debug('Browser supports notifications', { 
+      logger.debug('Browser supports notifications', {
         context: 'NotificationManager',
-        data: { permission: this.getPermission() }
+        data: { permission: this.getPermission() },
       })
     } else {
-      logger.warn('Browser does not support notifications', { 
-        context: 'NotificationManager'
+      logger.warn('Browser does not support notifications', {
+        context: 'NotificationManager',
       })
     }
   }
@@ -126,14 +126,14 @@ class NotificationManager {
   /**
    * Request notification permission from user
    * Shows browser's native permission prompt
-   * 
+   *
    * @returns Promise<boolean> - true if permission granted
    */
   async requestPermission(): Promise<boolean> {
     // Check browser support
     if (!this.isSupported()) {
-      logger.warn('Cannot request permission - notifications not supported', { 
-        context: 'NotificationManager.requestPermission'
+      logger.warn('Cannot request permission - notifications not supported', {
+        context: 'NotificationManager.requestPermission',
       })
       // Show user-friendly message
       this.showErrorMessage('notification_unsupported')
@@ -142,16 +142,16 @@ class NotificationManager {
 
     // Check if already granted
     if (this.isPermissionGranted()) {
-      logger.debug('Permission already granted', { 
-        context: 'NotificationManager.requestPermission'
+      logger.debug('Permission already granted', {
+        context: 'NotificationManager.requestPermission',
       })
       return true
     }
 
     // Check if already denied
     if (this.getPermission() === 'denied') {
-      logger.warn('Permission previously denied by user', { 
-        context: 'NotificationManager.requestPermission'
+      logger.warn('Permission previously denied by user', {
+        context: 'NotificationManager.requestPermission',
       })
       // Show user-friendly message
       this.showErrorMessage('notification_denied')
@@ -159,19 +159,19 @@ class NotificationManager {
     }
 
     try {
-      logger.debug('Requesting notification permission...', { 
-        context: 'NotificationManager.requestPermission'
+      logger.debug('Requesting notification permission...', {
+        context: 'NotificationManager.requestPermission',
       })
       const permission = await Notification.requestPermission()
       const granted = permission === 'granted'
 
       if (granted) {
-        logger.debug('Permission granted', { 
-          context: 'NotificationManager.requestPermission'
+        logger.debug('Permission granted', {
+          context: 'NotificationManager.requestPermission',
         })
       } else {
-        logger.warn('Permission denied by user', { 
-          context: 'NotificationManager.requestPermission'
+        logger.warn('Permission denied by user', {
+          context: 'NotificationManager.requestPermission',
         })
         this.showErrorMessage('notification_denied')
       }
@@ -197,9 +197,9 @@ class NotificationManager {
     // Import error message utility
     import('./errorMessages').then(({ getErrorMessage }) => {
       const error = getErrorMessage(type)
-      logger.warn(`${error.title}: ${error.message}`, { 
+      logger.warn(`${error.title}: ${error.message}`, {
         context: 'NotificationManager.showErrorMessage',
-        data: { type, action: error.action }
+        data: { type, action: error.action },
       })
       // TODO: Show toast notification
       // toast.error(error.message, { description: error.action })
@@ -208,25 +208,23 @@ class NotificationManager {
 
   /**
    * Show a basic notification
-   * 
+   *
    * @param options - Notification options
    * @returns Promise<void>
    */
-  async showNotification(
-    options: TimerNotificationOptions
-  ): Promise<Notification | null> {
+  async showNotification(options: TimerNotificationOptions): Promise<Notification | null> {
     // Check browser support
     if (!this.isSupported()) {
-      logger.warn('Cannot show notification - not supported', { 
-        context: 'NotificationManager.showNotification'
+      logger.warn('Cannot show notification - not supported', {
+        context: 'NotificationManager.showNotification',
       })
       return null
     }
 
     // Check permission
     if (!this.isPermissionGranted()) {
-      logger.warn('Cannot show notification - permission not granted', { 
-        context: 'NotificationManager.showNotification'
+      logger.warn('Cannot show notification - permission not granted', {
+        context: 'NotificationManager.showNotification',
       })
       return null
     }
@@ -256,8 +254,8 @@ class NotificationManager {
 
       // Focus window when notification is clicked
       notification.onclick = () => {
-        logger.debug('Notification clicked - focusing window', { 
-          context: 'NotificationManager.showNotification'
+        logger.debug('Notification clicked - focusing window', {
+          context: 'NotificationManager.showNotification',
         })
         window.focus()
         notification.close()
@@ -274,9 +272,9 @@ class NotificationManager {
         )
       }
 
-      logger.debug('Notification shown', { 
+      logger.debug('Notification shown', {
         context: 'NotificationManager.showNotification',
-        data: { title }
+        data: { title },
       })
       return notification
     } catch (error) {
@@ -293,7 +291,7 @@ class NotificationManager {
 
   /**
    * Show a timer completion notification with mode-specific styling
-   * 
+   *
    * @param message - Custom message to display
    * @param mode - Timer mode (Stopwatch, Countdown, Intervals)
    * @param duration - Timer duration in seconds (optional)
@@ -319,10 +317,7 @@ class NotificationManager {
     if (duration !== undefined && duration > 0) {
       const minutes = Math.floor(duration / 60)
       const seconds = duration % 60
-      const durationStr =
-        minutes > 0
-          ? `${minutes}m ${seconds}s`
-          : `${seconds}s`
+      const durationStr = minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`
       fullMessage = `${message}\n(${durationStr})`
     }
 
@@ -338,7 +333,7 @@ class NotificationManager {
   /**
    * Test notification - shows a sample notification
    * Useful for testing if notifications are working
-   * 
+   *
    * @returns Promise<Notification | null>
    */
   async showTestNotification(): Promise<Notification | null> {
@@ -352,7 +347,7 @@ class NotificationManager {
   /**
    * Check if notification can be shown right now
    * Validates support and permission
-   * 
+   *
    * @returns true if notification can be shown
    */
   canShowNotification(): boolean {
@@ -362,7 +357,7 @@ class NotificationManager {
   /**
    * Get user-friendly permission status message
    * Useful for UI display
-   * 
+   *
    * @returns Status message
    */
   getPermissionStatusMessage(): string {

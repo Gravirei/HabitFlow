@@ -1,6 +1,6 @@
 /**
  * SyncStatusIndicator Component
- * 
+ *
  * Shows the current sync status for timer history
  * - Cloud icon when synced
  * - Syncing animation when syncing
@@ -65,13 +65,9 @@ export const SyncStatusIndicator: React.FC<SyncStatusIndicatorProps> = ({
     return (
       <div className={`flex items-center gap-1.5 text-xs text-amber-400 ${className}`}>
         <span className="material-symbols-outlined text-sm">cloud_off</span>
-        {!compact && (
-          <span>
-            {pendingChanges} pending
-          </span>
-        )}
+        {!compact && <span>{pendingChanges} pending</span>}
         {compact && (
-          <span className="absolute -top-1 -right-1 w-4 h-4 bg-amber-500 rounded-full text-[10px] flex items-center justify-center text-white font-bold">
+          <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-amber-500 text-[10px] font-bold text-white">
             {pendingChanges > 9 ? '9+' : pendingChanges}
           </span>
         )}

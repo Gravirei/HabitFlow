@@ -47,11 +47,11 @@ export function FriendRequestInbox() {
   }
 
   return (
-    <div className="rounded-2xl bg-white/[0.03] border border-primary/20 overflow-hidden mb-3">
+    <div className="mb-3 overflow-hidden rounded-2xl border border-primary/20 bg-white/[0.03]">
       {/* Header — toggle expand */}
       <button
         onClick={() => setIsExpanded((p) => !p)}
-        className="w-full flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-white/[0.02] transition-colors"
+        className="flex w-full cursor-pointer items-center justify-between px-4 py-3 transition-colors hover:bg-white/[0.02]"
       >
         <div className="flex items-center gap-2">
           <div className="flex size-7 items-center justify-center rounded-lg bg-primary/10">
@@ -86,7 +86,7 @@ export function FriendRequestInbox() {
             transition={{ duration: 0.2 }}
             className="overflow-hidden"
           >
-            <div className="px-3 pb-3 space-y-2">
+            <div className="space-y-2 px-3 pb-3">
               {requests.map((req) => {
                 const tierColor = getLeagueTierColor('bronze') // Default for incoming
 
@@ -96,19 +96,24 @@ export function FriendRequestInbox() {
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, x: -40, height: 0 }}
-                    className="flex items-center gap-3 rounded-xl bg-white/[0.03] border border-white/[0.06] px-3 py-2.5"
+                    className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-2.5"
                   >
                     {/* Avatar */}
                     <img
-                      src={req.fromAvatarUrl || `/images/avatars/avatar${Math.floor(Math.random() * 15) + 1}.jpg`}
+                      src={
+                        req.fromAvatarUrl ||
+                        `/images/avatars/avatar${Math.floor(Math.random() * 15) + 1}.jpg`
+                      }
                       alt={req.fromDisplayName}
                       className="size-10 rounded-full object-cover ring-1 ring-white/10"
                     />
 
                     {/* Info */}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[13px] font-semibold text-white truncate">{req.fromDisplayName}</p>
-                      <div className="flex items-center gap-1.5 mt-0.5">
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-[13px] font-semibold text-white">
+                        {req.fromDisplayName}
+                      </p>
+                      <div className="mt-0.5 flex items-center gap-1.5">
                         <span className="text-[11px] text-slate-400">Lv.{req.fromLevel}</span>
                         <span className="text-slate-600">·</span>
                         <span className="text-[11px] text-slate-500">{timeAgo(req.sentAt)}</span>
@@ -116,19 +121,21 @@ export function FriendRequestInbox() {
                     </div>
 
                     {/* Accept / Decline */}
-                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                    <div className="flex flex-shrink-0 items-center gap-1.5">
                       <button
                         onClick={() => handleAccept(req.id, req.fromDisplayName)}
-                        className="flex items-center gap-1 text-[11px] font-semibold text-emerald-400 px-2.5 py-1.5 rounded-xl bg-emerald-400/10 hover:bg-emerald-400/20 transition-colors cursor-pointer"
+                        className="flex cursor-pointer items-center gap-1 rounded-xl bg-emerald-400/10 px-2.5 py-1.5 text-[11px] font-semibold text-emerald-400 transition-colors hover:bg-emerald-400/20"
                       >
                         <span className="material-symbols-outlined text-sm">check</span>
                         Accept
                       </button>
                       <button
                         onClick={() => handleDecline(req.id)}
-                        className="flex size-8 items-center justify-center rounded-xl bg-white/[0.04] hover:bg-white/[0.08] transition-colors cursor-pointer"
+                        className="flex size-8 cursor-pointer items-center justify-center rounded-xl bg-white/[0.04] transition-colors hover:bg-white/[0.08]"
                       >
-                        <span className="material-symbols-outlined text-sm text-slate-500">close</span>
+                        <span className="material-symbols-outlined text-sm text-slate-500">
+                          close
+                        </span>
                       </button>
                     </div>
                   </motion.div>

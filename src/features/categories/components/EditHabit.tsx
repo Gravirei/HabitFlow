@@ -40,7 +40,7 @@ const goalPeriodOptions: { value: GoalPeriodType; label: string }[] = [
 
 export function EditHabit({ isOpen, onClose, habitId }: EditHabitProps) {
   const { habits, updateHabit } = useHabitStore()
-  const habit = habits.find(h => h.id === habitId)
+  const habit = habits.find((h) => h.id === habitId)
 
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
@@ -64,7 +64,7 @@ export function EditHabit({ isOpen, onClose, habitId }: EditHabitProps) {
   // Load habit data when modal opens
   useEffect(() => {
     if (!isOpen || !habit) return
-    
+
     setName(habit.name)
     setDescription(habit.description || '')
     setIcon(habit.icon)
@@ -81,7 +81,7 @@ export function EditHabit({ isOpen, onClose, habitId }: EditHabitProps) {
     setMonthlyDays(habit.monthlyDays || [])
     setError(undefined)
     setIsSubmitting(false)
-    
+
     setTimeout(() => inputRef.current?.focus(), 100)
   }, [isOpen, habit])
 
@@ -142,7 +142,8 @@ export function EditHabit({ isOpen, onClose, habitId }: EditHabitProps) {
         goalPeriod,
         weeklyTimesPerWeek: frequency === 'weekly' ? parseInt(weeklyTimesPerWeek, 10) : undefined,
         weeklyDays: frequency === 'weekly' ? [...weeklyDays].sort() : undefined,
-        monthlyTimesPerMonth: frequency === 'monthly' ? parseInt(monthlyTimesPerMonth, 10) : undefined,
+        monthlyTimesPerMonth:
+          frequency === 'monthly' ? parseInt(monthlyTimesPerMonth, 10) : undefined,
         monthlyDays: frequency === 'monthly' ? [...monthlyDays].sort((a, b) => a - b) : undefined,
       })
 
@@ -176,7 +177,7 @@ export function EditHabit({ isOpen, onClose, habitId }: EditHabitProps) {
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: '100%', opacity: 0 }}
               transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-              className="relative w-full max-w-lg rounded-t-3xl bg-white shadow-2xl sm:rounded-3xl dark:bg-slate-900"
+              className="relative w-full max-w-lg rounded-t-3xl bg-white shadow-2xl dark:bg-slate-900 sm:rounded-3xl"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
@@ -195,7 +196,10 @@ export function EditHabit({ isOpen, onClose, habitId }: EditHabitProps) {
               </div>
 
               {/* Form */}
-              <form onSubmit={handleSubmit} className="max-h-[70vh] overflow-y-auto p-6 space-y-5 sm:max-h-[80vh] custom-scrollbar">
+              <form
+                onSubmit={handleSubmit}
+                className="custom-scrollbar max-h-[70vh] space-y-5 overflow-y-auto p-6 sm:max-h-[80vh]"
+              >
                 {/* Icon Preview Section */}
                 <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100/50 p-6 dark:from-slate-800/50 dark:to-slate-900/50">
                   <div className="flex items-center gap-4">
@@ -214,8 +218,10 @@ export function EditHabit({ isOpen, onClose, habitId }: EditHabitProps) {
                     </motion.div>
 
                     {/* Preview Info */}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Preview</p>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                        Preview
+                      </p>
                       <h3 className="truncate text-lg font-bold text-slate-900 dark:text-white">
                         {name || 'Your Habit Name'}
                       </h3>
@@ -228,7 +234,10 @@ export function EditHabit({ isOpen, onClose, habitId }: EditHabitProps) {
 
                 {/* Habit Name */}
                 <div>
-                  <label htmlFor="habit-name" className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                  <label
+                    htmlFor="habit-name"
+                    className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300"
+                  >
                     Habit Name *
                   </label>
                   <input
@@ -252,7 +261,10 @@ export function EditHabit({ isOpen, onClose, habitId }: EditHabitProps) {
 
                 {/* Description */}
                 <div>
-                  <label htmlFor="habit-description" className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                  <label
+                    htmlFor="habit-description"
+                    className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300"
+                  >
                     Description (Optional)
                   </label>
                   <textarea
@@ -263,7 +275,7 @@ export function EditHabit({ isOpen, onClose, habitId }: EditHabitProps) {
                     rows={2}
                     maxLength={200}
                     disabled={isSubmitting}
-                    className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm transition-all focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-slate-800 dark:text-white resize-none"
+                    className="w-full resize-none rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm transition-all focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-slate-800 dark:text-white"
                   />
                   <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
                     {description.length}/200 characters
@@ -275,7 +287,7 @@ export function EditHabit({ isOpen, onClose, habitId }: EditHabitProps) {
                   <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
                     Icon & Color
                   </label>
-                  
+
                   {/* Icon & Color Grid */}
                   <div className="space-y-3">
                     {/* Icon Selector Button */}
@@ -286,11 +298,15 @@ export function EditHabit({ isOpen, onClose, habitId }: EditHabitProps) {
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <div className={clsx(
-                            'flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br',
-                            iconColorOptions[iconColorIndex].gradient
-                          )}>
-                            <span className="material-symbols-outlined text-xl text-white">{icon}</span>
+                          <div
+                            className={clsx(
+                              'flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br',
+                              iconColorOptions[iconColorIndex].gradient
+                            )}
+                          >
+                            <span className="material-symbols-outlined text-xl text-white">
+                              {icon}
+                            </span>
                           </div>
                           <div className="text-left">
                             <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
@@ -301,10 +317,12 @@ export function EditHabit({ isOpen, onClose, habitId }: EditHabitProps) {
                             </p>
                           </div>
                         </div>
-                        <span className={clsx(
-                          'material-symbols-outlined text-slate-400 transition-transform group-hover:text-primary',
-                          showIconPicker && 'rotate-180'
-                        )}>
+                        <span
+                          className={clsx(
+                            'material-symbols-outlined text-slate-400 transition-transform group-hover:text-primary',
+                            showIconPicker && 'rotate-180'
+                          )}
+                        >
                           expand_more
                         </span>
                       </div>
@@ -321,12 +339,12 @@ export function EditHabit({ isOpen, onClose, habitId }: EditHabitProps) {
                           className="overflow-hidden"
                         >
                           <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-slate-800/50">
-                            <IconPicker 
-                              value={icon} 
+                            <IconPicker
+                              value={icon}
                               onChange={(newIcon) => {
                                 setIcon(newIcon)
                                 setShowIconPicker(false)
-                              }} 
+                              }}
                             />
                           </div>
                         </motion.div>
@@ -348,7 +366,7 @@ export function EditHabit({ isOpen, onClose, habitId }: EditHabitProps) {
                               'group relative h-10 rounded-lg bg-gradient-to-br transition-all',
                               color.gradient,
                               iconColorIndex === index
-                                ? 'ring-2 ring-offset-2 ring-slate-900 dark:ring-white dark:ring-offset-slate-900 scale-110'
+                                ? 'scale-110 ring-2 ring-slate-900 ring-offset-2 dark:ring-white dark:ring-offset-slate-900'
                                 : 'hover:scale-105'
                             )}
                           >
@@ -400,14 +418,24 @@ export function EditHabit({ isOpen, onClose, habitId }: EditHabitProps) {
                             : 'border-slate-200 hover:border-slate-300 dark:border-white/10 dark:hover:border-white/20'
                         )}
                       >
-                        <span className={clsx(
-                          'material-symbols-outlined text-2xl',
-                          frequency === opt.value ? 'text-primary' : 'text-slate-400'
-                        )}>{opt.icon}</span>
-                        <span className={clsx(
-                          'text-xs font-medium',
-                          frequency === opt.value ? 'text-slate-900 dark:text-white' : 'text-slate-600 dark:text-slate-400'
-                        )}>{opt.label}</span>
+                        <span
+                          className={clsx(
+                            'material-symbols-outlined text-2xl',
+                            frequency === opt.value ? 'text-primary' : 'text-slate-400'
+                          )}
+                        >
+                          {opt.icon}
+                        </span>
+                        <span
+                          className={clsx(
+                            'text-xs font-medium',
+                            frequency === opt.value
+                              ? 'text-slate-900 dark:text-white'
+                              : 'text-slate-600 dark:text-slate-400'
+                          )}
+                        >
+                          {opt.label}
+                        </span>
                       </button>
                     ))}
                   </div>
@@ -422,10 +450,10 @@ export function EditHabit({ isOpen, onClose, habitId }: EditHabitProps) {
                         transition={{ duration: 0.25 }}
                         className="overflow-hidden"
                       >
-                        <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-4 dark:border-white/10 dark:bg-slate-800/50">
+                        <div className="mt-3 space-y-4 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-slate-800/50">
                           {/* Step 1: How many times per week */}
                           <div>
-                            <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                            <p className="mb-2 text-sm font-medium text-slate-700 dark:text-slate-300">
                               How many times do you want to do this habit in a week?
                             </p>
                             <div className="flex items-center gap-2">
@@ -452,12 +480,20 @@ export function EditHabit({ isOpen, onClose, habitId }: EditHabitProps) {
                                     setWeeklyDays([])
                                   }
                                 }}
-                                disabled={isSubmitting || !weeklyTimesPerWeek || parseInt(weeklyTimesPerWeek, 10) < 1 || parseInt(weeklyTimesPerWeek, 10) > 7}
+                                disabled={
+                                  isSubmitting ||
+                                  !weeklyTimesPerWeek ||
+                                  parseInt(weeklyTimesPerWeek, 10) < 1 ||
+                                  parseInt(weeklyTimesPerWeek, 10) > 7
+                                }
                                 className={clsx(
                                   'rounded-xl px-4 py-2.5 text-sm font-semibold transition-all',
-                                  weeklyTimesPerWeek && parseInt(weeklyTimesPerWeek, 10) >= 1 && parseInt(weeklyTimesPerWeek, 10) <= 7 && !isSubmitting
+                                  weeklyTimesPerWeek &&
+                                    parseInt(weeklyTimesPerWeek, 10) >= 1 &&
+                                    parseInt(weeklyTimesPerWeek, 10) <= 7 &&
+                                    !isSubmitting
                                     ? 'bg-primary text-slate-900 hover:bg-primary/90'
-                                    : 'bg-slate-200 text-slate-400 cursor-not-allowed dark:bg-slate-700 dark:text-slate-500'
+                                    : 'cursor-not-allowed bg-slate-200 text-slate-400 dark:bg-slate-700 dark:text-slate-500'
                                 )}
                               >
                                 Set
@@ -475,46 +511,57 @@ export function EditHabit({ isOpen, onClose, habitId }: EditHabitProps) {
                                 transition={{ duration: 0.2 }}
                                 className="overflow-hidden"
                               >
-                                <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                                  Please select {weeklyTimesPerWeek} specific day{parseInt(weeklyTimesPerWeek, 10) > 1 ? 's' : ''} you want to complete this habit
+                                <p className="mb-2 text-sm font-medium text-slate-700 dark:text-slate-300">
+                                  Please select {weeklyTimesPerWeek} specific day
+                                  {parseInt(weeklyTimesPerWeek, 10) > 1 ? 's' : ''} you want to
+                                  complete this habit
                                 </p>
                                 <div className="flex gap-1.5">
-                                  {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, index) => {
-                                    const isSelected = weeklyDays.includes(index)
-                                    const maxReached = weeklyDays.length >= parseInt(weeklyTimesPerWeek, 10) && !isSelected
-                                    return (
-                                      <button
-                                        key={day}
-                                        type="button"
-                                        onClick={() => {
-                                          if (isSelected) {
-                                            setWeeklyDays(weeklyDays.filter((d) => d !== index))
-                                          } else if (!maxReached) {
-                                            setWeeklyDays([...weeklyDays, index])
-                                          }
-                                        }}
-                                        disabled={isSubmitting || (maxReached && !isSelected)}
-                                        className={clsx(
-                                          'flex-1 rounded-lg py-2 text-xs font-bold transition-all',
-                                          isSelected
-                                            ? 'bg-primary text-slate-900 shadow-sm ring-2 ring-primary/30'
-                                            : maxReached
-                                              ? 'bg-slate-100 text-slate-300 cursor-not-allowed dark:bg-slate-700 dark:text-slate-600'
-                                              : 'bg-white text-slate-600 border border-slate-200 hover:border-primary hover:text-primary dark:bg-slate-800 dark:text-slate-400 dark:border-white/10 dark:hover:border-primary'
-                                        )}
-                                      >
-                                        {day}
-                                      </button>
-                                    )
-                                  })}
+                                  {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(
+                                    (day, index) => {
+                                      const isSelected = weeklyDays.includes(index)
+                                      const maxReached =
+                                        weeklyDays.length >= parseInt(weeklyTimesPerWeek, 10) &&
+                                        !isSelected
+                                      return (
+                                        <button
+                                          key={day}
+                                          type="button"
+                                          onClick={() => {
+                                            if (isSelected) {
+                                              setWeeklyDays(weeklyDays.filter((d) => d !== index))
+                                            } else if (!maxReached) {
+                                              setWeeklyDays([...weeklyDays, index])
+                                            }
+                                          }}
+                                          disabled={isSubmitting || (maxReached && !isSelected)}
+                                          className={clsx(
+                                            'flex-1 rounded-lg py-2 text-xs font-bold transition-all',
+                                            isSelected
+                                              ? 'bg-primary text-slate-900 shadow-sm ring-2 ring-primary/30'
+                                              : maxReached
+                                                ? 'cursor-not-allowed bg-slate-100 text-slate-300 dark:bg-slate-700 dark:text-slate-600'
+                                                : 'border border-slate-200 bg-white text-slate-600 hover:border-primary hover:text-primary dark:border-white/10 dark:bg-slate-800 dark:text-slate-400 dark:hover:border-primary'
+                                          )}
+                                        >
+                                          {day}
+                                        </button>
+                                      )
+                                    }
+                                  )}
                                 </div>
-                                {weeklyDays.length > 0 && weeklyDays.length < parseInt(weeklyTimesPerWeek, 10) && (
-                                  <p className="mt-2 text-xs text-amber-500">
-                                    Select {parseInt(weeklyTimesPerWeek, 10) - weeklyDays.length} more day{parseInt(weeklyTimesPerWeek, 10) - weeklyDays.length > 1 ? 's' : ''}
-                                  </p>
-                                )}
+                                {weeklyDays.length > 0 &&
+                                  weeklyDays.length < parseInt(weeklyTimesPerWeek, 10) && (
+                                    <p className="mt-2 text-xs text-amber-500">
+                                      Select {parseInt(weeklyTimesPerWeek, 10) - weeklyDays.length}{' '}
+                                      more day
+                                      {parseInt(weeklyTimesPerWeek, 10) - weeklyDays.length > 1
+                                        ? 's'
+                                        : ''}
+                                    </p>
+                                  )}
                                 {weeklyDays.length === parseInt(weeklyTimesPerWeek, 10) && (
-                                  <p className="mt-2 text-xs text-emerald-500 font-medium">
+                                  <p className="mt-2 text-xs font-medium text-emerald-500">
                                     ✓ All days selected
                                   </p>
                                 )}
@@ -536,10 +583,10 @@ export function EditHabit({ isOpen, onClose, habitId }: EditHabitProps) {
                         transition={{ duration: 0.25 }}
                         className="overflow-hidden"
                       >
-                        <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-4 dark:border-white/10 dark:bg-slate-800/50">
+                        <div className="mt-3 space-y-4 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-slate-800/50">
                           {/* Step 1: How many times per month */}
                           <div>
-                            <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                            <p className="mb-2 text-sm font-medium text-slate-700 dark:text-slate-300">
                               How many times do you want to do this habit in a month?
                             </p>
                             <div className="flex items-center gap-2">
@@ -566,12 +613,20 @@ export function EditHabit({ isOpen, onClose, habitId }: EditHabitProps) {
                                     setMonthlyDays([])
                                   }
                                 }}
-                                disabled={isSubmitting || !monthlyTimesPerMonth || parseInt(monthlyTimesPerMonth, 10) < 1 || parseInt(monthlyTimesPerMonth, 10) > 31}
+                                disabled={
+                                  isSubmitting ||
+                                  !monthlyTimesPerMonth ||
+                                  parseInt(monthlyTimesPerMonth, 10) < 1 ||
+                                  parseInt(monthlyTimesPerMonth, 10) > 31
+                                }
                                 className={clsx(
                                   'rounded-xl px-4 py-2.5 text-sm font-semibold transition-all',
-                                  monthlyTimesPerMonth && parseInt(monthlyTimesPerMonth, 10) >= 1 && parseInt(monthlyTimesPerMonth, 10) <= 31 && !isSubmitting
+                                  monthlyTimesPerMonth &&
+                                    parseInt(monthlyTimesPerMonth, 10) >= 1 &&
+                                    parseInt(monthlyTimesPerMonth, 10) <= 31 &&
+                                    !isSubmitting
                                     ? 'bg-primary text-slate-900 hover:bg-primary/90'
-                                    : 'bg-slate-200 text-slate-400 cursor-not-allowed dark:bg-slate-700 dark:text-slate-500'
+                                    : 'cursor-not-allowed bg-slate-200 text-slate-400 dark:bg-slate-700 dark:text-slate-500'
                                 )}
                               >
                                 Set
@@ -589,13 +644,16 @@ export function EditHabit({ isOpen, onClose, habitId }: EditHabitProps) {
                                 transition={{ duration: 0.2 }}
                                 className="overflow-hidden"
                               >
-                                <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                                  Select {monthlyTimesPerMonth} specific date{parseInt(monthlyTimesPerMonth, 10) > 1 ? 's' : ''} of the month
+                                <p className="mb-2 text-sm font-medium text-slate-700 dark:text-slate-300">
+                                  Select {monthlyTimesPerMonth} specific date
+                                  {parseInt(monthlyTimesPerMonth, 10) > 1 ? 's' : ''} of the month
                                 </p>
                                 <div className="grid grid-cols-7 gap-1.5">
                                   {Array.from({ length: 31 }, (_, i) => i + 1).map((date) => {
                                     const isSelected = monthlyDays.includes(date)
-                                    const maxReached = monthlyDays.length >= parseInt(monthlyTimesPerMonth, 10) && !isSelected
+                                    const maxReached =
+                                      monthlyDays.length >= parseInt(monthlyTimesPerMonth, 10) &&
+                                      !isSelected
                                     return (
                                       <button
                                         key={date}
@@ -613,8 +671,8 @@ export function EditHabit({ isOpen, onClose, habitId }: EditHabitProps) {
                                           isSelected
                                             ? 'bg-primary text-slate-900 shadow-sm ring-2 ring-primary/30'
                                             : maxReached
-                                              ? 'bg-slate-100 text-slate-300 cursor-not-allowed dark:bg-slate-700 dark:text-slate-600'
-                                              : 'bg-white text-slate-600 border border-slate-200 hover:border-primary hover:text-primary dark:bg-slate-800 dark:text-slate-400 dark:border-white/10 dark:hover:border-primary'
+                                              ? 'cursor-not-allowed bg-slate-100 text-slate-300 dark:bg-slate-700 dark:text-slate-600'
+                                              : 'border border-slate-200 bg-white text-slate-600 hover:border-primary hover:text-primary dark:border-white/10 dark:bg-slate-800 dark:text-slate-400 dark:hover:border-primary'
                                         )}
                                       >
                                         {date}
@@ -623,15 +681,22 @@ export function EditHabit({ isOpen, onClose, habitId }: EditHabitProps) {
                                   })}
                                 </div>
                                 <p className="mt-2 text-[10px] text-slate-400 dark:text-slate-500">
-                                  💡 Dates like 29, 30, 31 will roll to the last day in shorter months
+                                  💡 Dates like 29, 30, 31 will roll to the last day in shorter
+                                  months
                                 </p>
-                                {monthlyDays.length > 0 && monthlyDays.length < parseInt(monthlyTimesPerMonth, 10) && (
-                                  <p className="mt-1 text-xs text-amber-500">
-                                    Select {parseInt(monthlyTimesPerMonth, 10) - monthlyDays.length} more date{parseInt(monthlyTimesPerMonth, 10) - monthlyDays.length > 1 ? 's' : ''}
-                                  </p>
-                                )}
+                                {monthlyDays.length > 0 &&
+                                  monthlyDays.length < parseInt(monthlyTimesPerMonth, 10) && (
+                                    <p className="mt-1 text-xs text-amber-500">
+                                      Select{' '}
+                                      {parseInt(monthlyTimesPerMonth, 10) - monthlyDays.length} more
+                                      date
+                                      {parseInt(monthlyTimesPerMonth, 10) - monthlyDays.length > 1
+                                        ? 's'
+                                        : ''}
+                                    </p>
+                                  )}
                                 {monthlyDays.length === parseInt(monthlyTimesPerMonth, 10) && (
-                                  <p className="mt-1 text-xs text-emerald-500 font-medium">
+                                  <p className="mt-1 text-xs font-medium text-emerald-500">
                                     ✓ All dates selected
                                   </p>
                                 )}
@@ -667,7 +732,9 @@ export function EditHabit({ isOpen, onClose, habitId }: EditHabitProps) {
                       className="flex-1 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-slate-800 dark:text-white"
                     >
                       {goalPeriodOptions.map((opt) => (
-                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
                       ))}
                     </select>
                   </div>

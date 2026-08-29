@@ -44,7 +44,7 @@ vi.mock('@/store/useHabitStore', () => ({
     isHabitCompletedOnDate: vi.fn(),
     loadSampleHabits: vi.fn(),
     markOnboardingComplete: vi.fn(),
-  }))
+  })),
 }))
 
 const mockNavigate = vi.fn()
@@ -68,14 +68,14 @@ const localStorageMock = (() => {
     },
     key: (index: number) => {
       return Object.keys(store)[index] || null
-    }
+    },
   }
 })()
 
 Object.defineProperty(global, 'localStorage', {
   value: localStorageMock,
   writable: true,
-  configurable: true
+  configurable: true,
 })
 
 const NAME_PLACEHOLDER = 'Name your habit…'
@@ -161,7 +161,7 @@ describe('NewHabit Wizard', () => {
       await user.type(nameInput, 'Test Habit')
       fireEvent.click(screen.getByRole('button', { name: /continue/i }))
 
-      const weeklyRadio = await screen.findByDisplayValue('weekly') as HTMLInputElement
+      const weeklyRadio = (await screen.findByDisplayValue('weekly')) as HTMLInputElement
       expect(weeklyRadio).toBeChecked()
     })
   })
@@ -228,17 +228,18 @@ describe('NewHabit Wizard', () => {
       await user.paste(longDescription)
 
       // Wait for validation error to appear
-      await waitFor(() => {
-        expect(screen.getByText(/less than 500 characters/i)).toBeInTheDocument()
-      }, { timeout: 3000 })
+      await waitFor(
+        () => {
+          expect(screen.getByText(/less than 500 characters/i)).toBeInTheDocument()
+        },
+        { timeout: 3000 }
+      )
     })
   })
 
   describe('Form Submission', () => {
     it('should include categoryId when provided via query param', async () => {
-      ;(router.useSearchParams as any).mockReturnValue([
-        new URLSearchParams('categoryId=fitness'),
-      ])
+      ;(router.useSearchParams as any).mockReturnValue([new URLSearchParams('categoryId=fitness')])
 
       await goToStep(3)
 

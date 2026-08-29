@@ -24,7 +24,7 @@ export function CreateTemplateModal({ isOpen, onClose }: CreateTemplateModalProp
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     addTemplate({
       name,
       description,
@@ -58,7 +58,7 @@ export function CreateTemplateModal({ isOpen, onClose }: CreateTemplateModalProp
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="fixed inset-x-4 top-[10%] z-[60] mx-auto max-w-md bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden"
+            className="fixed inset-x-4 top-[10%] z-[60] mx-auto max-w-md overflow-hidden rounded-3xl bg-white shadow-2xl dark:bg-slate-900"
           >
             <form onSubmit={handleSubmit}>
               {/* Header */}
@@ -68,7 +68,7 @@ export function CreateTemplateModal({ isOpen, onClose }: CreateTemplateModalProp
                   <button
                     type="button"
                     onClick={onClose}
-                    className="p-2 rounded-full hover:bg-white/20 text-white transition-colors"
+                    className="rounded-full p-2 text-white transition-colors hover:bg-white/20"
                   >
                     <span className="material-symbols-outlined">close</span>
                   </button>
@@ -76,10 +76,10 @@ export function CreateTemplateModal({ isOpen, onClose }: CreateTemplateModalProp
               </div>
 
               {/* Content */}
-              <div className="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
+              <div className="max-h-[60vh] space-y-4 overflow-y-auto p-6">
                 {/* Name */}
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
                     Template Name *
                   </label>
                   <input
@@ -88,13 +88,13 @@ export function CreateTemplateModal({ isOpen, onClose }: CreateTemplateModalProp
                     onChange={(e) => setName(e.target.value)}
                     placeholder="e.g., Pomodoro Focus"
                     required
-                    className="w-full px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-100 px-4 py-3 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                   />
                 </div>
 
                 {/* Description */}
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
                     Description
                   </label>
                   <textarea
@@ -102,13 +102,13 @@ export function CreateTemplateModal({ isOpen, onClose }: CreateTemplateModalProp
                     onChange={(e) => setDescription(e.target.value)}
                     placeholder="Brief description of this template"
                     rows={2}
-                    className="w-full px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500 resize-none"
+                    className="w-full resize-none rounded-xl border border-slate-200 bg-slate-100 px-4 py-3 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                   />
                 </div>
 
                 {/* Mode Selection */}
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
                     Timer Mode *
                   </label>
                   <div className="grid grid-cols-3 gap-2">
@@ -117,10 +117,10 @@ export function CreateTemplateModal({ isOpen, onClose }: CreateTemplateModalProp
                         key={m}
                         type="button"
                         onClick={() => setMode(m)}
-                        className={`py-3 px-4 rounded-xl text-sm font-medium transition-all ${
+                        className={`rounded-xl px-4 py-3 text-sm font-medium transition-all ${
                           mode === m
                             ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg'
-                            : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
+                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700'
                         }`}
                       >
                         {m}
@@ -132,7 +132,7 @@ export function CreateTemplateModal({ isOpen, onClose }: CreateTemplateModalProp
                 {/* Mode-specific settings */}
                 {mode === 'Countdown' && (
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
                       Duration (seconds)
                     </label>
                     <input
@@ -140,7 +140,7 @@ export function CreateTemplateModal({ isOpen, onClose }: CreateTemplateModalProp
                       value={countdownDuration}
                       onChange={(e) => setCountdownDuration(Number(e.target.value))}
                       min="1"
-                      className="w-full px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                      className="w-full rounded-xl border border-slate-200 bg-slate-100 px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                     />
                   </div>
                 )}
@@ -149,7 +149,7 @@ export function CreateTemplateModal({ isOpen, onClose }: CreateTemplateModalProp
                   <>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                        <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
                           Work (sec)
                         </label>
                         <input
@@ -157,11 +157,11 @@ export function CreateTemplateModal({ isOpen, onClose }: CreateTemplateModalProp
                           value={workDuration}
                           onChange={(e) => setWorkDuration(Number(e.target.value))}
                           min="1"
-                          className="w-full px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                          className="w-full rounded-xl border border-slate-200 bg-slate-100 px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                        <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
                           Break (sec)
                         </label>
                         <input
@@ -169,12 +169,12 @@ export function CreateTemplateModal({ isOpen, onClose }: CreateTemplateModalProp
                           value={breakDuration}
                           onChange={(e) => setBreakDuration(Number(e.target.value))}
                           min="1"
-                          className="w-full px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                          className="w-full rounded-xl border border-slate-200 bg-slate-100 px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                         />
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                      <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
                         Target Loops
                       </label>
                       <input
@@ -182,7 +182,7 @@ export function CreateTemplateModal({ isOpen, onClose }: CreateTemplateModalProp
                         value={targetLoops}
                         onChange={(e) => setTargetLoops(Number(e.target.value))}
                         min="1"
-                        className="w-full px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                        className="w-full rounded-xl border border-slate-200 bg-slate-100 px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                       />
                     </div>
                   </>
@@ -190,18 +190,18 @@ export function CreateTemplateModal({ isOpen, onClose }: CreateTemplateModalProp
               </div>
 
               {/* Footer */}
-              <div className="px-6 py-4 bg-slate-50 dark:bg-slate-800/50 flex gap-3">
+              <div className="flex gap-3 bg-slate-50 px-6 py-4 dark:bg-slate-800/50">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="flex-1 py-3 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl font-medium hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors"
+                  className="flex-1 rounded-xl bg-slate-200 py-3 font-medium text-slate-700 transition-colors hover:bg-slate-300 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={!name.trim()}
-                  className="flex-1 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl font-medium hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 py-3 font-medium text-white transition-all hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   Create Template
                 </button>

@@ -9,8 +9,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 // Imports commented out to prevent module resolution errors
 // import { render, screen, fireEvent } from '@testing-library/react'
 // import { AIInsightsModal } from '../../ai-insights/AIInsightsModal'
-// import { 
-//   generateAIInsights, 
+// import {
+//   generateAIInsights,
 //   analyzePeakHours,
 //   analyzeDurationPatterns,
 //   analyzeModeMastery,
@@ -29,7 +29,7 @@ describe.skip('AI Insights Feature', () => {
       duration: 1500,
       startTime: new Date(Date.now() - 86400000),
       endTime: new Date(Date.now() - 86400000 + 1500000),
-      completed: true
+      completed: true,
     },
     {
       id: '2',
@@ -37,7 +37,7 @@ describe.skip('AI Insights Feature', () => {
       duration: 1800,
       startTime: new Date(Date.now() - 43200000),
       endTime: new Date(Date.now() - 43200000 + 1800000),
-      completed: true
+      completed: true,
     },
     {
       id: '3',
@@ -49,56 +49,34 @@ describe.skip('AI Insights Feature', () => {
       intervals: {
         workDuration: 1500,
         breakDuration: 300,
-        rounds: 4
-      }
-    }
+        rounds: 4,
+      },
+    },
   ]
 
   describe('AIInsightsModal Component', () => {
     it('renders AI insights modal when open', () => {
-      render(
-        <AIInsightsModal
-          isOpen={true}
-          onClose={vi.fn()}
-          sessions={mockSessions}
-        />
-      )
+      render(<AIInsightsModal isOpen={true} onClose={vi.fn()} sessions={mockSessions} />)
 
       expect(screen.getByText('AI Insights')).toBeInTheDocument()
     })
 
     it('does not render when closed', () => {
       const { container } = render(
-        <AIInsightsModal
-          isOpen={false}
-          onClose={vi.fn()}
-          sessions={mockSessions}
-        />
+        <AIInsightsModal isOpen={false} onClose={vi.fn()} sessions={mockSessions} />
       )
 
       expect(container).toBeEmptyDOMElement()
     })
 
     it('displays session count analyzed', () => {
-      render(
-        <AIInsightsModal
-          isOpen={true}
-          onClose={vi.fn()}
-          sessions={mockSessions}
-        />
-      )
+      render(<AIInsightsModal isOpen={true} onClose={vi.fn()} sessions={mockSessions} />)
 
       expect(screen.getByText(/3 sessions analyzed/i)).toBeInTheDocument()
     })
 
     it('shows data quality indicator', () => {
-      render(
-        <AIInsightsModal
-          isOpen={true}
-          onClose={vi.fn()}
-          sessions={mockSessions}
-        />
-      )
+      render(<AIInsightsModal isOpen={true} onClose={vi.fn()} sessions={mockSessions} />)
 
       // Should show data quality (insufficient/limited/good/excellent)
       expect(screen.getByText(/data|quality/i)).toBeInTheDocument()
@@ -106,17 +84,11 @@ describe.skip('AI Insights Feature', () => {
 
     it('calls onClose when clicking close button', () => {
       const onClose = vi.fn()
-      render(
-        <AIInsightsModal
-          isOpen={true}
-          onClose={onClose}
-          sessions={mockSessions}
-        />
-      )
+      render(<AIInsightsModal isOpen={true} onClose={onClose} sessions={mockSessions} />)
 
-      const closeButton = screen.getAllByRole('button').find(btn =>
-        btn.querySelector('.material-symbols-outlined')?.textContent === 'close'
-      )
+      const closeButton = screen
+        .getAllByRole('button')
+        .find((btn) => btn.querySelector('.material-symbols-outlined')?.textContent === 'close')
 
       if (closeButton) {
         fireEvent.click(closeButton)
@@ -129,37 +101,19 @@ describe.skip('AI Insights Feature', () => {
     it('shows empty state for insufficient data (< 5 sessions)', () => {
       const fewSessions = mockSessions.slice(0, 2)
 
-      render(
-        <AIInsightsModal
-          isOpen={true}
-          onClose={vi.fn()}
-          sessions={fewSessions}
-        />
-      )
+      render(<AIInsightsModal isOpen={true} onClose={vi.fn()} sessions={fewSessions} />)
 
       expect(screen.getByText(/keep building your data/i)).toBeInTheDocument()
     })
 
     it('displays minimum sessions requirement', () => {
-      render(
-        <AIInsightsModal
-          isOpen={true}
-          onClose={vi.fn()}
-          sessions={[]}
-        />
-      )
+      render(<AIInsightsModal isOpen={true} onClose={vi.fn()} sessions={[]} />)
 
       expect(screen.getByText(/5.*sessions/i)).toBeInTheDocument()
     })
 
     it('shows what insights will be unlocked', () => {
-      render(
-        <AIInsightsModal
-          isOpen={true}
-          onClose={vi.fn()}
-          sessions={[]}
-        />
-      )
+      render(<AIInsightsModal isOpen={true} onClose={vi.fn()} sessions={[]} />)
 
       expect(screen.getByText(/peak productivity hours/i)).toBeInTheDocument()
     })
@@ -173,7 +127,7 @@ describe.skip('AI Insights Feature', () => {
         duration: 1500 + i * 100,
         startTime: new Date(Date.now() - i * 86400000),
         endTime: new Date(Date.now() - i * 86400000 + (1500 + i * 100) * 1000),
-        completed: true
+        completed: true,
       }))
 
       const score = calculateProductivityScore(largeSessions)
@@ -189,7 +143,7 @@ describe.skip('AI Insights Feature', () => {
         duration: 1800,
         startTime: new Date(Date.now() - i * 86400000),
         endTime: new Date(Date.now() - i * 86400000 + 1800000),
-        completed: true
+        completed: true,
       }))
 
       const score = calculateProductivityScore(largeSessions)
@@ -204,7 +158,7 @@ describe.skip('AI Insights Feature', () => {
         duration: 1500,
         startTime: new Date(Date.now() - i * 86400000),
         endTime: new Date(Date.now() - i * 86400000 + 1500000),
-        completed: true
+        completed: true,
       }))
 
       const score = calculateProductivityScore(largeSessions)
@@ -232,7 +186,7 @@ describe.skip('AI Insights Feature', () => {
         duration: hour >= 9 && hour <= 11 ? 1800 : 600,
         startTime: new Date(new Date().setHours(hour, 0, 0, 0)),
         endTime: new Date(new Date().setHours(hour, 30, 0, 0)),
-        completed: true
+        completed: true,
       }))
 
       const peakHours = analyzePeakHours(hourSessions)
@@ -268,7 +222,9 @@ describe.skip('AI Insights Feature', () => {
       const durationPattern = analyzeDurationPatterns(mockSessions)
 
       expect(durationPattern.optimalDuration.min).toBeGreaterThanOrEqual(0)
-      expect(durationPattern.optimalDuration.max).toBeGreaterThan(durationPattern.optimalDuration.min)
+      expect(durationPattern.optimalDuration.max).toBeGreaterThan(
+        durationPattern.optimalDuration.min
+      )
     })
 
     it('groups sessions into duration buckets', () => {
@@ -301,7 +257,7 @@ describe.skip('AI Insights Feature', () => {
           duration: 1800,
           startTime: new Date(Date.now() - i * 3600000),
           endTime: new Date(Date.now() - i * 3600000 + 1800000),
-          completed: true
+          completed: true,
         })),
         ...Array.from({ length: 5 }, (_, i) => ({
           id: `countdown-${i}`,
@@ -309,8 +265,8 @@ describe.skip('AI Insights Feature', () => {
           duration: 1500,
           startTime: new Date(Date.now() - i * 3600000),
           endTime: new Date(Date.now() - i * 3600000 + 1500000),
-          completed: false
-        }))
+          completed: false,
+        })),
       ]
 
       const modeMastery = analyzeModeMastery(largeSessions)
@@ -321,11 +277,14 @@ describe.skip('AI Insights Feature', () => {
     it('compares all timer modes', () => {
       const largeSessions = Array.from({ length: 15 }, (_, i) => ({
         id: `session-${i}`,
-        mode: (['Stopwatch', 'Countdown', 'Intervals'][i % 3] as 'Stopwatch' | 'Countdown' | 'Intervals'),
+        mode: ['Stopwatch', 'Countdown', 'Intervals'][i % 3] as
+          | 'Stopwatch'
+          | 'Countdown'
+          | 'Intervals',
         duration: 1500,
         startTime: new Date(Date.now() - i * 3600000),
         endTime: new Date(Date.now() - i * 3600000 + 1500000),
-        completed: true
+        completed: true,
       }))
 
       const modeMastery = analyzeModeMastery(largeSessions)
@@ -340,7 +299,7 @@ describe.skip('AI Insights Feature', () => {
         duration: 1500,
         startTime: new Date(Date.now() - i * 3600000),
         endTime: new Date(Date.now() - i * 3600000 + 1500000),
-        completed: true
+        completed: true,
       }))
 
       const modeMastery = analyzeModeMastery(largeSessions)
@@ -398,7 +357,7 @@ describe.skip('AI Insights Feature', () => {
         duration: 900, // 15 min sessions
         startTime: new Date(Date.now() - i * 86400000),
         endTime: new Date(Date.now() - i * 86400000 + 900000),
-        completed: true
+        completed: true,
       }))
 
       const insights = generateAIInsights(largeSessions)
@@ -416,13 +375,13 @@ describe.skip('AI Insights Feature', () => {
         duration: 1500,
         startTime: new Date(Date.now() - i * 86400000),
         endTime: new Date(Date.now() - i * 86400000 + 1500000),
-        completed: true
+        completed: true,
       }))
 
       const insights = generateAIInsights(largeSessions)
       const recommendations = generateRecommendations(insights)
 
-      recommendations.forEach(rec => {
+      recommendations.forEach((rec) => {
         expect(['high', 'medium', 'low']).toContain(rec.priority)
       })
     })
@@ -434,14 +393,16 @@ describe.skip('AI Insights Feature', () => {
         duration: 1500,
         startTime: new Date(Date.now() - i * 86400000),
         endTime: new Date(Date.now() - i * 86400000 + 1500000),
-        completed: true
+        completed: true,
       }))
 
       const insights = generateAIInsights(largeSessions)
       const recommendations = generateRecommendations(insights)
 
-      recommendations.forEach(rec => {
-        expect(['duration', 'timing', 'consistency', 'mode', 'breaks', 'general']).toContain(rec.category)
+      recommendations.forEach((rec) => {
+        expect(['duration', 'timing', 'consistency', 'mode', 'breaks', 'general']).toContain(
+          rec.category
+        )
       })
     })
 
@@ -452,13 +413,13 @@ describe.skip('AI Insights Feature', () => {
         duration: 1500,
         startTime: new Date(Date.now() - i * 86400000),
         endTime: new Date(Date.now() - i * 86400000 + 1500000),
-        completed: true
+        completed: true,
       }))
 
       const insights = generateAIInsights(largeSessions)
       const recommendations = generateRecommendations(insights)
 
-      recommendations.forEach(rec => {
+      recommendations.forEach((rec) => {
         expect(typeof rec.actionable).toBe('boolean')
       })
     })
@@ -470,13 +431,13 @@ describe.skip('AI Insights Feature', () => {
         duration: 1500,
         startTime: new Date(Date.now() - i * 86400000),
         endTime: new Date(Date.now() - i * 86400000 + 1500000),
-        completed: true
+        completed: true,
       }))
 
       const insights = generateAIInsights(largeSessions)
       const recommendations = generateRecommendations(insights)
 
-      recommendations.forEach(rec => {
+      recommendations.forEach((rec) => {
         expect(rec.icon).toBeTruthy()
       })
     })
@@ -531,7 +492,7 @@ describe.skip('AI Insights Feature', () => {
         duration: 1500,
         startTime: new Date(Date.now() - i * 86400000),
         endTime: new Date(Date.now() - i * 86400000 + 1500000),
-        completed: true
+        completed: true,
       }))
 
       const insights = generateAIInsights(limitedSessions)
@@ -546,7 +507,7 @@ describe.skip('AI Insights Feature', () => {
         duration: 1500,
         startTime: new Date(Date.now() - i * 86400000),
         endTime: new Date(Date.now() - i * 86400000 + 1500000),
-        completed: true
+        completed: true,
       }))
 
       const insights = generateAIInsights(goodSessions)
@@ -561,7 +522,7 @@ describe.skip('AI Insights Feature', () => {
         duration: 1500,
         startTime: new Date(Date.now() - i * 86400000),
         endTime: new Date(Date.now() - i * 86400000 + 1500000),
-        completed: true
+        completed: true,
       }))
 
       const insights = generateAIInsights(excellentSessions)
@@ -602,16 +563,10 @@ describe.skip('AI Insights Feature', () => {
         duration: 1800,
         startTime: new Date(Date.now() - i * 86400000),
         endTime: new Date(Date.now() - i * 86400000 + 1800000),
-        completed: true
+        completed: true,
       }))
 
-      render(
-        <AIInsightsModal
-          isOpen={true}
-          onClose={vi.fn()}
-          sessions={largeSessions}
-        />
-      )
+      render(<AIInsightsModal isOpen={true} onClose={vi.fn()} sessions={largeSessions} />)
 
       // Should show productivity score
       expect(screen.getByText(/productivity score/i)).toBeInTheDocument()
@@ -624,16 +579,10 @@ describe.skip('AI Insights Feature', () => {
         duration: 1800,
         startTime: new Date(Date.now() - i * 86400000),
         endTime: new Date(Date.now() - i * 86400000 + 1800000),
-        completed: true
+        completed: true,
       }))
 
-      render(
-        <AIInsightsModal
-          isOpen={true}
-          onClose={vi.fn()}
-          sessions={largeSessions}
-        />
-      )
+      render(<AIInsightsModal isOpen={true} onClose={vi.fn()} sessions={largeSessions} />)
 
       // Should show key insights
       expect(screen.getByText(/key insights/i)).toBeInTheDocument()
@@ -646,16 +595,10 @@ describe.skip('AI Insights Feature', () => {
         duration: 1800,
         startTime: new Date(Date.now() - i * 86400000),
         endTime: new Date(Date.now() - i * 86400000 + 1800000),
-        completed: true
+        completed: true,
       }))
 
-      render(
-        <AIInsightsModal
-          isOpen={true}
-          onClose={vi.fn()}
-          sessions={largeSessions}
-        />
-      )
+      render(<AIInsightsModal isOpen={true} onClose={vi.fn()} sessions={largeSessions} />)
 
       // Should show hourly distribution
       expect(screen.getByText(/hourly/i) || screen.getByText(/distribution/i)).toBeInTheDocument()

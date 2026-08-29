@@ -166,11 +166,14 @@ export function Signup() {
         const { error } = await supabase.auth.signUp({
           email,
           password,
-          options: username ? { data: { username } } : undefined
+          options: username ? { data: { username } } : undefined,
         })
 
         if (error) {
-          if (error.message.toLowerCase().includes('user already registered') || error.message.toLowerCase().includes('already registered')) {
+          if (
+            error.message.toLowerCase().includes('user already registered') ||
+            error.message.toLowerCase().includes('already registered')
+          ) {
             toast.error('This email is already registered. Please login instead.')
             navigate('/login')
             return

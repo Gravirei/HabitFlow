@@ -77,7 +77,7 @@ export function HabitNotesModal({ isOpen, onClose, habitId, habitName }: HabitNo
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ type: 'spring', duration: 0.5 }}
-            className="relative w-full max-w-lg max-h-[80vh] flex flex-col rounded-3xl bg-white shadow-2xl dark:bg-slate-900"
+            className="relative flex max-h-[80vh] w-full max-w-lg flex-col rounded-3xl bg-white shadow-2xl dark:bg-slate-900"
           >
             {/* Header */}
             <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4 dark:border-slate-700">
@@ -99,7 +99,7 @@ export function HabitNotesModal({ isOpen, onClose, habitId, habitName }: HabitNo
             </div>
 
             {/* Content */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-4">
+            <div className="flex-1 space-y-4 overflow-y-auto p-6">
               {/* Add Note Section */}
               <div className="space-y-2">
                 <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
@@ -122,7 +122,7 @@ export function HabitNotesModal({ isOpen, onClose, habitId, habitName }: HabitNo
                   />
                   <button
                     onClick={handleAddNote}
-                    className="rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-2.5 text-sm font-semibold text-white shadow-md transition-all hover:shadow-lg hover:scale-105"
+                    className="rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-2.5 text-sm font-semibold text-white shadow-md transition-all hover:scale-105 hover:shadow-lg"
                   >
                     <span className="material-symbols-outlined text-lg">add</span>
                   </button>
@@ -215,15 +215,17 @@ function NoteCard({ note, onDelete }: NoteCardProps) {
       </div>
 
       {/* Note Content */}
-      <div className="flex-1 min-w-0">
-        <p className="text-sm text-slate-700 dark:text-slate-300 break-words">{note.text}</p>
-        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{formatDate(note.createdAt)}</p>
+      <div className="min-w-0 flex-1">
+        <p className="break-words text-sm text-slate-700 dark:text-slate-300">{note.text}</p>
+        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+          {formatDate(note.createdAt)}
+        </p>
       </div>
 
       {/* Delete Button */}
       <button
         onClick={onDelete}
-        className="opacity-0 group-hover:opacity-100 transition-opacity rounded-lg p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-500/10 dark:hover:text-red-400"
+        className="rounded-lg p-1.5 text-slate-400 opacity-0 transition-opacity hover:bg-red-50 hover:text-red-600 group-hover:opacity-100 dark:hover:bg-red-500/10 dark:hover:text-red-400"
       >
         <span className="material-symbols-outlined text-lg">delete</span>
       </button>
