@@ -1,7 +1,6 @@
-// @ts-nocheck
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { addDays, format } from 'date-fns'
+import { addDays } from 'date-fns'
 
 type PremiumTier = 'free' | 'pro' | 'team'
 

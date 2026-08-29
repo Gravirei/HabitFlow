@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Storage Integrity Utility
  * Provides integrity checks for localStorage data using checksums
@@ -180,15 +179,22 @@ export function getStorageMetadata(
  *
  * @param key - Storage key
  */
-export function migrateToSecureStorage<T>(key: string): boolean {
+export function migrateToSecureStorage(key: string): boolean {
   try {
     const item = localStorage.getItem(key)
     if (!item) return true
 
-    const data = JSON.parse(item)
+    const data: unknown = JSON.parse(item)
 
     // Check if already migrated
-    if (data.checksum) return true
+    if (
+      data &&
+      typeof data === 'object' &&
+      'checksum' in data &&
+      typeof (data as { checksum: unknown }).checksum === 'string'
+    ) {
+      return true
+    }
 
     // Migrate to new format
     return secureSetItem(key, data)

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { Habit } from '@/types/habit'
@@ -332,7 +331,7 @@ export const useHabitStore = create<HabitState>()(
           })
         }
 
-        return state as HabitState
+        return state as unknown as HabitState
       },
     }
   )
