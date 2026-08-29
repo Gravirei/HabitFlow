@@ -2,20 +2,29 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { enrollTotp, verifyFactor, unenrollFactor, challengeFactor, listFactors } from '../mfa'
 import { supabase } from '@/lib/supabase'
 
-// Mock Supabase
-vi.mock('@/lib/supabase', () => ({
-  supabase: {
-    auth: {
-      mfa: {
-        enroll: vi.fn(),
-        challenge: vi.fn(),
-        verify: vi.fn(),
-        unenroll: vi.fn(),
-        listFactors: vi.fn(),
+// Mock Supabase.
+// `getMfaClient` reads `supabase.auth.mfa` at call time, so the mock keeps a
+// mutable handle on the same shape the tests populate via
+// `vi.mocked(supabase.auth as any).mfa = { ... }`.
+vi.mock('@/lib/supabase', () => {
+  const mfaHolder: { current: unknown } = { current: undefined }
+  return {
+    supabase: {
+      auth: {
+        // The test code does `vi.mocked(supabase.auth as any).mfa = { ... }`
+        // to inject per-test behavior. We mirror that onto mfaHolder so
+        // `getMfaClient()` can return whatever the test installed.
+        get mfa() {
+          return mfaHolder.current
+        },
+        set mfa(v: unknown) {
+          mfaHolder.current = v
+        },
       },
     },
-  },
-}))
+    getMfaClient: () => mfaHolder.current,
+  }
+})
 
 describe('MFA Module', () => {
   beforeEach(() => {

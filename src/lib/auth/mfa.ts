@@ -27,7 +27,16 @@ function requireMfa(): MfaApi {
 
 function toAppError(e: unknown, fallbackCode: string): AppError {
   if (e instanceof AppError) return e
-  const message = e instanceof Error ? e.message : String(e)
+  // Supabase SDK errors are plain objects with a `message` field. Accept
+  // both `Error` instances and `{ message: string }`-shaped objects.
+  let message: string
+  if (e instanceof Error) {
+    message = e.message
+  } else if (e && typeof e === 'object' && 'message' in e && typeof (e as { message: unknown }).message === 'string') {
+    message = (e as { message: string }).message
+  } else {
+    message = String(e)
+  }
   return new AppError(message, fallbackCode, { cause: e })
 }
 
