@@ -47,62 +47,6 @@ function json(data: Json, status = 200, req?: Request) {
   });
 }
 
-/**
- * v2 envelope (nested). Opt-in via the `x-respond-shape: v2` header.
- *
- * The Edge Function still emits the v1 (flat) envelope by default to avoid
- * breaking deployed clients. Rolling out v2 call-site by call-site is the
- * subject of a follow-up PR (Phase 2 envelope migration). Plan R7.
- */
-type EnvelopeV2 = {
-  ok: boolean;
-  error: { code: string; message: string } | null;
-  data: unknown;
-  meta: Record<string, unknown> | null;
-};
-
-function isV2Request(req: Request | undefined): boolean {
-  if (!req) return false;
-  const h = req.headers.get("x-respond-shape") ?? "";
-  return h.toLowerCase() === "v2";
-}
-
-/**
- * Emit a v2 response when the client opts in via header; otherwise fall
- * through to the v1 flat shape via `json()`. Use this in new call sites
- * during the gradual migration; existing `return json(...)` sites stay
- * unchanged for v1 clients.
- */
-function respondV2(
-  args: {
-    ok: boolean;
-    code?: string;
-    message?: string;
-    data?: unknown;
-    meta?: Record<string, unknown>;
-  },
-  status: number,
-  req: Request,
-): Response {
-  if (!isV2Request(req)) {
-    // Caller didn't opt in — preserve the v1 flat shape (delegate).
-    const flat: Json = { ok: args.ok };
-    if (!args.ok && args.code) (flat as Record<string, unknown>).error = args.code;
-    if (!args.ok && args.message) (flat as Record<string, unknown>).message = args.message;
-    if (args.ok && args.data !== undefined) (flat as Record<string, unknown>).data = args.data;
-    return json(flat, status, req);
-  }
-  const v2: EnvelopeV2 = {
-    ok: args.ok,
-    error: args.ok
-      ? null
-      : { code: args.code ?? "UNKNOWN", message: args.message ?? "Request failed" },
-    data: args.ok ? (args.data ?? null) : null,
-    meta: args.meta ?? null,
-  };
-  return json(v2 as unknown as Json, status, req);
-}
-
 function getIp(req: Request) {
   // Supabase edge typically provides x-forwarded-for
   const xff = req.headers.get("x-forwarded-for");
