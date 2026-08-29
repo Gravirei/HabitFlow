@@ -1,0 +1,36 @@
+# Docker Compose for local HabitFlow development
+#
+# `docker compose up` builds the image and serves the production bundle
+# on http://localhost:8080.
+#
+# For live-reload development, use `npm run dev` directly — the
+# Dockerfile is for production parity only.
+#
+# Requires BuildKit (heredoc COPY syntax in the Dockerfile).
+# On Linux: DOCKER_BUILDKIT=1 docker compose up
+# On macOS/Windows: enabled by default in Docker Desktop.
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # Set VITE_* args at build time. The image bundles these into
+        # the static JS — they're PUBLIC, never put real secrets here.
+        VITE_SUPABASE_URL: ${VITE_SUPABASE_URL:-https://your-project-ref.supabase.co}
+        VITE_SUPABASE_ANON_KEY: ${VITE_SUPABASE_ANON_KEY:-your-anon-key-here}
+        VITE_API_URL: ${VITE_API_URL:-https://api.example.com}
+        VITE_SENTRY_DSN: ${VITE_SENTRY_DSN:-}
+        VITE_ENABLE_SENTRY: ${VITE_ENABLE_SENTRY:-false}
+        VITE_ENABLE_ANALYTICS: ${VITE_ENABLE_ANALYTICS:-false}
+    container_name: habitflow-web
+    ports:
+      - '8080:80'
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1/healthz']
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s

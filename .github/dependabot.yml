@@ -1,0 +1,69 @@
+# Dependabot — keep npm and GitHub Actions dependencies up to date.
+# https://docs.github.com/en/code-security/dependabot
+
+version: 2
+updates:
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '09:00'
+      timezone: 'UTC'
+    open-pull-requests-limit: 10
+    # Don't auto-bump majors for risky frameworks — let a human review
+    ignore:
+      - dependency-name: 'react'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'react-dom'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'vite'
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@vitejs/plugin-react'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'typescript'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'tailwindcss'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'eslint'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'vitest'
+        update-types: ['version-update:semver-major']
+    labels:
+      - 'dependencies'
+      - 'automated-pr'
+    commit-message:
+      prefix: 'deps'
+      include: 'scope'
+    groups:
+      # Batch small patch updates into a single PR
+      patch-and-minor:
+        applies-to: version-updates
+        update-types:
+          - 'minor'
+          - 'patch'
+        patterns:
+          - '*'
+
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '09:00'
+      timezone: 'UTC'
+    open-pull-requests-limit: 5
+    labels:
+      - 'dependencies'
+      - 'automated-pr'
+      - 'ci'
+    commit-message:
+      prefix: 'ci'
+      include: 'scope'
+    groups:
+      actions-patch:
+        applies-to: version-updates
+        update-types:
+          - 'patch'
+        patterns:
+          - '*'

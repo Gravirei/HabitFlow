@@ -1,0 +1,30 @@
+# CODEOWNERS — automatic reviewer assignment.
+# The last matching pattern wins; add new owners higher up if you want to
+# override the broader rule below.
+#
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owners for everything not matched below
+* @Gravirei
+
+# Security-sensitive — require an extra reviewer
+/supabase/functions/auth-gateway/ @Gravirei
+/supabase/migrations/           @Gravirei
+/src/lib/security/              @Gravirei
+/src/lib/auth/                  @Gravirei
+/src/lib/supabase.ts            @Gravirei
+/src/lib/sentry.ts              @Gravirei
+/.env.example                   @Gravirei
+/netlify.toml                   @Gravirei
+/vercel.json                    @Gravirei
+/.github/workflows/             @Gravirei
+/Dockerfile                     @Gravirei
+/docker-compose.yml             @Gravirei
+/CODEOWNERS                     @Gravirei
+
+# Tests — owner is the same as the code they cover
+/src/lib/__tests__/                  @Gravirei
+/src/store/__tests__/                @Gravirei
+/src/features/**/__tests__/          @Gravirei
+/src/__tests__/                      @Gravirei
+/e2e/                                @Gravirei

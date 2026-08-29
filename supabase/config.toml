@@ -1,0 +1,91 @@
+# Supabase project configuration
+# https://supabase.com/docs/guides/cli/config
+
+project_id = "habitflow"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "storage", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 15
+
+[db.pooler]
+enabled = false
+# port = 54329
+# pool_mode = "transaction"
+# default_pool_size = 20
+# max_client_conn = 100
+
+[realtime]
+enabled = true
+
+[studio]
+enabled = true
+port = 54323
+api_url = "http://127.0.0.1"
+
+[inbucket]
+enabled = true
+port = 54324
+
+[storage]
+enabled = true
+# The maximum file size allowed (e.g. "5MB", "500KB").
+file_size_limit = "50MiB"
+
+[storage.image_transformation]
+enabled = false
+# Max number of images that can be transformed in a single request.
+max_count = 25
+
+[auth]
+enabled = true
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["http://localhost:3000/reset-password"]
+jwt_expiry = 3600
+enable_refresh_token_rotation = true
+refresh_token_reuse_interval = 10
+enable_signup = true
+enable_anonymous_sign_ins = false
+enable_manual_linking = false
+
+[auth.email]
+enable_signup = true
+double_confirm_changes = true
+enable_confirmations = true
+# If the user has not confirmed their email within this time, their account
+# is purged. Set to 0 to disable. Defaults to 24h.
+otp_expiry = 3600
+
+[auth.sms]
+enable_signup = false
+enable_confirmations = false
+# Configure the Twilio provider here.
+# provider = "twilio"
+# ...
+
+[auth.mfa]
+# Multi-factor auth is required for *all* users in this app — see the
+# auth-gateway Edge Function. Configure TOTP as the second factor.
+enabled = true
+enroll_required = false
+
+# Edge Functions
+# https://supabase.com/docs/guides/functions
+
+[functions.auth-gateway]
+verify_jwt = false
+
+[functions.messaging-notifications]
+verify_jwt = false
+
+[analytics]
+enabled = false
+port = 54327
+backend = "postgres"
