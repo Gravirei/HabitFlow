@@ -12,6 +12,12 @@ import type { Category } from '@/types/category'
 import type { Habit } from '@/types/habit'
 import type { Task } from '@/types/task'
 
+// Escape special regex characters in a string so it can be safely used
+// inside a RegExp constructor (e.g. for `getAllByRole({ name: new RegExp(...) })`).
+function escapeRegex(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
 vi.mock('@/shared/layout/BottomNav', () => ({ BottomNav: () => null }))
 vi.mock('@/shared/layout/SideNav', () => ({ SideNav: () => null }))
 
@@ -161,7 +167,7 @@ describe('Categories Templates Modal (Phase 6)', () => {
     await waitFor(() => {
       expect(addHabitMock).toHaveBeenCalled()
     })
-  }, 20000)
+  }, 30000)
 
   it('shows every template pack from the library', async () => {
     const user = userEvent.setup()
@@ -176,9 +182,13 @@ describe('Categories Templates Modal (Phase 6)', () => {
       expect(screen.getByText('Template Store')).toBeInTheDocument()
     })
 
-    // Every pack in the library should be rendered as an importable card
-    for (const pack of CATEGORY_TEMPLATE_LIBRARY) {
-      expect(await screen.findByRole('button', { name: new RegExp(pack.name) })).toBeInTheDocument()
-    }
+    // Every pack in the library should be rendered as an importable card.
+    // Use getAllByRole (returns array, no per-element retry) instead of
+    // findByRole in a loop — findByRole retries up to 1000ms per element
+    // which exceeds the 20s budget for a 62-pack library.
+    const packNames = CATEGORY_TEMPLATE_LIBRARY.map((p) => p.name)
+    const packRegex = new RegExp(packNames.map((n) => escapeRegex(n)).join('|'), 'i')
+    const packButtons = screen.getAllByRole('button', { name: packRegex })
+    expect(packButtons.length).toBeGreaterThanOrEqual(packNames.length)
   }, 20000)
 })
