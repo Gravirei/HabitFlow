@@ -2,10 +2,9 @@
  * Logger Utility
  * Centralized logging with environment-aware output
  * Replaces scattered console.log statements throughout the timer module
- * 
+ *
  * Security: Sanitizes sensitive data and gates logs by environment
  */
-
 
 interface LogOptions {
   context?: string
@@ -14,8 +13,16 @@ interface LogOptions {
 
 // Security: List of sensitive keys to redact
 const SENSITIVE_KEYS = [
-  'password', 'token', 'secret', 'apiKey', 'accessToken', 
-  'refreshToken', 'sessionId', 'userId', 'email', 'creditCard'
+  'password',
+  'token',
+  'secret',
+  'apiKey',
+  'accessToken',
+  'refreshToken',
+  'sessionId',
+  'userId',
+  'email',
+  'creditCard',
 ]
 
 /**
@@ -24,18 +31,18 @@ const SENSITIVE_KEYS = [
  */
 function sanitizeData(data: any): any {
   if (!data || typeof data !== 'object') return data
-  
+
   if (Array.isArray(data)) {
-    return data.map(item => sanitizeData(item))
+    return data.map((item) => sanitizeData(item))
   }
-  
+
   const sanitized: any = {}
   for (const [key, value] of Object.entries(data)) {
     // Check if key contains sensitive information
-    const isSensitive = SENSITIVE_KEYS.some(sensitiveKey => 
+    const isSensitive = SENSITIVE_KEYS.some((sensitiveKey) =>
       key.toLowerCase().includes(sensitiveKey.toLowerCase())
     )
-    
+
     if (isSensitive) {
       sanitized[key] = '[REDACTED]'
     } else if (typeof value === 'object' && value !== null) {
@@ -50,7 +57,7 @@ function sanitizeData(data: any): any {
 class TimerLogger {
   private isDevelopment = import.meta.env.DEV
   private prefix = '[Timer]'
-  
+
   /**
    * Prepares log data by sanitizing sensitive information
    */
@@ -100,7 +107,7 @@ class TimerLogger {
   error(message: string, error?: Error | unknown, options?: LogOptions): void {
     const contextMsg = options?.context ? `[${options.context}]` : ''
     const sanitizedData = this.prepareLogData(options)
-    
+
     // Only log error message and stack in development
     if (this.isDevelopment) {
       console.error(`${this.prefix}${contextMsg} ${message}`, error, sanitizedData)

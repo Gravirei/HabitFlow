@@ -11,7 +11,7 @@ export function FriendRequestBadge() {
   if (count === 0) return null
 
   return (
-    <span className="absolute -top-1 -right-1.5 flex size-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white ring-2 ring-[#0f1628]">
+    <span className="absolute -right-1.5 -top-1 flex size-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white ring-2 ring-[#0f1628]">
       {count > 9 ? '9+' : count}
     </span>
   )

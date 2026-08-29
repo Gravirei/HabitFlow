@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import {
   validateTimerHistory,
   isValidTimerHistoryRecord,
-  migrateTimerHistoryRecord
+  migrateTimerHistoryRecord,
 } from '@/features/timer/utils/validation'
 import type { TimerHistoryRecord } from '@/features/timer/types/timer.types'
 
@@ -13,7 +13,7 @@ describe('validation utilities', () => {
         id: 'test-123',
         mode: 'Stopwatch',
         duration: 5000,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       expect(isValidTimerHistoryRecord(validRecord)).toBe(true)
@@ -25,7 +25,7 @@ describe('validation utilities', () => {
         mode: 'Intervals',
         duration: 5000,
         timestamp: Date.now(),
-        intervalCount: 3
+        intervalCount: 3,
       }
 
       expect(isValidTimerHistoryRecord(validRecord)).toBe(true)
@@ -35,7 +35,7 @@ describe('validation utilities', () => {
       const invalidRecord = {
         mode: 'Stopwatch',
         duration: 5000,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       expect(isValidTimerHistoryRecord(invalidRecord)).toBe(false)
@@ -46,7 +46,7 @@ describe('validation utilities', () => {
         id: 'test-123',
         mode: 'InvalidMode',
         duration: 5000,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       expect(isValidTimerHistoryRecord(invalidRecord)).toBe(false)
@@ -57,7 +57,7 @@ describe('validation utilities', () => {
         id: 'test-123',
         mode: 'Stopwatch',
         duration: '5000', // String instead of number
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       expect(isValidTimerHistoryRecord(invalidRecord)).toBe(false)
@@ -68,7 +68,7 @@ describe('validation utilities', () => {
         id: 'test-123',
         mode: 'Stopwatch',
         duration: -5000,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       expect(isValidTimerHistoryRecord(invalidRecord)).toBe(false)
@@ -79,7 +79,7 @@ describe('validation utilities', () => {
         id: 'test-123',
         mode: 'Stopwatch',
         duration: 5000,
-        timestamp: '2024-01-01' // String instead of number
+        timestamp: '2024-01-01', // String instead of number
       }
 
       expect(isValidTimerHistoryRecord(invalidRecord)).toBe(false)
@@ -108,7 +108,7 @@ describe('validation utilities', () => {
         id: 123,
         mode: 'Stopwatch',
         duration: 5000,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       expect(isValidTimerHistoryRecord(legacyRecord)).toBe(true)
@@ -120,7 +120,7 @@ describe('validation utilities', () => {
         mode: 'Intervals',
         duration: 5000,
         timestamp: Date.now(),
-        intervalCount: '3' // String instead of number
+        intervalCount: '3', // String instead of number
       }
 
       expect(isValidTimerHistoryRecord(invalidRecord)).toBe(false)
@@ -131,7 +131,7 @@ describe('validation utilities', () => {
         id: 'test-123',
         mode: 'Stopwatch',
         duration: 0,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       expect(isValidTimerHistoryRecord(validRecord)).toBe(true)
@@ -143,7 +143,7 @@ describe('validation utilities', () => {
         mode: 'Intervals',
         duration: 5000,
         timestamp: Date.now(),
-        intervalCount: 0
+        intervalCount: 0,
       }
 
       expect(isValidTimerHistoryRecord(validRecord)).toBe(true)
@@ -156,7 +156,7 @@ describe('validation utilities', () => {
         id: 123,
         mode: 'Stopwatch' as const,
         duration: 5000,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       const migrated = migrateTimerHistoryRecord(legacyRecord)
@@ -172,7 +172,7 @@ describe('validation utilities', () => {
         id: 'test-123',
         mode: 'Stopwatch',
         duration: 5000,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       const migrated = migrateTimerHistoryRecord(modernRecord)
@@ -184,7 +184,7 @@ describe('validation utilities', () => {
     it('should return null for invalid record', () => {
       const invalidRecord = {
         mode: 'Stopwatch',
-        duration: 5000
+        duration: 5000,
         // Missing id and timestamp
       }
 
@@ -198,7 +198,7 @@ describe('validation utilities', () => {
         id: 456,
         mode: 'Countdown' as const,
         duration: 3000,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       const migrated = migrateTimerHistoryRecord(legacyRecord)
@@ -214,7 +214,7 @@ describe('validation utilities', () => {
         mode: 'Intervals' as const,
         duration: 7000,
         timestamp: 1234567890,
-        intervalCount: 5
+        intervalCount: 5,
       }
 
       const migrated = migrateTimerHistoryRecord(legacyRecord)
@@ -260,14 +260,14 @@ describe('validation utilities', () => {
           id: 'test-1',
           mode: 'Stopwatch',
           duration: 5000,
-          timestamp: Date.now()
+          timestamp: Date.now(),
         },
         {
           id: 'test-2',
           mode: 'Countdown',
           duration: 3000,
-          timestamp: Date.now()
-        }
+          timestamp: Date.now(),
+        },
       ]
 
       const result = validateTimerHistory(validHistory)
@@ -283,21 +283,21 @@ describe('validation utilities', () => {
           id: 'test-1',
           mode: 'Stopwatch',
           duration: 5000,
-          timestamp: Date.now()
+          timestamp: Date.now(),
         },
         {
           // Invalid: missing id
           mode: 'Countdown',
           duration: 3000,
-          timestamp: Date.now()
+          timestamp: Date.now(),
         },
         {
           id: 'test-3',
           mode: 'Intervals',
           duration: 7000,
           timestamp: Date.now(),
-          intervalCount: 3
-        }
+          intervalCount: 3,
+        },
       ]
 
       const result = validateTimerHistory(mixedHistory)
@@ -313,14 +313,14 @@ describe('validation utilities', () => {
           id: 123,
           mode: 'Stopwatch' as const,
           duration: 5000,
-          timestamp: Date.now()
+          timestamp: Date.now(),
         },
         {
           id: 456,
           mode: 'Countdown' as const,
           duration: 3000,
-          timestamp: Date.now()
-        }
+          timestamp: Date.now(),
+        },
       ]
 
       const result = validateTimerHistory(legacyHistory)
@@ -336,14 +336,14 @@ describe('validation utilities', () => {
           id: 'modern-1',
           mode: 'Stopwatch' as const,
           duration: 5000,
-          timestamp: Date.now()
+          timestamp: Date.now(),
         },
         {
           id: 789,
           mode: 'Countdown' as const,
           duration: 3000,
-          timestamp: Date.now()
-        }
+          timestamp: Date.now(),
+        },
       ]
 
       const result = validateTimerHistory(mixedHistory)
@@ -358,7 +358,7 @@ describe('validation utilities', () => {
       const invalidHistory = [
         { mode: 'Invalid', duration: 5000 },
         { id: 'test', mode: 'Stopwatch' },
-        { random: 'data' }
+        { random: 'data' },
       ]
 
       const result = validateTimerHistory(invalidHistory)
@@ -372,20 +372,20 @@ describe('validation utilities', () => {
           id: 'test-3',
           mode: 'Intervals',
           duration: 7000,
-          timestamp: 3000
+          timestamp: 3000,
         },
         {
           id: 'test-1',
           mode: 'Stopwatch',
           duration: 5000,
-          timestamp: 1000
+          timestamp: 1000,
         },
         {
           id: 'test-2',
           mode: 'Countdown',
           duration: 3000,
-          timestamp: 2000
-        }
+          timestamp: 2000,
+        },
       ]
 
       const result = validateTimerHistory(validHistory)
@@ -400,7 +400,7 @@ describe('validation utilities', () => {
         id: `test-${i}`,
         mode: 'Stopwatch' as const,
         duration: i * 1000,
-        timestamp: Date.now() + i
+        timestamp: Date.now() + i,
       }))
 
       const result = validateTimerHistory(largeHistory)
@@ -417,8 +417,8 @@ describe('validation utilities', () => {
           mode: 'Intervals',
           duration: 10000,
           timestamp: Date.now(),
-          intervalCount: 5
-        }
+          intervalCount: 5,
+        },
       ]
 
       const result = validateTimerHistory(recordWithOptionals)
@@ -435,7 +435,7 @@ describe('validation utilities', () => {
         mode: 'Stopwatch' as const,
         duration: 5000,
         timestamp: Date.now(),
-        extraField: 'should be ignored'
+        extraField: 'should be ignored',
       }
 
       expect(isValidTimerHistoryRecord(recordWithExtra)).toBe(true)
@@ -446,7 +446,7 @@ describe('validation utilities', () => {
         id: 'test-123',
         mode: 'Stopwatch' as const,
         duration: Number.MAX_SAFE_INTEGER,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       expect(isValidTimerHistoryRecord(record)).toBe(true)
@@ -457,7 +457,7 @@ describe('validation utilities', () => {
         id: 'test-123',
         mode: 'Stopwatch' as const,
         duration: 5000,
-        timestamp: Number.MAX_SAFE_INTEGER
+        timestamp: Number.MAX_SAFE_INTEGER,
       }
 
       expect(isValidTimerHistoryRecord(record)).toBe(true)
@@ -468,7 +468,7 @@ describe('validation utilities', () => {
         id: 'test-123',
         mode: 'Stopwatch' as const,
         duration: NaN,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       expect(isValidTimerHistoryRecord(recordWithNaN)).toBe(false)
@@ -479,7 +479,7 @@ describe('validation utilities', () => {
         id: 'test-123',
         mode: 'Stopwatch' as const,
         duration: Infinity,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       // Note: The validation might accept Infinity as a valid number

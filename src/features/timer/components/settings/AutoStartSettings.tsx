@@ -36,9 +36,10 @@ export const AutoStartSettings: React.FC = () => {
         description="Automatically start work after break interval"
       />
 
-      <div className="p-4 rounded-2xl bg-white/5">
+      <div className="rounded-2xl bg-white/5 p-4">
         <p className="text-xs text-gray-400">
-          💡 <strong className="text-gray-300">Tip:</strong> Enable both for a seamless Pomodoro experience without manual intervention
+          💡 <strong className="text-gray-300">Tip:</strong> Enable both for a seamless Pomodoro
+          experience without manual intervention
         </p>
       </div>
     </SettingsSection>

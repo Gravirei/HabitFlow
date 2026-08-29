@@ -99,30 +99,30 @@ describe('Toast Notifications Integration', () => {
   describe('Real-world Usage Scenarios', () => {
     it('should handle habit creation success', () => {
       const spy = vi.spyOn(toast, 'success')
-      
+
       // Simulate habit creation
       toast.success(`🎉 Habit created successfully!`)
-      
+
       expect(spy).toHaveBeenCalledWith('🎉 Habit created successfully!')
     })
 
     it('should handle validation errors', () => {
       const spy = vi.spyOn(toast, 'error')
-      
+
       // Simulate validation error
       toast.error('Please enter a habit name')
-      
+
       expect(spy).toHaveBeenCalledWith('Please enter a habit name')
     })
 
     it('should handle loading states', () => {
       const loadingSpy = vi.spyOn(toast, 'loading')
       const successSpy = vi.spyOn(toast, 'success')
-      
+
       // Simulate async operation
       const toastId = toast.loading('Saving habit...')
       expect(loadingSpy).toHaveBeenCalled()
-      
+
       // Complete operation
       toast.success('Saved!', { id: toastId })
       expect(successSpy).toHaveBeenCalled()
@@ -132,7 +132,7 @@ describe('Toast Notifications Integration', () => {
       toast.success('First toast')
       toast.success('Second toast')
       toast.error('Third toast')
-      
+
       // All toasts should be created
       expect(true).toBe(true) // Simple assertion since toasts are managed internally
     })
@@ -200,31 +200,34 @@ describe('Toast Notifications Integration', () => {
     it('should be dismissible by user', () => {
       const toastId = toast.success('Test message')
       const dismissSpy = vi.spyOn(toast, 'dismiss')
-      
+
       toast.dismiss(toastId)
       expect(dismissSpy).toHaveBeenCalledWith(toastId)
     })
 
     it('should auto-dismiss after duration', async () => {
       const toastId = toast.success('Test', { duration: 100 })
-      
-      await waitFor(() => {
-        expect(toastId).toBeDefined()
-      }, { timeout: 150 })
+
+      await waitFor(
+        () => {
+          expect(toastId).toBeDefined()
+        },
+        { timeout: 150 }
+      )
     })
   })
 
   describe('Performance', () => {
     it('should handle rapid toast creation', () => {
       const startTime = Date.now()
-      
+
       for (let i = 0; i < 10; i++) {
         toast.success(`Toast ${i}`)
       }
-      
+
       const endTime = Date.now()
       const duration = endTime - startTime
-      
+
       // Should complete in less than 100ms
       expect(duration).toBeLessThan(100)
     })
@@ -232,10 +235,10 @@ describe('Toast Notifications Integration', () => {
     it('should cleanup dismissed toasts', () => {
       const toastId1 = toast.success('Toast 1')
       const toastId2 = toast.success('Toast 2')
-      
+
       toast.dismiss(toastId1)
       toast.dismiss(toastId2)
-      
+
       // Toasts should be dismissed without errors
       expect(true).toBe(true)
     })

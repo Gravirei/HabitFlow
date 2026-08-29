@@ -51,9 +51,15 @@ export function compareSessionMetrics(session1: any, session2: any): ComparisonM
   // Intervals-specific metrics
   if (session1.mode === 'Intervals' && session2.mode === 'Intervals') {
     if (session1.intervals && session2.intervals) {
-      const s1WorkTime = session1.intervals.reduce((sum: number, i: any) => sum + (i.type === 'work' ? i.duration : 0), 0)
-      const s2WorkTime = session2.intervals.reduce((sum: number, i: any) => sum + (i.type === 'work' ? i.duration : 0), 0)
-      
+      const s1WorkTime = session1.intervals.reduce(
+        (sum: number, i: any) => sum + (i.type === 'work' ? i.duration : 0),
+        0
+      )
+      const s2WorkTime = session2.intervals.reduce(
+        (sum: number, i: any) => sum + (i.type === 'work' ? i.duration : 0),
+        0
+      )
+
       metrics.push({
         label: 'Work Time',
         session1Value: formatDuration(s1WorkTime),
@@ -62,9 +68,15 @@ export function compareSessionMetrics(session1: any, session2: any): ComparisonM
         better: s2WorkTime > s1WorkTime ? 2 : s2WorkTime < s1WorkTime ? 1 : null,
       })
 
-      const s1BreakTime = session1.intervals.reduce((sum: number, i: any) => sum + (i.type === 'break' ? i.duration : 0), 0)
-      const s2BreakTime = session2.intervals.reduce((sum: number, i: any) => sum + (i.type === 'break' ? i.duration : 0), 0)
-      
+      const s1BreakTime = session1.intervals.reduce(
+        (sum: number, i: any) => sum + (i.type === 'break' ? i.duration : 0),
+        0
+      )
+      const s2BreakTime = session2.intervals.reduce(
+        (sum: number, i: any) => sum + (i.type === 'break' ? i.duration : 0),
+        0
+      )
+
       metrics.push({
         label: 'Break Time',
         session1Value: formatDuration(s1BreakTime),
@@ -77,7 +89,12 @@ export function compareSessionMetrics(session1: any, session2: any): ComparisonM
         session1Value: session1.intervals.length,
         session2Value: session2.intervals.length,
         difference: `${session2.intervals.length - session1.intervals.length > 0 ? '+' : ''}${session2.intervals.length - session1.intervals.length}`,
-        better: session2.intervals.length > session1.intervals.length ? 2 : session2.intervals.length < session1.intervals.length ? 1 : null,
+        better:
+          session2.intervals.length > session1.intervals.length
+            ? 2
+            : session2.intervals.length < session1.intervals.length
+              ? 1
+              : null,
       })
     }
   }
@@ -93,13 +110,18 @@ export function compareSessionMetrics(session1: any, session2: any): ComparisonM
 
       const s1Completion = ((session1.duration / session1.targetDuration) * 100).toFixed(1)
       const s2Completion = ((session2.duration / session2.targetDuration) * 100).toFixed(1)
-      
+
       metrics.push({
         label: 'Completion',
         session1Value: `${s1Completion}%`,
         session2Value: `${s2Completion}%`,
         difference: `${(parseFloat(s2Completion) - parseFloat(s1Completion)).toFixed(1)}%`,
-        better: parseFloat(s2Completion) > parseFloat(s1Completion) ? 2 : parseFloat(s2Completion) < parseFloat(s1Completion) ? 1 : null,
+        better:
+          parseFloat(s2Completion) > parseFloat(s1Completion)
+            ? 2
+            : parseFloat(s2Completion) < parseFloat(s1Completion)
+              ? 1
+              : null,
       })
     }
   }

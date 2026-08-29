@@ -1,9 +1,9 @@
 /**
  * useTimerPersistence Hook
- * 
+ *
  * React hook for managing timer state persistence.
  * Handles detection, validation, and restoration of saved timer state.
- * 
+ *
  * @module useTimerPersistence
  */
 
@@ -16,7 +16,7 @@ export interface UseTimerPersistenceReturn {
   hasSavedState: boolean
   savedState: SavedTimerState | null
   showResumeModal: boolean
-  
+
   // Actions
   checkForSavedState: () => void
   resumeTimer: () => void
@@ -26,15 +26,15 @@ export interface UseTimerPersistenceReturn {
 
 /**
  * Hook for detecting and managing saved timer state
- * 
+ *
  * Usage:
  * ```tsx
- * const { 
- *   hasSavedState, 
- *   savedState, 
+ * const {
+ *   hasSavedState,
+ *   savedState,
  *   showResumeModal,
  *   resumeTimer,
- *   discardTimer 
+ *   discardTimer
  * } = useTimerPersistence('Countdown', onResume)
  * ```
  */
@@ -120,6 +120,6 @@ export const useTimerPersistence = (
     checkForSavedState,
     resumeTimer,
     discardTimer,
-    closeModal
+    closeModal,
   }
 }

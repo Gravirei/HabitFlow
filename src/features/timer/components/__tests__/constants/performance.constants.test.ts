@@ -69,9 +69,7 @@ describe('Performance Constants', () => {
 
     it('should have HISTORY_CLEANUP_THRESHOLD greater than MAX_HISTORY_RECORDS', () => {
       expect(constants.HISTORY_CLEANUP_THRESHOLD).toBeDefined()
-      expect(constants.HISTORY_CLEANUP_THRESHOLD).toBeGreaterThan(
-        constants.MAX_HISTORY_RECORDS
-      )
+      expect(constants.HISTORY_CLEANUP_THRESHOLD).toBeGreaterThan(constants.MAX_HISTORY_RECORDS)
     })
 
     it('should have reasonable cleanup threshold margin', () => {
@@ -119,9 +117,7 @@ describe('Performance Constants', () => {
     })
 
     it('should have max greater than min duration', () => {
-      expect(constants.MAX_TIMER_DURATION_MS).toBeGreaterThan(
-        constants.MIN_TIMER_DURATION_MS
-      )
+      expect(constants.MAX_TIMER_DURATION_MS).toBeGreaterThan(constants.MIN_TIMER_DURATION_MS)
     })
 
     it('should have MAX_INTERVAL_SESSIONS defined', () => {
@@ -148,29 +144,21 @@ describe('Performance Constants', () => {
       expect(constants.STORAGE_QUOTA_WARNING_BYTES).toBeDefined()
       expect(constants.STORAGE_QUOTA_WARNING_BYTES).toBeGreaterThan(0)
       // Should be at least 1MB
-      expect(constants.STORAGE_QUOTA_WARNING_BYTES).toBeGreaterThanOrEqual(
-        1024 * 1024
-      )
+      expect(constants.STORAGE_QUOTA_WARNING_BYTES).toBeGreaterThanOrEqual(1024 * 1024)
     })
   })
 
   describe('Constant relationships', () => {
     it('should have debounce longer than update interval', () => {
-      expect(constants.PERSISTENCE_DEBOUNCE_MS).toBeGreaterThan(
-        constants.TIMER_UPDATE_INTERVAL_MS
-      )
+      expect(constants.PERSISTENCE_DEBOUNCE_MS).toBeGreaterThan(constants.TIMER_UPDATE_INTERVAL_MS)
     })
 
     it('should have emergency save faster than normal debounce', () => {
-      expect(constants.EMERGENCY_SAVE_DELAY_MS).toBeLessThan(
-        constants.PERSISTENCE_DEBOUNCE_MS
-      )
+      expect(constants.EMERGENCY_SAVE_DELAY_MS).toBeLessThan(constants.PERSISTENCE_DEBOUNCE_MS)
     })
 
     it('should have modal animation shorter than toast duration', () => {
-      expect(constants.MODAL_ANIMATION_MS).toBeLessThan(
-        constants.TOAST_DURATION_MS
-      )
+      expect(constants.MODAL_ANIMATION_MS).toBeLessThan(constants.TOAST_DURATION_MS)
     })
   })
 
@@ -207,7 +195,7 @@ describe('Performance Constants', () => {
       // Attempting to modify should either throw or have no effect
       const original = constants.MAX_HISTORY_RECORDS
       try {
-        (constants as any).MAX_HISTORY_RECORDS = 999
+        ;(constants as any).MAX_HISTORY_RECORDS = 999
       } catch {
         // Expected in strict mode
       }

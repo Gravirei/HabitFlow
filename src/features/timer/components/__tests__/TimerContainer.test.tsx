@@ -12,9 +12,15 @@ import { timerPersistence } from '@/features/timer/utils/timerPersistence'
 // Mock framer-motion to avoid animation issues in tests
 vi.mock('framer-motion', () => ({
   motion: {
-    div: ({ children, className, ...props }: any) => <div className={className} {...props}>{children}</div>,
+    div: ({ children, className, ...props }: any) => (
+      <div className={className} {...props}>
+        {children}
+      </div>
+    ),
     button: ({ children, className, onClick, ...props }: any) => (
-      <button className={className} onClick={onClick} {...props}>{children}</button>
+      <button className={className} onClick={onClick} {...props}>
+        {children}
+      </button>
     ),
     span: ({ children, ...props }: any) => <span {...props}>{children}</span>,
   },
@@ -23,26 +29,26 @@ vi.mock('framer-motion', () => ({
 
 // Mock timer modes
 vi.mock('../modes/StopwatchTimer', () => ({
-  StopwatchTimer: () => <div data-testid="stopwatch-timer">Stopwatch Timer</div>
+  StopwatchTimer: () => <div data-testid="stopwatch-timer">Stopwatch Timer</div>,
 }))
 
 vi.mock('../modes/CountdownTimer', () => ({
-  CountdownTimer: () => <div data-testid="countdown-timer">Countdown Timer</div>
+  CountdownTimer: () => <div data-testid="countdown-timer">Countdown Timer</div>,
 }))
 
 vi.mock('../modes/IntervalsTimer', () => ({
-  IntervalsTimer: () => <div data-testid="intervals-timer">Intervals Timer</div>
+  IntervalsTimer: () => <div data-testid="intervals-timer">Intervals Timer</div>,
 }))
 
 // Mock TimerTopNav
 vi.mock('../shared/TimerTopNav', () => ({
-  TimerTopNav: () => <div data-testid="timer-top-nav">Top Nav</div>
+  TimerTopNav: () => <div data-testid="timer-top-nav">Top Nav</div>,
 }))
 
 // Mock KeyboardHelpModal
 vi.mock('../shared/KeyboardHelpModal', () => ({
-  KeyboardHelpModal: ({ isOpen, currentMode }: any) => 
-    isOpen ? <div data-testid="keyboard-help-modal">Help Modal - {currentMode}</div> : null
+  KeyboardHelpModal: ({ isOpen, currentMode }: any) =>
+    isOpen ? <div data-testid="keyboard-help-modal">Help Modal - {currentMode}</div> : null,
 }))
 
 describe('TimerContainer', () => {
@@ -147,7 +153,7 @@ describe('TimerContainer', () => {
         totalDuration: 300000,
         pausedElapsed: 0,
         savedAt: Date.now(),
-        version: 1
+        version: 1,
       })
       vi.spyOn(timerPersistence, 'getActiveTimer').mockReturnValue('Countdown')
 
@@ -169,7 +175,7 @@ describe('TimerContainer', () => {
         breakDuration: 300000,
         pausedElapsed: 0,
         savedAt: Date.now(),
-        version: 1
+        version: 1,
       })
       vi.spyOn(timerPersistence, 'getActiveTimer').mockReturnValue('Intervals')
 
@@ -210,7 +216,7 @@ describe('TimerContainer', () => {
   describe('Accessibility', () => {
     it('should have mode selector buttons that are keyboard accessible', () => {
       render(<TimerContainer />)
-      
+
       const stopwatchButton = screen.getByText('Stopwatch').closest('button')
       const countdownButton = screen.getByText('Countdown').closest('button')
       const intervalsButton = screen.getByText('Intervals').closest('button')

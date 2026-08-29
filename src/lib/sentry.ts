@@ -91,7 +91,10 @@ export function initSentry() {
         }
 
         // Ignore browser extension errors
-        if (error.message.includes('chrome-extension://') || error.message.includes('moz-extension://')) {
+        if (
+          error.message.includes('chrome-extension://') ||
+          error.message.includes('moz-extension://')
+        ) {
           return null
         }
 
@@ -204,7 +207,7 @@ export function startTransaction(name: string, op: string) {
       name,
       op,
     },
-    (span) => span,
+    (span) => span
   )
 }
 

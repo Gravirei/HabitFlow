@@ -20,7 +20,7 @@ describe.skip('Notifications Feature', () => {
     // Mock Notification API
     global.Notification = {
       permission: 'default',
-      requestPermission: vi.fn().mockResolvedValue('granted')
+      requestPermission: vi.fn().mockResolvedValue('granted'),
     } as any
 
     // Mock localStorage for zustand persist
@@ -30,44 +30,29 @@ describe.skip('Notifications Feature', () => {
       removeItem: vi.fn(),
       clear: vi.fn(),
       length: 0,
-      key: vi.fn()
+      key: vi.fn(),
     }
     Object.defineProperty(global, 'localStorage', {
       value: localStorageMock,
-      writable: true
+      writable: true,
     })
   })
 
   describe('NotificationSettingsModal Component', () => {
     it('renders notification settings modal when open', () => {
-      render(
-        <NotificationSettingsModal
-          isOpen={true}
-          onClose={vi.fn()}
-        />
-      )
+      render(<NotificationSettingsModal isOpen={true} onClose={vi.fn()} />)
 
       expect(screen.getByText(/notification/i)).toBeInTheDocument()
     })
 
     it('does not render when closed', () => {
-      const { container } = render(
-        <NotificationSettingsModal
-          isOpen={false}
-          onClose={vi.fn()}
-        />
-      )
+      const { container } = render(<NotificationSettingsModal isOpen={false} onClose={vi.fn()} />)
 
       expect(container).toBeEmptyDOMElement()
     })
 
     it('displays all notification types', () => {
-      render(
-        <NotificationSettingsModal
-          isOpen={true}
-          onClose={vi.fn()}
-        />
-      )
+      render(<NotificationSettingsModal isOpen={true} onClose={vi.fn()} />)
 
       expect(screen.getByText(/session reminder/i)).toBeInTheDocument()
       expect(screen.getByText(/streak reminder/i)).toBeInTheDocument()
@@ -77,16 +62,11 @@ describe.skip('Notifications Feature', () => {
 
     it('calls onClose when clicking close button', () => {
       const onClose = vi.fn()
-      render(
-        <NotificationSettingsModal
-          isOpen={true}
-          onClose={onClose}
-        />
-      )
+      render(<NotificationSettingsModal isOpen={true} onClose={onClose} />)
 
-      const closeButton = screen.getAllByRole('button').find(btn =>
-        btn.querySelector('.material-symbols-outlined')?.textContent === 'close'
-      )
+      const closeButton = screen
+        .getAllByRole('button')
+        .find((btn) => btn.querySelector('.material-symbols-outlined')?.textContent === 'close')
 
       if (closeButton) {
         fireEvent.click(closeButton)
@@ -97,12 +77,7 @@ describe.skip('Notifications Feature', () => {
 
   describe('Permission Handling', () => {
     it('requests notification permission', async () => {
-      render(
-        <NotificationSettingsModal
-          isOpen={true}
-          onClose={vi.fn()}
-        />
-      )
+      render(<NotificationSettingsModal isOpen={true} onClose={vi.fn()} />)
 
       // Should request permission
       expect(Notification.requestPermission).toHaveBeenCalled()
@@ -111,12 +86,7 @@ describe.skip('Notifications Feature', () => {
     it('handles permission granted', async () => {
       global.Notification.permission = 'granted'
 
-      render(
-        <NotificationSettingsModal
-          isOpen={true}
-          onClose={vi.fn()}
-        />
-      )
+      render(<NotificationSettingsModal isOpen={true} onClose={vi.fn()} />)
 
       // Notifications should be available
       expect(true).toBe(true)
@@ -125,12 +95,7 @@ describe.skip('Notifications Feature', () => {
     it('handles permission denied', async () => {
       global.Notification.permission = 'denied'
 
-      render(
-        <NotificationSettingsModal
-          isOpen={true}
-          onClose={vi.fn()}
-        />
-      )
+      render(<NotificationSettingsModal isOpen={true} onClose={vi.fn()} />)
 
       // Should show permission denied message
       expect(screen.getByText(/permission/i) || screen.getByText(/denied/i)).toBeInTheDocument()
@@ -139,12 +104,7 @@ describe.skip('Notifications Feature', () => {
     it('displays permission instructions', () => {
       global.Notification.permission = 'default'
 
-      render(
-        <NotificationSettingsModal
-          isOpen={true}
-          onClose={vi.fn()}
-        />
-      )
+      render(<NotificationSettingsModal isOpen={true} onClose={vi.fn()} />)
 
       // Instructions for enabling notifications
       expect(true).toBe(true)
@@ -196,7 +156,7 @@ describe.skip('Notifications Feature', () => {
       await sendNotification({
         title: 'Time to focus!',
         body: "Haven't used the timer today. Start a session?",
-        icon: '/icon.png'
+        icon: '/icon.png',
       })
 
       // Notification should be sent
@@ -213,12 +173,7 @@ describe.skip('Notifications Feature', () => {
     })
 
     it('customizes reminder time', () => {
-      render(
-        <NotificationSettingsModal
-          isOpen={true}
-          onClose={vi.fn()}
-        />
-      )
+      render(<NotificationSettingsModal isOpen={true} onClose={vi.fn()} />)
 
       // Time picker for custom reminder time
       expect(true).toBe(true)
@@ -230,7 +185,7 @@ describe.skip('Notifications Feature', () => {
       await sendNotification({
         title: "Don't break your streak!",
         body: '7 day streak - keep it going!',
-        icon: '/icon.png'
+        icon: '/icon.png',
       })
 
       expect(true).toBe(true)
@@ -240,7 +195,7 @@ describe.skip('Notifications Feature', () => {
       await sendNotification({
         title: '🎉 30-day streak!',
         body: "You've maintained a 30-day streak. Amazing!",
-        icon: '/icon.png'
+        icon: '/icon.png',
       })
 
       expect(true).toBe(true)
@@ -250,7 +205,7 @@ describe.skip('Notifications Feature', () => {
       await sendNotification({
         title: '⚠️ Streak ending soon',
         body: 'Use the timer today to keep your 14-day streak alive!',
-        icon: '/icon.png'
+        icon: '/icon.png',
       })
 
       expect(true).toBe(true)
@@ -262,7 +217,7 @@ describe.skip('Notifications Feature', () => {
       await sendNotification({
         title: 'Goal progress',
         body: "You're 80% to your daily goal. Almost there!",
-        icon: '/icon.png'
+        icon: '/icon.png',
       })
 
       expect(true).toBe(true)
@@ -272,7 +227,7 @@ describe.skip('Notifications Feature', () => {
       await sendNotification({
         title: '🎯 Goal achieved!',
         body: 'You completed your daily 2-hour goal!',
-        icon: '/icon.png'
+        icon: '/icon.png',
       })
 
       expect(true).toBe(true)
@@ -282,7 +237,7 @@ describe.skip('Notifications Feature', () => {
       await sendNotification({
         title: 'Goal deadline approaching',
         body: 'Weekly goal ends in 2 hours. Push to finish!',
-        icon: '/icon.png'
+        icon: '/icon.png',
       })
 
       expect(true).toBe(true)
@@ -294,7 +249,7 @@ describe.skip('Notifications Feature', () => {
       await sendNotification({
         title: 'Daily Summary',
         body: '3 sessions today, 1.5 hours total. Great work!',
-        icon: '/icon.png'
+        icon: '/icon.png',
       })
 
       expect(true).toBe(true)
@@ -305,7 +260,7 @@ describe.skip('Notifications Feature', () => {
         sessions: 5,
         totalTime: 7200,
         completionRate: 80,
-        longestSession: 2400
+        longestSession: 2400,
       }
 
       // Summary should include all stats
@@ -329,7 +284,7 @@ describe.skip('Notifications Feature', () => {
       scheduleNotification({
         time: futureTime,
         title: 'Scheduled reminder',
-        body: 'Time to focus!'
+        body: 'Time to focus!',
       })
 
       expect(true).toBe(true)
@@ -357,7 +312,7 @@ describe.skip('Notifications Feature', () => {
       await sendNotification({
         title: 'Test',
         body: 'Test notification',
-        icon: '/timer-icon.png'
+        icon: '/timer-icon.png',
       })
 
       expect(true).toBe(true)
@@ -369,8 +324,8 @@ describe.skip('Notifications Feature', () => {
         body: 'Quick focus session',
         actions: [
           { action: 'start', title: 'Start Now' },
-          { action: 'dismiss', title: 'Later' }
-        ]
+          { action: 'dismiss', title: 'Later' },
+        ],
       })
 
       expect(true).toBe(true)
@@ -380,7 +335,7 @@ describe.skip('Notifications Feature', () => {
       await sendNotification({
         title: 'Goal achieved!',
         body: 'Congrats!',
-        sound: '/notification-sound.mp3'
+        sound: '/notification-sound.mp3',
       })
 
       expect(true).toBe(true)
@@ -390,7 +345,7 @@ describe.skip('Notifications Feature', () => {
       await sendNotification({
         title: 'Reminder',
         body: 'Time to focus',
-        vibrate: [200, 100, 200]
+        vibrate: [200, 100, 200],
       })
 
       expect(true).toBe(true)
@@ -408,11 +363,14 @@ describe.skip('Notifications Feature', () => {
     })
 
     it('loads settings from localStorage', () => {
-      localStorage.setItem('timer-notification-settings', JSON.stringify({
-        enabled: true,
-        sessionReminders: true,
-        streakReminders: false
-      }))
+      localStorage.setItem(
+        'timer-notification-settings',
+        JSON.stringify({
+          enabled: true,
+          sessionReminders: true,
+          streakReminders: false,
+        })
+      )
 
       const { settings } = useNotificationStore.getState()
 
@@ -437,7 +395,7 @@ describe.skip('Notifications Feature', () => {
         id: 'notif-1',
         title: 'Test',
         body: 'Test notification',
-        sentAt: new Date()
+        sentAt: new Date(),
       })
 
       const { history } = useNotificationStore.getState()
@@ -453,7 +411,7 @@ describe.skip('Notifications Feature', () => {
           id: `notif-${i}`,
           title: 'Test',
           body: 'Test',
-          sentAt: new Date()
+          sentAt: new Date(),
         })
       }
 
@@ -503,12 +461,7 @@ describe.skip('Notifications Feature', () => {
       const originalNotification = global.Notification
       delete (global as any).Notification
 
-      render(
-        <NotificationSettingsModal
-          isOpen={true}
-          onClose={vi.fn()}
-        />
-      )
+      render(<NotificationSettingsModal isOpen={true} onClose={vi.fn()} />)
 
       // Should show "not supported" message
       expect(true).toBe(true)

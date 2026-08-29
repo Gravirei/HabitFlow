@@ -14,12 +14,23 @@ interface XPProgressBarProps {
   className?: string
 }
 
-export function XPProgressBar({ totalXP, size = 'md', showTitle = true, className = '' }: XPProgressBarProps) {
+export function XPProgressBar({
+  totalXP,
+  size = 'md',
+  showTitle = true,
+  className = '',
+}: XPProgressBarProps) {
   const level = getLevelForXP(totalXP)
   const progress = getLevelProgress(totalXP)
 
   const sizeClasses = {
-    sm: { bar: 'h-1.5', text: 'text-[10px]', icon: 'text-sm', level: 'text-xs', wrapper: 'gap-1.5' },
+    sm: {
+      bar: 'h-1.5',
+      text: 'text-[10px]',
+      icon: 'text-sm',
+      level: 'text-xs',
+      wrapper: 'gap-1.5',
+    },
     md: { bar: 'h-2.5', text: 'text-xs', icon: 'text-base', level: 'text-sm', wrapper: 'gap-2' },
     lg: { bar: 'h-3.5', text: 'text-sm', icon: 'text-lg', level: 'text-base', wrapper: 'gap-3' },
   }
@@ -32,10 +43,13 @@ export function XPProgressBar({ totalXP, size = 'md', showTitle = true, classNam
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5">
           <div className="flex items-center justify-center rounded-lg bg-primary/10 px-2 py-0.5">
-            <span className={`material-symbols-outlined ${s.icon} text-primary`} style={{ fontVariationSettings: "'FILL' 1" }}>
+            <span
+              className={`material-symbols-outlined ${s.icon} text-primary`}
+              style={{ fontVariationSettings: "'FILL' 1" }}
+            >
               {level.icon}
             </span>
-            <span className={`${s.level} font-bold text-primary ml-1`}>Lv.{level.level}</span>
+            <span className={`${s.level} ml-1 font-bold text-primary`}>Lv.{level.level}</span>
           </div>
           {showTitle && (
             <span className={`${s.text} font-semibold text-slate-300`}>{level.title}</span>
@@ -47,7 +61,7 @@ export function XPProgressBar({ totalXP, size = 'md', showTitle = true, classNam
       </div>
 
       {/* Progress Bar */}
-      <div className={`relative w-full ${s.bar} rounded-full bg-slate-800 overflow-hidden`}>
+      <div className={`relative w-full ${s.bar} overflow-hidden rounded-full bg-slate-800`}>
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: `${progress.percentage}%` }}

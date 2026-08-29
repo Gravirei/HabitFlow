@@ -1,18 +1,18 @@
-import { useIntegrationStore } from '../store/integrationStore';
+import { useIntegrationStore } from '../store/integrationStore'
 
 export const iftttService = {
   /**
    * Validates IFTTT webhook key format
    */
   validateKey(key: string): boolean {
-    return typeof key === 'string' && key.trim().length > 0;
+    return typeof key === 'string' && key.trim().length > 0
   },
 
   /**
    * Constructs the full IFTTT webhook URL
    */
   buildWebhookUrl(eventName: string, key: string): string {
-    return `https://maker.ifttt.com/trigger/${eventName}/with/key/${key}`;
+    return `https://maker.ifttt.com/trigger/${eventName}/with/key/${key}`
   },
 
   /**
@@ -21,22 +21,22 @@ export const iftttService = {
   async testConnection(key: string): Promise<boolean> {
     try {
       if (!this.validateKey(key)) {
-        return false;
+        return false
       }
 
-      const url = this.buildWebhookUrl('habitflow_test', key);
+      const url = this.buildWebhookUrl('habitflow_test', key)
       const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({}),
-      });
+      })
 
-      return response.ok;
+      return response.ok
     } catch (error) {
-      console.error('IFTTT test connection failed:', error);
-      return false;
+      console.error('IFTTT test connection failed:', error)
+      return false
     }
   },
 
@@ -52,15 +52,15 @@ export const iftttService = {
   ): Promise<boolean> {
     try {
       if (!this.validateKey(key)) {
-        return false;
+        return false
       }
 
-      const url = this.buildWebhookUrl(eventName, key);
-      const payload: Record<string, string> = {};
+      const url = this.buildWebhookUrl(eventName, key)
+      const payload: Record<string, string> = {}
 
-      if (value1) payload.value1 = value1;
-      if (value2) payload.value2 = value2;
-      if (value3) payload.value3 = value3;
+      if (value1) payload.value1 = value1
+      if (value2) payload.value2 = value2
+      if (value3) payload.value3 = value3
 
       const response = await fetch(url, {
         method: 'POST',
@@ -68,12 +68,12 @@ export const iftttService = {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(payload),
-      });
+      })
 
-      return response.ok;
+      return response.ok
     } catch (error) {
-      console.error('IFTTT trigger event failed:', error);
-      return false;
+      console.error('IFTTT trigger event failed:', error)
+      return false
     }
   },
 
@@ -92,7 +92,7 @@ export const iftttService = {
       habitName,
       `${streak} day streak`,
       category
-    );
+    )
   },
 
   /**
@@ -104,13 +104,7 @@ export const iftttService = {
     frequency: string,
     category: string
   ): Promise<boolean> {
-    return this.triggerEvent(
-      key,
-      'habitflow_created',
-      habitName,
-      frequency,
-      category
-    );
+    return this.triggerEvent(key, 'habitflow_created', habitName, frequency, category)
   },
 
   /**
@@ -128,7 +122,7 @@ export const iftttService = {
       habitName,
       `${streak} days`,
       `${milestone} day milestone`
-    );
+    )
   },
 
   /**
@@ -146,14 +140,14 @@ export const iftttService = {
       `${completed}/${total} completed`,
       `Top streak: ${topStreak}`,
       new Date().toLocaleDateString()
-    );
+    )
   },
 
   /**
    * Disconnects IFTTT integration via store
    */
   disconnect(): void {
-    const { disconnect } = useIntegrationStore.getState();
-    disconnect('ifttt');
+    const { disconnect } = useIntegrationStore.getState()
+    disconnect('ifttt')
   },
-};
+}

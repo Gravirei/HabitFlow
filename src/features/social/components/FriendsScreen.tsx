@@ -81,7 +81,9 @@ function NudgeButton({
   if (state === 'loading') {
     return (
       <div className="flex size-11 items-center justify-center rounded-xl bg-white/[0.03]">
-        <span className="material-symbols-outlined text-[18px] text-slate-500 animate-spin">progress_activity</span>
+        <span className="material-symbols-outlined animate-spin text-[18px] text-slate-500">
+          progress_activity
+        </span>
       </div>
     )
   }
@@ -91,8 +93,12 @@ function NudgeButton({
       <div className="relative">
         <button
           onClick={() => setShowCooldownHint(true)}
-          className="flex size-11 items-center justify-center rounded-xl bg-white/[0.03] opacity-40 cursor-not-allowed"
-          title={cooldown ? `You already nudged ${friendName}. Come back in ${cooldown.hours}h ${cooldown.minutes}m` : undefined}
+          className="flex size-11 cursor-not-allowed items-center justify-center rounded-xl bg-white/[0.03] opacity-40"
+          title={
+            cooldown
+              ? `You already nudged ${friendName}. Come back in ${cooldown.hours}h ${cooldown.minutes}m`
+              : undefined
+          }
           aria-label={`Nudge on cooldown for ${friendName}`}
         >
           <span className="material-symbols-outlined text-[18px] text-slate-400">schedule</span>
@@ -105,9 +111,9 @@ function NudgeButton({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="absolute -bottom-7 right-0 whitespace-nowrap rounded-lg bg-slate-800/95 border border-white/[0.06] backdrop-blur-sm px-2 py-1 z-10"
+              className="absolute -bottom-7 right-0 z-10 whitespace-nowrap rounded-lg border border-white/[0.06] bg-slate-800/95 px-2 py-1 backdrop-blur-sm"
             >
-              <span className="text-[10px] text-slate-400 font-medium">
+              <span className="text-[10px] font-medium text-slate-400">
                 Nudge in {cooldown.hours}h {cooldown.minutes}m
               </span>
             </motion.div>
@@ -122,7 +128,7 @@ function NudgeButton({
     <motion.button
       whileTap={{ scale: 0.88 }}
       onClick={onNudge}
-      className="flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary cursor-pointer transition-colors duration-200 hover:bg-primary/20 active:bg-primary/30"
+      className="flex size-11 cursor-pointer items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors duration-200 hover:bg-primary/20 active:bg-primary/30"
       title={`Nudge ${friendName}`}
       aria-label={`Send nudge to ${friendName}`}
     >
@@ -158,10 +164,10 @@ function FriendCard({
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.035, ease: 'easeOut' }}
-      className="rounded-2xl bg-white/[0.025] border border-white/[0.05] hover:bg-white/[0.04] transition-colors duration-200"
+      className="rounded-2xl border border-white/[0.05] bg-white/[0.025] transition-colors duration-200 hover:bg-white/[0.04]"
     >
       <div
-        className="flex items-center gap-3 p-3.5 cursor-pointer"
+        className="flex cursor-pointer items-center gap-3 p-3.5"
         onClick={() => setExpanded(!expanded)}
       >
         {/* Avatar + status */}
@@ -170,7 +176,9 @@ function FriendCard({
             src={friend.avatarUrl}
             alt={friend.displayName}
             className="size-11 rounded-xl object-cover"
-            onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/images/avatars/avatar1.jpg' }}
+            onError={(e) => {
+              ;(e.currentTarget as HTMLImageElement).src = '/images/avatars/avatar1.jpg'
+            }}
           />
           <div
             className={`absolute -bottom-0.5 -right-0.5 size-3 rounded-full border-[1.5px] border-slate-900 shadow-sm ${statusColor[friend.status]}`}
@@ -178,22 +186,25 @@ function FriendCard({
         </div>
 
         {/* Name + meta */}
-        <div className="flex-1 min-w-0">
+        <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
-            <p className="text-[13px] font-semibold text-white truncate">{friend.displayName}</p>
+            <p className="truncate text-[13px] font-semibold text-white">{friend.displayName}</p>
             <div
               className="flex size-4 items-center justify-center rounded"
               style={{ backgroundColor: getLeagueTierColor(friend.leagueTier) + '22' }}
             >
               <span
                 className="material-symbols-outlined text-[9px]"
-                style={{ color: getLeagueTierColor(friend.leagueTier), fontVariationSettings: "'FILL' 1" }}
+                style={{
+                  color: getLeagueTierColor(friend.leagueTier),
+                  fontVariationSettings: "'FILL' 1",
+                }}
               >
                 shield
               </span>
             </div>
           </div>
-          <div className="flex items-center gap-1.5 mt-0.5 text-[10px] text-slate-500 font-medium">
+          <div className="mt-0.5 flex items-center gap-1.5 text-[10px] font-medium text-slate-500">
             <span>Lv.{friend.level}</span>
             <span className="text-slate-700">·</span>
             <span>{timeAgo(friend.lastActive)}</span>
@@ -202,14 +213,16 @@ function FriendCard({
 
         {/* Streak flame */}
         {friend.mutualStreak > 0 && (
-          <div className="flex items-center gap-1 rounded-lg bg-orange-500/10 border border-orange-500/15 px-2 py-1">
+          <div className="flex items-center gap-1 rounded-lg border border-orange-500/15 bg-orange-500/10 px-2 py-1">
             <span
               className="material-symbols-outlined text-[14px] text-orange-400"
               style={{ fontVariationSettings: "'FILL' 1" }}
             >
               local_fire_department
             </span>
-            <span className="text-[11px] font-bold text-orange-400 tabular-nums">{friend.mutualStreak}</span>
+            <span className="text-[11px] font-bold tabular-nums text-orange-400">
+              {friend.mutualStreak}
+            </span>
           </div>
         )}
 
@@ -220,7 +233,7 @@ function FriendCard({
             e.stopPropagation()
             onMessage(friend.userId)
           }}
-          className="flex size-11 items-center justify-center rounded-xl bg-cyan-500/10 text-cyan-400 cursor-pointer transition-colors duration-200 hover:bg-cyan-500/20 active:bg-cyan-500/30"
+          className="flex size-11 cursor-pointer items-center justify-center rounded-xl bg-cyan-500/10 text-cyan-400 transition-colors duration-200 hover:bg-cyan-500/20 active:bg-cyan-500/30"
           title={`Message ${friend.displayName}`}
           aria-label={`Send message to ${friend.displayName}`}
         >
@@ -253,23 +266,27 @@ function FriendCard({
                   setExpanded(false)
                 }}
                 disabled={!canSendNudge}
-                className={`flex-1 flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-semibold transition-colors duration-200 ${
+                className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-semibold transition-colors duration-200 ${
                   canSendNudge
-                    ? 'bg-primary/10 text-primary cursor-pointer hover:bg-primary/20'
-                    : 'bg-white/[0.02] text-slate-500 cursor-not-allowed'
+                    ? 'cursor-pointer bg-primary/10 text-primary hover:bg-primary/20'
+                    : 'cursor-not-allowed bg-white/[0.02] text-slate-500'
                 }`}
               >
                 <span className="material-symbols-outlined text-sm">
                   {canSendNudge ? 'notifications_active' : 'schedule'}
                 </span>
-                {canSendNudge ? 'Send Nudge' : cooldown ? `In ${cooldown.hours}h ${cooldown.minutes}m` : 'Sent'}
+                {canSendNudge
+                  ? 'Send Nudge'
+                  : cooldown
+                    ? `In ${cooldown.hours}h ${cooldown.minutes}m`
+                    : 'Sent'}
               </button>
               <button
                 onClick={() => {
                   onMessage(friend.userId)
                   setExpanded(false)
                 }}
-                className="flex-1 flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-semibold bg-cyan-500/10 text-cyan-400 cursor-pointer hover:bg-cyan-500/20 transition-colors duration-200"
+                className="flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-xl bg-cyan-500/10 py-2.5 text-xs font-semibold text-cyan-400 transition-colors duration-200 hover:bg-cyan-500/20"
               >
                 <span className="material-symbols-outlined text-sm">chat_bubble</span>
                 Message
@@ -279,7 +296,7 @@ function FriendCard({
                   onShowDetails(friend)
                   setExpanded(false)
                 }}
-                className="flex items-center justify-center gap-1.5 rounded-xl bg-violet-500/10 px-4 py-2.5 text-xs font-semibold text-violet-400 cursor-pointer hover:bg-violet-500/20 transition-colors duration-200"
+                className="flex cursor-pointer items-center justify-center gap-1.5 rounded-xl bg-violet-500/10 px-4 py-2.5 text-xs font-semibold text-violet-400 transition-colors duration-200 hover:bg-violet-500/20"
                 aria-label="Show details"
               >
                 <span className="material-symbols-outlined text-sm">info</span>
@@ -289,7 +306,7 @@ function FriendCard({
                   onRemove(friend.userId)
                   setExpanded(false)
                 }}
-                className="flex items-center justify-center gap-1.5 rounded-xl bg-red-500/10 px-4 py-2.5 text-xs font-semibold text-red-400 cursor-pointer hover:bg-red-500/20 transition-colors duration-200"
+                className="flex cursor-pointer items-center justify-center gap-1.5 rounded-xl bg-red-500/10 px-4 py-2.5 text-xs font-semibold text-red-400 transition-colors duration-200 hover:bg-red-500/20"
                 aria-label="Remove friend"
               >
                 <span className="material-symbols-outlined text-sm">person_remove</span>
@@ -309,7 +326,15 @@ interface FriendsScreenProps {
 }
 
 export function FriendsScreen({ onNavigateToMessages }: FriendsScreenProps) {
-  const { friends, loadDemoFriends, sendNudge, removeFriend, canNudge, getNudgeCooldownRemaining, simulateIncomingRequests } = useSocialStore()
+  const {
+    friends,
+    loadDemoFriends,
+    sendNudge,
+    removeFriend,
+    canNudge,
+    getNudgeCooldownRemaining,
+    simulateIncomingRequests,
+  } = useSocialStore()
   const { createDirectConversation, setActiveConversation } = useMessagingStore()
   const [filter, setFilter] = useState<'all' | 'active' | 'streak'>('all')
   const [search, setSearch] = useState('')
@@ -334,7 +359,7 @@ export function FriendsScreen({ onNavigateToMessages }: FriendsScreenProps) {
   useEffect(() => {
     loadDemoFriends()
     simulateIncomingRequests()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const filtered = friends
@@ -356,7 +381,12 @@ export function FriendsScreen({ onNavigateToMessages }: FriendsScreenProps) {
     const f = friends.find((x) => x.userId === id)
     toast.success(`Nudge sent to ${f?.displayName}!`, {
       icon: '🔔',
-      style: { background: '#1f2937', color: '#fff', borderRadius: '12px', border: '1px solid rgba(19, 236, 91, 0.3)' },
+      style: {
+        background: '#1f2937',
+        color: '#fff',
+        borderRadius: '12px',
+        border: '1px solid rgba(19, 236, 91, 0.3)',
+      },
     })
   }
 
@@ -394,15 +424,35 @@ export function FriendsScreen({ onNavigateToMessages }: FriendsScreenProps) {
       <div className="grid grid-cols-3 gap-2">
         {[
           { v: friends.length, l: 'Friends', c: 'text-white', icon: 'group', ic: 'text-slate-400' },
-          { v: activeCount, l: 'Online', c: 'text-emerald-400', icon: 'circle', ic: 'text-emerald-400' },
-          { v: streakCount, l: 'Streaks', c: 'text-orange-400', icon: 'local_fire_department', ic: 'text-orange-400' },
+          {
+            v: activeCount,
+            l: 'Online',
+            c: 'text-emerald-400',
+            icon: 'circle',
+            ic: 'text-emerald-400',
+          },
+          {
+            v: streakCount,
+            l: 'Streaks',
+            c: 'text-orange-400',
+            icon: 'local_fire_department',
+            ic: 'text-orange-400',
+          },
         ].map((s) => (
-          <div key={s.l} className="flex flex-col items-center gap-1 rounded-xl bg-white/[0.025] border border-white/[0.04] py-3">
-            <span className={`material-symbols-outlined text-sm ${s.ic}`} style={{ fontVariationSettings: "'FILL' 1" }}>
+          <div
+            key={s.l}
+            className="flex flex-col items-center gap-1 rounded-xl border border-white/[0.04] bg-white/[0.025] py-3"
+          >
+            <span
+              className={`material-symbols-outlined text-sm ${s.ic}`}
+              style={{ fontVariationSettings: "'FILL' 1" }}
+            >
               {s.icon}
             </span>
             <span className={`text-lg font-bold ${s.c} tabular-nums`}>{s.v}</span>
-            <span className="text-[9px] font-semibold text-slate-500 uppercase tracking-wider">{s.l}</span>
+            <span className="text-[9px] font-semibold uppercase tracking-wider text-slate-500">
+              {s.l}
+            </span>
           </div>
         ))}
       </div>
@@ -410,7 +460,7 @@ export function FriendsScreen({ onNavigateToMessages }: FriendsScreenProps) {
       {/* Add Friends button */}
       <button
         onClick={() => setShowAddFriends(true)}
-        className="w-full flex items-center justify-center gap-2 rounded-xl bg-primary/10 hover:bg-primary/20 py-2.5 text-[13px] font-semibold text-primary transition-colors cursor-pointer"
+        className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-primary/10 py-2.5 text-[13px] font-semibold text-primary transition-colors hover:bg-primary/20"
       >
         <span className="material-symbols-outlined text-lg">person_add</span>
         Add Friends
@@ -421,7 +471,7 @@ export function FriendsScreen({ onNavigateToMessages }: FriendsScreenProps) {
 
       {/* Search */}
       <div className="relative">
-        <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-[18px]">
+        <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-slate-500">
           search
         </span>
         <input
@@ -429,7 +479,7 @@ export function FriendsScreen({ onNavigateToMessages }: FriendsScreenProps) {
           placeholder="Search friends..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full rounded-xl bg-white/[0.03] border border-white/[0.06] pl-10 pr-4 py-2.5 text-[13px] text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-all duration-200"
+          className="w-full rounded-xl border border-white/[0.06] bg-white/[0.03] py-2.5 pl-10 pr-4 text-[13px] text-white transition-all duration-200 placeholder:text-slate-500 focus:border-primary/40 focus:outline-none focus:ring-2 focus:ring-primary/30"
         />
       </div>
 
@@ -440,11 +490,12 @@ export function FriendsScreen({ onNavigateToMessages }: FriendsScreenProps) {
             key={f.id}
             onClick={() => setFilter(f.id)}
             className={`
-              flex items-center gap-1.5 rounded-xl px-3 py-2 text-[11px] font-semibold cursor-pointer
+              flex cursor-pointer items-center gap-1.5 rounded-xl px-3 py-2 text-[11px] font-semibold
               transition-all duration-200 ease-out
-              ${filter === f.id
-                ? 'bg-primary text-primary-content shadow-md shadow-primary/25'
-                : 'bg-white/[0.03] text-slate-400 hover:bg-white/[0.06] hover:text-white border border-white/[0.04]'
+              ${
+                filter === f.id
+                  ? 'bg-primary text-primary-content shadow-md shadow-primary/25'
+                  : 'border border-white/[0.04] bg-white/[0.03] text-slate-400 hover:bg-white/[0.06] hover:text-white'
               }
             `}
           >
@@ -467,7 +518,7 @@ export function FriendsScreen({ onNavigateToMessages }: FriendsScreenProps) {
       {/* List */}
       {filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-4 py-20 text-center">
-          <div className="flex size-20 items-center justify-center rounded-3xl bg-slate-800/40 border border-dashed border-slate-700/50">
+          <div className="flex size-20 items-center justify-center rounded-3xl border border-dashed border-slate-700/50 bg-slate-800/40">
             <span className="material-symbols-outlined text-4xl text-slate-600">
               {search ? 'search_off' : 'group_add'}
             </span>
@@ -476,14 +527,14 @@ export function FriendsScreen({ onNavigateToMessages }: FriendsScreenProps) {
             <p className="text-sm font-semibold text-slate-400">
               {search ? 'No friends match your search' : 'No friends yet'}
             </p>
-            <p className="text-xs text-slate-500 mt-1 max-w-[220px] mx-auto">
+            <p className="mx-auto mt-1 max-w-[220px] text-xs text-slate-500">
               {search ? 'Try different keywords' : 'Add friends to compete and share streaks!'}
             </p>
           </div>
           {!search && (
             <button
               onClick={() => setShowAddFriends(true)}
-              className="flex items-center gap-1.5 rounded-xl bg-primary/10 px-4 py-2.5 text-[13px] font-semibold text-primary cursor-pointer hover:bg-primary/20 transition-colors duration-200"
+              className="flex cursor-pointer items-center gap-1.5 rounded-xl bg-primary/10 px-4 py-2.5 text-[13px] font-semibold text-primary transition-colors duration-200 hover:bg-primary/20"
             >
               <span className="material-symbols-outlined text-lg">person_add</span>
               Add Friends

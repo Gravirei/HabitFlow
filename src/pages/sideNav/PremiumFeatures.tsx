@@ -1,13 +1,13 @@
 // @ts-nocheck
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
-import toast from 'react-hot-toast';
-import { usePremiumStore } from '@/store/usePremiumStore';
+import { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
+import toast from 'react-hot-toast'
+import { usePremiumStore } from '@/store/usePremiumStore'
 
 export function PremiumFeatures() {
-  const navigate = useNavigate();
-  const { tier } = usePremiumStore();
+  const navigate = useNavigate()
+  const { tier } = usePremiumStore()
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -18,7 +18,7 @@ export function PremiumFeatures() {
         delayChildren: 0.1,
       },
     },
-  };
+  }
 
   const itemVariants = {
     hidden: { opacity: 0, y: 10 },
@@ -27,7 +27,7 @@ export function PremiumFeatures() {
       y: 0,
       transition: { duration: 0.3, ease: 'easeOut' },
     },
-  };
+  }
 
   const tiers = [
     {
@@ -37,12 +37,7 @@ export function PremiumFeatures() {
       period: '/month',
       description: 'Perfect for getting started',
       badge: null,
-      features: [
-        'Basic habit tracking',
-        'Timer function',
-        '5 categories',
-        'Local storage',
-      ],
+      features: ['Basic habit tracking', 'Timer function', '5 categories', 'Local storage'],
       buttonText: tier === 'free' ? 'Current Plan' : 'Downgrade',
       buttonVariant: tier === 'free' ? 'current' : 'secondary',
       highlighted: false,
@@ -73,18 +68,12 @@ export function PremiumFeatures() {
       period: '/user/month',
       description: 'Perfect for teams',
       badge: null,
-      features: [
-        'Everything in Pro',
-        'Team sharing',
-        'Admin dashboard',
-        'API access',
-        'SSO',
-      ],
+      features: ['Everything in Pro', 'Team sharing', 'Admin dashboard', 'API access', 'SSO'],
       buttonText: tier === 'team' ? 'Current Plan' : 'Contact Sales',
       buttonVariant: tier === 'team' ? 'current' : 'secondary',
       highlighted: false,
     },
-  ];
+  ]
 
   const comparisonRows = [
     { feature: 'Habits', free: '5', pro: 'Unlimited', team: 'Unlimited' },
@@ -99,7 +88,7 @@ export function PremiumFeatures() {
     { feature: 'API Access', free: false, pro: false, team: true },
     { feature: 'Priority Support', free: false, pro: true, team: true },
     { feature: 'SSO', free: false, pro: false, team: true },
-  ];
+  ]
 
   const faqs = [
     {
@@ -116,44 +105,43 @@ export function PremiumFeatures() {
     },
     {
       question: 'What happens when I downgrade?',
-      answer: 'You keep all your data, but lose access to premium features. You can upgrade anytime.',
+      answer:
+        'You keep all your data, but lose access to premium features. You can upgrade anytime.',
     },
-  ];
+  ]
 
   const handleUpgrade = (tierId: string) => {
     if (tierId === 'team') {
-      toast.success('Sales team will contact you soon!');
+      toast.success('Sales team will contact you soon!')
     } else if (tier !== tierId) {
-      toast.success('Premium upgrade coming soon! 🚀');
+      toast.success('Premium upgrade coming soon! 🚀')
     }
-  };
+  }
 
-  const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
+  const [expandedFaq, setExpandedFaq] = useState<number | null>(null)
 
   const handleFaqToggle = (index: number) => {
-    setExpandedFaq(expandedFaq === index ? null : index);
-  };
+    setExpandedFaq(expandedFaq === index ? null : index)
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-teal-50 dark:from-slate-950 dark:to-slate-950 pb-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-teal-50 pb-8 dark:from-slate-950 dark:to-slate-950">
       {/* Header with Back Button */}
-      <div className="fixed top-0 left-0 right-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center gap-4">
+      <div className="fixed left-0 right-0 top-0 z-40 bg-white/80 backdrop-blur-sm dark:bg-slate-900/80">
+        <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-4 sm:px-6 lg:px-8">
           <button
             onClick={() => navigate(-1)}
-            className="p-2.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors duration-200"
+            className="rounded-full p-2.5 transition-colors duration-200 hover:bg-slate-100 dark:hover:bg-slate-800"
             aria-label="Go back"
           >
             <span className="material-symbols-outlined text-xl">arrow_back</span>
           </button>
-          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">
-            Premium
-          </h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white sm:text-3xl">Premium</h1>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-8">
+      <div className="mx-auto max-w-7xl px-4 pb-8 pt-24 sm:px-6 lg:px-8">
         <motion.div
           variants={containerVariants}
           initial="hidden"
@@ -162,15 +150,15 @@ export function PremiumFeatures() {
         >
           {/* Current Plan Banner */}
           <motion.div variants={itemVariants}>
-            <div className="bg-gradient-to-r from-teal-500 to-emerald-500 dark:from-teal-600 dark:to-emerald-600 rounded-2xl p-6 sm:p-8 text-white shadow-lg">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 p-6 text-white shadow-lg dark:from-teal-600 dark:to-emerald-600 sm:p-8">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <p className="text-teal-50 text-sm font-medium mb-1">Your current plan</p>
-                  <h2 className="text-2xl sm:text-3xl font-bold capitalize">
+                  <p className="mb-1 text-sm font-medium text-teal-50">Your current plan</p>
+                  <h2 className="text-2xl font-bold capitalize sm:text-3xl">
                     {tier === 'free' ? 'Free' : tier === 'pro' ? 'Pro' : 'Team'} Plan
                   </h2>
                 </div>
-                <div className="bg-white/20 backdrop-blur-sm rounded-full px-4 py-2 w-fit">
+                <div className="w-fit rounded-full bg-white/20 px-4 py-2 backdrop-blur-sm">
                   <p className="text-sm font-semibold">Active</p>
                 </div>
               </div>
@@ -179,33 +167,30 @@ export function PremiumFeatures() {
 
           {/* Pricing Cards */}
           <motion.div variants={itemVariants}>
-            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-8">
+            <h2 className="mb-8 text-2xl font-bold text-slate-900 dark:text-white sm:text-3xl">
               Choose your plan
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 overflow-x-auto pb-4">
+            <div className="grid grid-cols-1 gap-6 overflow-x-auto pb-4 md:grid-cols-3 lg:gap-8">
               {tiers.map((tierData, idx) => (
                 <motion.div
                   key={tierData.id}
                   variants={itemVariants}
                   whileHover={{ y: -4, transition: { duration: 0.2 } }}
-                  className={`relative rounded-2xl overflow-hidden flex flex-col h-full transition-all duration-200 ${
-                    tierData.highlighted
-                      ? 'md:scale-105 md:z-10'
-                      : 'md:scale-100'
+                  className={`relative flex h-full flex-col overflow-hidden rounded-2xl transition-all duration-200 ${
+                    tierData.highlighted ? 'md:z-10 md:scale-105' : 'md:scale-100'
                   }`}
                 >
                   {/* Card Background */}
                   <div
                     className={`absolute inset-0 ${
                       tierData.highlighted
-                        ? 'bg-gradient-to-b from-white to-teal-50/50 dark:from-slate-800 dark:to-slate-900/50 border-2 border-transparent bg-clip-padding'
+                        ? 'border-2 border-transparent bg-gradient-to-b from-white to-teal-50/50 bg-clip-padding dark:from-slate-800 dark:to-slate-900/50'
                         : 'bg-white dark:bg-slate-900/50'
                     }`}
                     style={
                       tierData.highlighted
                         ? {
-                            borderImage:
-                              'linear-gradient(135deg, #0D9488, #F97316) 1',
+                            borderImage: 'linear-gradient(135deg, #0D9488, #F97316) 1',
                           }
                         : {}
                     }
@@ -213,15 +198,15 @@ export function PremiumFeatures() {
 
                   {/* Badge */}
                   {tierData.badge && (
-                    <div className="absolute top-0 right-0 bg-gradient-to-r from-orange-400 to-orange-500 text-white px-4 py-1.5 text-xs font-bold rounded-bl-2xl shadow-lg">
+                    <div className="absolute right-0 top-0 rounded-bl-2xl bg-gradient-to-r from-orange-400 to-orange-500 px-4 py-1.5 text-xs font-bold text-white shadow-lg">
                       {tierData.badge}
                     </div>
                   )}
 
                   {/* Card Content */}
-                  <div className="relative p-6 sm:p-8 flex flex-col h-full">
+                  <div className="relative flex h-full flex-col p-6 sm:p-8">
                     <div className="mb-6">
-                      <h3 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-2">
+                      <h3 className="mb-2 text-xl font-bold text-slate-900 dark:text-white sm:text-2xl">
                         {tierData.name}
                       </h3>
                       <p className="text-sm text-slate-600 dark:text-slate-400">
@@ -232,10 +217,10 @@ export function PremiumFeatures() {
                     {/* Price */}
                     <div className="mb-6">
                       <div className="flex items-baseline gap-1">
-                        <span className="text-4xl sm:text-5xl font-bold text-slate-900 dark:text-white">
+                        <span className="text-4xl font-bold text-slate-900 dark:text-white sm:text-5xl">
                           {tierData.price}
                         </span>
-                        <span className="text-slate-600 dark:text-slate-400 font-medium">
+                        <span className="font-medium text-slate-600 dark:text-slate-400">
                           {tierData.period}
                         </span>
                       </div>
@@ -250,10 +235,10 @@ export function PremiumFeatures() {
                             variants={itemVariants}
                             className="flex items-start gap-3"
                           >
-                            <span className="material-symbols-outlined text-teal-500 dark:text-teal-400 flex-shrink-0 mt-0.5 text-lg">
+                            <span className="material-symbols-outlined mt-0.5 flex-shrink-0 text-lg text-teal-500 dark:text-teal-400">
                               check_circle
                             </span>
-                            <span className="text-slate-700 dark:text-slate-300 text-sm sm:text-base">
+                            <span className="text-sm text-slate-700 dark:text-slate-300 sm:text-base">
                               {feature}
                             </span>
                           </motion.li>
@@ -267,12 +252,12 @@ export function PremiumFeatures() {
                       whileTap={{ scale: 0.98 }}
                       onClick={() => handleUpgrade(tierData.id)}
                       disabled={tierData.buttonVariant === 'current'}
-                      className={`w-full py-3 sm:py-4 rounded-xl font-semibold transition-all duration-200 text-base sm:text-lg ${
+                      className={`w-full rounded-xl py-3 text-base font-semibold transition-all duration-200 sm:py-4 sm:text-lg ${
                         tierData.buttonVariant === 'primary'
                           ? 'bg-gradient-to-r from-teal-500 to-emerald-500 text-white hover:shadow-lg disabled:opacity-75'
                           : tierData.buttonVariant === 'current'
-                            ? 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 cursor-not-allowed'
-                            : 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white hover:bg-slate-200 dark:hover:bg-slate-700'
+                            ? 'cursor-not-allowed bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
+                            : 'bg-slate-100 text-slate-900 hover:bg-slate-200 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700'
                       }`}
                     >
                       {tierData.buttonText}
@@ -285,13 +270,13 @@ export function PremiumFeatures() {
 
           {/* Feature Comparison Table */}
           <motion.div variants={itemVariants}>
-            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-8">
+            <h2 className="mb-8 text-2xl font-bold text-slate-900 dark:text-white sm:text-3xl">
               Feature Comparison
             </h2>
-            <div className="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+            <div className="overflow-x-auto rounded-2xl border border-slate-200 shadow-sm dark:border-slate-700">
               <table className="w-full">
                 <thead>
-                  <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
+                  <tr className="border-b border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800/50">
                     <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900 dark:text-white">
                       Feature
                     </th>
@@ -310,7 +295,7 @@ export function PremiumFeatures() {
                   {comparisonRows.map((row, idx) => (
                     <tr
                       key={idx}
-                      className="border-b border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors duration-150"
+                      className="border-b border-slate-200 transition-colors duration-150 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800/30"
                     >
                       <td className="px-6 py-4 text-sm font-medium text-slate-900 dark:text-white">
                         {row.feature}
@@ -318,11 +303,11 @@ export function PremiumFeatures() {
                       <td className="px-6 py-4 text-center">
                         {typeof row.free === 'boolean' ? (
                           row.free ? (
-                            <span className="material-symbols-outlined text-teal-500 dark:text-teal-400 inline text-lg">
+                            <span className="material-symbols-outlined inline text-lg text-teal-500 dark:text-teal-400">
                               check_circle
                             </span>
                           ) : (
-                            <span className="material-symbols-outlined text-slate-400 dark:text-slate-600 inline text-lg">
+                            <span className="material-symbols-outlined inline text-lg text-slate-400 dark:text-slate-600">
                               cancel
                             </span>
                           )
@@ -335,11 +320,11 @@ export function PremiumFeatures() {
                       <td className="px-6 py-4 text-center">
                         {typeof row.pro === 'boolean' ? (
                           row.pro ? (
-                            <span className="material-symbols-outlined text-teal-500 dark:text-teal-400 inline text-lg">
+                            <span className="material-symbols-outlined inline text-lg text-teal-500 dark:text-teal-400">
                               check_circle
                             </span>
                           ) : (
-                            <span className="material-symbols-outlined text-slate-400 dark:text-slate-600 inline text-lg">
+                            <span className="material-symbols-outlined inline text-lg text-slate-400 dark:text-slate-600">
                               cancel
                             </span>
                           )
@@ -352,11 +337,11 @@ export function PremiumFeatures() {
                       <td className="px-6 py-4 text-center">
                         {typeof row.team === 'boolean' ? (
                           row.team ? (
-                            <span className="material-symbols-outlined text-teal-500 dark:text-teal-400 inline text-lg">
+                            <span className="material-symbols-outlined inline text-lg text-teal-500 dark:text-teal-400">
                               check_circle
                             </span>
                           ) : (
-                            <span className="material-symbols-outlined text-slate-400 dark:text-slate-600 inline text-lg">
+                            <span className="material-symbols-outlined inline text-lg text-slate-400 dark:text-slate-600">
                               cancel
                             </span>
                           )
@@ -375,7 +360,7 @@ export function PremiumFeatures() {
 
           {/* FAQ Section */}
           <motion.div variants={itemVariants}>
-            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-8">
+            <h2 className="mb-8 text-2xl font-bold text-slate-900 dark:text-white sm:text-3xl">
               Frequently Asked Questions
             </h2>
             <div className="space-y-4">
@@ -383,20 +368,20 @@ export function PremiumFeatures() {
                 <motion.div
                   key={idx}
                   variants={itemVariants}
-                  className="bg-white dark:bg-slate-900/50 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 hover:border-teal-300 dark:hover:border-teal-600 transition-all duration-200"
+                  className="overflow-hidden rounded-2xl border border-slate-200 bg-white transition-all duration-200 hover:border-teal-300 dark:border-slate-700 dark:bg-slate-900/50 dark:hover:border-teal-600"
                 >
                   <button
                     onClick={() => handleFaqToggle(idx)}
-                    className="w-full px-6 sm:px-8 py-4 sm:py-6 text-left flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors duration-150"
+                    className="flex w-full items-center justify-between px-6 py-4 text-left transition-colors duration-150 hover:bg-slate-50 dark:hover:bg-slate-800/50 sm:px-8 sm:py-6"
                     aria-expanded={expandedFaq === idx}
                   >
-                    <h3 className="font-semibold text-slate-900 dark:text-white text-base sm:text-lg">
+                    <h3 className="text-base font-semibold text-slate-900 dark:text-white sm:text-lg">
                       {faq.question}
                     </h3>
                     <motion.span
                       animate={{ rotate: expandedFaq === idx ? 180 : 0 }}
                       transition={{ duration: 0.2 }}
-                      className="material-symbols-outlined text-slate-600 dark:text-slate-400 flex-shrink-0 ml-4"
+                      className="material-symbols-outlined ml-4 flex-shrink-0 text-slate-600 dark:text-slate-400"
                     >
                       expand_more
                     </motion.span>
@@ -410,8 +395,8 @@ export function PremiumFeatures() {
                         transition={{ duration: 0.2 }}
                         className="overflow-hidden"
                       >
-                        <div className="px-6 sm:px-8 pb-4 sm:pb-6 border-t border-slate-200 dark:border-slate-700">
-                          <p className="text-slate-600 dark:text-slate-400 text-sm sm:text-base leading-relaxed pt-4">
+                        <div className="border-t border-slate-200 px-6 pb-4 dark:border-slate-700 sm:px-8 sm:pb-6">
+                          <p className="pt-4 text-sm leading-relaxed text-slate-600 dark:text-slate-400 sm:text-base">
                             {faq.answer}
                           </p>
                         </div>
@@ -426,25 +411,23 @@ export function PremiumFeatures() {
           {/* CTA Section */}
           <motion.div
             variants={itemVariants}
-            className="bg-gradient-to-r from-teal-500 via-emerald-500 to-cyan-500 dark:from-teal-600 dark:via-emerald-600 dark:to-cyan-600 rounded-2xl p-8 sm:p-12 text-white shadow-xl relative overflow-hidden"
+            className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-teal-500 via-emerald-500 to-cyan-500 p-8 text-white shadow-xl dark:from-teal-600 dark:via-emerald-600 dark:to-cyan-600 sm:p-12"
           >
             {/* Animated background elements */}
             <div className="absolute inset-0 opacity-20">
-              <div className="absolute top-0 right-0 w-96 h-96 bg-white rounded-full filter blur-3xl animate-pulse" />
+              <div className="absolute right-0 top-0 h-96 w-96 animate-pulse rounded-full bg-white blur-3xl filter" />
             </div>
 
-            <div className="relative z-10 text-center max-w-2xl mx-auto">
-              <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-                Start your 14-day free trial
-              </h2>
-              <p className="text-teal-50 text-base sm:text-lg mb-8">
+            <div className="relative z-10 mx-auto max-w-2xl text-center">
+              <h2 className="mb-4 text-3xl font-bold sm:text-4xl">Start your 14-day free trial</h2>
+              <p className="mb-8 text-base text-teal-50 sm:text-lg">
                 No credit card required. Upgrade anytime. Cancel anytime.
               </p>
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => handleUpgrade('pro')}
-                className="bg-white text-teal-600 font-bold px-8 sm:px-12 py-4 sm:py-5 rounded-xl hover:shadow-lg transition-all duration-200 text-base sm:text-lg inline-flex items-center gap-3"
+                className="inline-flex items-center gap-3 rounded-xl bg-white px-8 py-4 text-base font-bold text-teal-600 transition-all duration-200 hover:shadow-lg sm:px-12 sm:py-5 sm:text-lg"
               >
                 <span>Start Free Trial</span>
                 <span className="material-symbols-outlined">arrow_forward</span>
@@ -454,5 +437,5 @@ export function PremiumFeatures() {
         </motion.div>
       </div>
     </div>
-  );
+  )
 }

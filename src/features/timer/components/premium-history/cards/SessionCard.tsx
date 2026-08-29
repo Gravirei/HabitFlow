@@ -8,11 +8,11 @@ import React from 'react'
 import { StopwatchCard } from './StopwatchCard'
 import { CountdownCard } from './CountdownCard'
 import { IntervalsCard } from './IntervalsCard'
-import { 
-  type TimerSession, 
-  isStopwatchSession, 
-  isCountdownSession, 
-  isIntervalsSession 
+import {
+  type TimerSession,
+  isStopwatchSession,
+  isCountdownSession,
+  isIntervalsSession,
 } from '../types/session.types'
 
 interface SessionCardProps {
@@ -23,36 +23,44 @@ interface SessionCardProps {
   onResumeClick?: () => void
 }
 
-export function SessionCard({ session, formatTime, onDetailsClick, onRepeatClick, onResumeClick }: SessionCardProps) {
+export function SessionCard({
+  session,
+  formatTime,
+  onDetailsClick,
+  onRepeatClick,
+  onResumeClick,
+}: SessionCardProps) {
   const mode = session.mode
 
   // Use type guards for proper type narrowing
   if (isStopwatchSession(session)) {
-    return <StopwatchCard session={session} formatTime={formatTime} onDetailsClick={onDetailsClick} />
+    return (
+      <StopwatchCard session={session} formatTime={formatTime} onDetailsClick={onDetailsClick} />
+    )
   }
-  
+
   if (isCountdownSession(session)) {
     return (
-      <CountdownCard 
-        session={session} 
-        formatTime={formatTime} 
+      <CountdownCard
+        session={session}
+        formatTime={formatTime}
         onDetailsClick={onDetailsClick}
         onRepeatClick={onRepeatClick}
         onResumeClick={onResumeClick}
       />
     )
   }
-  
+
   if (isIntervalsSession(session)) {
     return (
-      <IntervalsCard 
-        session={session} 
-        formatTime={formatTime} 
+      <IntervalsCard
+        session={session}
+        formatTime={formatTime}
         onDetailsClick={onDetailsClick}
         onRepeatClick={onRepeatClick}
       />
     )
   }
-  
+
   return null
 }

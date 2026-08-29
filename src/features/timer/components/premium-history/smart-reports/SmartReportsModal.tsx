@@ -26,7 +26,7 @@ export function SmartReportsModal({ isOpen, onClose, sessions }: SmartReportsMod
   const formatDuration = (seconds: number) => {
     const hrs = Math.floor(seconds / 3600)
     const mins = Math.floor((seconds % 3600) / 60)
-    
+
     if (hrs > 0) {
       return `${hrs}h ${mins}m`
     }
@@ -35,28 +35,40 @@ export function SmartReportsModal({ isOpen, onClose, sessions }: SmartReportsMod
 
   const getInsightColor = (type: string) => {
     switch (type) {
-      case 'positive': return 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
-      case 'negative': return 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
-      case 'suggestion': return 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800'
-      default: return 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'
+      case 'positive':
+        return 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
+      case 'negative':
+        return 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
+      case 'suggestion':
+        return 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800'
+      default:
+        return 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'
     }
   }
 
   const getInsightIconColor = (type: string) => {
     switch (type) {
-      case 'positive': return 'text-green-600 dark:text-green-400'
-      case 'negative': return 'text-red-600 dark:text-red-400'
-      case 'suggestion': return 'text-amber-600 dark:text-amber-400'
-      default: return 'text-blue-600 dark:text-blue-400'
+      case 'positive':
+        return 'text-green-600 dark:text-green-400'
+      case 'negative':
+        return 'text-red-600 dark:text-red-400'
+      case 'suggestion':
+        return 'text-amber-600 dark:text-amber-400'
+      default:
+        return 'text-blue-600 dark:text-blue-400'
     }
   }
 
   const getModeColor = (mode: string) => {
     switch (mode) {
-      case 'Stopwatch': return 'bg-blue-500'
-      case 'Countdown': return 'bg-purple-500'
-      case 'Intervals': return 'bg-orange-500'
-      default: return 'bg-gray-500'
+      case 'Stopwatch':
+        return 'bg-blue-500'
+      case 'Countdown':
+        return 'bg-purple-500'
+      case 'Intervals':
+        return 'bg-orange-500'
+      default:
+        return 'bg-gray-500'
     }
   }
 
@@ -83,31 +95,35 @@ export function SmartReportsModal({ isOpen, onClose, sessions }: SmartReportsMod
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="fixed inset-x-4 top-[5%] z-50 mx-auto max-w-4xl max-h-[90vh] bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden"
+            className="fixed inset-x-4 top-[5%] z-50 mx-auto max-h-[90vh] max-w-4xl overflow-hidden rounded-3xl bg-white shadow-2xl dark:bg-slate-900"
           >
             {/* Header */}
-            <div className="sticky top-0 z-10 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800 px-6 py-4">
-              <div className="flex items-center justify-between mb-4">
+            <div className="sticky top-0 z-10 border-b border-slate-200 bg-white/95 px-6 py-4 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/95">
+              <div className="mb-4 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center">
-                    <span className="material-symbols-outlined text-white text-xl">summarize</span>
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-purple-500">
+                    <span className="material-symbols-outlined text-xl text-white">summarize</span>
                   </div>
                   <div>
-                    <h2 className="text-xl font-bold text-slate-900 dark:text-white">Smart Reports</h2>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">Automated insights & analytics</p>
+                    <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+                      Smart Reports
+                    </h2>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                      Automated insights & analytics
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={handleExportPDF}
-                    className="px-4 py-2 bg-gradient-to-r from-violet-500 to-purple-500 text-white rounded-xl text-sm font-medium hover:shadow-lg transition-all flex items-center gap-2"
+                    className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-500 to-purple-500 px-4 py-2 text-sm font-medium text-white transition-all hover:shadow-lg"
                   >
                     <span className="material-symbols-outlined text-sm">picture_as_pdf</span>
                     Export PDF
                   </button>
                   <button
                     onClick={onClose}
-                    className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 transition-colors"
+                    className="rounded-full p-2 text-slate-600 transition-colors hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
                   >
                     <span className="material-symbols-outlined">close</span>
                   </button>
@@ -120,10 +136,10 @@ export function SmartReportsModal({ isOpen, onClose, sessions }: SmartReportsMod
                   <button
                     key={period}
                     onClick={() => setSelectedPeriod(period)}
-                    className={`px-4 py-2 rounded-xl text-sm font-medium transition-all capitalize ${
+                    className={`rounded-xl px-4 py-2 text-sm font-medium capitalize transition-all ${
                       selectedPeriod === period
                         ? 'bg-gradient-to-r from-violet-500 to-purple-500 text-white shadow-lg'
-                        : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700'
                     }`}
                   >
                     {period === 'all' ? 'All Time' : period}
@@ -133,47 +149,58 @@ export function SmartReportsModal({ isOpen, onClose, sessions }: SmartReportsMod
             </div>
 
             {/* Content */}
-            <div className="overflow-y-auto max-h-[calc(90vh-180px)] p-6">
+            <div className="max-h-[calc(90vh-180px)] overflow-y-auto p-6">
               {/* Summary Stats */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                <div className="bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl p-4 text-white">
-                  <div className="text-sm opacity-90 mb-1">Total Sessions</div>
+              <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
+                <div className="rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 p-4 text-white">
+                  <div className="mb-1 text-sm opacity-90">Total Sessions</div>
                   <div className="text-3xl font-bold">{reportData.totalSessions}</div>
                 </div>
-                <div className="bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl p-4 text-white">
-                  <div className="text-sm opacity-90 mb-1">Total Time</div>
-                  <div className="text-3xl font-bold">{formatDuration(reportData.totalDuration)}</div>
+                <div className="rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 p-4 text-white">
+                  <div className="mb-1 text-sm opacity-90">Total Time</div>
+                  <div className="text-3xl font-bold">
+                    {formatDuration(reportData.totalDuration)}
+                  </div>
                 </div>
-                <div className="bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl p-4 text-white">
-                  <div className="text-sm opacity-90 mb-1">Avg Session</div>
-                  <div className="text-3xl font-bold">{formatDuration(reportData.averageDuration)}</div>
+                <div className="rounded-2xl bg-gradient-to-br from-orange-500 to-red-500 p-4 text-white">
+                  <div className="mb-1 text-sm opacity-90">Avg Session</div>
+                  <div className="text-3xl font-bold">
+                    {formatDuration(reportData.averageDuration)}
+                  </div>
                 </div>
-                <div className="bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl p-4 text-white">
-                  <div className="text-sm opacity-90 mb-1">Best Day</div>
-                  <div className="text-xl font-bold truncate">{reportData.mostProductiveDay}</div>
+                <div className="rounded-2xl bg-gradient-to-br from-green-500 to-emerald-500 p-4 text-white">
+                  <div className="mb-1 text-sm opacity-90">Best Day</div>
+                  <div className="truncate text-xl font-bold">{reportData.mostProductiveDay}</div>
                 </div>
               </div>
 
               {/* Trends */}
               {reportData.trends.length > 0 && (
                 <div className="mb-6">
-                  <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-3">Trends</h3>
-                  <div className="grid md:grid-cols-2 gap-3">
+                  <h3 className="mb-3 text-lg font-semibold text-slate-900 dark:text-white">
+                    Trends
+                  </h3>
+                  <div className="grid gap-3 md:grid-cols-2">
                     {reportData.trends.map((trend, index) => (
                       <div
                         key={index}
-                        className="flex items-center justify-between bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4"
+                        className="flex items-center justify-between rounded-xl bg-slate-50 p-4 dark:bg-slate-800/50"
                       >
                         <span className="text-sm font-medium text-slate-900 dark:text-white">
                           {trend.label}
                         </span>
-                        <div className={`flex items-center gap-1 font-semibold ${
-                          trend.isPositive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
-                        }`}>
+                        <div
+                          className={`flex items-center gap-1 font-semibold ${
+                            trend.isPositive
+                              ? 'text-green-600 dark:text-green-400'
+                              : 'text-red-600 dark:text-red-400'
+                          }`}
+                        >
                           <span className="material-symbols-outlined text-sm">
                             {trend.isPositive ? 'trending_up' : 'trending_down'}
                           </span>
-                          {trend.change > 0 ? '+' : ''}{trend.change}%
+                          {trend.change > 0 ? '+' : ''}
+                          {trend.change}%
                         </div>
                       </div>
                     ))}
@@ -183,29 +210,35 @@ export function SmartReportsModal({ isOpen, onClose, sessions }: SmartReportsMod
 
               {/* Insights */}
               <div className="mb-6">
-                <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-3">Insights</h3>
+                <h3 className="mb-3 text-lg font-semibold text-slate-900 dark:text-white">
+                  Insights
+                </h3>
                 <div className="grid gap-3">
                   {reportData.insights.map((insight) => (
                     <motion.div
                       key={insight.id}
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
-                      className={`border rounded-2xl p-4 ${getInsightColor(insight.type)}`}
+                      className={`rounded-2xl border p-4 ${getInsightColor(insight.type)}`}
                     >
                       <div className="flex items-start gap-3">
-                        <div className={`w-10 h-10 rounded-xl bg-white dark:bg-slate-900/50 flex items-center justify-center shrink-0 ${getInsightIconColor(insight.type)}`}>
+                        <div
+                          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white dark:bg-slate-900/50 ${getInsightIconColor(insight.type)}`}
+                        >
                           <span className="material-symbols-outlined text-lg">{insight.icon}</span>
                         </div>
                         <div className="flex-1">
                           <div className="flex items-start justify-between">
-                            <h4 className="font-semibold text-slate-900 dark:text-white">{insight.title}</h4>
+                            <h4 className="font-semibold text-slate-900 dark:text-white">
+                              {insight.title}
+                            </h4>
                             {insight.metric && (
-                              <span className="text-sm font-bold text-slate-700 dark:text-slate-300 ml-2">
+                              <span className="ml-2 text-sm font-bold text-slate-700 dark:text-slate-300">
                                 {insight.metric}
                               </span>
                             )}
                           </div>
-                          <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                          <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
                             {insight.description}
                           </p>
                         </div>
@@ -217,16 +250,27 @@ export function SmartReportsModal({ isOpen, onClose, sessions }: SmartReportsMod
 
               {/* Mode Breakdown */}
               <div className="mb-6">
-                <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-3">Mode Breakdown</h3>
+                <h3 className="mb-3 text-lg font-semibold text-slate-900 dark:text-white">
+                  Mode Breakdown
+                </h3>
                 <div className="space-y-3">
                   {reportData.modeBreakdown.map((mode) => (
-                    <div key={mode.mode} className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4">
-                      <div className="flex items-center justify-between mb-2">
+                    <div
+                      key={mode.mode}
+                      className="rounded-xl bg-slate-50 p-4 dark:bg-slate-800/50"
+                    >
+                      <div className="mb-2 flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <div className={`w-8 h-8 rounded-lg ${getModeColor(mode.mode)} flex items-center justify-center`}>
-                            <span className="material-symbols-outlined text-white text-sm">timer</span>
+                          <div
+                            className={`h-8 w-8 rounded-lg ${getModeColor(mode.mode)} flex items-center justify-center`}
+                          >
+                            <span className="material-symbols-outlined text-sm text-white">
+                              timer
+                            </span>
                           </div>
-                          <span className="font-semibold text-slate-900 dark:text-white">{mode.mode}</span>
+                          <span className="font-semibold text-slate-900 dark:text-white">
+                            {mode.mode}
+                          </span>
                         </div>
                         <div className="text-right">
                           <div className="text-sm font-semibold text-slate-900 dark:text-white">
@@ -237,7 +281,7 @@ export function SmartReportsModal({ isOpen, onClose, sessions }: SmartReportsMod
                           </div>
                         </div>
                       </div>
-                      <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+                      <div className="h-2 w-full rounded-full bg-slate-200 dark:bg-slate-700">
                         <div
                           className={`${getModeColor(mode.mode)} h-2 rounded-full transition-all`}
                           style={{ width: `${mode.percentage}%` }}
@@ -249,27 +293,36 @@ export function SmartReportsModal({ isOpen, onClose, sessions }: SmartReportsMod
               </div>
 
               {/* Additional Stats */}
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-4">
-                  <div className="flex items-center gap-3 mb-2">
-                    <span className="material-symbols-outlined text-slate-600 dark:text-slate-400">schedule</span>
-                    <span className="font-semibold text-slate-900 dark:text-white">Most Productive Time</span>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/50">
+                  <div className="mb-2 flex items-center gap-3">
+                    <span className="material-symbols-outlined text-slate-600 dark:text-slate-400">
+                      schedule
+                    </span>
+                    <span className="font-semibold text-slate-900 dark:text-white">
+                      Most Productive Time
+                    </span>
                   </div>
                   <div className="text-2xl font-bold text-slate-900 dark:text-white">
                     {reportData.mostProductiveTime}
                   </div>
                 </div>
                 {reportData.longestSession && (
-                  <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-4">
-                    <div className="flex items-center gap-3 mb-2">
-                      <span className="material-symbols-outlined text-slate-600 dark:text-slate-400">trophy</span>
-                      <span className="font-semibold text-slate-900 dark:text-white">Longest Session</span>
+                  <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/50">
+                    <div className="mb-2 flex items-center gap-3">
+                      <span className="material-symbols-outlined text-slate-600 dark:text-slate-400">
+                        trophy
+                      </span>
+                      <span className="font-semibold text-slate-900 dark:text-white">
+                        Longest Session
+                      </span>
                     </div>
                     <div className="text-2xl font-bold text-slate-900 dark:text-white">
                       {formatDuration(reportData.longestSession.duration)}
                     </div>
-                    <div className="text-xs text-slate-500 dark:text-slate-500 mt-1">
-                      {reportData.longestSession.mode} • {new Date(reportData.longestSession.timestamp).toLocaleDateString()}
+                    <div className="mt-1 text-xs text-slate-500 dark:text-slate-500">
+                      {reportData.longestSession.mode} •{' '}
+                      {new Date(reportData.longestSession.timestamp).toLocaleDateString()}
                     </div>
                   </div>
                 )}

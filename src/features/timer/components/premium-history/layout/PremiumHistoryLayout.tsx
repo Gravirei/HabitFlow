@@ -13,16 +13,20 @@ interface PremiumHistoryLayoutProps {
   onSettingsOpen?: () => void
 }
 
-export function PremiumHistoryLayout({ children, title, onSettingsOpen }: PremiumHistoryLayoutProps) {
+export function PremiumHistoryLayout({
+  children,
+  title,
+  onSettingsOpen,
+}: PremiumHistoryLayoutProps) {
   return (
-    <div className="min-h-screen bg-background-light dark:bg-background-dark text-slate-900 dark:text-white flex flex-col">
+    <div className="flex min-h-screen flex-col bg-background-light text-slate-900 dark:bg-background-dark dark:text-white">
       {/* Header */}
       <PremiumHistoryHeader title={title} onSettingsOpen={onSettingsOpen} />
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col pb-28 w-full max-w-md mx-auto relative">
+      <main className="relative mx-auto flex w-full max-w-md flex-1 flex-col pb-28">
         {/* Background Glow Effect */}
-        <div className="fixed top-20 left-1/2 -translate-x-1/2 w-64 h-64 bg-primary/5 rounded-full blur-3xl pointer-events-none z-0" />
+        <div className="pointer-events-none fixed left-1/2 top-20 z-0 h-64 w-64 -translate-x-1/2 rounded-full bg-primary/5 blur-3xl" />
 
         {/* Content */}
         {children}

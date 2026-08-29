@@ -52,9 +52,11 @@ export function BottomNav() {
           {item.icon}
         </span>
 
-        <span className={`text-[10px] font-medium transition-all duration-300 ${
-          active ? 'font-bold tracking-wide' : 'font-normal'
-        }`}>
+        <span
+          className={`text-[10px] font-medium transition-all duration-300 ${
+            active ? 'font-bold tracking-wide' : 'font-normal'
+          }`}
+        >
           {item.label}
         </span>
       </button>
@@ -72,9 +74,7 @@ export function BottomNav() {
           transition={{ duration: 0.3, ease: 'easeInOut' }}
         >
           <div className="relative flex items-center justify-center rounded-full border border-white/20 bg-background-light/90 px-6 py-2 shadow-2xl backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/90 dark:shadow-black/50">
-            <div className="flex items-center -space-x-2 pr-2">
-              {leftItems.map(renderNavItem)}
-            </div>
+            <div className="flex items-center -space-x-2 pr-2">{leftItems.map(renderNavItem)}</div>
 
             <motion.button
               type="button"
@@ -83,8 +83,8 @@ export function BottomNav() {
               className="group relative mx-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-800/95 text-white shadow-[0_8px_18px_rgba(0,0,0,0.22)]"
               aria-label="Create new habit"
             >
-              <span className="absolute inset-0 rounded-full bg-white/10 animate-ping" />
-              <span className="absolute inset-0 rounded-full bg-white/5 animate-pulse" />
+              <span className="absolute inset-0 animate-ping rounded-full bg-white/10" />
+              <span className="absolute inset-0 animate-pulse rounded-full bg-white/5" />
               <span
                 className="material-symbols-outlined relative z-10 text-[16px] transition-transform duration-200 group-hover:scale-110"
                 style={{ fontVariationSettings: "'FILL' 1, 'wght' 700" }}
@@ -93,9 +93,7 @@ export function BottomNav() {
               </span>
             </motion.button>
 
-            <div className="flex items-center -space-x-2 pl-2">
-              {rightItems.map(renderNavItem)}
-            </div>
+            <div className="flex items-center -space-x-2 pl-2">{rightItems.map(renderNavItem)}</div>
           </div>
         </motion.nav>
       )}

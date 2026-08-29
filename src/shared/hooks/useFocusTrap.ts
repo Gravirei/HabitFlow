@@ -32,7 +32,7 @@ export function useFocusTrap<T extends HTMLElement = HTMLDivElement>({
     if (!isActive || !containerRef.current) return
 
     const focusableElements = getFocusableElements(containerRef.current)
-    
+
     if (focusableElements.length > 0) {
       // Small delay to ensure modal is rendered
       setTimeout(() => {
@@ -65,7 +65,7 @@ export function useFocusTrap<T extends HTMLElement = HTMLDivElement>({
       // Handle Tab key (focus trap)
       if (event.key === 'Tab') {
         const focusableElements = getFocusableElements(containerRef.current)
-        
+
         if (focusableElements.length === 0) return
 
         const firstElement = focusableElements[0]

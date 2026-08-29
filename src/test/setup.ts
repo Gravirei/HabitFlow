@@ -58,7 +58,6 @@ beforeAll(() => {
     writable: true,
     configurable: true, // Allow deletion
   })
-
 })
 
 // Cleanup after each test

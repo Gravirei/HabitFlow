@@ -73,9 +73,23 @@ export function CustomTagsModal({ isOpen, onClose }: CustomTagsModalProps) {
   }
 
   const commonIcons = [
-    'label', 'bookmark', 'star', 'favorite', 'flag', 'work', 'home',
-    'school', 'fitness_center', 'restaurant', 'shopping_cart', 'book',
-    'code', 'palette', 'music_note', 'sports_esports', 'travel_explore'
+    'label',
+    'bookmark',
+    'star',
+    'favorite',
+    'flag',
+    'work',
+    'home',
+    'school',
+    'fitness_center',
+    'restaurant',
+    'shopping_cart',
+    'book',
+    'code',
+    'palette',
+    'music_note',
+    'sports_esports',
+    'travel_explore',
   ]
 
   return (
@@ -96,23 +110,27 @@ export function CustomTagsModal({ isOpen, onClose }: CustomTagsModalProps) {
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="fixed inset-x-4 top-[10%] z-50 mx-auto max-w-2xl max-h-[80vh] bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden"
+            className="fixed inset-x-4 top-[10%] z-50 mx-auto max-h-[80vh] max-w-2xl overflow-hidden rounded-3xl bg-white shadow-2xl dark:bg-slate-900"
           >
             {/* Header */}
-            <div className="sticky top-0 z-10 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800 px-6 py-4">
+            <div className="sticky top-0 z-10 border-b border-slate-200 bg-white/95 px-6 py-4 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/95">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-purple-500 flex items-center justify-center">
-                    <span className="material-symbols-outlined text-white text-xl">label</span>
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-pink-500 to-purple-500">
+                    <span className="material-symbols-outlined text-xl text-white">label</span>
                   </div>
                   <div>
-                    <h2 className="text-xl font-bold text-slate-900 dark:text-white">Custom Tags</h2>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">Organize with labels</p>
+                    <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+                      Custom Tags
+                    </h2>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                      Organize with labels
+                    </p>
                   </div>
                 </div>
                 <button
                   onClick={onClose}
-                  className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 transition-colors"
+                  className="rounded-full p-2 text-slate-600 transition-colors hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
                 >
                   <span className="material-symbols-outlined">close</span>
                 </button>
@@ -120,7 +138,7 @@ export function CustomTagsModal({ isOpen, onClose }: CustomTagsModalProps) {
             </div>
 
             {/* Content */}
-            <div className="overflow-y-auto max-h-[calc(80vh-180px)] p-6">
+            <div className="max-h-[calc(80vh-180px)] overflow-y-auto p-6">
               {/* Create/Edit Form */}
               {isCreating && (
                 <motion.form
@@ -128,15 +146,15 @@ export function CustomTagsModal({ isOpen, onClose }: CustomTagsModalProps) {
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
                   onSubmit={editingTag ? handleUpdateTag : handleCreateTag}
-                  className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-4 mb-4"
+                  className="mb-4 rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/50"
                 >
-                  <h3 className="font-semibold text-slate-900 dark:text-white mb-3">
+                  <h3 className="mb-3 font-semibold text-slate-900 dark:text-white">
                     {editingTag ? 'Edit Tag' : 'Create New Tag'}
                   </h3>
-                  
+
                   {/* Tag Name */}
                   <div className="mb-3">
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
                       Tag Name
                     </label>
                     <input
@@ -144,14 +162,14 @@ export function CustomTagsModal({ isOpen, onClose }: CustomTagsModalProps) {
                       value={newTagName}
                       onChange={(e) => setNewTagName(e.target.value)}
                       placeholder="e.g., Work, Study, Exercise"
-                      className="w-full px-4 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-pink-500"
+                      className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-pink-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
                       autoFocus
                     />
                   </div>
 
                   {/* Color Selection */}
                   <div className="mb-3">
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
                       Color
                     </label>
                     <div className="grid grid-cols-9 gap-2">
@@ -160,8 +178,10 @@ export function CustomTagsModal({ isOpen, onClose }: CustomTagsModalProps) {
                           key={color.value}
                           type="button"
                           onClick={() => setNewTagColor(color.value)}
-                          className={`w-8 h-8 rounded-full ${color.value} transition-transform ${
-                            newTagColor === color.value ? 'scale-125 ring-2 ring-offset-2 ring-slate-400' : ''
+                          className={`h-8 w-8 rounded-full ${color.value} transition-transform ${
+                            newTagColor === color.value
+                              ? 'scale-125 ring-2 ring-slate-400 ring-offset-2'
+                              : ''
                           }`}
                           title={color.name}
                         />
@@ -171,7 +191,7 @@ export function CustomTagsModal({ isOpen, onClose }: CustomTagsModalProps) {
 
                   {/* Icon Selection */}
                   <div className="mb-4">
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
                       Icon
                     </label>
                     <div className="grid grid-cols-9 gap-2">
@@ -180,10 +200,10 @@ export function CustomTagsModal({ isOpen, onClose }: CustomTagsModalProps) {
                           key={icon}
                           type="button"
                           onClick={() => setNewTagIcon(icon)}
-                          className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${
+                          className={`flex h-8 w-8 items-center justify-center rounded-lg transition-all ${
                             newTagIcon === icon
                               ? 'bg-pink-500 text-white'
-                              : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-300 dark:hover:bg-slate-600'
+                              : 'bg-slate-200 text-slate-600 hover:bg-slate-300 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600'
                           }`}
                         >
                           <span className="material-symbols-outlined text-sm">{icon}</span>
@@ -194,10 +214,12 @@ export function CustomTagsModal({ isOpen, onClose }: CustomTagsModalProps) {
 
                   {/* Preview */}
                   <div className="mb-4">
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
                       Preview
                     </label>
-                    <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full ${newTagColor} text-white text-sm font-medium`}>
+                    <div
+                      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 ${newTagColor} text-sm font-medium text-white`}
+                    >
                       <span className="material-symbols-outlined text-sm">{newTagIcon}</span>
                       {newTagName || 'Tag Name'}
                     </div>
@@ -208,14 +230,14 @@ export function CustomTagsModal({ isOpen, onClose }: CustomTagsModalProps) {
                     <button
                       type="button"
                       onClick={cancelEditing}
-                      className="flex-1 py-2 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl font-medium hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors"
+                      className="flex-1 rounded-xl bg-slate-200 py-2 font-medium text-slate-700 transition-colors hover:bg-slate-300 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
                       disabled={!newTagName.trim()}
-                      className="flex-1 py-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-xl font-medium hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex-1 rounded-xl bg-gradient-to-r from-pink-500 to-purple-500 py-2 font-medium text-white transition-all hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       {editingTag ? 'Update' : 'Create'}
                     </button>
@@ -225,12 +247,14 @@ export function CustomTagsModal({ isOpen, onClose }: CustomTagsModalProps) {
 
               {/* Tags List */}
               {tags.length === 0 ? (
-                <div className="text-center py-12">
-                  <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-                    <span className="material-symbols-outlined text-slate-400 text-3xl">label</span>
+                <div className="py-12 text-center">
+                  <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
+                    <span className="material-symbols-outlined text-3xl text-slate-400">label</span>
                   </div>
-                  <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">No Tags Yet</h3>
-                  <p className="text-slate-600 dark:text-slate-400 mb-6">
+                  <h3 className="mb-2 text-lg font-semibold text-slate-900 dark:text-white">
+                    No Tags Yet
+                  </h3>
+                  <p className="mb-6 text-slate-600 dark:text-slate-400">
                     Create your first tag to organize sessions
                   </p>
                 </div>
@@ -243,16 +267,20 @@ export function CustomTagsModal({ isOpen, onClose }: CustomTagsModalProps) {
                         key={tag.id}
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="flex items-center justify-between bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-3 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                        className="flex items-center justify-between rounded-2xl bg-slate-50 p-3 transition-colors hover:bg-slate-100 dark:bg-slate-800/50 dark:hover:bg-slate-800"
                       >
                         <div className="flex items-center gap-3">
-                          <div className={`w-10 h-10 rounded-xl ${tag.color} flex items-center justify-center`}>
-                            <span className="material-symbols-outlined text-white text-lg">
+                          <div
+                            className={`h-10 w-10 rounded-xl ${tag.color} flex items-center justify-center`}
+                          >
+                            <span className="material-symbols-outlined text-lg text-white">
                               {tag.icon || 'label'}
                             </span>
                           </div>
                           <div>
-                            <h3 className="font-semibold text-slate-900 dark:text-white">{tag.name}</h3>
+                            <h3 className="font-semibold text-slate-900 dark:text-white">
+                              {tag.name}
+                            </h3>
                             <p className="text-xs text-slate-500 dark:text-slate-500">
                               Used in {sessionCount} session{sessionCount !== 1 ? 's' : ''}
                             </p>
@@ -261,13 +289,13 @@ export function CustomTagsModal({ isOpen, onClose }: CustomTagsModalProps) {
                         <div className="flex items-center gap-1">
                           <button
                             onClick={() => startEditing(tag)}
-                            className="p-2 rounded-lg hover:bg-white dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 transition-colors"
+                            className="rounded-lg p-2 text-slate-600 transition-colors hover:bg-white dark:text-slate-400 dark:hover:bg-slate-700"
                           >
                             <span className="material-symbols-outlined text-lg">edit</span>
                           </button>
                           <button
                             onClick={() => deleteTag(tag.id)}
-                            className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500 transition-colors"
+                            className="rounded-lg p-2 text-red-500 transition-colors hover:bg-red-50 dark:hover:bg-red-900/20"
                           >
                             <span className="material-symbols-outlined text-lg">delete</span>
                           </button>
@@ -281,10 +309,10 @@ export function CustomTagsModal({ isOpen, onClose }: CustomTagsModalProps) {
 
             {/* Footer */}
             {!isCreating && (
-              <div className="sticky bottom-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 px-6 py-4">
+              <div className="sticky bottom-0 border-t border-slate-200 bg-white/95 px-6 py-4 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/95">
                 <button
                   onClick={() => setIsCreating(true)}
-                  className="w-full py-3 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-xl font-medium hover:shadow-lg transition-all flex items-center justify-center gap-2"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-pink-500 to-purple-500 py-3 font-medium text-white transition-all hover:shadow-lg"
                 >
                   <span className="material-symbols-outlined">add</span>
                   Create New Tag

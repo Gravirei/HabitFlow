@@ -22,7 +22,11 @@ interface ProfileState {
   setBannerUrl: (url: string | null) => void
   /** Hydrate avatarUrl and bannerUrl from IndexedDB — call once on app/page mount. */
   loadImages: () => Promise<void>
-  updateProfile: (data: Partial<Pick<ProfileState, 'fullName' | 'username' | 'email' | 'bio' | 'avatarUrl' | 'bannerUrl'>>) => void
+  updateProfile: (
+    data: Partial<
+      Pick<ProfileState, 'fullName' | 'username' | 'email' | 'bio' | 'avatarUrl' | 'bannerUrl'>
+    >
+  ) => void
   reset: () => void
 }
 
@@ -106,7 +110,7 @@ export const useProfileStore = create<ProfileState>()(
             persistImage(BANNER_STORAGE_KEY, value as string | null)
             idbUpdates.bannerUrl = value as string | null
           } else {
-            (storeUpdates as Record<string, unknown>)[key] = value
+            ;(storeUpdates as Record<string, unknown>)[key] = value
           }
         }
 

@@ -24,10 +24,7 @@ const isTest = import.meta.env.MODE === 'test'
 /** URL-shape validator. Empty string is treated as "missing". */
 const urlOrEmpty = z
   .string()
-  .refine(
-    (s) => s === '' || /^https?:\/\/.+/.test(s),
-    'must be a valid http(s) URL or empty',
-  )
+  .refine((s) => s === '' || /^https?:\/\/.+/.test(s), 'must be a valid http(s) URL or empty')
 
 const nonEmptyString = z.string().min(1)
 
@@ -47,7 +44,7 @@ function warnMissing(name: string, kind: 'required' | 'optional') {
     `[env] ${kind} variable ${name} is not set. ` +
       (kind === 'required'
         ? 'App will use a placeholder; auth will not work until this is configured.'
-        : 'Feature will be disabled.'),
+        : 'Feature will be disabled.')
   )
 }
 
@@ -63,7 +60,7 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
   if (isProd) {
     throw new Error(
       '[env] VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are required in production. ' +
-        'Set them in your build environment (--build-arg, compose, or Netlify/Vercel env).',
+        'Set them in your build environment (--build-arg, compose, or Netlify/Vercel env).'
     )
   }
   warnMissing('VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY', 'required')
@@ -118,4 +115,5 @@ export function requireEnv<K extends keyof typeof env>(name: K): NonNullable<(ty
 
 /** True if VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY point at placeholders. */
 export const usingPlaceholderSupabase: boolean =
-  env.SUPABASE_URL === 'https://placeholder.supabase.co' || env.SUPABASE_ANON_KEY === 'placeholder-key'
+  env.SUPABASE_URL === 'https://placeholder.supabase.co' ||
+  env.SUPABASE_ANON_KEY === 'placeholder-key'

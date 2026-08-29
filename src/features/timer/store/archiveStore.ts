@@ -83,7 +83,7 @@ export const useArchiveStore = create<ArchiveState>()(
        */
       restoreSessions: (sessionIds) => {
         const sessions = get().archivedSessions.filter((s) => sessionIds.includes(s.id))
-        
+
         // Remove from archive
         set((state) => ({
           archivedSessions: state.archivedSessions.filter((s) => !sessionIds.includes(s.id)),
@@ -124,9 +124,7 @@ export const useArchiveStore = create<ArchiveState>()(
        */
       bulkDelete: (sessionIds) => {
         set((state) => ({
-          archivedSessions: state.archivedSessions.filter(
-            (s) => !sessionIds.includes(s.id)
-          ),
+          archivedSessions: state.archivedSessions.filter((s) => !sessionIds.includes(s.id)),
         }))
       },
 

@@ -19,7 +19,7 @@ export function useBodyScrollLock(isLocked: boolean) {
 
     // Prevent scroll
     document.body.style.overflow = 'hidden'
-    
+
     // Add padding to prevent layout shift (if scrollbar was visible)
     if (scrollbarWidth > 0) {
       document.body.style.paddingRight = `${scrollbarWidth}px`

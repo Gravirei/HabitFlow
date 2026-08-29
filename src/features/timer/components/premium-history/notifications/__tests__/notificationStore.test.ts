@@ -47,7 +47,7 @@ describe('useNotificationStore', () => {
   beforeEach(async () => {
     // Clear localStorage first
     localStorage.clear()
-    
+
     // Dynamic import to ensure fresh store after localStorage is ready
     vi.resetModules()
     const module = await import('@/features/timer/store/notificationStore')

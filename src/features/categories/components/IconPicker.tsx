@@ -157,7 +157,7 @@ export function IconPicker({ value, onChange, label = 'Icon', className }: IconP
               type="button"
               onClick={() => onChange(icon)}
               className={clsx(
-                'flex h-10 w-10 items-center justify-center rounded-lg transition-colors duration-200 cursor-pointer',
+                'flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg transition-colors duration-200',
                 'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50',
                 isSelected
                   ? 'bg-primary/20 text-primary'

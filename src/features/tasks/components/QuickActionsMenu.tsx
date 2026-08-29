@@ -540,9 +540,12 @@ export function QuickActionsMenu({
               <button
                 onClick={() => {
                   if (!selectedQuickAddTemplate) {
-                    toast.error('No template selected! Please select a template from Settings for Quick Add functionality.', {
-                      duration: 4000,
-                    })
+                    toast.error(
+                      'No template selected! Please select a template from Settings for Quick Add functionality.',
+                      {
+                        duration: 4000,
+                      }
+                    )
                     return
                   }
 

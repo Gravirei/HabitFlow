@@ -31,11 +31,11 @@ export function ProductivityScoreCard({ score }: ProductivityScoreCardProps) {
   const strokeDashoffset = circumference - (score.overall / 100) * circumference
 
   return (
-    <div className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-700 dark:to-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-600">
-      <div className="flex flex-col md:flex-row items-center gap-6">
+    <div className="rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-50 to-slate-100 p-6 dark:border-slate-600 dark:from-slate-700 dark:to-slate-800">
+      <div className="flex flex-col items-center gap-6 md:flex-row">
         {/* Score Ring */}
         <div className="relative flex-shrink-0">
-          <svg className="w-40 h-40 transform -rotate-90">
+          <svg className="h-40 w-40 -rotate-90 transform">
             {/* Background circle */}
             <circle
               cx="80"
@@ -62,7 +62,11 @@ export function ProductivityScoreCard({ score }: ProductivityScoreCardProps) {
             <defs>
               <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" className="text-primary" style={{ stopColor: 'currentColor' }} />
-                <stop offset="100%" className="text-purple-600" style={{ stopColor: 'currentColor' }} />
+                <stop
+                  offset="100%"
+                  className="text-purple-600"
+                  style={{ stopColor: 'currentColor' }}
+                />
               </linearGradient>
             </defs>
           </svg>
@@ -70,20 +74,20 @@ export function ProductivityScoreCard({ score }: ProductivityScoreCardProps) {
             <span className={`text-4xl font-bold ${getScoreColor(score.overall)}`}>
               {score.overall}
             </span>
-            <span className={`text-2xl font-bold bg-gradient-to-r ${getGradeColor(score.grade)} text-transparent bg-clip-text`}>
+            <span
+              className={`bg-gradient-to-r text-2xl font-bold ${getGradeColor(score.grade)} bg-clip-text text-transparent`}
+            >
               {score.grade}
             </span>
           </div>
         </div>
 
         {/* Score Details */}
-        <div className="flex-1 w-full">
-          <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">
+        <div className="w-full flex-1">
+          <h3 className="mb-2 text-xl font-bold text-slate-800 dark:text-white">
             Productivity Score
           </h3>
-          <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
-            {score.message}
-          </p>
+          <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">{score.message}</p>
 
           {/* Breakdown */}
           <div className="space-y-2">
@@ -97,11 +101,7 @@ export function ProductivityScoreCard({ score }: ProductivityScoreCardProps) {
               value={score.breakdown.completion}
               icon="check_circle"
             />
-            <ScoreBreakdownBar
-              label="Duration"
-              value={score.breakdown.duration}
-              icon="schedule"
-            />
+            <ScoreBreakdownBar label="Duration" value={score.breakdown.duration} icon="schedule" />
             <ScoreBreakdownBar
               label="Frequency"
               value={score.breakdown.frequency}
@@ -135,19 +135,17 @@ function ScoreBreakdownBar({ label, value, icon }: ScoreBreakdownBarProps) {
 
   return (
     <div className="flex items-center gap-3">
-      <span className="material-symbols-outlined text-slate-500 dark:text-slate-400 text-[18px]">
+      <span className="material-symbols-outlined text-[18px] text-slate-500 dark:text-slate-400">
         {icon}
       </span>
-      <span className="text-sm font-medium text-slate-700 dark:text-slate-300 w-24">
-        {label}
-      </span>
-      <div className="flex-1 h-2 bg-slate-200 dark:bg-slate-600 rounded-full overflow-hidden">
+      <span className="w-24 text-sm font-medium text-slate-700 dark:text-slate-300">{label}</span>
+      <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-600">
         <div
           className={`h-full ${getBarColor(value)} transition-all duration-500 ease-out`}
           style={{ width: `${value}%` }}
         />
       </div>
-      <span className="text-sm font-semibold text-slate-700 dark:text-slate-300 w-10 text-right">
+      <span className="w-10 text-right text-sm font-semibold text-slate-700 dark:text-slate-300">
         {value}
       </span>
     </div>

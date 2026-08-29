@@ -17,11 +17,9 @@ export function PremiumHistorySidebar({ activeTab, onTabChange }: PremiumHistory
   // Will include: Dashboard, Analytics, Insights, Export, etc.
 
   return (
-    <aside className="hidden lg:block w-64 shrink-0">
-      <div className="sticky top-24 bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-4">
-        <p className="text-white/50 text-sm text-center py-8">
-          Desktop sidebar coming soon
-        </p>
+    <aside className="hidden w-64 shrink-0 lg:block">
+      <div className="sticky top-24 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl">
+        <p className="py-8 text-center text-sm text-white/50">Desktop sidebar coming soon</p>
       </div>
     </aside>
   )

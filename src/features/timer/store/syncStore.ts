@@ -7,30 +7,34 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { tieredStorage } from '@/lib/storage'
-import type { SyncStatus, CloudBackup, SyncSettings } from '@/features/timer/components/premium-history/cloud-sync/types'
+import type {
+  SyncStatus,
+  CloudBackup,
+  SyncSettings,
+} from '@/features/timer/components/premium-history/cloud-sync/types'
 
 interface SyncStore {
   syncStatus: SyncStatus
   backups: CloudBackup[]
   settings: SyncSettings
   autoSyncIntervalId: NodeJS.Timeout | null
-  
+
   // Sync operations
   startSync: () => Promise<void>
   setSyncStatus: (status: Partial<SyncStatus>) => void
   refreshSyncStatus: () => void
-  
+
   // Auto sync
   startAutoSync: () => void
   stopAutoSync: () => void
   triggerSyncOnLogin: () => void
-  
+
   // Backup operations
   createBackup: (deviceName: string, data: any) => CloudBackup
   restoreBackup: (backupId: string) => Promise<void>
   deleteBackup: (backupId: string) => void
   getBackups: () => CloudBackup[]
-  
+
   // Settings
   updateSettings: (settings: Partial<SyncSettings>) => void
   getSettings: () => SyncSettings
@@ -76,10 +80,10 @@ export const useSyncStore = create<SyncStore>()(
         try {
           // Use real tieredStorage sync
           await tieredStorage.syncToCloud()
-          
+
           // Refresh data from cloud
           await tieredStorage.refreshFromCloud()
-          
+
           // Get updated sync status from tieredStorage
           const storageStatus = tieredStorage.getSyncStatus()
 
@@ -125,7 +129,7 @@ export const useSyncStore = create<SyncStore>()(
 
       startAutoSync: () => {
         const { settings, autoSyncIntervalId, startSync } = get()
-        
+
         // Clear existing interval if any
         if (autoSyncIntervalId) {
           clearInterval(autoSyncIntervalId)
@@ -160,7 +164,7 @@ export const useSyncStore = create<SyncStore>()(
 
       triggerSyncOnLogin: () => {
         const { settings, startSync, startAutoSync } = get()
-        
+
         if (!tieredStorage.isLoggedIn()) return
 
         // Sync on login if enabled
@@ -201,13 +205,13 @@ export const useSyncStore = create<SyncStore>()(
           // Keep only the latest maxBackups
           const sortedBackups = backups.sort((a, b) => b.timestamp - a.timestamp)
           const limitedBackups = sortedBackups.slice(0, state.settings.maxBackups)
-          
+
           // Clean up old backup data from localStorage
           const removedBackups = sortedBackups.slice(state.settings.maxBackups)
           removedBackups.forEach((b) => {
             localStorage.removeItem(`timer-backup-${b.id}`)
           })
-          
+
           return { backups: limitedBackups }
         })
 
@@ -254,7 +258,7 @@ export const useSyncStore = create<SyncStore>()(
       deleteBackup: (backupId) => {
         // Remove backup data from localStorage
         localStorage.removeItem(`timer-backup-${backupId}`)
-        
+
         set((state) => ({
           backups: state.backups.filter((b) => b.id !== backupId),
         }))

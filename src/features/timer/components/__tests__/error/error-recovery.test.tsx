@@ -1,6 +1,6 @@
 /**
  * Error Recovery Tests
- * 
+ *
  * Tests for error recovery mechanisms and graceful degradation
  */
 
@@ -21,7 +21,7 @@ describe('Error Recovery', () => {
   beforeEach(() => {
     consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     // Clear localStorage manually since .clear() might not be available
-    Object.keys(localStorage).forEach(key => localStorage.removeItem(key))
+    Object.keys(localStorage).forEach((key) => localStorage.removeItem(key))
     vi.useFakeTimers()
   })
 
@@ -47,11 +47,14 @@ describe('Error Recovery', () => {
 
     it('should recover from partial data corruption', async () => {
       vi.useRealTimers()
-      localStorage.setItem(STOPWATCH_HISTORY_KEY, JSON.stringify([
-        { id: '1', mode: 'Stopwatch', duration: 1000, timestamp: Date.now() },
-        { invalid: 'data' },
-        { id: '2', mode: 'Countdown', duration: 2000, timestamp: Date.now() }
-      ]))
+      localStorage.setItem(
+        STOPWATCH_HISTORY_KEY,
+        JSON.stringify([
+          { id: '1', mode: 'Stopwatch', duration: 1000, timestamp: Date.now() },
+          { invalid: 'data' },
+          { id: '2', mode: 'Countdown', duration: 2000, timestamp: Date.now() },
+        ])
+      )
 
       const { result } = renderHook(() => useTimerHistory(defaultHistoryOptions))
 
@@ -143,7 +146,7 @@ describe('Error Recovery', () => {
       })
 
       expect(result.current.isActive).toBe(true)
-      
+
       // Restore
       ;(window as unknown as Record<string, unknown>).Notification = origNotification
     })
@@ -163,7 +166,7 @@ describe('Error Recovery', () => {
       })
 
       expect(result.current.isActive).toBe(true)
-      
+
       // Restore
       ;(window as unknown as Record<string, unknown>).Audio = origAudio
       ;(window as unknown as Record<string, unknown>).AudioContext = origAudioContext
@@ -182,7 +185,7 @@ describe('Error Recovery', () => {
       })
 
       expect(result.current.isActive).toBe(true)
-      
+
       // Restore
       ;(navigator as unknown as Record<string, unknown>).vibrate = origVibrate
     })
@@ -191,10 +194,13 @@ describe('Error Recovery', () => {
   describe('Data Migration', () => {
     it('should accept legacy number ID format', async () => {
       vi.useRealTimers()
-      localStorage.setItem(STOPWATCH_HISTORY_KEY, JSON.stringify([
-        { id: 1, mode: 'Stopwatch', duration: 1000, timestamp: Date.now() },
-        { id: 2, mode: 'Countdown', duration: 2000, timestamp: Date.now() }
-      ]))
+      localStorage.setItem(
+        STOPWATCH_HISTORY_KEY,
+        JSON.stringify([
+          { id: 1, mode: 'Stopwatch', duration: 1000, timestamp: Date.now() },
+          { id: 2, mode: 'Countdown', duration: 2000, timestamp: Date.now() },
+        ])
+      )
 
       const { result } = renderHook(() => useTimerHistory(defaultHistoryOptions))
 
@@ -207,10 +213,13 @@ describe('Error Recovery', () => {
 
     it('should handle mixed ID formats', async () => {
       vi.useRealTimers()
-      localStorage.setItem(STOPWATCH_HISTORY_KEY, JSON.stringify([
-        { id: 1, mode: 'Stopwatch', duration: 1000, timestamp: Date.now() },
-        { id: 'uuid-123', mode: 'Countdown', duration: 2000, timestamp: Date.now() }
-      ]))
+      localStorage.setItem(
+        STOPWATCH_HISTORY_KEY,
+        JSON.stringify([
+          { id: 1, mode: 'Stopwatch', duration: 1000, timestamp: Date.now() },
+          { id: 'uuid-123', mode: 'Countdown', duration: 2000, timestamp: Date.now() },
+        ])
+      )
 
       const { result } = renderHook(() => useTimerHistory(defaultHistoryOptions))
 
@@ -301,9 +310,10 @@ describe('Error Recovery', () => {
     it('should log recovery attempts', () => {
       const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
-      localStorage.setItem('test-history', JSON.stringify([
-        { id: 1, mode: 'Stopwatch', duration: 1000, timestamp: Date.now() }
-      ]))
+      localStorage.setItem(
+        'test-history',
+        JSON.stringify([{ id: 1, mode: 'Stopwatch', duration: 1000, timestamp: Date.now() }])
+      )
 
       renderHook(() => useTimerHistory(defaultHistoryOptions))
 

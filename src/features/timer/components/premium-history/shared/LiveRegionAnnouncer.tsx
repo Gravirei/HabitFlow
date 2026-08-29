@@ -15,10 +15,10 @@ interface LiveRegionAnnouncerProps {
  * Announces messages to screen readers without visual changes
  * Used for filter changes, loading states, and dynamic updates
  */
-export function LiveRegionAnnouncer({ 
-  message, 
+export function LiveRegionAnnouncer({
+  message,
   politeness = 'polite',
-  clearOnUnmount = true 
+  clearOnUnmount = true,
 }: LiveRegionAnnouncerProps) {
   const previousMessage = useRef<string>('')
 
@@ -38,12 +38,7 @@ export function LiveRegionAnnouncer({
   if (!message) return null
 
   return (
-    <div
-      role="status"
-      aria-live={politeness}
-      aria-atomic="true"
-      className="sr-only"
-    >
+    <div role="status" aria-live={politeness} aria-atomic="true" className="sr-only">
       {message}
     </div>
   )
@@ -58,12 +53,12 @@ export function useLiveRegion() {
 
   const announce = (text: string, duration = 3000) => {
     setMessage(text)
-    
+
     // Clear message after duration
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current)
     }
-    
+
     timeoutRef.current = setTimeout(() => {
       setMessage('')
     }, duration)

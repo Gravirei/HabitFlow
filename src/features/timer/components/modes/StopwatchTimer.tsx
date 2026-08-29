@@ -22,9 +22,9 @@ const STORAGE_KEY = 'timer-stopwatch-history'
 
 export const StopwatchTimer: React.FC = () => {
   const [announcement, setAnnouncement] = React.useState('')
-  
-  const { 
-    timeLeft, 
+
+  const {
+    timeLeft,
     isActive,
     isPaused,
     startTimer,
@@ -32,16 +32,16 @@ export const StopwatchTimer: React.FC = () => {
     continueTimer,
     killTimer,
     addLap,
-    laps, 
+    laps,
     progress,
     timerStartTime,
     pausedElapsed,
-    restoreTimer
+    restoreTimer,
   } = useStopwatch()
 
   const { saveToHistory } = useTimerHistory({
     mode: 'Stopwatch',
-    storageKey: STORAGE_KEY
+    storageKey: STORAGE_KEY,
   })
 
   const { focusTimer, unfocusTimer } = useTimerFocus()
@@ -62,13 +62,8 @@ export const StopwatchTimer: React.FC = () => {
     focusTimer('Stopwatch')
   }
 
-  const {
-    savedState,
-    showResumeModal,
-    resumeTimer,
-    discardTimer,
-    closeModal
-  } = useTimerPersistence('Stopwatch', handleResumeTimer)
+  const { savedState, showResumeModal, resumeTimer, discardTimer, closeModal } =
+    useTimerPersistence('Stopwatch', handleResumeTimer)
 
   const handleStart = () => {
     startTimer()
@@ -83,19 +78,17 @@ export const StopwatchTimer: React.FC = () => {
     const durationMs = killTimer()
     const timeStr = formatTime(durationMs)
     console.log('⏱️ Duration:', durationMs, 'ms =', Math.floor(durationMs / 1000), 'seconds')
-    
+
     if (shouldSave) {
       const historyData = {
         duration: Math.floor(durationMs / 1000), // Convert to seconds
         startTime: timerStartTime || undefined,
         lapCount: laps.length,
-        bestLap: laps.length > 0 
-          ? Math.min(...laps.map(l => l.timeMs)) / 1000 
-          : undefined,
-        laps: laps
+        bestLap: laps.length > 0 ? Math.min(...laps.map((l) => l.timeMs)) / 1000 : undefined,
+        laps: laps,
       }
       console.log('💾 Saving to history:', historyData)
-      
+
       // Convert milliseconds to seconds and save with metadata
       saveToHistory(historyData)
       setAnnouncement(`Stopwatch stopped at ${timeStr} and saved to history`)
@@ -116,13 +109,13 @@ export const StopwatchTimer: React.FC = () => {
         isPaused,
         startTime: timerStartTime,
         pausedElapsed,
-        laps: laps.map(lap => ({
+        laps: laps.map((lap) => ({
           id: String(lap.id),
           time: lap.timeMs,
-          timestamp: Date.now()
+          timestamp: Date.now(),
         })),
         savedAt: Date.now(),
-        version: 1
+        version: 1,
       }
       // Save immediately on pause/lap, debounce during active timer
       if (isPaused || laps.length > 0) {
@@ -142,7 +135,7 @@ export const StopwatchTimer: React.FC = () => {
     }
 
     window.addEventListener('beforeunload', handleBeforeUnload)
-    
+
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload)
       // Flush on unmount as well
@@ -177,23 +170,19 @@ export const StopwatchTimer: React.FC = () => {
     onContinue: handleContinue,
     onStop: () => handleKill(true), // Save on keyboard stop
     onKill: () => handleKill(true), // K key - Kill and save
-    onLap: handleLap
+    onLap: handleLap,
   })
 
   return (
     <div className={TIMER_CLASSES.container}>
       {/* Background glow */}
       <div className={TIMER_CLASSES.backgroundGlow}></div>
-      
+
       {/* Flex-grow container for timer and laps */}
-      <div className="flex-[0.9] flex flex-col items-center justify-center w-full">
+      <div className="flex w-full flex-[0.9] flex-col items-center justify-center">
         {/* Timer Display */}
-        <TimerDisplay 
-          timeLeft={timeLeft}
-          progress={progress}
-          mode="Stopwatch"
-        />
-        
+        <TimerDisplay timeLeft={timeLeft} progress={progress} mode="Stopwatch" />
+
         {/* Laps Display - Integrated */}
         {laps.length > 0 && (
           <div className={TIMER_CLASSES.laps.container} role="region" aria-label="Lap times">
@@ -208,7 +197,7 @@ export const StopwatchTimer: React.FC = () => {
           </div>
         )}
       </div>
-      
+
       {/* Animated Button Controls - Below everything */}
       <AnimatedTimerButton
         isActive={isActive}

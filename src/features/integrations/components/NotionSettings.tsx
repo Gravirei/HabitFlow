@@ -9,9 +9,7 @@ export function NotionSettings() {
   const connection = useIntegrationStore((s) => s.connections['notion'])
   const { connect, disconnect, updateSettings, updateLastSynced, setStatus } = useIntegrationStore()
 
-  const [databases, setDatabases] = useState<
-    Array<{ id: string; title: string }>
-  >([])
+  const [databases, setDatabases] = useState<Array<{ id: string; title: string }>>([])
   const [selectedDatabase, setSelectedDatabase] = useState<string>(
     (connection.settings?.databaseId as string) || ''
   )
@@ -53,10 +51,7 @@ export function NotionSettings() {
 
     setIsCreatingDatabase(true)
     try {
-      const dbId = await notionService.createHabitDatabase(
-        connection.accessToken,
-        workspaceId
-      )
+      const dbId = await notionService.createHabitDatabase(connection.accessToken, workspaceId)
       setSelectedDatabase(dbId)
       updateSettings('notion', { databaseId: dbId })
       await loadDatabases()
@@ -150,44 +145,40 @@ export function NotionSettings() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3 }}
-            className="rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 p-8"
+            className="rounded-2xl border border-slate-700 bg-gradient-to-br from-slate-800 to-slate-900 p-8"
           >
             <div className="space-y-6">
               <div>
-                <h3 className="text-xl font-semibold text-white mb-2">
-                  Connect to Notion
-                </h3>
+                <h3 className="mb-2 text-xl font-semibold text-white">Connect to Notion</h3>
                 <p className="text-slate-400">
                   Sync your habits directly to a Notion database for better tracking and
                   organization.
                 </p>
               </div>
 
-              <div className="space-y-3 bg-slate-900/50 rounded-xl p-4 border border-slate-700">
-                <p className="text-sm font-semibold text-slate-300 mb-3">
-                  Features:
-                </p>
+              <div className="space-y-3 rounded-xl border border-slate-700 bg-slate-900/50 p-4">
+                <p className="mb-3 text-sm font-semibold text-slate-300">Features:</p>
                 <ul className="space-y-2 text-sm text-slate-400">
                   <li className="flex items-start gap-3">
-                    <span className="material-symbols-outlined text-base text-slate-400 mt-0.5 flex-shrink-0">
+                    <span className="material-symbols-outlined mt-0.5 flex-shrink-0 text-base text-slate-400">
                       check_circle
                     </span>
                     <span>Export all your habits to a dedicated database</span>
                   </li>
                   <li className="flex items-start gap-3">
-                    <span className="material-symbols-outlined text-base text-slate-400 mt-0.5 flex-shrink-0">
+                    <span className="material-symbols-outlined mt-0.5 flex-shrink-0 text-base text-slate-400">
                       check_circle
                     </span>
                     <span>Track streaks, frequency, and completion status</span>
                   </li>
                   <li className="flex items-start gap-3">
-                    <span className="material-symbols-outlined text-base text-slate-400 mt-0.5 flex-shrink-0">
+                    <span className="material-symbols-outlined mt-0.5 flex-shrink-0 text-base text-slate-400">
                       check_circle
                     </span>
                     <span>Automatic syncing and real-time updates</span>
                   </li>
                   <li className="flex items-start gap-3">
-                    <span className="material-symbols-outlined text-base text-slate-400 mt-0.5 flex-shrink-0">
+                    <span className="material-symbols-outlined mt-0.5 flex-shrink-0 text-base text-slate-400">
                       check_circle
                     </span>
                     <span>Organize habits by category and frequency</span>
@@ -199,7 +190,7 @@ export function NotionSettings() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={handleConnect}
-                className="w-full bg-slate-700 hover:bg-slate-600 text-white font-semibold py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-700 py-3 font-semibold text-white transition-colors hover:bg-slate-600"
               >
                 <span className="material-symbols-outlined">link</span>
                 Connect Notion
@@ -220,25 +211,23 @@ export function NotionSettings() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.1 }}
-              className="rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 p-6"
+              className="rounded-2xl border border-slate-700 bg-gradient-to-br from-slate-800 to-slate-900 p-6"
             >
-              <div className="flex items-center justify-between mb-4">
+              <div className="mb-4 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
+                  <div className="h-3 w-3 animate-pulse rounded-full bg-green-500" />
                   <div>
-                    <p className="text-sm font-semibold text-slate-300">
-                      Connected to Notion
-                    </p>
+                    <p className="text-sm font-semibold text-slate-300">Connected to Notion</p>
                     <p className="text-xs text-slate-500">
                       Workspace: {notionIntegration?.workspaceId}
                     </p>
                   </div>
                 </div>
-                <span className="text-xs bg-green-500/20 text-green-400 px-3 py-1 rounded-full font-semibold">
+                <span className="rounded-full bg-green-500/20 px-3 py-1 text-xs font-semibold text-green-400">
                   Active
                 </span>
               </div>
-              <p className="text-xs text-slate-400 flex items-center gap-2">
+              <p className="flex items-center gap-2 text-xs text-slate-400">
                 <span className="material-symbols-outlined text-sm">schedule</span>
                 Last synced: {formatLastSynced(notionIntegration?.lastSynced)}
               </p>
@@ -249,23 +238,21 @@ export function NotionSettings() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.15 }}
-              className="rounded-2xl bg-slate-800/50 border border-slate-700 p-6"
+              className="rounded-2xl border border-slate-700 bg-slate-800/50 p-6"
             >
-              <label className="block text-sm font-semibold text-slate-300 mb-3">
+              <label className="mb-3 block text-sm font-semibold text-slate-300">
                 Habit Database
               </label>
-              <div className="flex gap-3 mb-3">
+              <div className="mb-3 flex gap-3">
                 <div className="relative flex-1">
                   <select
                     value={selectedDatabase}
                     onChange={(e) => setSelectedDatabase(e.target.value)}
                     disabled={isLoadingDatabases}
-                    className="w-full bg-slate-700 border border-slate-600 rounded-xl text-white px-4 py-3 pr-10 focus:outline-none focus:ring-2 focus:ring-slate-500 disabled:opacity-50"
+                    className="w-full rounded-xl border border-slate-600 bg-slate-700 px-4 py-3 pr-10 text-white focus:outline-none focus:ring-2 focus:ring-slate-500 disabled:opacity-50"
                   >
                     <option value="">
-                      {isLoadingDatabases
-                        ? 'Loading databases...'
-                        : 'Select a database'}
+                      {isLoadingDatabases ? 'Loading databases...' : 'Select a database'}
                     </option>
                     {databases.map((db) => (
                       <option key={db.id} value={db.id}>
@@ -273,10 +260,8 @@ export function NotionSettings() {
                       </option>
                     ))}
                   </select>
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
-                    <span className="material-symbols-outlined">
-                      expand_more
-                    </span>
+                  <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">
+                    <span className="material-symbols-outlined">expand_more</span>
                   </span>
                 </div>
                 <motion.button
@@ -284,7 +269,7 @@ export function NotionSettings() {
                   whileTap={{ scale: 0.95 }}
                   onClick={handleCreateDatabase}
                   disabled={isCreatingDatabase}
-                  className="bg-slate-700 hover:bg-slate-600 disabled:opacity-50 text-white font-semibold px-4 py-3 rounded-xl transition-colors flex items-center gap-2"
+                  className="flex items-center gap-2 rounded-xl bg-slate-700 px-4 py-3 font-semibold text-white transition-colors hover:bg-slate-600 disabled:opacity-50"
                 >
                   <span className="material-symbols-outlined">add</span>
                   New
@@ -300,11 +285,9 @@ export function NotionSettings() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.2 }}
-              className="rounded-2xl bg-slate-800/50 border border-slate-700 p-6 space-y-4"
+              className="space-y-4 rounded-2xl border border-slate-700 bg-slate-800/50 p-6"
             >
-              <p className="text-sm font-semibold text-slate-300">
-                Export Options
-              </p>
+              <p className="text-sm font-semibold text-slate-300">Export Options</p>
 
               {[
                 {
@@ -325,7 +308,7 @@ export function NotionSettings() {
               ].map((toggle) => (
                 <motion.div
                   key={toggle.key}
-                  className="flex items-start justify-between p-3 rounded-lg bg-slate-900/50 hover:bg-slate-900/80 transition-colors cursor-pointer"
+                  className="flex cursor-pointer items-start justify-between rounded-lg bg-slate-900/50 p-3 transition-colors hover:bg-slate-900/80"
                   onClick={() =>
                     setExportToggles({
                       ...exportToggles,
@@ -335,21 +318,17 @@ export function NotionSettings() {
                   whileHover={{ x: 4 }}
                 >
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-white">
-                      {toggle.label}
-                    </p>
+                    <p className="text-sm font-medium text-white">{toggle.label}</p>
                     <p className="text-xs text-slate-500">{toggle.description}</p>
                   </div>
                   <motion.div
-                    className={`relative w-12 h-7 rounded-full transition-colors ${
-                      exportToggles[toggle.key]
-                        ? 'bg-slate-600'
-                        : 'bg-slate-700'
+                    className={`relative h-7 w-12 rounded-full transition-colors ${
+                      exportToggles[toggle.key] ? 'bg-slate-600' : 'bg-slate-700'
                     }`}
                     onClick={(e) => e.stopPropagation()}
                   >
                     <motion.div
-                      className="absolute top-1 left-1 w-5 h-5 bg-white rounded-full"
+                      className="absolute left-1 top-1 h-5 w-5 rounded-full bg-white"
                       animate={{
                         x: exportToggles[toggle.key] ? 20 : 0,
                       }}
@@ -371,7 +350,7 @@ export function NotionSettings() {
                 whileTap={{ scale: 0.98 }}
                 onClick={handleExportNow}
                 disabled={isExporting || !selectedDatabase}
-                className="w-full bg-gradient-to-r from-slate-700 to-slate-600 hover:from-slate-600 hover:to-slate-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-4 rounded-xl transition-all flex items-center justify-center gap-2 group"
+                className="group flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-slate-700 to-slate-600 py-4 font-semibold text-white transition-all hover:from-slate-600 hover:to-slate-500 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {isExporting ? (
                   <>
@@ -390,7 +369,7 @@ export function NotionSettings() {
                   </>
                 ) : (
                   <>
-                    <span className="material-symbols-outlined group-hover:translate-y-0.5 transition-transform">
+                    <span className="material-symbols-outlined transition-transform group-hover:translate-y-0.5">
                       upload
                     </span>
                     <span>Export Now</span>
@@ -407,7 +386,7 @@ export function NotionSettings() {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={handleDisconnect}
-              className="w-full bg-slate-800 hover:bg-red-900/20 hover:border-red-700 border border-slate-700 text-slate-400 hover:text-red-400 font-semibold py-3 rounded-xl transition-all flex items-center justify-center gap-2"
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-700 bg-slate-800 py-3 font-semibold text-slate-400 transition-all hover:border-red-700 hover:bg-red-900/20 hover:text-red-400"
             >
               <span className="material-symbols-outlined">link_off</span>
               Disconnect Notion

@@ -31,7 +31,7 @@ export function AchievementsModal({ isOpen, onClose }: AchievementsModalProps) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4"
+        className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm"
         onClick={onClose}
       >
         <motion.div
@@ -42,27 +42,30 @@ export function AchievementsModal({ isOpen, onClose }: AchievementsModalProps) {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-          className="bg-white dark:bg-[#1E1E24] rounded-3xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col"
+          className="flex max-h-[90vh] w-full max-w-6xl flex-col overflow-hidden rounded-3xl bg-white shadow-2xl dark:bg-[#1E1E24]"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="sticky top-0 bg-white dark:bg-[#1E1E24] border-b border-slate-200 dark:border-white/10 px-6 py-4 z-10">
+          <div className="sticky top-0 z-10 border-b border-slate-200 bg-white px-6 py-4 dark:border-white/10 dark:bg-[#1E1E24]">
             <div className="flex items-center justify-between">
               <div>
-                <h2 id="achievements-title" className="text-xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                <h2
+                  id="achievements-title"
+                  className="flex items-center gap-2 text-xl font-bold text-slate-800 dark:text-white"
+                >
                   <span className="material-symbols-outlined text-[24px] text-primary">
                     emoji_events
                   </span>
                   Achievements
                 </h2>
-                <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
                   Unlock badges and track your milestones
                 </p>
               </div>
               <button
                 onClick={onClose}
                 aria-label="Close achievements"
-                className="size-8 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-white/10 transition-colors"
+                className="flex size-8 items-center justify-center rounded-full bg-slate-100 transition-colors hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10"
               >
                 <span className="material-symbols-outlined text-[18px]">close</span>
               </button>

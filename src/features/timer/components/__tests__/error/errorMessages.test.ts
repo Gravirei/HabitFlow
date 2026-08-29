@@ -1,6 +1,6 @@
 /**
  * Error Messages Tests
- * 
+ *
  * Tests for centralized error message generation and formatting
  */
 
@@ -15,7 +15,7 @@ import {
   formatErrorForUser,
   logError,
   ErrorCategory,
-  ErrorSeverity
+  ErrorSeverity,
 } from '@/features/timer/utils/errorMessages'
 
 describe('Error Messages', () => {
@@ -209,7 +209,7 @@ describe('Error Messages', () => {
     it('should format error with title and message', () => {
       const error = new Error('Test error')
       const formatted = formatErrorForUser(error, 'Test Title')
-      
+
       expect(formatted.title).toBe('Test Title')
       expect(formatted.message).toContain('Test error')
     })
@@ -217,21 +217,26 @@ describe('Error Messages', () => {
     it('should include category if provided', () => {
       const error = new Error('Test error')
       const formatted = formatErrorForUser(error, 'Test Title', ErrorCategory.TIMER)
-      
+
       expect(formatted.category).toBe(ErrorCategory.TIMER)
     })
 
     it('should include severity if provided', () => {
       const error = new Error('Test error')
-      const formatted = formatErrorForUser(error, 'Test Title', ErrorCategory.TIMER, ErrorSeverity.HIGH)
-      
+      const formatted = formatErrorForUser(
+        error,
+        'Test Title',
+        ErrorCategory.TIMER,
+        ErrorSeverity.HIGH
+      )
+
       expect(formatted.severity).toBe(ErrorSeverity.HIGH)
     })
 
     it('should handle errors without messages', () => {
       const error = new Error()
       const formatted = formatErrorForUser(error, 'Test Title')
-      
+
       expect(formatted.title).toBe('Test Title')
       expect(formatted.message).toBeTruthy()
     })
@@ -239,7 +244,7 @@ describe('Error Messages', () => {
     it('should sanitize error messages', () => {
       const error = new Error('Error with <script>alert("xss")</script>')
       const formatted = formatErrorForUser(error, 'Test Title')
-      
+
       expect(formatted.message).not.toContain('<script>')
     })
 
@@ -247,7 +252,7 @@ describe('Error Messages', () => {
       const longMessage = 'a'.repeat(1000)
       const error = new Error(longMessage)
       const formatted = formatErrorForUser(error, 'Test Title')
-      
+
       expect(formatted.message.length).toBeLessThan(longMessage.length)
     })
   })
@@ -256,9 +261,9 @@ describe('Error Messages', () => {
     it('should log error to console', () => {
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
       const error = new Error('Test error')
-      
+
       logError(error, 'Test context')
-      
+
       expect(consoleSpy).toHaveBeenCalled()
       consoleSpy.mockRestore()
     })
@@ -267,23 +272,19 @@ describe('Error Messages', () => {
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
       const error = new Error('Test error')
       const context = 'Timer operation'
-      
+
       logError(error, context)
-      
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining(context),
-        error,
-        undefined
-      )
+
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining(context), error, undefined)
       consoleSpy.mockRestore()
     })
 
     it('should handle errors without context', () => {
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
       const error = new Error('Test error')
-      
+
       logError(error)
-      
+
       expect(consoleSpy).toHaveBeenCalled()
       consoleSpy.mockRestore()
     })

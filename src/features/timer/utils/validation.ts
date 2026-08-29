@@ -22,21 +22,21 @@ export const MAX_TAGS_PER_SESSION = 10
  */
 export const validateSessionName = (name: string | undefined): string | undefined => {
   if (!name) return undefined
-  
+
   // Trim whitespace
   const trimmed = name.trim()
-  
+
   // Check length
   if (trimmed.length === 0) return undefined
   if (trimmed.length > MAX_SESSION_NAME_LENGTH) {
     logger.warn('Session name exceeds max length', {
       context: 'validateSessionName',
       length: trimmed.length,
-      max: MAX_SESSION_NAME_LENGTH
+      max: MAX_SESSION_NAME_LENGTH,
     })
     return trimmed.substring(0, MAX_SESSION_NAME_LENGTH)
   }
-  
+
   return trimmed
 }
 
@@ -58,10 +58,10 @@ export const validateTag = (tag: string): boolean => {
  */
 export const validateTags = (tags: string[]): string[] => {
   if (!Array.isArray(tags)) return []
-  
+
   return tags
     .filter(validateTag)
-    .map(tag => tag.trim())
+    .map((tag) => tag.trim())
     .slice(0, MAX_TAGS_PER_SESSION) // Limit number of tags
 }
 
@@ -73,9 +73,9 @@ export const isValidTimerHistoryRecord = (record: unknown): record is TimerHisto
   if (!record || typeof record !== 'object') {
     return false
   }
-  
+
   const r = record as Record<string, unknown>
-  
+
   return (
     (typeof r.id === 'string' || typeof r.id === 'number') &&
     typeof r.duration === 'number' &&
@@ -105,14 +105,14 @@ export const migrateTimerHistoryRecord = (record: unknown): TimerHistoryRecord |
   // Migrate number ID to UUID
   return {
     ...record,
-    id: generateUUID()
+    id: generateUUID(),
   } as TimerHistoryRecord
 }
 
 /**
  * Validates and migrates an array of timer history records
  * Filters out invalid records and migrates old number IDs to UUIDs
- * 
+ *
  * @param data - Raw data from localStorage
  * @returns Validated and migrated array of TimerHistoryRecord
  */
@@ -120,9 +120,9 @@ export const validateTimerHistory = (data: unknown): TimerHistoryRecord[] => {
   try {
     // Ensure data is an array
     if (!Array.isArray(data)) {
-      logger.warn('Invalid timer history data: not an array', { 
+      logger.warn('Invalid timer history data: not an array', {
         context: 'validateTimerHistory',
-        data: { dataType: typeof data }
+        data: { dataType: typeof data },
       })
       return []
     }
@@ -137,7 +137,7 @@ export const validateTimerHistory = (data: unknown): TimerHistoryRecord[] => {
       const rec = r as Record<string, unknown>
       return rec && typeof rec.id === 'number'
     }).length
-    
+
     if (numberIds > 0) {
       console.info(`Migrated ${numberIds} timer history records from number IDs to UUIDs`)
     }
@@ -157,12 +157,15 @@ export const validateTimerHistory = (data: unknown): TimerHistoryRecord[] => {
 
 /**
  * Safely parses and validates timer history from localStorage
- * 
+ *
  * @param key - localStorage key
  * @param defaultValue - Default value if parsing fails
  * @returns Validated timer history array
  */
-export const loadTimerHistory = (key: string, defaultValue: TimerHistoryRecord[] = []): TimerHistoryRecord[] => {
+export const loadTimerHistory = (
+  key: string,
+  defaultValue: TimerHistoryRecord[] = []
+): TimerHistoryRecord[] => {
   try {
     const item = window.localStorage.getItem(key)
     if (!item) {

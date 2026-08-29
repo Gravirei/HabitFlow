@@ -243,7 +243,7 @@ export const CATEGORY_TEMPLATE_LIBRARY: CategoryTemplatePack[] = [
         habits: [
           {
             name: 'Gratitude Journal',
-            description: 'Write 3 things you\'re grateful for',
+            description: "Write 3 things you're grateful for",
             icon: 'favorite',
             frequency: 'daily',
             goal: 1,

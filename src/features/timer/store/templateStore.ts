@@ -9,7 +9,9 @@ import type { SessionTemplate } from '@/features/timer/components/premium-histor
 
 interface TemplateStore {
   templates: SessionTemplate[]
-  addTemplate: (template: Omit<SessionTemplate, 'id' | 'createdAt' | 'useCount' | 'isFavorite'>) => void
+  addTemplate: (
+    template: Omit<SessionTemplate, 'id' | 'createdAt' | 'useCount' | 'isFavorite'>
+  ) => void
   updateTemplate: (id: string, updates: Partial<SessionTemplate>) => void
   deleteTemplate: (id: string) => void
   toggleFavorite: (id: string) => void
@@ -39,9 +41,7 @@ export const useTemplateStore = create<TemplateStore>()(
 
       updateTemplate: (id, updates) => {
         set((state) => ({
-          templates: state.templates.map((t) =>
-            t.id === id ? { ...t, ...updates } : t
-          ),
+          templates: state.templates.map((t) => (t.id === id ? { ...t, ...updates } : t)),
         }))
       },
 

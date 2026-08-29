@@ -9,7 +9,7 @@ describe('AnimatedTimerButton', () => {
     onPause: vi.fn(),
     onContinue: vi.fn(),
     onKill: vi.fn(),
-    onLap: vi.fn()
+    onLap: vi.fn(),
   }
 
   beforeEach(() => {
@@ -18,26 +18,14 @@ describe('AnimatedTimerButton', () => {
 
   describe('Initial State (Idle)', () => {
     it('should render start button when not active', () => {
-      render(
-        <AnimatedTimerButton
-          isActive={false}
-          isPaused={false}
-          {...mockHandlers}
-        />
-      )
+      render(<AnimatedTimerButton isActive={false} isPaused={false} {...mockHandlers} />)
 
       expect(screen.getByText('Start Timer')).toBeInTheDocument()
     })
 
     it('should call onStart when start button is clicked', async () => {
       const user = userEvent.setup()
-      render(
-        <AnimatedTimerButton
-          isActive={false}
-          isPaused={false}
-          {...mockHandlers}
-        />
-      )
+      render(<AnimatedTimerButton isActive={false} isPaused={false} {...mockHandlers} />)
 
       await user.click(screen.getByText('Start Timer'))
       expect(mockHandlers.onStart).toHaveBeenCalledTimes(1)
@@ -45,12 +33,7 @@ describe('AnimatedTimerButton', () => {
 
     it('should disable start button when disabled prop is true', () => {
       render(
-        <AnimatedTimerButton
-          isActive={false}
-          isPaused={false}
-          disabled={true}
-          {...mockHandlers}
-        />
+        <AnimatedTimerButton isActive={false} isPaused={false} disabled={true} {...mockHandlers} />
       )
 
       const button = screen.getByText('Start Timer')
@@ -60,13 +43,7 @@ describe('AnimatedTimerButton', () => {
 
   describe('Active State (Running)', () => {
     it('should render pause button when active', () => {
-      render(
-        <AnimatedTimerButton
-          isActive={true}
-          isPaused={false}
-          {...mockHandlers}
-        />
-      )
+      render(<AnimatedTimerButton isActive={true} isPaused={false} {...mockHandlers} />)
 
       expect(screen.getByText('Pause')).toBeInTheDocument()
       expect(screen.queryByText('Start Timer')).not.toBeInTheDocument()
@@ -74,13 +51,7 @@ describe('AnimatedTimerButton', () => {
 
     it('should call onPause when pause button is clicked', async () => {
       const user = userEvent.setup()
-      render(
-        <AnimatedTimerButton
-          isActive={true}
-          isPaused={false}
-          {...mockHandlers}
-        />
-      )
+      render(<AnimatedTimerButton isActive={true} isPaused={false} {...mockHandlers} />)
 
       await user.click(screen.getByText('Pause'))
       expect(mockHandlers.onPause).toHaveBeenCalledTimes(1)
@@ -88,12 +59,7 @@ describe('AnimatedTimerButton', () => {
 
     it('should show lap button in Stopwatch mode', () => {
       render(
-        <AnimatedTimerButton
-          isActive={true}
-          isPaused={false}
-          mode="Stopwatch"
-          {...mockHandlers}
-        />
+        <AnimatedTimerButton isActive={true} isPaused={false} mode="Stopwatch" {...mockHandlers} />
       )
 
       expect(screen.getByText('Lap')).toBeInTheDocument()
@@ -102,12 +68,7 @@ describe('AnimatedTimerButton', () => {
 
     it('should not show lap button in Countdown mode', () => {
       render(
-        <AnimatedTimerButton
-          isActive={true}
-          isPaused={false}
-          mode="Countdown"
-          {...mockHandlers}
-        />
+        <AnimatedTimerButton isActive={true} isPaused={false} mode="Countdown" {...mockHandlers} />
       )
 
       expect(screen.queryByText('Lap')).not.toBeInTheDocument()
@@ -116,12 +77,7 @@ describe('AnimatedTimerButton', () => {
 
     it('should not show lap button in Intervals mode', () => {
       render(
-        <AnimatedTimerButton
-          isActive={true}
-          isPaused={false}
-          mode="Intervals"
-          {...mockHandlers}
-        />
+        <AnimatedTimerButton isActive={true} isPaused={false} mode="Intervals" {...mockHandlers} />
       )
 
       expect(screen.queryByText('Lap')).not.toBeInTheDocument()
@@ -131,12 +87,7 @@ describe('AnimatedTimerButton', () => {
     it('should call onLap when lap button is clicked', async () => {
       const user = userEvent.setup()
       render(
-        <AnimatedTimerButton
-          isActive={true}
-          isPaused={false}
-          mode="Stopwatch"
-          {...mockHandlers}
-        />
+        <AnimatedTimerButton isActive={true} isPaused={false} mode="Stopwatch" {...mockHandlers} />
       )
 
       await user.click(screen.getByText('Lap'))
@@ -146,13 +97,7 @@ describe('AnimatedTimerButton', () => {
 
   describe('Paused State', () => {
     it('should render continue and kill buttons when paused', () => {
-      render(
-        <AnimatedTimerButton
-          isActive={false}
-          isPaused={true}
-          {...mockHandlers}
-        />
-      )
+      render(<AnimatedTimerButton isActive={false} isPaused={true} {...mockHandlers} />)
 
       expect(screen.getByText('Continue')).toBeInTheDocument()
       expect(screen.getByText('Kill')).toBeInTheDocument()
@@ -161,13 +106,7 @@ describe('AnimatedTimerButton', () => {
 
     it('should call onContinue when continue button is clicked', async () => {
       const user = userEvent.setup()
-      render(
-        <AnimatedTimerButton
-          isActive={false}
-          isPaused={true}
-          {...mockHandlers}
-        />
-      )
+      render(<AnimatedTimerButton isActive={false} isPaused={true} {...mockHandlers} />)
 
       await user.click(screen.getByText('Continue'))
       expect(mockHandlers.onContinue).toHaveBeenCalledTimes(1)
@@ -175,13 +114,7 @@ describe('AnimatedTimerButton', () => {
 
     it('should show kill confirmation modal when kill button is clicked', async () => {
       const user = userEvent.setup()
-      render(
-        <AnimatedTimerButton
-          isActive={false}
-          isPaused={true}
-          {...mockHandlers}
-        />
-      )
+      render(<AnimatedTimerButton isActive={false} isPaused={true} {...mockHandlers} />)
 
       await user.click(screen.getByText('Kill'))
 
@@ -194,13 +127,7 @@ describe('AnimatedTimerButton', () => {
   describe('Kill Confirmation Modal', () => {
     it('should show modal with correct content', async () => {
       const user = userEvent.setup()
-      render(
-        <AnimatedTimerButton
-          isActive={false}
-          isPaused={true}
-          {...mockHandlers}
-        />
-      )
+      render(<AnimatedTimerButton isActive={false} isPaused={true} {...mockHandlers} />)
 
       await user.click(screen.getByText('Kill'))
 
@@ -215,16 +142,10 @@ describe('AnimatedTimerButton', () => {
 
     it('should call onKill with true when "Yes, Save" is clicked', async () => {
       const user = userEvent.setup()
-      render(
-        <AnimatedTimerButton
-          isActive={false}
-          isPaused={true}
-          {...mockHandlers}
-        />
-      )
+      render(<AnimatedTimerButton isActive={false} isPaused={true} {...mockHandlers} />)
 
       await user.click(screen.getByText('Kill'))
-      
+
       await waitFor(() => {
         expect(screen.getByText('Yes, Save')).toBeInTheDocument()
       })
@@ -236,16 +157,10 @@ describe('AnimatedTimerButton', () => {
 
     it('should call onKill with false when "No" is clicked', async () => {
       const user = userEvent.setup()
-      render(
-        <AnimatedTimerButton
-          isActive={false}
-          isPaused={true}
-          {...mockHandlers}
-        />
-      )
+      render(<AnimatedTimerButton isActive={false} isPaused={true} {...mockHandlers} />)
 
       await user.click(screen.getByText('Kill'))
-      
+
       await waitFor(() => {
         expect(screen.getByText('No')).toBeInTheDocument()
       })
@@ -257,16 +172,10 @@ describe('AnimatedTimerButton', () => {
 
     it('should close modal when backdrop is clicked', async () => {
       const user = userEvent.setup()
-      render(
-        <AnimatedTimerButton
-          isActive={false}
-          isPaused={true}
-          {...mockHandlers}
-        />
-      )
+      render(<AnimatedTimerButton isActive={false} isPaused={true} {...mockHandlers} />)
 
       await user.click(screen.getByText('Kill'))
-      
+
       await waitFor(() => {
         expect(screen.getByText('Stop Timer?')).toBeInTheDocument()
       })
@@ -288,22 +197,12 @@ describe('AnimatedTimerButton', () => {
   describe('State Transitions', () => {
     it('should handle idle -> active transition', async () => {
       const { rerender } = render(
-        <AnimatedTimerButton
-          isActive={false}
-          isPaused={false}
-          {...mockHandlers}
-        />
+        <AnimatedTimerButton isActive={false} isPaused={false} {...mockHandlers} />
       )
 
       expect(screen.getByText('Start Timer')).toBeInTheDocument()
 
-      rerender(
-        <AnimatedTimerButton
-          isActive={true}
-          isPaused={false}
-          {...mockHandlers}
-        />
-      )
+      rerender(<AnimatedTimerButton isActive={true} isPaused={false} {...mockHandlers} />)
 
       // Wait for animation to complete
       await waitFor(() => {
@@ -313,22 +212,12 @@ describe('AnimatedTimerButton', () => {
 
     it('should handle active -> paused transition', async () => {
       const { rerender } = render(
-        <AnimatedTimerButton
-          isActive={true}
-          isPaused={false}
-          {...mockHandlers}
-        />
+        <AnimatedTimerButton isActive={true} isPaused={false} {...mockHandlers} />
       )
 
       expect(screen.getByText('Pause')).toBeInTheDocument()
 
-      rerender(
-        <AnimatedTimerButton
-          isActive={false}
-          isPaused={true}
-          {...mockHandlers}
-        />
-      )
+      rerender(<AnimatedTimerButton isActive={false} isPaused={true} {...mockHandlers} />)
 
       // Wait for animation to complete
       await waitFor(() => {
@@ -339,22 +228,12 @@ describe('AnimatedTimerButton', () => {
 
     it('should handle paused -> active transition', async () => {
       const { rerender } = render(
-        <AnimatedTimerButton
-          isActive={false}
-          isPaused={true}
-          {...mockHandlers}
-        />
+        <AnimatedTimerButton isActive={false} isPaused={true} {...mockHandlers} />
       )
 
       expect(screen.getByText('Continue')).toBeInTheDocument()
 
-      rerender(
-        <AnimatedTimerButton
-          isActive={true}
-          isPaused={false}
-          {...mockHandlers}
-        />
-      )
+      rerender(<AnimatedTimerButton isActive={true} isPaused={false} {...mockHandlers} />)
 
       // Wait for animation to complete
       await waitFor(() => {
@@ -364,22 +243,12 @@ describe('AnimatedTimerButton', () => {
 
     it('should handle paused -> idle transition (after kill)', async () => {
       const { rerender } = render(
-        <AnimatedTimerButton
-          isActive={false}
-          isPaused={true}
-          {...mockHandlers}
-        />
+        <AnimatedTimerButton isActive={false} isPaused={true} {...mockHandlers} />
       )
 
       expect(screen.getByText('Continue')).toBeInTheDocument()
 
-      rerender(
-        <AnimatedTimerButton
-          isActive={false}
-          isPaused={false}
-          {...mockHandlers}
-        />
-      )
+      rerender(<AnimatedTimerButton isActive={false} isPaused={false} {...mockHandlers} />)
 
       // Wait for animation to complete
       await waitFor(() => {
@@ -391,11 +260,7 @@ describe('AnimatedTimerButton', () => {
   describe('Inline vs Fixed Layout', () => {
     it('should use inline layout by default', () => {
       const { container } = render(
-        <AnimatedTimerButton
-          isActive={false}
-          isPaused={false}
-          {...mockHandlers}
-        />
+        <AnimatedTimerButton isActive={false} isPaused={false} {...mockHandlers} />
       )
 
       const wrapper = container.querySelector('.w-full.px-6.py-4')
@@ -404,12 +269,7 @@ describe('AnimatedTimerButton', () => {
 
     it('should use fixed layout when inline is false', () => {
       const { container } = render(
-        <AnimatedTimerButton
-          isActive={false}
-          isPaused={false}
-          inline={false}
-          {...mockHandlers}
-        />
+        <AnimatedTimerButton isActive={false} isPaused={false} inline={false} {...mockHandlers} />
       )
 
       const wrapper = container.querySelector('.fixed.bottom-0')
@@ -419,13 +279,7 @@ describe('AnimatedTimerButton', () => {
 
   describe('Accessibility', () => {
     it('should have proper button elements', () => {
-      render(
-        <AnimatedTimerButton
-          isActive={false}
-          isPaused={false}
-          {...mockHandlers}
-        />
-      )
+      render(<AnimatedTimerButton isActive={false} isPaused={false} {...mockHandlers} />)
 
       const button = screen.getByText('Start Timer')
       expect(button.tagName).toBe('BUTTON')
@@ -433,35 +287,23 @@ describe('AnimatedTimerButton', () => {
 
     it('should be keyboard accessible', async () => {
       const user = userEvent.setup()
-      render(
-        <AnimatedTimerButton
-          isActive={false}
-          isPaused={false}
-          {...mockHandlers}
-        />
-      )
+      render(<AnimatedTimerButton isActive={false} isPaused={false} {...mockHandlers} />)
 
       const button = screen.getByText('Start Timer')
       button.focus()
-      
+
       await user.keyboard('{Enter}')
       expect(mockHandlers.onStart).toHaveBeenCalled()
     })
 
     it('should handle multiple buttons with keyboard', async () => {
       const user = userEvent.setup()
-      render(
-        <AnimatedTimerButton
-          isActive={false}
-          isPaused={true}
-          {...mockHandlers}
-        />
-      )
+      render(<AnimatedTimerButton isActive={false} isPaused={true} {...mockHandlers} />)
 
       // Tab to continue button and activate
       await user.tab()
       await user.keyboard('{Enter}')
-      
+
       expect(mockHandlers.onContinue).toHaveBeenCalled()
     })
   })
@@ -469,16 +311,10 @@ describe('AnimatedTimerButton', () => {
   describe('Edge Cases', () => {
     it('should handle rapid button clicks', async () => {
       const user = userEvent.setup()
-      render(
-        <AnimatedTimerButton
-          isActive={false}
-          isPaused={false}
-          {...mockHandlers}
-        />
-      )
+      render(<AnimatedTimerButton isActive={false} isPaused={false} {...mockHandlers} />)
 
       const button = screen.getByText('Start Timer')
-      
+
       // Click multiple times rapidly
       await user.click(button)
       await user.click(button)
@@ -490,7 +326,7 @@ describe('AnimatedTimerButton', () => {
 
     it('should not break with missing onLap handler', () => {
       const { onLap: _onLap, ...handlersWithoutLap } = mockHandlers
-      
+
       render(
         <AnimatedTimerButton
           isActive={true}

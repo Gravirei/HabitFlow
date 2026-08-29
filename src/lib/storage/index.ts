@@ -1,6 +1,6 @@
 /**
  * Storage Module
- * 
+ *
  * Exports tiered storage service and hooks for managing
  * timer history with localStorage + Supabase sync
  */

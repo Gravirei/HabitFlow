@@ -18,7 +18,7 @@ interface TaskState {
   clearCategoryFromTasks: (categoryId: string) => void
 }
 
-const readJson = <T,>(raw: string | null): T | null => {
+const readJson = <T>(raw: string | null): T | null => {
   if (!raw) return null
   try {
     return JSON.parse(raw) as T
@@ -47,8 +47,7 @@ export const useTaskStore = create<TaskState>()(
           tasks: state.tasks.map((t) => (t.id === id ? { ...t, ...patch } : t)),
         })),
 
-      deleteTask: (id) =>
-        set((state) => ({ tasks: state.tasks.filter((t) => t.id !== id) })),
+      deleteTask: (id) => set((state) => ({ tasks: state.tasks.filter((t) => t.id !== id) })),
 
       toggleTask: (id) => {
         const next = get().tasks.map((t) =>

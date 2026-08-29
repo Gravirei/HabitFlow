@@ -95,7 +95,10 @@ export const usePremiumStore = create<PremiumState>()(
       setTier: (tier) => {
         set((state) => ({
           tier,
-          subscribedAt: tier !== 'free' && state.tier === 'free' ? new Date().toISOString() : state.subscribedAt,
+          subscribedAt:
+            tier !== 'free' && state.tier === 'free'
+              ? new Date().toISOString()
+              : state.subscribedAt,
         }))
       },
 

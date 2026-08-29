@@ -22,9 +22,7 @@ export const sidebarEdge = (reduced: boolean, delay: number): Variants => ({
   visible: {
     opacity: 1,
     x: 0,
-    transition: reduced
-      ? { duration: 0.2, delay }
-      : { duration: 0.55, ease: EASE_OUT_EXPO, delay },
+    transition: reduced ? { duration: 0.2, delay } : { duration: 0.55, ease: EASE_OUT_EXPO, delay },
   },
 })
 

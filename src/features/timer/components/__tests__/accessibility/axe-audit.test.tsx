@@ -1,7 +1,7 @@
 // @ts-nocheck
 /**
  * Automated Accessibility Audit Tests
- * 
+ *
  * Uses axe-core to detect accessibility violations
  * Tests WCAG 2.1 Level AA compliance
  */
@@ -22,13 +22,9 @@ describe('Accessibility Audit - axe-core', () => {
   describe('TimerDisplay', () => {
     it('should have no accessibility violations', async () => {
       const { container } = render(
-        <TimerDisplay
-          timeLeft={60000}
-          progress={0.5}
-          mode="Countdown"
-        />
+        <TimerDisplay timeLeft={60000} progress={0.5} mode="Countdown" />
       )
-      
+
       const results = await axe(container)
       expect(results).toHaveNoViolations()
     })
@@ -71,7 +67,7 @@ describe('Accessibility Audit - axe-core', () => {
           mode="Countdown"
         />
       )
-      
+
       const results = await axe(container)
       expect(results).toHaveNoViolations()
     })
@@ -88,7 +84,7 @@ describe('Accessibility Audit - axe-core', () => {
           mode="Countdown"
         />
       )
-      
+
       const results = await axe(container)
       expect(results).toHaveNoViolations()
     })
@@ -105,7 +101,7 @@ describe('Accessibility Audit - axe-core', () => {
           mode="Countdown"
         />
       )
-      
+
       const results = await axe(container)
       expect(results).toHaveNoViolations()
     })
@@ -123,31 +119,21 @@ describe('Accessibility Audit - axe-core', () => {
           <div>Modal content</div>
         </AccessibleModal>
       )
-      
+
       const results = await axe(container)
       expect(results).toHaveNoViolations()
     })
 
     it('should have no violations with different sizes', async () => {
       const { container: smContainer } = render(
-        <AccessibleModal
-          isOpen={true}
-          onClose={() => {}}
-          title="Small Modal"
-          size="sm"
-        >
+        <AccessibleModal isOpen={true} onClose={() => {}} title="Small Modal" size="sm">
           <p>Small content</p>
         </AccessibleModal>
       )
       expect(await axe(smContainer)).toHaveNoViolations()
 
       const { container: lgContainer } = render(
-        <AccessibleModal
-          isOpen={true}
-          onClose={() => {}}
-          title="Large Modal"
-          size="lg"
-        >
+        <AccessibleModal isOpen={true} onClose={() => {}} title="Large Modal" size="lg">
           <p>Large content</p>
         </AccessibleModal>
       )
@@ -159,13 +145,10 @@ describe('Accessibility Audit - axe-core', () => {
     it('should have no violations', async () => {
       const { container } = render(
         <MemoryRouter>
-          <TimerSettingsModal
-            isOpen={true}
-            onClose={() => {}}
-          />
+          <TimerSettingsModal isOpen={true} onClose={() => {}} />
         </MemoryRouter>
       )
-      
+
       const results = await axe(container)
       expect(results).toHaveNoViolations()
     }, 10000) // Increase timeout for complex modal analysis
@@ -187,15 +170,15 @@ describe('Accessibility Audit - axe-core', () => {
           />
         </div>
       )
-      
+
       // Run with WCAG 2 AA rules
       const results = await axe(container, {
         runOnly: {
           type: 'tag',
-          values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']
-        }
+          values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'],
+        },
       })
-      
+
       expect(results).toHaveNoViolations()
     }, 10000) // Increase timeout for WCAG compliance analysis
   })

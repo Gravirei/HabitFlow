@@ -22,7 +22,7 @@ describe('useTemplateStore', () => {
 
     // Clear localStorage first
     localStorage.clear()
-    
+
     // Dynamic import to ensure fresh store after localStorage is ready
     vi.resetModules()
     const module = await import('@/features/timer/store/templateStore')
@@ -427,8 +427,8 @@ describe('useTemplateStore', () => {
       const favorites = getFavorites()
 
       expect(favorites).toHaveLength(2)
-      expect(favorites.map(t => t.name)).toContain('Template 1')
-      expect(favorites.map(t => t.name)).toContain('Template 3')
+      expect(favorites.map((t) => t.name)).toContain('Template 1')
+      expect(favorites.map((t) => t.name)).toContain('Template 3')
     })
 
     it('should return empty array when no favorites', () => {
@@ -480,7 +480,7 @@ describe('useTemplateStore', () => {
       const templates = useTemplateStore.getState().templates
 
       act(() => {
-        templates.forEach(t => incrementUseCount(t.id))
+        templates.forEach((t) => incrementUseCount(t.id))
       })
 
       const { getRecentlyUsed } = useTemplateStore.getState()

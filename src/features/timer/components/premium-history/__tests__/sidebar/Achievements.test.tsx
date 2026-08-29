@@ -23,34 +23,19 @@ describe.skip('Achievements Feature', () => {
 
   describe('AchievementsModal Component', () => {
     it('renders achievements modal when open', () => {
-      render(
-        <AchievementsModal
-          isOpen={true}
-          onClose={vi.fn()}
-        />
-      )
+      render(<AchievementsModal isOpen={true} onClose={vi.fn()} />)
 
       expect(screen.getByText(/achievements/i)).toBeInTheDocument()
     })
 
     it('does not render when closed', () => {
-      const { container } = render(
-        <AchievementsModal
-          isOpen={false}
-          onClose={vi.fn()}
-        />
-      )
+      const { container } = render(<AchievementsModal isOpen={false} onClose={vi.fn()} />)
 
       expect(container).toBeEmptyDOMElement()
     })
 
     it('displays total achievement count', () => {
-      render(
-        <AchievementsModal
-          isOpen={true}
-          onClose={vi.fn()}
-        />
-      )
+      render(<AchievementsModal isOpen={true} onClose={vi.fn()} />)
 
       // Should show something like "0/47" or total count
       expect(screen.getByText(/47/i) || screen.getByText(/achievements/i)).toBeInTheDocument()
@@ -58,16 +43,11 @@ describe.skip('Achievements Feature', () => {
 
     it('calls onClose when clicking close button', () => {
       const onClose = vi.fn()
-      render(
-        <AchievementsModal
-          isOpen={true}
-          onClose={onClose}
-        />
-      )
+      render(<AchievementsModal isOpen={true} onClose={onClose} />)
 
-      const closeButton = screen.getAllByRole('button').find(btn =>
-        btn.querySelector('.material-symbols-outlined')?.textContent === 'close'
-      )
+      const closeButton = screen
+        .getAllByRole('button')
+        .find((btn) => btn.querySelector('.material-symbols-outlined')?.textContent === 'close')
 
       if (closeButton) {
         fireEvent.click(closeButton)
@@ -78,60 +58,37 @@ describe.skip('Achievements Feature', () => {
 
   describe('Achievement Categories', () => {
     it('displays time-based achievements', () => {
-      render(
-        <AchievementsModal
-          isOpen={true}
-          onClose={vi.fn()}
-        />
-      )
+      render(<AchievementsModal isOpen={true} onClose={vi.fn()} />)
 
       // Should have time-based category (10h, 50h, 100h, 500h, 1000h)
       expect(screen.getByText(/time/i) || screen.getByText(/hour/i)).toBeInTheDocument()
     })
 
     it('displays session-based achievements', () => {
-      render(
-        <AchievementsModal
-          isOpen={true}
-          onClose={vi.fn()}
-        />
-      )
+      render(<AchievementsModal isOpen={true} onClose={vi.fn()} />)
 
       // Should have session count category
       expect(screen.getByText(/session/i)).toBeInTheDocument()
     })
 
     it('displays streak-based achievements', () => {
-      render(
-        <AchievementsModal
-          isOpen={true}
-          onClose={vi.fn()}
-        />
-      )
+      render(<AchievementsModal isOpen={true} onClose={vi.fn()} />)
 
       // Should have streak category
       expect(screen.getByText(/streak/i)).toBeInTheDocument()
     })
 
     it('displays mode mastery achievements', () => {
-      render(
-        <AchievementsModal
-          isOpen={true}
-          onClose={vi.fn()}
-        />
-      )
+      render(<AchievementsModal isOpen={true} onClose={vi.fn()} />)
 
       // Should have mode-related achievements
-      expect(screen.getByText(/mode/i) || screen.getByText(/stopwatch|countdown|intervals/i)).toBeInTheDocument()
+      expect(
+        screen.getByText(/mode/i) || screen.getByText(/stopwatch|countdown|intervals/i)
+      ).toBeInTheDocument()
     })
 
     it('displays special achievements', () => {
-      render(
-        <AchievementsModal
-          isOpen={true}
-          onClose={vi.fn()}
-        />
-      )
+      render(<AchievementsModal isOpen={true} onClose={vi.fn()} />)
 
       // Should have special category with unique achievements
       expect(true).toBe(true) // Placeholder for special achievements check
@@ -149,7 +106,7 @@ describe.skip('Achievements Feature', () => {
         category: 'sessions' as const,
         requirement: 1,
         unlocked: false,
-        progress: 0
+        progress: 0,
       }
 
       expect(achievement.rarity).toBe('common')
@@ -165,7 +122,7 @@ describe.skip('Achievements Feature', () => {
         category: 'streak' as const,
         requirement: 7,
         unlocked: false,
-        progress: 0
+        progress: 0,
       }
 
       expect(achievement.rarity).toBe('rare')
@@ -181,7 +138,7 @@ describe.skip('Achievements Feature', () => {
         category: 'time' as const,
         requirement: 360000,
         unlocked: false,
-        progress: 0
+        progress: 0,
       }
 
       expect(achievement.rarity).toBe('epic')
@@ -197,7 +154,7 @@ describe.skip('Achievements Feature', () => {
         category: 'time' as const,
         requirement: 3600000,
         unlocked: false,
-        progress: 0
+        progress: 0,
       }
 
       expect(achievement.rarity).toBe('legendary')
@@ -213,13 +170,13 @@ describe.skip('Achievements Feature', () => {
         longestStreak: 5,
         stopwatchSessions: 20,
         countdownSessions: 15,
-        intervalsSessions: 15
+        intervalsSessions: 15,
       }
 
       const unlocked = checkAndUnlockAchievements(stats)
 
       // Should unlock 10 hour achievement
-      expect(unlocked.some(a => a.category === 'time')).toBe(true)
+      expect(unlocked.some((a) => a.category === 'time')).toBe(true)
     })
 
     it('unlocks session-based achievements', () => {
@@ -230,13 +187,13 @@ describe.skip('Achievements Feature', () => {
         longestStreak: 3,
         stopwatchSessions: 5,
         countdownSessions: 3,
-        intervalsSessions: 2
+        intervalsSessions: 2,
       }
 
       const unlocked = checkAndUnlockAchievements(stats)
 
       // Should unlock 10 sessions achievement
-      expect(unlocked.some(a => a.category === 'sessions')).toBe(true)
+      expect(unlocked.some((a) => a.category === 'sessions')).toBe(true)
     })
 
     it('unlocks streak-based achievements', () => {
@@ -247,13 +204,13 @@ describe.skip('Achievements Feature', () => {
         longestStreak: 7,
         stopwatchSessions: 7,
         countdownSessions: 0,
-        intervalsSessions: 0
+        intervalsSessions: 0,
       }
 
       const unlocked = checkAndUnlockAchievements(stats)
 
       // Should unlock 7 day streak achievement
-      expect(unlocked.some(a => a.category === 'streak')).toBe(true)
+      expect(unlocked.some((a) => a.category === 'streak')).toBe(true)
     })
 
     it('unlocks mode mastery achievements', () => {
@@ -264,13 +221,13 @@ describe.skip('Achievements Feature', () => {
         longestStreak: 5,
         stopwatchSessions: 50, // 50 stopwatch sessions
         countdownSessions: 0,
-        intervalsSessions: 0
+        intervalsSessions: 0,
       }
 
       const unlocked = checkAndUnlockAchievements(stats)
 
       // Should unlock stopwatch mastery
-      expect(unlocked.some(a => a.category === 'mode')).toBe(true)
+      expect(unlocked.some((a) => a.category === 'mode')).toBe(true)
     })
 
     it('prevents unlocking same achievement twice', () => {
@@ -294,7 +251,7 @@ describe.skip('Achievements Feature', () => {
       updateProgress('10-sessions', 5)
 
       const { achievements } = useAchievementsStore.getState()
-      const achievement = achievements.find(a => a.id === '10-sessions')
+      const achievement = achievements.find((a) => a.id === '10-sessions')
 
       expect(achievement?.progress).toBe(5)
     })
@@ -303,7 +260,7 @@ describe.skip('Achievements Feature', () => {
       const achievement = {
         id: 'progress-test',
         requirement: 100,
-        progress: 50
+        progress: 50,
       }
 
       const percentage = (achievement.progress / achievement.requirement) * 100
@@ -320,12 +277,7 @@ describe.skip('Achievements Feature', () => {
     })
 
     it('displays progress bars for locked achievements', () => {
-      render(
-        <AchievementsModal
-          isOpen={true}
-          onClose={vi.fn()}
-        />
-      )
+      render(<AchievementsModal isOpen={true} onClose={vi.fn()} />)
 
       // Progress bars should exist for locked achievements
       expect(true).toBe(true) // Placeholder for progress bar check
@@ -338,24 +290,14 @@ describe.skip('Achievements Feature', () => {
 
       unlockAchievement('unlocked-test')
 
-      render(
-        <AchievementsModal
-          isOpen={true}
-          onClose={vi.fn()}
-        />
-      )
+      render(<AchievementsModal isOpen={true} onClose={vi.fn()} />)
 
       // Unlocked achievements should be highlighted
       expect(true).toBe(true)
     })
 
     it('shows locked achievements as grayscale', () => {
-      render(
-        <AchievementsModal
-          isOpen={true}
-          onClose={vi.fn()}
-        />
-      )
+      render(<AchievementsModal isOpen={true} onClose={vi.fn()} />)
 
       // Locked achievements should appear grayed out
       expect(true).toBe(true)
@@ -367,30 +309,20 @@ describe.skip('Achievements Feature', () => {
       unlockAchievement('date-test')
 
       const { achievements } = useAchievementsStore.getState()
-      const achievement = achievements.find(a => a.id === 'date-test')
+      const achievement = achievements.find((a) => a.id === 'date-test')
 
       expect(achievement?.unlockedAt).toBeDefined()
     })
 
     it('groups achievements by category', () => {
-      render(
-        <AchievementsModal
-          isOpen={true}
-          onClose={vi.fn()}
-        />
-      )
+      render(<AchievementsModal isOpen={true} onClose={vi.fn()} />)
 
       // Should have category sections
       expect(screen.getByText(/time|sessions|streak|mode|special/i)).toBeInTheDocument()
     })
 
     it('shows rarity indicators', () => {
-      render(
-        <AchievementsModal
-          isOpen={true}
-          onClose={vi.fn()}
-        />
-      )
+      render(<AchievementsModal isOpen={true} onClose={vi.fn()} />)
 
       // Should show rarity badges or colors
       expect(true).toBe(true)
@@ -454,10 +386,10 @@ describe.skip('Achievements Feature', () => {
         common: 0,
         rare: 0,
         epic: 0,
-        legendary: 0
+        legendary: 0,
       }
 
-      achievements.forEach(a => {
+      achievements.forEach((a) => {
         if (a.unlocked) rarityCount[a.rarity]++
       })
 
@@ -520,7 +452,7 @@ describe.skip('Achievements Feature', () => {
       unlockAchievement('date-persist-test')
 
       const { achievements } = useAchievementsStore.getState()
-      const achievement = achievements.find(a => a.id === 'date-persist-test')
+      const achievement = achievements.find((a) => a.id === 'date-persist-test')
 
       expect(achievement?.unlockedAt).toBeDefined()
     })

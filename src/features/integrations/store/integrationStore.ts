@@ -1,6 +1,11 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { IntegrationProvider, IntegrationConnection, IntegrationStatus, SyncResult } from '../components/types'
+import type {
+  IntegrationProvider,
+  IntegrationConnection,
+  IntegrationStatus,
+  SyncResult,
+} from '../components/types'
 
 const createDefaultConnection = (provider: IntegrationProvider): IntegrationConnection => ({
   provider,
@@ -26,7 +31,12 @@ interface IntegrationState {
 
   // Actions
   setStatus: (provider: IntegrationProvider, status: IntegrationStatus) => void
-  connect: (provider: IntegrationProvider, accessToken: string, refreshToken?: string, expiresAt?: string) => void
+  connect: (
+    provider: IntegrationProvider,
+    accessToken: string,
+    refreshToken?: string,
+    expiresAt?: string
+  ) => void
   disconnect: (provider: IntegrationProvider) => void
   updateSettings: (provider: IntegrationProvider, settings: Record<string, unknown>) => void
   setError: (provider: IntegrationProvider, error: string) => void
@@ -39,13 +49,13 @@ interface IntegrationState {
 
 const initialConnections: Record<IntegrationProvider, IntegrationConnection> = {
   'google-calendar': createDefaultConnection('google-calendar'),
-  'notion': createDefaultConnection('notion'),
-  'slack': createDefaultConnection('slack'),
-  'spotify': createDefaultConnection('spotify'),
+  notion: createDefaultConnection('notion'),
+  slack: createDefaultConnection('slack'),
+  spotify: createDefaultConnection('spotify'),
   'apple-health': createDefaultConnection('apple-health'),
   'google-fit': createDefaultConnection('google-fit'),
-  'zapier': createDefaultConnection('zapier'),
-  'ifttt': createDefaultConnection('ifttt'),
+  zapier: createDefaultConnection('zapier'),
+  ifttt: createDefaultConnection('ifttt'),
 }
 
 export const useIntegrationStore = create<IntegrationState>()(
@@ -122,7 +132,9 @@ export const useIntegrationStore = create<IntegrationState>()(
             [provider]: {
               ...state.connections[provider],
               error: null,
-              status: state.connections[provider].accessToken ? 'connected' as IntegrationStatus : 'disconnected' as IntegrationStatus,
+              status: state.connections[provider].accessToken
+                ? ('connected' as IntegrationStatus)
+                : ('disconnected' as IntegrationStatus),
             },
           },
         })),

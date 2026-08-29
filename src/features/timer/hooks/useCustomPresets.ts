@@ -25,13 +25,13 @@ export const useCustomPresets = () => {
       if (stored) {
         try {
           const parsed = JSON.parse(stored)
-          
+
           // Validate parsed data
           if (!Array.isArray(parsed)) {
             logError(new Error('Stored presets is not an array'), 'useCustomPresets.init')
             throw new Error('Invalid data')
           }
-          
+
           // Validate each preset
           const validPresets = parsed.filter((preset: any) => {
             if (!preset || typeof preset !== 'object') return false
@@ -39,7 +39,7 @@ export const useCustomPresets = () => {
             if (isNaN(preset.duration) || !isFinite(preset.duration)) return false
             return true
           })
-          
+
           if (validPresets.length > 0) {
             return validPresets
           }
@@ -50,11 +50,11 @@ export const useCustomPresets = () => {
     } catch (error) {
       logError(error, 'useCustomPresets.localStorage')
     }
-    
+
     // Return default presets converted to seconds if nothing stored or error
-    return COUNTDOWN_PRESETS.map(preset => ({ 
+    return COUNTDOWN_PRESETS.map((preset) => ({
       ...preset,
-      duration: preset.duration * 60 // Convert minutes to seconds
+      duration: preset.duration * 60, // Convert minutes to seconds
     }))
   })
 
@@ -74,19 +74,23 @@ export const useCustomPresets = () => {
         logError(new Error('Invalid preset index'), 'useCustomPresets.updatePreset')
         return
       }
-      
+
       // Validate duration
-      if (newDurationInSeconds <= 0 || isNaN(newDurationInSeconds) || !isFinite(newDurationInSeconds)) {
+      if (
+        newDurationInSeconds <= 0 ||
+        isNaN(newDurationInSeconds) ||
+        !isFinite(newDurationInSeconds)
+      ) {
         logError(new Error('Invalid preset duration'), 'useCustomPresets.updatePreset')
         return
       }
-      
-      setCustomPresets(prev => {
+
+      setCustomPresets((prev) => {
         const updated = [...prev]
         updated[index] = {
           ...updated[index],
           duration: newDurationInSeconds,
-          ...(label && { label })
+          ...(label && { label }),
         }
         return updated
       })
@@ -97,6 +101,6 @@ export const useCustomPresets = () => {
 
   return {
     customPresets,
-    updatePreset
+    updatePreset,
   }
 }

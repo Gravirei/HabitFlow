@@ -47,12 +47,12 @@ export function AchievementUnlockModal({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-900/80 backdrop-blur-md p-4"
+        className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-900/80 p-4 backdrop-blur-md"
         onClick={onClose}
       >
         {/* Confetti Effect */}
         {showConfetti && (
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="pointer-events-none absolute inset-0 overflow-hidden">
             {Array.from({ length: 50 }).map((_, i) => (
               <motion.div
                 key={i}
@@ -73,7 +73,7 @@ export function AchievementUnlockModal({
                   duration: 2 + Math.random() * 2,
                   ease: 'easeOut',
                 }}
-                className={`absolute w-2 h-2 rounded-full ${
+                className={`absolute h-2 w-2 rounded-full ${
                   ['bg-primary', 'bg-purple-500', 'bg-pink-500', 'bg-orange-500', 'bg-yellow-500'][
                     i % 5
                   ]
@@ -92,15 +92,17 @@ export function AchievementUnlockModal({
             damping: 20,
             stiffness: 300,
           }}
-          className="relative bg-white dark:bg-[#1E1E24] rounded-3xl shadow-2xl w-full max-w-md overflow-hidden"
+          className="relative w-full max-w-md overflow-hidden rounded-3xl bg-white shadow-2xl dark:bg-[#1E1E24]"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Gradient Background */}
-          <div className={`absolute inset-0 bg-gradient-to-br ${getRarityColor(rarity)} opacity-10`} />
+          <div
+            className={`absolute inset-0 bg-gradient-to-br ${getRarityColor(rarity)} opacity-10`}
+          />
 
           <div className="relative p-8">
             {/* Header */}
-            <div className="text-center mb-6">
+            <div className="mb-6 text-center">
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1, rotate: [0, 10, -10, 0] }}
@@ -108,7 +110,7 @@ export function AchievementUnlockModal({
                   scale: { delay: 0.2, type: 'spring', damping: 15 },
                   rotate: { delay: 0.5, duration: 0.5 },
                 }}
-                className="inline-block mb-4"
+                className="mb-4 inline-block"
               >
                 <div
                   className={`
@@ -117,9 +119,7 @@ export function AchievementUnlockModal({
                     flex items-center justify-center
                   `}
                 >
-                  <span className="material-symbols-outlined text-white text-[48px]">
-                    {icon}
-                  </span>
+                  <span className="material-symbols-outlined text-[48px] text-white">{icon}</span>
                 </div>
               </motion.div>
 
@@ -128,11 +128,13 @@ export function AchievementUnlockModal({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
               >
-                <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">
+                <h2 className="mb-2 text-2xl font-bold text-slate-800 dark:text-white">
                   Achievement Unlocked!
                 </h2>
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 mb-4">
-                  <span className={`w-2 h-2 rounded-full bg-gradient-to-r ${getRarityColor(rarity)}`} />
+                <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 dark:bg-slate-800">
+                  <span
+                    className={`h-2 w-2 rounded-full bg-gradient-to-r ${getRarityColor(rarity)}`}
+                  />
                   <span className="text-xs font-bold uppercase text-slate-700 dark:text-slate-300">
                     {getRarityLabel(rarity)}
                   </span>
@@ -145,12 +147,10 @@ export function AchievementUnlockModal({
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              className="text-center space-y-3"
+              className="space-y-3 text-center"
             >
-              <h3 className="text-xl font-bold text-slate-800 dark:text-white">
-                {name}
-              </h3>
-              <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+              <h3 className="text-xl font-bold text-slate-800 dark:text-white">{name}</h3>
+              <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-400">
                 {description}
               </p>
             </motion.div>
@@ -165,7 +165,7 @@ export function AchievementUnlockModal({
                 repeatDelay: 2,
                 ease: 'easeInOut',
               }}
-              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none"
+              className="pointer-events-none absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
               style={{ transform: 'skewX(-20deg)' }}
             />
 
@@ -175,7 +175,7 @@ export function AchievementUnlockModal({
               animate={{ opacity: 1 }}
               transition={{ delay: 0.6 }}
               onClick={onClose}
-              className="mt-8 w-full py-3 rounded-xl font-bold text-white bg-gradient-to-r from-primary to-purple-600 hover:shadow-lg hover:shadow-primary/30 transition-all"
+              className="mt-8 w-full rounded-xl bg-gradient-to-r from-primary to-purple-600 py-3 font-bold text-white transition-all hover:shadow-lg hover:shadow-primary/30"
             >
               Awesome!
             </motion.button>

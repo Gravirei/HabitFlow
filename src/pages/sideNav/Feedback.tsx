@@ -1,57 +1,57 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import toast from 'react-hot-toast';
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { motion, AnimatePresence } from 'framer-motion'
+import toast from 'react-hot-toast'
 
 export function Feedback() {
-  const navigate = useNavigate();
-  const [feedbackType, setFeedbackType] = useState<'feature' | 'bug' | 'general' | null>(null);
-  const [hoverRating, setHoverRating] = useState(0);
-  const [rating, setRating] = useState(0);
-  const [subject, setSubject] = useState('');
-  const [description, setDescription] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const navigate = useNavigate()
+  const [feedbackType, setFeedbackType] = useState<'feature' | 'bug' | 'general' | null>(null)
+  const [hoverRating, setHoverRating] = useState(0)
+  const [rating, setRating] = useState(0)
+  const [subject, setSubject] = useState('')
+  const [description, setDescription] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
+  const [errors, setErrors] = useState<Record<string, string>>({})
 
   const feedbackTypes = [
     { id: 'feature', icon: '💡', label: 'Feature Request' },
     { id: 'bug', icon: '🐛', label: 'Bug Report' },
     { id: 'general', icon: '💬', label: 'General' },
-  ];
+  ]
 
   const validateForm = (): boolean => {
-    const newErrors: Record<string, string> = {};
+    const newErrors: Record<string, string> = {}
 
     if (!feedbackType) {
-      newErrors.feedbackType = 'Please select a feedback type';
+      newErrors.feedbackType = 'Please select a feedback type'
     }
     if (!subject.trim()) {
-      newErrors.subject = 'Subject is required';
+      newErrors.subject = 'Subject is required'
     }
     if (description.trim().length < 10) {
-      newErrors.description = 'Description must be at least 10 characters';
+      newErrors.description = 'Description must be at least 10 characters'
     }
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
 
   const handleScreenshotUpload = () => {
-    toast.success('Screenshot attached!');
-  };
+    toast.success('Screenshot attached!')
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
 
     if (!validateForm()) {
-      return;
+      return
     }
 
-    setIsSubmitting(true);
-    
+    setIsSubmitting(true)
+
     // Simulate 1s submission delay
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 1000))
 
     // Log feedback data
     const feedbackData = {
@@ -59,22 +59,22 @@ export function Feedback() {
       rating,
       subject,
       description,
-    };
-    console.log('Feedback submitted:', feedbackData);
+    }
+    console.log('Feedback submitted:', feedbackData)
 
-    setIsSubmitting(false);
-    setSubmitted(true);
+    setIsSubmitting(false)
+    setSubmitted(true)
 
     // Reset form after 2 seconds
     setTimeout(() => {
-      setFeedbackType(null);
-      setRating(0);
-      setSubject('');
-      setDescription('');
-      setSubmitted(false);
-      setErrors({});
-    }, 2000);
-  };
+      setFeedbackType(null)
+      setRating(0)
+      setSubject('')
+      setDescription('')
+      setSubmitted(false)
+      setErrors({})
+    }, 2000)
+  }
 
   const containerVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -87,7 +87,7 @@ export function Feedback() {
         delayChildren: 0.1,
       },
     },
-  };
+  }
 
   const itemVariants = {
     hidden: { opacity: 0, y: 10 },
@@ -96,23 +96,23 @@ export function Feedback() {
       y: 0,
       transition: { duration: 0.3 },
     },
-  };
+  }
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="min-h-screen bg-white dark:bg-slate-950 text-slate-800 dark:text-white"
+      className="min-h-screen bg-white text-slate-800 dark:bg-slate-950 dark:text-white"
     >
-      <div className="max-w-2xl mx-auto px-4 py-8">
+      <div className="mx-auto max-w-2xl px-4 py-8">
         {/* Back Button */}
         <motion.button
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.05 }}
           onClick={() => navigate(-1)}
-          className="flex items-center gap-2 mb-8 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
+          className="mb-8 flex items-center gap-2 text-slate-500 transition-colors hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300"
         >
           <span className="material-symbols-outlined text-xl">arrow_back</span>
           <span className="text-sm font-medium">Back</span>
@@ -130,13 +130,13 @@ export function Feedback() {
             >
               {/* Header */}
               <motion.div variants={itemVariants} className="mb-10">
-                <div className="flex items-start gap-3 mb-3">
+                <div className="mb-3 flex items-start gap-3">
                   <span className="text-4xl">📝</span>
                   <div>
-                    <h1 className="text-4xl font-bold bg-gradient-to-r from-teal-600 to-emerald-600 dark:from-teal-400 dark:to-emerald-400 bg-clip-text text-transparent">
+                    <h1 className="bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-4xl font-bold text-transparent dark:from-teal-400 dark:to-emerald-400">
                       Share Your Feedback
                     </h1>
-                    <p className="text-slate-600 dark:text-slate-400 mt-2">
+                    <p className="mt-2 text-slate-600 dark:text-slate-400">
                       Help us make HabitFlow better. Your insights matter!
                     </p>
                   </div>
@@ -147,7 +147,7 @@ export function Feedback() {
               <form onSubmit={handleSubmit} className="space-y-8">
                 {/* Feedback Type Selector */}
                 <motion.div variants={itemVariants}>
-                  <label className="block text-sm font-semibold mb-4 text-slate-700 dark:text-slate-300">
+                  <label className="mb-4 block text-sm font-semibold text-slate-700 dark:text-slate-300">
                     What type of feedback?
                   </label>
                   <div className="grid grid-cols-3 gap-3">
@@ -158,17 +158,17 @@ export function Feedback() {
                         whileHover={{ scale: 1.02, y: -2 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={() => {
-                          setFeedbackType(type.id as 'feature' | 'bug' | 'general');
-                          setErrors({ ...errors, feedbackType: '' });
+                          setFeedbackType(type.id as 'feature' | 'bug' | 'general')
+                          setErrors({ ...errors, feedbackType: '' })
                         }}
-                        className={`p-4 rounded-2xl border-2 transition-all duration-200 min-h-[120px] flex flex-col items-center justify-center gap-2 ${
+                        className={`flex min-h-[120px] flex-col items-center justify-center gap-2 rounded-2xl border-2 p-4 transition-all duration-200 ${
                           feedbackType === type.id
-                            ? 'border-teal-500 bg-teal-500/10 dark:bg-teal-500/10 shadow-lg shadow-teal-500/20'
-                            : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-md'
+                            ? 'border-teal-500 bg-teal-500/10 shadow-lg shadow-teal-500/20 dark:bg-teal-500/10'
+                            : 'border-slate-200 hover:border-slate-300 hover:shadow-md dark:border-slate-800 dark:hover:border-slate-700'
                         }`}
                       >
                         <span className="text-3xl">{type.icon}</span>
-                        <span className="text-sm font-semibold text-center">{type.label}</span>
+                        <span className="text-center text-sm font-semibold">{type.label}</span>
                       </motion.button>
                     ))}
                   </div>
@@ -176,7 +176,7 @@ export function Feedback() {
                     <motion.div
                       initial={{ opacity: 0, y: -5 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="flex items-center gap-2 mt-2 text-red-500 text-xs"
+                      className="mt-2 flex items-center gap-2 text-xs text-red-500"
                     >
                       <span className="material-symbols-outlined text-sm">error</span>
                       {errors.feedbackType}
@@ -186,7 +186,7 @@ export function Feedback() {
 
                 {/* Rating Section */}
                 <motion.div variants={itemVariants}>
-                  <label className="block text-sm font-semibold mb-4 text-slate-700 dark:text-slate-300">
+                  <label className="mb-4 block text-sm font-semibold text-slate-700 dark:text-slate-300">
                     How would you rate your experience?
                   </label>
                   <div className="flex gap-2">
@@ -206,7 +206,7 @@ export function Feedback() {
                           transition={{ type: 'spring', stiffness: 200, damping: 10 }}
                           className={`material-symbols-outlined text-4xl transition-colors ${
                             (hoverRating || rating) >= star
-                              ? 'text-amber-400 fill-current'
+                              ? 'fill-current text-amber-400'
                               : 'text-slate-300 dark:text-slate-700'
                           }`}
                         >
@@ -221,7 +221,7 @@ export function Feedback() {
                 <motion.div variants={itemVariants}>
                   <label
                     htmlFor="subject"
-                    className="block text-sm font-semibold mb-2 text-slate-700 dark:text-slate-300"
+                    className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300"
                   >
                     Subject
                   </label>
@@ -230,17 +230,17 @@ export function Feedback() {
                     id="subject"
                     value={subject}
                     onChange={(e) => {
-                      setSubject(e.target.value);
+                      setSubject(e.target.value)
                       if (e.target.value.trim()) {
-                        setErrors({ ...errors, subject: '' });
+                        setErrors({ ...errors, subject: '' })
                       }
                     }}
                     placeholder="What is your feedback about?"
                     aria-required="true"
-                    className={`w-full px-4 py-3 rounded-xl border-2 bg-white dark:bg-slate-900/50 outline-none transition-all duration-200 ${
+                    className={`w-full rounded-xl border-2 bg-white px-4 py-3 outline-none transition-all duration-200 dark:bg-slate-900/50 ${
                       errors.subject
                         ? 'border-red-500 focus:ring-2 focus:ring-red-500/20'
-                        : 'border-slate-200 dark:border-slate-800 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20'
+                        : 'border-slate-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 dark:border-slate-800'
                     }`}
                     whileFocus={{ scale: 1.01 }}
                   />
@@ -248,7 +248,7 @@ export function Feedback() {
                     <motion.div
                       initial={{ opacity: 0, y: -5 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="flex items-center gap-2 mt-2 text-red-500 text-xs"
+                      className="mt-2 flex items-center gap-2 text-xs text-red-500"
                     >
                       <span className="material-symbols-outlined text-sm">error</span>
                       {errors.subject}
@@ -260,7 +260,7 @@ export function Feedback() {
                 <motion.div variants={itemVariants}>
                   <label
                     htmlFor="description"
-                    className="block text-sm font-semibold mb-2 text-slate-700 dark:text-slate-300"
+                    className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300"
                   >
                     Description
                   </label>
@@ -269,18 +269,18 @@ export function Feedback() {
                       id="description"
                       value={description}
                       onChange={(e) => {
-                        setDescription(e.target.value);
+                        setDescription(e.target.value)
                         if (e.target.value.trim().length >= 10) {
-                          setErrors({ ...errors, description: '' });
+                          setErrors({ ...errors, description: '' })
                         }
                       }}
                       placeholder="Please provide details about your feedback..."
                       rows={4}
                       aria-required="true"
-                      className={`w-full px-4 py-3 rounded-xl border-2 bg-white dark:bg-slate-900/50 outline-none transition-all duration-200 resize-none ${
+                      className={`w-full resize-none rounded-xl border-2 bg-white px-4 py-3 outline-none transition-all duration-200 dark:bg-slate-900/50 ${
                         errors.description
                           ? 'border-red-500 focus:ring-2 focus:ring-red-500/20'
-                          : 'border-slate-200 dark:border-slate-800 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20'
+                          : 'border-slate-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 dark:border-slate-800'
                       }`}
                       whileFocus={{ scale: 1.01 }}
                     />
@@ -292,7 +292,7 @@ export function Feedback() {
                     <motion.div
                       initial={{ opacity: 0, y: -5 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="flex items-center gap-2 mt-2 text-red-500 text-xs"
+                      className="mt-2 flex items-center gap-2 text-xs text-red-500"
                     >
                       <span className="material-symbols-outlined text-sm">error</span>
                       {errors.description}
@@ -307,7 +307,7 @@ export function Feedback() {
                     onClick={handleScreenshotUpload}
                     whileHover={{ scale: 1.02, y: -1 }}
                     whileTap={{ scale: 0.98 }}
-                    className="flex items-center gap-2 px-4 py-3 rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-teal-500 dark:hover:border-teal-500 hover:bg-teal-500/5 transition-all"
+                    className="flex items-center gap-2 rounded-xl border-2 border-dashed border-slate-300 px-4 py-3 transition-all hover:border-teal-500 hover:bg-teal-500/5 dark:border-slate-700 dark:hover:border-teal-500"
                   >
                     <span className="material-symbols-outlined text-xl">image</span>
                     <span className="text-sm font-medium">Add Screenshot</span>
@@ -321,10 +321,10 @@ export function Feedback() {
                   whileHover={!isSubmitting ? { scale: 1.02 } : {}}
                   whileTap={!isSubmitting ? { scale: 0.98 } : {}}
                   variants={itemVariants}
-                  className={`w-full py-3 rounded-xl font-bold text-white transition-all flex items-center justify-center gap-2 min-h-[44px] ${
+                  className={`flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl py-3 font-bold text-white transition-all ${
                     isSubmitting
-                      ? 'bg-gradient-to-r from-teal-500 to-emerald-500 opacity-70 cursor-not-allowed'
-                      : 'bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 shadow-lg shadow-teal-500/30 hover:shadow-xl hover:shadow-teal-500/40'
+                      ? 'cursor-not-allowed bg-gradient-to-r from-teal-500 to-emerald-500 opacity-70'
+                      : 'bg-gradient-to-r from-teal-500 to-emerald-500 shadow-lg shadow-teal-500/30 hover:from-teal-600 hover:to-emerald-600 hover:shadow-xl hover:shadow-teal-500/40'
                   }`}
                 >
                   {isSubmitting ? (
@@ -350,19 +350,19 @@ export function Feedback() {
               {/* Previous Feedback Section */}
               <motion.div
                 variants={itemVariants}
-                className="mt-14 pt-8 border-t border-slate-200 dark:border-slate-800"
+                className="mt-14 border-t border-slate-200 pt-8 dark:border-slate-800"
               >
-                <h2 className="text-lg font-semibold mb-4 text-slate-700 dark:text-slate-300">
+                <h2 className="mb-4 text-lg font-semibold text-slate-700 dark:text-slate-300">
                   Your Previous Feedback
                 </h2>
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.8 }}
-                  className="p-8 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 text-center"
+                  className="rounded-2xl border border-slate-200 bg-slate-50/50 p-8 text-center dark:border-slate-800 dark:bg-slate-900/50"
                 >
-                  <span className="text-4xl mb-3 inline-block">📭</span>
-                  <p className="text-slate-600 dark:text-slate-400 text-sm">
+                  <span className="mb-3 inline-block text-4xl">📭</span>
+                  <p className="text-sm text-slate-600 dark:text-slate-400">
                     No previous feedback yet. Share your first thoughts!
                   </p>
                 </motion.div>
@@ -387,9 +387,11 @@ export function Feedback() {
                 <motion.div
                   animate={{ scale: [1, 1.2, 1] }}
                   transition={{ duration: 0.6, repeat: Infinity, repeatDelay: 1 }}
-                  className="w-20 h-20 bg-gradient-to-r from-teal-500 to-emerald-500 rounded-full flex items-center justify-center"
+                  className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-r from-teal-500 to-emerald-500"
                 >
-                  <span className="material-symbols-outlined text-5xl text-white">check_circle</span>
+                  <span className="material-symbols-outlined text-5xl text-white">
+                    check_circle
+                  </span>
                 </motion.div>
               </motion.div>
 
@@ -399,10 +401,10 @@ export function Feedback() {
                 transition={{ delay: 0.3 }}
                 className="text-center"
               >
-                <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-teal-600 to-emerald-600 dark:from-teal-400 dark:to-emerald-400 bg-clip-text text-transparent">
+                <h2 className="mb-2 bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-3xl font-bold text-transparent dark:from-teal-400 dark:to-emerald-400">
                   Thank You! 🎉
                 </h2>
-                <p className="text-slate-600 dark:text-slate-400 max-w-sm mb-8">
+                <p className="mb-8 max-w-sm text-slate-600 dark:text-slate-400">
                   Your feedback has been received and will help us improve HabitFlow.
                 </p>
 
@@ -410,7 +412,7 @@ export function Feedback() {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => navigate(-1)}
-                  className="px-8 py-3 rounded-xl bg-teal-500/10 border-2 border-teal-500 text-teal-600 dark:text-teal-400 font-semibold hover:bg-teal-500/20 transition-colors"
+                  className="rounded-xl border-2 border-teal-500 bg-teal-500/10 px-8 py-3 font-semibold text-teal-600 transition-colors hover:bg-teal-500/20 dark:text-teal-400"
                 >
                   Back to App
                 </motion.button>
@@ -420,5 +422,5 @@ export function Feedback() {
         </AnimatePresence>
       </div>
     </motion.div>
-  );
+  )
 }

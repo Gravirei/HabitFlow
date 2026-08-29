@@ -9,8 +9,8 @@ import { motion } from 'framer-motion'
 import { TimelineControls } from './TimelineControls'
 import { TimelineDayView } from './TimelineDay'
 import type { TimelineViewMode, TimelineSession } from './types'
-import { 
-  convertToTimelineSessions, 
+import {
+  convertToTimelineSessions,
   getTimelineData,
   navigatePeriod,
   groupSessionsByDay,
@@ -27,14 +27,11 @@ export function TimelineView({ sessions, onSessionClick }: TimelineViewProps) {
   const [viewMode, setViewMode] = useState<TimelineViewMode>('week')
 
   // Convert sessions to timeline format
-  const timelineSessions = useMemo(() => 
-    convertToTimelineSessions(sessions),
-    [sessions]
-  )
+  const timelineSessions = useMemo(() => convertToTimelineSessions(sessions), [sessions])
 
   // Get timeline data based on view mode
-  const timelineData = useMemo(() => 
-    getTimelineData(timelineSessions, currentDate, viewMode),
+  const timelineData = useMemo(
+    () => getTimelineData(timelineSessions, currentDate, viewMode),
     [timelineSessions, currentDate, viewMode]
   )
 
@@ -45,13 +42,13 @@ export function TimelineView({ sessions, onSessionClick }: TimelineViewProps) {
     } else if (viewMode === 'week') {
       const weekStart = startOfWeek(currentDate, { weekStartsOn: 0 })
       const weekEnd = endOfWeek(currentDate, { weekStartsOn: 0 })
-      return eachDayOfInterval({ start: weekStart, end: weekEnd }).map(day =>
+      return eachDayOfInterval({ start: weekStart, end: weekEnd }).map((day) =>
         groupSessionsByDay(timelineSessions, day)
       )
     } else {
       const monthStart = startOfMonth(currentDate)
       const monthEnd = endOfMonth(currentDate)
-      return eachDayOfInterval({ start: monthStart, end: monthEnd }).map(day =>
+      return eachDayOfInterval({ start: monthStart, end: monthEnd }).map((day) =>
         groupSessionsByDay(timelineSessions, day)
       )
     }
@@ -81,40 +78,40 @@ export function TimelineView({ sessions, onSessionClick }: TimelineViewProps) {
       />
 
       {/* Stats Overview */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="bg-slate-100 dark:bg-slate-800 rounded-xl p-4">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <div className="rounded-xl bg-slate-100 p-4 dark:bg-slate-800">
           <div className="text-2xl font-bold text-slate-800 dark:text-white">
             {daysToDisplay.reduce((sum, d) => sum + d.sessionCount, 0)}
           </div>
-          <div className="text-xs text-slate-600 dark:text-slate-400 font-medium">
-            Sessions
-          </div>
+          <div className="text-xs font-medium text-slate-600 dark:text-slate-400">Sessions</div>
         </div>
-        <div className="bg-slate-100 dark:bg-slate-800 rounded-xl p-4">
+        <div className="rounded-xl bg-slate-100 p-4 dark:bg-slate-800">
           <div className="text-2xl font-bold text-slate-800 dark:text-white">
-            {Math.round(daysToDisplay.reduce((sum, d) => sum + d.totalDuration, 0) / (1000 * 60 * 60))}h
+            {Math.round(
+              daysToDisplay.reduce((sum, d) => sum + d.totalDuration, 0) / (1000 * 60 * 60)
+            )}
+            h
           </div>
-          <div className="text-xs text-slate-600 dark:text-slate-400 font-medium">
-            Total Time
-          </div>
+          <div className="text-xs font-medium text-slate-600 dark:text-slate-400">Total Time</div>
         </div>
-        <div className="bg-slate-100 dark:bg-slate-800 rounded-xl p-4">
+        <div className="rounded-xl bg-slate-100 p-4 dark:bg-slate-800">
           <div className="text-2xl font-bold text-slate-800 dark:text-white">
-            {daysToDisplay.filter(d => d.sessionCount > 0).length}
+            {daysToDisplay.filter((d) => d.sessionCount > 0).length}
           </div>
-          <div className="text-xs text-slate-600 dark:text-slate-400 font-medium">
-            Active Days
-          </div>
+          <div className="text-xs font-medium text-slate-600 dark:text-slate-400">Active Days</div>
         </div>
-        <div className="bg-slate-100 dark:bg-slate-800 rounded-xl p-4">
+        <div className="rounded-xl bg-slate-100 p-4 dark:bg-slate-800">
           <div className="text-2xl font-bold text-slate-800 dark:text-white">
             {daysToDisplay.length > 0
-              ? Math.round(daysToDisplay.reduce((sum, d) => sum + d.totalDuration, 0) / daysToDisplay.length / (1000 * 60))
-              : 0}m
+              ? Math.round(
+                  daysToDisplay.reduce((sum, d) => sum + d.totalDuration, 0) /
+                    daysToDisplay.length /
+                    (1000 * 60)
+                )
+              : 0}
+            m
           </div>
-          <div className="text-xs text-slate-600 dark:text-slate-400 font-medium">
-            Avg/Day
-          </div>
+          <div className="text-xs font-medium text-slate-600 dark:text-slate-400">Avg/Day</div>
         </div>
       </div>
 
@@ -147,20 +144,20 @@ export function TimelineView({ sessions, onSessionClick }: TimelineViewProps) {
       </div>
 
       {/* Empty State */}
-      {daysToDisplay.every(d => d.sessionCount === 0) && (
-        <div className="text-center py-16">
-          <span className="material-symbols-outlined text-slate-300 dark:text-slate-600 text-[64px] mb-4">
+      {daysToDisplay.every((d) => d.sessionCount === 0) && (
+        <div className="py-16 text-center">
+          <span className="material-symbols-outlined mb-4 text-[64px] text-slate-300 dark:text-slate-600">
             timeline
           </span>
-          <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">
+          <h3 className="mb-2 text-xl font-bold text-slate-800 dark:text-white">
             No Sessions in This Period
           </h3>
-          <p className="text-slate-600 dark:text-slate-400 mb-6">
+          <p className="mb-6 text-slate-600 dark:text-slate-400">
             Start using the timer to see your sessions on the timeline
           </p>
           <button
             onClick={handleToday}
-            className="px-6 py-3 rounded-xl bg-primary text-white font-medium hover:shadow-lg hover:shadow-primary/30 transition-all"
+            className="rounded-xl bg-primary px-6 py-3 font-medium text-white transition-all hover:shadow-lg hover:shadow-primary/30"
           >
             Go to Today
           </button>

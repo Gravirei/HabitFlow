@@ -18,7 +18,7 @@ interface TimelineSessionProps {
 
 export function TimelineSessionBlock({ session, left, width, onClick }: TimelineSessionProps) {
   const [isHovered, setIsHovered] = useState(false)
-  
+
   const color = getSessionColor(session.mode)
   const isSmall = width < 5 // Very short sessions
 
@@ -31,7 +31,7 @@ export function TimelineSessionBlock({ session, left, width, onClick }: Timeline
       onHoverEnd={() => setIsHovered(false)}
       onClick={() => onClick?.(session)}
       className={`
-        absolute top-0 h-full rounded cursor-pointer transition-all
+        absolute top-0 h-full cursor-pointer rounded transition-all
         ${color} hover:shadow-lg
         ${isSmall ? 'min-w-[4px]' : ''}
       `}
@@ -42,7 +42,7 @@ export function TimelineSessionBlock({ session, left, width, onClick }: Timeline
     >
       {/* Session content - only show if wide enough */}
       {width > 8 && (
-        <div className="h-full flex items-center justify-center px-2 text-white text-[10px] font-medium truncate">
+        <div className="flex h-full items-center justify-center truncate px-2 text-[10px] font-medium text-white">
           {session.sessionName || session.mode}
         </div>
       )}
@@ -52,23 +52,23 @@ export function TimelineSessionBlock({ session, left, width, onClick }: Timeline
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-20 pointer-events-none"
+          className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 -translate-x-1/2"
         >
-          <div className="bg-slate-900 dark:bg-slate-800 text-white px-3 py-2 rounded-lg shadow-xl min-w-[200px]">
-            <div className="text-xs font-bold mb-1">
+          <div className="min-w-[200px] rounded-lg bg-slate-900 px-3 py-2 text-white shadow-xl dark:bg-slate-800">
+            <div className="mb-1 text-xs font-bold">
               {session.sessionName || 'Untitled Session'}
             </div>
-            <div className="text-[10px] text-slate-300 space-y-0.5">
+            <div className="space-y-0.5 text-[10px] text-slate-300">
               <div className="flex items-center gap-1">
                 <span className="material-symbols-outlined text-[12px]">schedule</span>
-                {session.startTime.toLocaleTimeString([], { 
-                  hour: '2-digit', 
-                  minute: '2-digit' 
+                {session.startTime.toLocaleTimeString([], {
+                  hour: '2-digit',
+                  minute: '2-digit',
                 })}
                 {' - '}
-                {session.endTime.toLocaleTimeString([], { 
-                  hour: '2-digit', 
-                  minute: '2-digit' 
+                {session.endTime.toLocaleTimeString([], {
+                  hour: '2-digit',
+                  minute: '2-digit',
                 })}
               </div>
               <div className="flex items-center gap-1">
@@ -77,15 +77,18 @@ export function TimelineSessionBlock({ session, left, width, onClick }: Timeline
               </div>
               <div className="flex items-center gap-1">
                 <span className="material-symbols-outlined text-[12px]">
-                  {session.mode === 'Stopwatch' ? 'timer' : 
-                   session.mode === 'Countdown' ? 'hourglass_top' : 'timelapse'}
+                  {session.mode === 'Stopwatch'
+                    ? 'timer'
+                    : session.mode === 'Countdown'
+                      ? 'hourglass_top'
+                      : 'timelapse'}
                 </span>
                 {session.mode}
               </div>
             </div>
             {/* Arrow */}
-            <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px">
-              <div className="w-2 h-2 bg-slate-900 dark:bg-slate-800 rotate-45"></div>
+            <div className="absolute left-1/2 top-full -mt-px -translate-x-1/2">
+              <div className="h-2 w-2 rotate-45 bg-slate-900 dark:bg-slate-800"></div>
             </div>
           </div>
         </motion.div>

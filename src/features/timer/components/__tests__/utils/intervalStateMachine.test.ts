@@ -12,7 +12,7 @@ import {
   getIntervalDisplayName,
   isValidIntervalConfig,
   type IntervalState,
-  type IntervalConfig
+  type IntervalConfig,
 } from '@/features/timer/utils/intervalStateMachine'
 
 describe('intervalStateMachine', () => {
@@ -20,7 +20,7 @@ describe('intervalStateMachine', () => {
     it('should transition from work to break (count stays same)', () => {
       const current: IntervalState = { type: 'work', count: 0 }
       const next = getNextInterval(current)
-      
+
       expect(next.type).toBe('break')
       expect(next.count).toBe(0)
     })
@@ -28,23 +28,23 @@ describe('intervalStateMachine', () => {
     it('should transition from break to work (count increments)', () => {
       const current: IntervalState = { type: 'break', count: 0 }
       const next = getNextInterval(current)
-      
+
       expect(next.type).toBe('work')
       expect(next.count).toBe(1)
     })
 
     it('should handle multiple transitions correctly', () => {
       let state: IntervalState = { type: 'work', count: 0 }
-      
+
       state = getNextInterval(state) // work -> break (count: 0)
       expect(state).toEqual({ type: 'break', count: 0 })
-      
+
       state = getNextInterval(state) // break -> work (count: 1)
       expect(state).toEqual({ type: 'work', count: 1 })
-      
+
       state = getNextInterval(state) // work -> break (count: 1)
       expect(state).toEqual({ type: 'break', count: 1 })
-      
+
       state = getNextInterval(state) // break -> work (count: 2)
       expect(state).toEqual({ type: 'work', count: 2 })
     })
@@ -80,7 +80,7 @@ describe('intervalStateMachine', () => {
   describe('getCurrentDuration', () => {
     const config: IntervalConfig = {
       workDuration: 25 * 60 * 1000, // 25 minutes
-      breakDuration: 5 * 60 * 1000,  // 5 minutes
+      breakDuration: 5 * 60 * 1000, // 5 minutes
     }
 
     it('should return work duration for work interval', () => {
@@ -152,7 +152,7 @@ describe('intervalStateMachine', () => {
       const config: IntervalConfig = {
         workDuration: 1000,
         breakDuration: 500,
-        targetLoopCount: 3
+        targetLoopCount: 3,
       }
       expect(isValidIntervalConfig(config)).toBe(true)
     })
@@ -161,7 +161,7 @@ describe('intervalStateMachine', () => {
       const config: IntervalConfig = {
         workDuration: 1000,
         breakDuration: 500,
-        targetLoopCount: undefined
+        targetLoopCount: undefined,
       }
       expect(isValidIntervalConfig(config)).toBe(true)
     })
@@ -194,7 +194,7 @@ describe('intervalStateMachine', () => {
       const config: IntervalConfig = {
         workDuration: 1000,
         breakDuration: 500,
-        targetLoopCount: 0
+        targetLoopCount: 0,
       }
       expect(isValidIntervalConfig(config)).toBe(false)
     })
@@ -203,7 +203,7 @@ describe('intervalStateMachine', () => {
       const config: IntervalConfig = {
         workDuration: 1000,
         breakDuration: 500,
-        targetLoopCount: -1
+        targetLoopCount: -1,
       }
       expect(isValidIntervalConfig(config)).toBe(false)
     })

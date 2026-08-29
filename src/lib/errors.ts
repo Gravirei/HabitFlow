@@ -38,7 +38,7 @@ export class AppError extends Error {
       cause?: unknown
       meta?: Record<string, unknown>
       httpStatus?: number
-    },
+    }
   ) {
     super(message)
     this.name = new.target.name
@@ -102,7 +102,7 @@ export class MfaError extends AppError {
 export class RateLimitedError extends AppError {
   constructor(
     message = 'Too many attempts. Please try again later.',
-    meta?: { retryAfterMinutes?: number; lockedUntil?: string },
+    meta?: { retryAfterMinutes?: number; lockedUntil?: string }
   ) {
     super(message, 'RATE_LIMITED', { httpStatus: 429, meta })
   }
@@ -142,7 +142,8 @@ export const AuthGatewayErrorCodes = {
   SERVER_ERROR: 'server_error',
 } as const
 
-export type AuthGatewayErrorCode = (typeof AuthGatewayErrorCodes)[keyof typeof AuthGatewayErrorCodes]
+export type AuthGatewayErrorCode =
+  (typeof AuthGatewayErrorCodes)[keyof typeof AuthGatewayErrorCodes]
 
 // ── Helpers ──────────────────────────────────────────────────────────────
 
@@ -154,12 +155,13 @@ export function toAppErrorFromAuthGateway(
   code: AuthGatewayErrorCode | string,
   message: string,
   meta: Record<string, unknown> = {},
-  httpStatus?: number,
+  httpStatus?: number
 ): AppError {
   switch (code) {
     case AuthGatewayErrorCodes.RATE_LIMITED:
       return new RateLimitedError(message, {
-        retryAfterMinutes: typeof meta.retryAfterMinutes === 'number' ? meta.retryAfterMinutes : undefined,
+        retryAfterMinutes:
+          typeof meta.retryAfterMinutes === 'number' ? meta.retryAfterMinutes : undefined,
         lockedUntil: typeof meta.lockedUntil === 'string' ? meta.lockedUntil : undefined,
       })
     case AuthGatewayErrorCodes.MFA_VERIFICATION_FAILED:
@@ -186,7 +188,7 @@ export function toAppErrorFromAuthGateway(
  */
 export async function wrapAsync<T>(
   fn: () => Promise<T>,
-  fallback: { code: string; message: string },
+  fallback: { code: string; message: string }
 ): Promise<T> {
   try {
     return await fn()

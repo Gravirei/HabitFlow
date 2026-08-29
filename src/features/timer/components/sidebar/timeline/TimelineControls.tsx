@@ -31,18 +31,19 @@ export function TimelineControls({
   ]
 
   return (
-    <div className="flex items-center justify-between gap-4 flex-wrap">
+    <div className="flex flex-wrap items-center justify-between gap-4">
       {/* View Mode Selector */}
-      <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 rounded-xl p-1">
-        {viewModes.map(mode => (
+      <div className="flex items-center gap-2 rounded-xl bg-slate-100 p-1 dark:bg-slate-800">
+        {viewModes.map((mode) => (
           <button
             key={mode.id}
             onClick={() => onViewModeChange(mode.id)}
             className={`
-              flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all
-              ${viewMode === mode.id
-                ? 'bg-white dark:bg-slate-700 text-primary shadow-sm'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+              flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all
+              ${
+                viewMode === mode.id
+                  ? 'bg-white text-primary shadow-sm dark:bg-slate-700'
+                  : 'text-slate-600 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
               }
             `}
           >
@@ -59,7 +60,7 @@ export function TimelineControls({
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => onNavigate('prev')}
-          className="size-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+          className="flex size-10 items-center justify-center rounded-xl bg-slate-100 transition-colors hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700"
           aria-label="Previous period"
         >
           <span className="material-symbols-outlined text-[20px]">chevron_left</span>
@@ -77,7 +78,7 @@ export function TimelineControls({
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => onNavigate('next')}
-          className="size-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+          className="flex size-10 items-center justify-center rounded-xl bg-slate-100 transition-colors hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700"
           aria-label="Next period"
         >
           <span className="material-symbols-outlined text-[20px]">chevron_right</span>
@@ -88,7 +89,7 @@ export function TimelineControls({
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={onToday}
-          className="px-4 py-2 rounded-xl bg-primary text-white font-medium text-sm hover:shadow-lg hover:shadow-primary/30 transition-all"
+          className="rounded-xl bg-primary px-4 py-2 text-sm font-medium text-white transition-all hover:shadow-lg hover:shadow-primary/30"
         >
           Today
         </motion.button>

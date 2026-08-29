@@ -44,7 +44,9 @@ export function ReactionPicker({
     return m?.reactions ?? []
   })
 
-  const currentUserEmojis = new Set(messageReactions.filter((r) => r.hasCurrentUser).map((r) => r.emoji))
+  const currentUserEmojis = new Set(
+    messageReactions.filter((r) => r.hasCurrentUser).map((r) => r.emoji)
+  )
 
   const handleReaction = useCallback(
     (emoji: string) => {
@@ -118,11 +120,11 @@ export function ReactionPicker({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={reduced ? { opacity: 0 } : { opacity: 0, scale: 0.92, y: 10 }}
             transition={reduced ? { duration: 0 } : { type: 'spring', damping: 20, stiffness: 360 }}
-            className={`absolute z-[60] bottom-full mb-2 ${anchorPosition === 'right' ? 'right-0' : 'left-0'}`}
+            className={`absolute bottom-full z-[60] mb-2 ${anchorPosition === 'right' ? 'right-0' : 'left-0'}`}
             role="radiogroup"
             aria-label="Pick a reaction"
           >
-            <div className="flex items-center gap-1.5 rounded-[18px] border border-white/[0.12] bg-[#0f1628]/90 px-2.5 py-2 backdrop-blur-2xl shadow-[0_24px_64px_rgba(0,0,0,0.6)]">
+            <div className="flex items-center gap-1.5 rounded-[18px] border border-white/[0.12] bg-[#0f1628]/90 px-2.5 py-2 shadow-[0_24px_64px_rgba(0,0,0,0.6)] backdrop-blur-2xl">
               {REACTION_EMOJIS.map((emoji, idx) => {
                 const on = currentUserEmojis.has(emoji)
                 const label = EMOJI_LABELS[emoji] ?? 'Reaction'
@@ -142,10 +144,8 @@ export function ReactionPicker({
                     onKeyDown={(e) => handleKeyDown(e, idx)}
                     whileTap={reduced ? undefined : { scale: 1.22 }}
                     className={
-                      'flex size-[38px] items-center justify-center rounded-2xl text-[19px] transition-all duration-150 cursor-pointer ' +
-                      (on
-                        ? 'bg-teal-300/[0.10] ring-2 ring-teal-300/30'
-                        : 'hover:bg-white/[0.06]')
+                      'flex size-[38px] cursor-pointer items-center justify-center rounded-2xl text-[19px] transition-all duration-150 ' +
+                      (on ? 'bg-teal-300/[0.10] ring-2 ring-teal-300/30' : 'hover:bg-white/[0.06]')
                     }
                   >
                     {emoji}

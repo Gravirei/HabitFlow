@@ -18,9 +18,18 @@ import { SessionSetupModal } from '../shared/SessionSetupModal'
 import { TimerCompletionModal } from '../shared/TimerCompletionModal'
 import { ResumeTimerModal } from '../shared/ResumeTimerModal'
 import { TimerAnnouncer } from '../shared/TimerAnnouncer'
-import { MAX_WORK_MINUTES, MAX_BREAK_MINUTES, CIRCLE_CIRCUMFERENCE, formatTime } from '@/features/timer/constants/timer.constants'
+import {
+  MAX_WORK_MINUTES,
+  MAX_BREAK_MINUTES,
+  CIRCLE_CIRCUMFERENCE,
+  formatTime,
+} from '@/features/timer/constants/timer.constants'
 import { useTimerFocus } from '@/features/timer/hooks/useTimerFocus'
-import { timerPersistence, type IntervalsTimerState, type SavedTimerState } from '@/features/timer/utils/timerPersistence'
+import {
+  timerPersistence,
+  type IntervalsTimerState,
+  type SavedTimerState,
+} from '@/features/timer/utils/timerPersistence'
 import { soundManager } from '@/features/timer/utils/soundManager'
 import { useImmediateSave } from '@/hooks/useDebounce'
 
@@ -28,10 +37,10 @@ const STORAGE_KEY = 'timer-intervals-history'
 
 export const IntervalsTimer: React.FC = () => {
   const [announcement, setAnnouncement] = React.useState('')
-  
+
   const { saveToHistory } = useTimerHistory({
     mode: 'Intervals',
-    storageKey: STORAGE_KEY
+    storageKey: STORAGE_KEY,
   })
 
   const {
@@ -54,7 +63,7 @@ export const IntervalsTimer: React.FC = () => {
     intervalStartTime,
     pausedElapsed,
     restoreTimer,
-    settings
+    settings,
   } = useIntervals({
     onSessionComplete: (durationMs, intervalCount) => {
       // Auto-complete callback - convert to seconds and save with metadata
@@ -66,10 +75,10 @@ export const IntervalsTimer: React.FC = () => {
         workDuration: workMinutes * 60,
         breakDuration: breakMinutes * 60,
         sessionName: sessionName,
-        targetLoopCount: targetLoopCount
+        targetLoopCount: targetLoopCount,
       })
     },
-    onTimerComplete: () => setIsCompletionModalOpen(true)
+    onTimerComplete: () => setIsCompletionModalOpen(true),
   })
 
   const { focusTimer, unfocusTimer } = useTimerFocus()
@@ -101,13 +110,8 @@ export const IntervalsTimer: React.FC = () => {
     }
   }
 
-  const {
-    savedState,
-    showResumeModal,
-    resumeTimer,
-    discardTimer,
-    closeModal
-  } = useTimerPersistence('Intervals', handleResumeTimer)
+  const { savedState, showResumeModal, resumeTimer, discardTimer, closeModal } =
+    useTimerPersistence('Intervals', handleResumeTimer)
 
   // Check for repeat session configuration on mount
   useEffect(() => {
@@ -123,7 +127,9 @@ export const IntervalsTimer: React.FC = () => {
       // If we have a session name and target loops, start the session setup modal
       if (repeatConfig.sessionName || repeatConfig.targetLoops) {
         setSelectedPresetName(repeatConfig.sessionName || 'Custom Session')
-        setAnnouncement(`Loaded intervals settings: ${repeatConfig.workMinutes || 25}min work, ${repeatConfig.breakMinutes || 5}min break`)
+        setAnnouncement(
+          `Loaded intervals settings: ${repeatConfig.workMinutes || 25}min work, ${repeatConfig.breakMinutes || 5}min break`
+        )
       }
     }
   }, []) // Only run on mount
@@ -131,16 +137,18 @@ export const IntervalsTimer: React.FC = () => {
   const handleStart = () => {
     // Check if current values match a preset
     const matchedPreset = customIntervalPresets.find(
-      p => p.work === workMinutes && p.break === breakMinutes
+      (p) => p.work === workMinutes && p.break === breakMinutes
     )
-    
+
     if (matchedPreset) {
       // If preset is matched, start timer directly with preset's loop count and name
       startTimer(matchedPreset.label, matchedPreset.loopCount)
       focusTimer('Intervals')
       // Save active timer route for persistence
       timerPersistence.saveActiveTimer('Intervals')
-      setAnnouncement(`Intervals session started: ${matchedPreset.label}. ${matchedPreset.loopCount} loops. Work time: ${workMinutes} minutes`)
+      setAnnouncement(
+        `Intervals session started: ${matchedPreset.label}. ${matchedPreset.loopCount} loops. Work time: ${workMinutes} minutes`
+      )
     } else {
       // If custom values, open session setup modal
       setIsSessionSetupOpen(true)
@@ -153,7 +161,9 @@ export const IntervalsTimer: React.FC = () => {
     setIsSessionSetupOpen(false)
     // Save active timer route for persistence
     timerPersistence.saveActiveTimer('Intervals')
-    setAnnouncement(`Intervals session started: ${name}. ${loops} loops. Work time: ${workMinutes} minutes`)
+    setAnnouncement(
+      `Intervals session started: ${name}. ${loops} loops. Work time: ${workMinutes} minutes`
+    )
   }
 
   const handleKill = (shouldSave: boolean) => {
@@ -169,9 +179,11 @@ export const IntervalsTimer: React.FC = () => {
         workDuration: workMinutes * 60, // In seconds
         breakDuration: breakMinutes * 60, // In seconds
         sessionName: sessionName,
-        targetLoopCount: targetLoopCount
+        targetLoopCount: targetLoopCount,
       })
-      setAnnouncement(`Intervals session stopped at ${timeStr}. Completed ${result.intervalCount} of ${targetLoopCount} loops. Saved to history`)
+      setAnnouncement(
+        `Intervals session stopped at ${timeStr}. Completed ${result.intervalCount} of ${targetLoopCount} loops. Saved to history`
+      )
     } else {
       setAnnouncement(`Intervals session stopped at ${timeStr} without saving`)
     }
@@ -203,7 +215,7 @@ export const IntervalsTimer: React.FC = () => {
         breakDuration: breakMinutes * 60 * 1000,
         pausedElapsed,
         savedAt: Date.now(),
-        version: 1
+        version: 1,
       }
       // Save immediately on pause or interval transition, debounce during active timer
       if (isPaused) {
@@ -213,7 +225,19 @@ export const IntervalsTimer: React.FC = () => {
         debouncedSave(state)
       }
     }
-  }, [isActive, isPaused, intervalCount, targetLoopCount, currentInterval, intervalStartTime, workMinutes, breakMinutes, pausedElapsed, debouncedSave, immediateSave])
+  }, [
+    isActive,
+    isPaused,
+    intervalCount,
+    targetLoopCount,
+    currentInterval,
+    intervalStartTime,
+    workMinutes,
+    breakMinutes,
+    pausedElapsed,
+    debouncedSave,
+    immediateSave,
+  ])
 
   // Emergency save on page unload and component unmount
   useEffect(() => {
@@ -223,7 +247,7 @@ export const IntervalsTimer: React.FC = () => {
     }
 
     window.addEventListener('beforeunload', handleBeforeUnload)
-    
+
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload)
       // Flush on unmount as well
@@ -235,9 +259,11 @@ export const IntervalsTimer: React.FC = () => {
     // Regular click: Set the timer directly
     setWorkMinutes(work)
     setBreakMinutes(breakTime)
-    
+
     // Find and set the preset name
-    const matchedPreset = customIntervalPresets.find(p => p.work === work && p.break === breakTime)
+    const matchedPreset = customIntervalPresets.find(
+      (p) => p.work === work && p.break === breakTime
+    )
     if (matchedPreset) {
       setSelectedPresetName(matchedPreset.label)
     }
@@ -245,12 +271,19 @@ export const IntervalsTimer: React.FC = () => {
 
   const handlePresetLongPress = (work: number, breakTime: number) => {
     // Long press: Open edit modal
-    const presetIndex = customIntervalPresets.findIndex(p => p.work === work && p.break === breakTime)
+    const presetIndex = customIntervalPresets.findIndex(
+      (p) => p.work === work && p.break === breakTime
+    )
     setSelectedPresetIndex(presetIndex >= 0 ? presetIndex : 0)
     setIsEditModalOpen(true)
   }
 
-  const handleModalConfirm = (work: number, breakTime: number, loopCount: number, label: string) => {
+  const handleModalConfirm = (
+    work: number,
+    breakTime: number,
+    loopCount: number,
+    label: string
+  ) => {
     // Update the preset value
     updateIntervalPreset(selectedPresetIndex, work, breakTime, loopCount, label)
   }
@@ -259,9 +292,9 @@ export const IntervalsTimer: React.FC = () => {
   useEffect(() => {
     // Find matching preset
     const matchedPreset = customIntervalPresets.find(
-      p => p.work === workMinutes && p.break === breakMinutes
+      (p) => p.work === workMinutes && p.break === breakMinutes
     )
-    
+
     if (matchedPreset) {
       setSelectedPresetName(matchedPreset.label)
     } else {
@@ -272,7 +305,7 @@ export const IntervalsTimer: React.FC = () => {
 
   // Track interval transitions for announcements
   const prevIntervalRef = React.useRef(currentInterval)
-  
+
   React.useEffect(() => {
     if (isActive && prevIntervalRef.current !== currentInterval) {
       // Play switch sound
@@ -290,7 +323,15 @@ export const IntervalsTimer: React.FC = () => {
       }
       prevIntervalRef.current = currentInterval
     }
-  }, [currentInterval, isActive, intervalCount, workMinutes, breakMinutes, settings.soundEnabled, settings.soundVolume])
+  }, [
+    currentInterval,
+    isActive,
+    intervalCount,
+    workMinutes,
+    breakMinutes,
+    settings.soundEnabled,
+    settings.soundVolume,
+  ])
 
   // Ticking sound for last 10 seconds
   const lastTickRef = React.useRef<number>(0)
@@ -331,54 +372,59 @@ export const IntervalsTimer: React.FC = () => {
     onPause: handlePause,
     onContinue: handleContinue,
     onStop: () => handleKill(true), // Save on keyboard stop
-    onKill: () => handleKill(true)  // K key - Kill and save
+    onKill: () => handleKill(true), // K key - Kill and save
   })
 
   return (
     <>
       <div className="relative flex w-full flex-grow flex-col items-center justify-start overflow-visible py-4">
         {/* Background glow effects */}
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-primary/5 rounded-full blur-[120px] pointer-events-none"></div>
-        <div className="absolute bottom-1/3 left-1/4 w-64 h-64 bg-blue-500/3 rounded-full blur-[100px] pointer-events-none"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-purple-500/3 rounded-full blur-[100px] pointer-events-none"></div>
-        
+        <div className="pointer-events-none absolute left-1/2 top-1/3 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/5 blur-[120px]"></div>
+        <div className="bg-blue-500/3 pointer-events-none absolute bottom-1/3 left-1/4 h-64 w-64 rounded-full blur-[100px]"></div>
+        <div className="bg-purple-500/3 pointer-events-none absolute bottom-1/4 right-1/4 h-64 w-64 rounded-full blur-[100px]"></div>
+
         {/* Timer Display or Configuration */}
-        {(isActive || isPaused || timeLeft > 0) ? (
+        {isActive || isPaused || timeLeft > 0 ? (
           <>
             {/* Active Timer View */}
-            <div className="flex flex-col items-center justify-center w-full max-w-lg px-6">
+            <div className="flex w-full max-w-lg flex-col items-center justify-center px-6">
               {/* Interval Progress Bar */}
-              <div className="w-full mb-8">
-                <div className="flex items-center justify-between mb-3">
+              <div className="mb-8 w-full">
+                <div className="mb-3 flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className={`w-2.5 h-2.5 rounded-full ${currentInterval === 'work' ? 'bg-primary animate-pulse' : 'bg-blue-400 animate-pulse'}`}></div>
-                    <span className="text-white/80 text-sm font-medium">
+                    <div
+                      className={`h-2.5 w-2.5 rounded-full ${currentInterval === 'work' ? 'animate-pulse bg-primary' : 'animate-pulse bg-blue-400'}`}
+                    ></div>
+                    <span className="text-sm font-medium text-white/80">
                       {currentInterval === 'work' ? 'Focus Time' : 'Break Time'}
                     </span>
                   </div>
                   <div className="text-right">
                     {targetLoopCount ? (
                       <>
-                        <span className="text-white/50 text-xs font-mono block">
+                        <span className="block font-mono text-xs text-white/50">
                           Loop {Math.min(intervalCount + 1, targetLoopCount)} of {targetLoopCount}
                         </span>
                         {sessionName && (
-                          <span className="text-white/30 text-xs font-medium block mt-0.5 truncate max-w-[120px]" title={sessionName}>
+                          <span
+                            className="mt-0.5 block max-w-[120px] truncate text-xs font-medium text-white/30"
+                            title={sessionName}
+                          >
                             {sessionName}
                           </span>
                         )}
                       </>
                     ) : (
-                      <span className="text-white/50 text-xs font-mono">
+                      <span className="font-mono text-xs text-white/50">
                         Session {intervalCount + 1}
                       </span>
                     )}
                   </div>
                 </div>
-                
+
                 {/* Progress bar */}
-                <div 
-                  className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden backdrop-blur-sm border border-white/10"
+                <div
+                  className="h-1.5 w-full overflow-hidden rounded-full border border-white/10 bg-white/5 backdrop-blur-sm"
                   role="progressbar"
                   aria-label={`${currentInterval === 'work' ? 'Work' : 'Break'} time progress`}
                   aria-valuenow={Math.round((progress / CIRCLE_CIRCUMFERENCE) * 100)}
@@ -386,14 +432,14 @@ export const IntervalsTimer: React.FC = () => {
                   aria-valuemax={100}
                   aria-valuetext={`Loop ${intervalCount + 1} of ${targetLoopCount || intervalCount + 1}, ${currentInterval === 'work' ? 'Focus Time' : 'Break Time'}, ${Math.round((progress / CIRCLE_CIRCUMFERENCE) * 100)}% complete`}
                 >
-                  <div 
+                  <div
                     className={`h-full rounded-full transition-all duration-1000 ease-linear ${
-                      currentInterval === 'work' 
-                        ? 'bg-gradient-to-r from-primary to-green-400' 
+                      currentInterval === 'work'
+                        ? 'bg-gradient-to-r from-primary to-green-400'
                         : 'bg-gradient-to-r from-blue-400 to-cyan-400'
                     }`}
                     style={{
-                      width: `${((progress / CIRCLE_CIRCUMFERENCE) * 100).toFixed(2)}%`
+                      width: `${((progress / CIRCLE_CIRCUMFERENCE) * 100).toFixed(2)}%`,
                     }}
                     aria-hidden="true"
                   ></div>
@@ -401,7 +447,7 @@ export const IntervalsTimer: React.FC = () => {
               </div>
 
               {/* Timer Display */}
-              <TimerDisplay 
+              <TimerDisplay
                 timeLeft={timeLeft}
                 progress={progress}
                 mode="Intervals"
@@ -411,23 +457,29 @@ export const IntervalsTimer: React.FC = () => {
               />
 
               {/* Stats Cards */}
-              <div className="grid grid-cols-2 gap-4 w-full mt-8">
-                <div className="bg-white/5 backdrop-blur-md rounded-2xl p-4 border border-white/10">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-2 h-2 rounded-full bg-primary"></div>
-                    <p className="text-white/50 text-xs font-medium">Work</p>
+              <div className="mt-8 grid w-full grid-cols-2 gap-4">
+                <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-md">
+                  <div className="mb-2 flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full bg-primary"></div>
+                    <p className="text-xs font-medium text-white/50">Work</p>
                   </div>
-                  <p className="text-white text-2xl font-bold tabular-nums">{workMinutes}<span className="text-sm text-white/50 ml-1">min</span></p>
+                  <p className="text-2xl font-bold tabular-nums text-white">
+                    {workMinutes}
+                    <span className="ml-1 text-sm text-white/50">min</span>
+                  </p>
                 </div>
-                <div className="bg-white/5 backdrop-blur-md rounded-2xl p-4 border border-white/10">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-2 h-2 rounded-full bg-blue-400"></div>
-                    <p className="text-white/50 text-xs font-medium">Break</p>
+                <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-md">
+                  <div className="mb-2 flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full bg-blue-400"></div>
+                    <p className="text-xs font-medium text-white/50">Break</p>
                   </div>
-                  <p className="text-white text-2xl font-bold tabular-nums">{breakMinutes}<span className="text-sm text-white/50 ml-1">min</span></p>
+                  <p className="text-2xl font-bold tabular-nums text-white">
+                    {breakMinutes}
+                    <span className="ml-1 text-sm text-white/50">min</span>
+                  </p>
                 </div>
               </div>
-              
+
               {/* Animated Button Controls - Inline with Timer */}
               <AnimatedTimerButton
                 isActive={isActive}
@@ -443,55 +495,72 @@ export const IntervalsTimer: React.FC = () => {
         ) : (
           <>
             {/* Configuration View */}
-            <div className="relative w-full max-w-lg flex flex-col items-center justify-center px-6">
-              
+            <div className="relative flex w-full max-w-lg flex-col items-center justify-center px-6">
               {/* Header */}
-              <div className="text-center mb-8">
-                <h2 className="text-2xl font-bold text-white mb-2">Set Your Intervals</h2>
-                <p className="text-white/50 text-sm">Configure work and break durations</p>
+              <div className="mb-8 text-center">
+                <h2 className="mb-2 text-2xl font-bold text-white">Set Your Intervals</h2>
+                <p className="text-sm text-white/50">Configure work and break durations</p>
               </div>
 
               {/* Wheel Picker with Side-by-Side Layout */}
-              <div className="relative w-full max-w-sm h-96 flex items-center justify-center mb-8 mask-gradient-y">
-
-                
+              <div className="mask-gradient-y relative mb-8 flex h-96 w-full max-w-sm items-center justify-center">
                 {/* Center highlight box */}
-                <div className="absolute top-1/2 left-4 right-4 -translate-y-1/2 h-20 bg-white/[0.02] rounded-2xl border border-white/[0.08] z-0">
-                  <div className="absolute top-0 bottom-0 left-0 w-1.5 bg-primary/40 rounded-l-2xl shadow-[0_0_10px_rgba(19,236,91,0.3)]"></div>
-                  <div className="absolute top-0 bottom-0 right-0 w-1.5 bg-blue-400/40 rounded-r-2xl shadow-[0_0_10px_rgba(96,165,250,0.3)]"></div>
+                <div className="absolute left-4 right-4 top-1/2 z-0 h-20 -translate-y-1/2 rounded-2xl border border-white/[0.08] bg-white/[0.02]">
+                  <div className="absolute bottom-0 left-0 top-0 w-1.5 rounded-l-2xl bg-primary/40 shadow-[0_0_10px_rgba(19,236,91,0.3)]"></div>
+                  <div className="absolute bottom-0 right-0 top-0 w-1.5 rounded-r-2xl bg-blue-400/40 shadow-[0_0_10px_rgba(96,165,250,0.3)]"></div>
                 </div>
-                
+
                 {/* Labels Row */}
-                <div className="absolute top-6 left-0 right-0 flex justify-around px-12 z-30">
+                <div className="absolute left-0 right-0 top-6 z-30 flex justify-around px-12">
                   <div className="flex flex-col items-center gap-1">
-                    <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center backdrop-blur-sm border border-primary/30">
-                      <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full border border-primary/30 bg-primary/20 backdrop-blur-sm">
+                      <svg
+                        className="h-4 w-4 text-primary"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M13 10V3L4 14h7v7l9-11h-7z"
+                        />
                       </svg>
                     </div>
-                    <span className="text-white/70 text-xs font-medium">Focus</span>
+                    <span className="text-xs font-medium text-white/70">Focus</span>
                   </div>
                   <div className="flex flex-col items-center gap-1">
-                    <div className="w-8 h-8 rounded-full bg-blue-400/20 flex items-center justify-center backdrop-blur-sm border border-blue-400/30">
-                      <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full border border-blue-400/30 bg-blue-400/20 backdrop-blur-sm">
+                      <svg
+                        className="h-4 w-4 text-blue-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
                       </svg>
                     </div>
-                    <span className="text-white/70 text-xs font-medium">Break</span>
+                    <span className="text-xs font-medium text-white/70">Break</span>
                   </div>
                 </div>
-                
+
                 {/* Pickers */}
-                <div className="flex w-full justify-around items-center h-full z-10 px-12 py-4">
-                  <WheelPicker 
+                <div className="z-10 flex h-full w-full items-center justify-around px-12 py-4">
+                  <WheelPicker
                     value={workMinutes}
                     onChange={setWorkMinutes}
                     max={MAX_WORK_MINUTES}
                     label="MIN"
                     disabled={isActive}
                   />
-                  <div className="text-white/10 text-3xl font-light pb-2 select-none">:</div>
-                  <WheelPicker 
+                  <div className="select-none pb-2 text-3xl font-light text-white/10">:</div>
+                  <WheelPicker
                     value={breakMinutes}
                     onChange={setBreakMinutes}
                     max={MAX_BREAK_MINUTES}
@@ -500,39 +569,39 @@ export const IntervalsTimer: React.FC = () => {
                   />
                 </div>
               </div>
-              
+
               {/* Selected Mode Display */}
-              <div className="w-full flex justify-center mb-6">
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10">
-                  <span className="text-white/50 text-xs font-medium">Selected Mode:</span>
-                  <span className="text-primary text-sm font-bold">{selectedPresetName}</span>
+              <div className="mb-6 flex w-full justify-center">
+                <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2">
+                  <span className="text-xs font-medium text-white/50">Selected Mode:</span>
+                  <span className="text-sm font-bold text-primary">{selectedPresetName}</span>
                 </div>
               </div>
-              
+
               {/* Preset Buttons */}
-              <div className="w-full flex flex-col items-center">
+              <div className="flex w-full flex-col items-center">
                 <button
                   onClick={() => setIsPresetsOpen(!isPresetsOpen)}
-                  className="flex items-center gap-2 text-white/50 hover:text-white/70 text-xs font-medium mb-3 transition-colors px-4 py-2 rounded-lg hover:bg-white/5 active:scale-95"
+                  className="mb-3 flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-medium text-white/50 transition-colors hover:bg-white/5 hover:text-white/70 active:scale-95"
                 >
                   <span>Quick Presets</span>
-                  <span 
+                  <span
                     className="material-symbols-outlined text-sm transition-transform duration-300"
                     style={{ transform: isPresetsOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
                   >
                     keyboard_arrow_down
                   </span>
                 </button>
-                
+
                 {/* Collapsible Presets */}
-                <div 
+                <div
                   className="overflow-hidden transition-all duration-300 ease-in-out"
-                  style={{ 
+                  style={{
                     maxHeight: isPresetsOpen ? '500px' : '0px',
-                    opacity: isPresetsOpen ? 1 : 0
+                    opacity: isPresetsOpen ? 1 : 0,
                   }}
                 >
-                  <IntervalPresets 
+                  <IntervalPresets
                     presets={customIntervalPresets}
                     onPresetSelect={handlePresetClick}
                     onPresetLongPress={handlePresetLongPress}
@@ -540,7 +609,7 @@ export const IntervalsTimer: React.FC = () => {
                   />
                 </div>
               </div>
-              
+
               {/* Animated Button Controls - Inline after Presets */}
               <AnimatedTimerButton
                 isActive={isActive}

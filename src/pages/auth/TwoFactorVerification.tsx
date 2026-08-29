@@ -62,7 +62,7 @@ export function TwoFactorVerification() {
     })
     setCodes(newCodes)
 
-    const nextEmptyIndex = newCodes.findIndex(code => !code)
+    const nextEmptyIndex = newCodes.findIndex((code) => !code)
     const focusIndex = nextEmptyIndex === -1 ? 5 : Math.min(nextEmptyIndex, 5)
     inputRefs.current[focusIndex]?.focus()
   }
@@ -99,7 +99,7 @@ export function TwoFactorVerification() {
 
   // Auto-submit when all 6 digits are filled
   useEffect(() => {
-    if (codes.every(code => code !== '') && !isLoading) {
+    if (codes.every((code) => code !== '') && !isLoading) {
       handleVerify()
     }
   }, [codes])
@@ -117,29 +117,50 @@ export function TwoFactorVerification() {
       {/* Back Button */}
       <button
         onClick={() => navigate('/login')}
-        className="absolute top-6 left-6 z-10 flex items-center gap-2 text-white/80 hover:text-white transition-colors"
+        className="absolute left-6 top-6 z-10 flex items-center gap-2 text-white/80 transition-colors hover:text-white"
       >
         <span className="material-symbols-outlined">arrow_back</span>
         <span className="text-sm font-medium">Back</span>
       </button>
 
       {/* Main Container */}
-      <div className="relative flex flex-col w-full max-w-md mx-auto px-6 py-12 justify-center">
+      <div className="relative mx-auto flex w-full max-w-md flex-col justify-center px-6 py-12">
         {/* Header */}
         <div className="mb-8 text-center">
           {/* Logo */}
-          <div className="inline-block mb-6">
-            <div className="relative w-20 h-20">
+          <div className="mb-6 inline-block">
+            <div className="relative h-20 w-20">
               <div className="absolute inset-1 flex items-center justify-center">
-                <svg className="overflow-visible w-full h-full" fill="none" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="50" cy="50" r="46" stroke="#13ec5b" strokeOpacity="0.2" strokeWidth="4"></circle>
-                  <path d="M 50 4 A 46 46 0 1 1 10.7 25.8" stroke="#13ec5b" strokeLinecap="round" strokeWidth="4" fill="none"></path>
+                <svg
+                  className="h-full w-full overflow-visible"
+                  fill="none"
+                  viewBox="0 0 100 100"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="46"
+                    stroke="#13ec5b"
+                    strokeOpacity="0.2"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    d="M 50 4 A 46 46 0 1 1 10.7 25.8"
+                    stroke="#13ec5b"
+                    strokeLinecap="round"
+                    strokeWidth="4"
+                    fill="none"
+                  ></path>
                 </svg>
               </div>
               <div className="absolute inset-0 flex items-center justify-center text-primary">
                 <span
                   className="material-symbols-outlined text-[#13ec5b]"
-                  style={{ fontSize: '40px', fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 48" }}
+                  style={{
+                    fontSize: '40px',
+                    fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 48",
+                  }}
                 >
                   trending_up
                 </span>
@@ -147,37 +168,33 @@ export function TwoFactorVerification() {
             </div>
           </div>
 
-          <h2 className="text-2xl font-bold text-white mb-1">HabitFlow</h2>
+          <h2 className="mb-1 text-2xl font-bold text-white">HabitFlow</h2>
 
-          <h1 className="text-3xl font-bold text-white mb-4">
-            Two-factor authentication
-          </h1>
-          <p className="text-white/80 mb-2">
-            Enter the 6-digit code from your
-          </p>
-          <p className="text-white/80">
-            authenticator app to continue
-          </p>
+          <h1 className="mb-4 text-3xl font-bold text-white">Two-factor authentication</h1>
+          <p className="mb-2 text-white/80">Enter the 6-digit code from your</p>
+          <p className="text-white/80">authenticator app to continue</p>
         </div>
 
         {/* Form Card */}
-        <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-xl p-8 mb-6">
+        <div className="mb-6 rounded-3xl bg-white p-8 shadow-xl dark:bg-slate-800">
           <div className="space-y-6">
             {/* 6-digit Code Input */}
             <div>
-              <div className="flex justify-center gap-3 mb-6" onPaste={handlePaste}>
+              <div className="mb-6 flex justify-center gap-3" onPaste={handlePaste}>
                 {codes.map((code, index) => (
                   <input
                     key={index}
-                    ref={el => { inputRefs.current[index] = el }}
+                    ref={(el) => {
+                      inputRefs.current[index] = el
+                    }}
                     type="text"
                     inputMode="numeric"
                     maxLength={1}
                     autoComplete={index === 0 ? 'one-time-code' : 'off'}
                     value={code}
-                    onChange={e => handleCodeChange(index, e.target.value)}
-                    onKeyDown={e => handleKeyDown(index, e)}
-                    className="w-12 h-12 text-center text-xl font-bold rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:border-primary focus:outline-none transition-colors"
+                    onChange={(e) => handleCodeChange(index, e.target.value)}
+                    onKeyDown={(e) => handleKeyDown(index, e)}
+                    className="h-12 w-12 rounded-xl border-2 border-slate-200 bg-white text-center text-xl font-bold text-slate-900 transition-colors focus:border-primary focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-white"
                     disabled={isLoading}
                   />
                 ))}
@@ -188,15 +205,17 @@ export function TwoFactorVerification() {
             <button
               type="button"
               onClick={handleVerify}
-              disabled={isLoading || codes.some(code => !code)}
-              className="w-full rounded-full bg-primary px-6 py-3 font-semibold text-white transition-all hover:bg-primary-focus active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={isLoading || codes.some((code) => !code)}
+              className="w-full rounded-full bg-primary px-6 py-3 font-semibold text-white transition-all hover:bg-primary-focus active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isLoading ? (
                 <span className="flex items-center justify-center gap-2">
                   <span className="material-symbols-outlined animate-spin">progress_activity</span>
                   Verifying…
                 </span>
-              ) : 'Verify'}
+              ) : (
+                'Verify'
+              )}
             </button>
 
             {/* Resend / Help Link */}
@@ -207,9 +226,11 @@ export function TwoFactorVerification() {
                   type="button"
                   onClick={handleResend}
                   disabled={resendCountdown > 0}
-                  className="text-primary hover:underline font-medium transition-colors disabled:text-slate-400 disabled:no-underline disabled:cursor-not-allowed"
+                  className="font-medium text-primary transition-colors hover:underline disabled:cursor-not-allowed disabled:text-slate-400 disabled:no-underline"
                 >
-                  {resendCountdown > 0 ? `Try again (${resendCountdown}s)` : 'Open authenticator app'}
+                  {resendCountdown > 0
+                    ? `Try again (${resendCountdown}s)`
+                    : 'Open authenticator app'}
                 </button>
               </p>
             </div>

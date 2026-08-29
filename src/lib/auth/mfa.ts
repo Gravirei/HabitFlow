@@ -32,7 +32,12 @@ function toAppError(e: unknown, fallbackCode: string): AppError {
   let message: string
   if (e instanceof Error) {
     message = e.message
-  } else if (e && typeof e === 'object' && 'message' in e && typeof (e as { message: unknown }).message === 'string') {
+  } else if (
+    e &&
+    typeof e === 'object' &&
+    'message' in e &&
+    typeof (e as { message: unknown }).message === 'string'
+  ) {
     message = (e as { message: string }).message
   } else {
     message = String(e)
@@ -47,7 +52,9 @@ export async function enrollTotp(friendlyName: string): Promise<EnrollTotpResult
   return data as EnrollTotpResult
 }
 
-export async function challengeFactor(factorId: string): Promise<{ id: string; expires_at: string }> {
+export async function challengeFactor(
+  factorId: string
+): Promise<{ id: string; expires_at: string }> {
   const mfa = requireMfa()
   const { data, error } = await mfa.challenge({ factorId })
   if (error) throw toAppError(error, 'MFA_CHALLENGE_FAILED')
@@ -79,7 +86,8 @@ export async function listFactors(): Promise<any[]> {
     return (data?.totp as any[]) ?? []
   }
   // Last-resort fallback for SDKs that expose listFactors only on `supabase.auth.mfa` directly.
-  const fallback = (getMfaClient() as unknown as { listFactors?: () => Promise<any> } | null)?.listFactors
+  const fallback = (getMfaClient() as unknown as { listFactors?: () => Promise<any> } | null)
+    ?.listFactors
   if (!fallback) {
     throw new MfaError('MFA listFactors is not available', 'MFA_NOT_AVAILABLE')
   }
