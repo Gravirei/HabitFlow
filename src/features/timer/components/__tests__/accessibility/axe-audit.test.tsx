@@ -125,13 +125,19 @@ describe('Accessibility Audit - axe-core', () => {
     })
 
     it('should have no violations with different sizes', async () => {
+      // Each axe() call must be the sole one in its microtask; jest-axe and
+      // axe-core v4 share a global "axe is running" flag that throws if
+      // two axe() calls overlap. Using separate `it` blocks ensures
+      // isolation and prevents the "Axe is already running" flake.
       const { container: smContainer } = render(
         <AccessibleModal isOpen={true} onClose={() => {}} title="Small Modal" size="sm">
           <p>Small content</p>
         </AccessibleModal>
       )
       expect(await axe(smContainer)).toHaveNoViolations()
+    })
 
+    it('should have no violations for the large size', async () => {
       const { container: lgContainer } = render(
         <AccessibleModal isOpen={true} onClose={() => {}} title="Large Modal" size="lg">
           <p>Large content</p>
@@ -151,35 +157,40 @@ describe('Accessibility Audit - axe-core', () => {
 
       const results = await axe(container)
       expect(results).toHaveNoViolations()
-    }, 10000) // Increase timeout for complex modal analysis
-  })
+    }, 30000) // Bumped from 10s — TimerSettingsModal is a complex modal and
+    // axe analysis + coverage instrumentation pushes it over the 10s budget
+    // on most machines. The test is correct, just slow.
 
-  describe('WCAG Compliance', () => {
-    it('should meet WCAG 2.1 Level AA standards for timer controls', async () => {
-      const { container } = render(
-        <div>
-          <TimerDisplay timeLeft={60000} progress={0.5} mode="Countdown" />
-          <AnimatedTimerButton
-            isActive={false}
-            isPaused={false}
-            onStart={() => {}}
-            onPause={() => {}}
-            onContinue={() => {}}
-            onKill={() => {}}
-            mode="Countdown"
-          />
-        </div>
-      )
+    describe('WCAG Compliance', () => {
+      it('should meet WCAG 2.1 Level AA standards for timer controls', async () => {
+        const { container } = render(
+          <div>
+            <TimerDisplay timeLeft={60000} progress={0.5} mode="Countdown" />
+            <AnimatedTimerButton
+              isActive={false}
+              isPaused={false}
+              onStart={() => {}}
+              onPause={() => {}}
+              onContinue={() => {}}
+              onKill={() => {}}
+              mode="Countdown"
+            />
+          </div>
+        )
 
-      // Run with WCAG 2 AA rules
-      const results = await axe(container, {
-        runOnly: {
-          type: 'tag',
-          values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'],
-        },
-      })
+        // Run with WCAG 2 AA rules
+        const results = await axe(container, {
+          runOnly: {
+            type: 'tag',
+            values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'],
+          },
+        })
 
-      expect(results).toHaveNoViolations()
-    }, 10000) // Increase timeout for WCAG compliance analysis
+        expect(results).toHaveNoViolations()
+      }, 30000) // Bumped from 10s — axe-core v4 + coverage instrumentation
+      // pushes this over 10s on most machines. The "Axe is already running"
+      // race that previously hit this test was fixed by splitting the
+      // "different sizes" assertion into two `it` blocks above.
+    })
   })
 })
