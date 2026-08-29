@@ -40,6 +40,10 @@ function findLedgerFiles(dir) {
 }
 
 const debtFiles = findLedgerFiles('src')
+// `ESLINT_DEBT_MODE=strict` disables the ledger relaxation so `lint:debt`
+// surfaces real errors hidden in the @ts-nocheck files. Default is the
+// ledger-aware mode (the CI gate).
+const debtModeStrict = process.env.ESLINT_DEBT_MODE === 'strict'
 
 export default tseslint.config(
   // Non-source trees: build output, coverage, Deno edge functions, static
@@ -68,7 +72,7 @@ export default tseslint.config(
       ],
     },
   },
-  ...(debtFiles.length
+  ...(debtFiles.length && !debtModeStrict
     ? [
         {
           files: debtFiles,
