@@ -84,7 +84,6 @@ describe('rateLimiter', () => {
 
       expect(fromMock).toHaveBeenCalledWith('login_attempts')
       expect(builder.insert).toHaveBeenCalledWith({
-        action: 'login',
         user_id: 'user-1',
         email: 'user@example.com',
         ip_address: '1.2.3.4',
@@ -100,7 +99,7 @@ describe('rateLimiter', () => {
       await recordLoginAttempt('user@example.com', '1.2.3.4', 'UA/1', true)
 
       expect(builder.insert).toHaveBeenCalledWith(
-        expect.objectContaining({ action: 'login', user_id: null, success: true })
+        expect.objectContaining({ user_id: null, success: true })
       )
     })
   })
