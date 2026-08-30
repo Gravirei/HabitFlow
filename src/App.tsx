@@ -46,6 +46,7 @@ import { Social } from '@/pages/Social'
 import { useDayChangeDetector } from '@/hooks/useDayChangeDetector'
 import { useHabitTaskStore } from '@/store/useHabitTaskStore'
 import { GlobalAccessibilityButton } from '@/features/accessibility/components/GlobalAccessibilityButton'
+import { NavigationTracker } from '@/shared/layout/NavigationTracker'
 // ARCHIVED: ThemeProvider import removed (theme module archived)
 
 /** Detects midnight rollover and resets all habit tasks for the new day */
@@ -59,6 +60,9 @@ function App() {
   return (
     <ErrorBoundary>
       <BrowserRouter>
+        {/* Sentry breadcrumb on every route change */}
+        <NavigationTracker />
+
         {/* Day change detection — resets habit tasks at midnight */}
         <DayChangeDetector />
 

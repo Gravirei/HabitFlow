@@ -4,7 +4,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { logger, TimerLogger } from '@/lib/logger'
+import { logger, TimerLogger, setMinLevel, getMinLevel } from '@/lib/logger'
 
 describe('TimerLogger', () => {
   // Store original console methods
@@ -21,6 +21,13 @@ describe('TimerLogger', () => {
     console.info = vi.fn()
     console.warn = vi.fn()
     console.error = vi.fn()
+    // Tests assert on debug() output; default minLevel='info' would drop it.
+    setMinLevel('debug')
+  })
+
+  afterEach(() => {
+    // Reset level back to default so tests don't leak state into other suites.
+    setMinLevel('info')
   })
 
   afterEach(() => {
@@ -260,6 +267,25 @@ describe('TimerLogger', () => {
       }
 
       expect(console.log).toHaveBeenCalledTimes(100)
+    })
+
+    it('should drop debug messages when minLevel is info', () => {
+      setMinLevel('info')
+      logger.debug('should be dropped')
+      expect(console.log).not.toHaveBeenCalled()
+      expect(getMinLevel()).toBe('info')
+    })
+
+    it('should emit all levels when minLevel is debug', () => {
+      setMinLevel('debug')
+      logger.debug('debug')
+      logger.info('info')
+      logger.warn('warn')
+      logger.error('error')
+      expect(console.log).toHaveBeenCalledTimes(1) // debug → console.log in dev
+      expect(console.info).toHaveBeenCalledTimes(1)
+      expect(console.warn).toHaveBeenCalledTimes(1)
+      expect(console.error).toHaveBeenCalledTimes(1)
     })
   })
 
