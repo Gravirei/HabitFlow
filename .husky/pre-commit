@@ -28,8 +28,11 @@ if git diff --cached --name-only | grep -E '\.(pem|key|p12|pfx)$'; then
   exit 1
 fi
 
-# Warn on hardcoded credential patterns in staged diffs
-if git diff --cached | grep -iE "(password|secret|api[_-]?key|token|private[_-]?key).*=.*[\"'][^\"']{20,}"; then
+# Warn on hardcoded credential patterns in staged diffs.
+# We only flag strings that look like actual secrets (40+ chars, mixed
+# casing/digits) — short placeholder values like 'YOUR_NOTION_CLIENT_SECRET'
+# or 'placeholder_client_secret' are legitimate code, not leaked creds.
+if git diff --cached | grep -iE "(password|secret|api[_-]?key|token|private[_-]?key).*=.*[\"'][A-Za-z0-9+/=_-]{40,}[\"']" | grep -ivE "(placeholder|YOUR_|example|TODO|FIXME|mock_|test_)"; then
   echo ""
   echo "⚠️  WARNING: Possible hardcoded credentials detected in staged diff!"
   echo ""

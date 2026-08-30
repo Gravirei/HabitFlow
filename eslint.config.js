@@ -40,13 +40,21 @@ function findLedgerFiles(dir) {
 }
 
 const debtFiles = findLedgerFiles('src')
+// `ESLINT_DEBT_MODE=strict` disables the ledger relaxation so `lint:debt`
+// surfaces real errors hidden in the @ts-nocheck files. Default is the
+// ledger-aware mode (the CI gate).
+const debtModeStrict = process.env.ESLINT_DEBT_MODE === 'strict'
 
 export default tseslint.config(
   // Non-source trees: build output, coverage, Deno edge functions, static
   // landing page, native Android project, historical backups.
   { ignores: ['dist', 'coverage', 'node_modules', 'supabase', 'landing_page', 'android', 'archive'] },
   {
-    files: ['**/*.{ts,tsx}'],
+    // In strict mode (`lint:debt`), restrict the lint to the ledger files so
+    // we see only the burn-down metric — the errors hidden by @ts-nocheck.
+    // In default mode, lint the whole tree (with the ledger relaxation
+    // applied below).
+    files: debtModeStrict ? debtFiles : ['**/*.{ts,tsx}'],
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     languageOptions: {
       ecmaVersion: 2020,
@@ -68,7 +76,7 @@ export default tseslint.config(
       ],
     },
   },
-  ...(debtFiles.length
+  ...(debtFiles.length && !debtModeStrict
     ? [
         {
           files: debtFiles,
