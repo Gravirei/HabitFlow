@@ -123,15 +123,18 @@ describe('Integration Error Tests', () => {
   })
 
   describe('User Interaction Errors', () => {
-    // Uses fireEvent rather than userEvent.click because the tab/start
-    // buttons are framer-motion <motion.button> elements with internal
-    // rAF-driven animation waits; @testing-library/user-event v16+ waits
-    // for those animation frames synchronously inside `.click()` and
-    // never resolves when the underlying TimerContainer keeps scheduling
-    // more animation work (e.g. during mode transitions / start toggling).
-    // fireEvent dispatches the click event synchronously without the
-    // animation-frame awaits, which matches the test's intent (verify
-    // rapid clicks don't trigger the error boundary).
+    // Uses fireEvent rather than userEvent.click because user-event
+    // v14.6.1's internal `wait()` schedules `setTimeout(0)` resolves
+    // between each interaction step, and this suite runs under
+    // `vi.useFakeTimers()` which starves those resolves. With @testing-
+    // library/react v16 the interaction surface is larger (focus/blur,
+    // pointer events), so each `user.click()` schedules more waits
+    // than ever and the loop never completes within vitest's 15s
+    // timeout. The buttons are also framer-motion <motion.button>
+    // elements that re-render constantly, compounding the wait load.
+    // fireEvent dispatches the click event synchronously without any
+    // inter-step waits, which matches the test's intent (verify rapid
+    // clicks don't trigger the error boundary).
     it('should handle rapid button clicks', () => {
       renderWithRouter(
         <TimerErrorBoundary>
@@ -432,9 +435,9 @@ describe('Integration Error Tests', () => {
       expect(screen.queryByText(/something went wrong/i)).not.toBeInTheDocument()
     }, 10000)
 
-    // Same rationale as the rapid-click test above: framer-motion
-    // animation waits inside userEvent.keyboard are incompatible with
-    // the TimerContainer's continuously animating UI in v16+.
+    // Same rationale as the rapid-click test above: userEvent.keyboard
+    // schedules `setTimeout(0)` resolves between each keystroke that
+    // never fire under `vi.useFakeTimers()`.
     it('should handle rapid keyboard inputs', () => {
       renderWithRouter(
         <TimerErrorBoundary>
