@@ -1,10 +1,8 @@
-// @ts-nocheck
 /**
  * Achievement Card Component
  * Displays individual achievement with progress and unlock status
  */
 
-import React from 'react'
 import { motion } from 'framer-motion'
 import type { Achievement } from './types'
 import {

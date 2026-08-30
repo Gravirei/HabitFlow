@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Session Distribution Chart Component
  * Mobile-first donut chart showing breakdown by timer mode
@@ -123,6 +122,7 @@ export function SessionDistributionChart({ data }: SessionDistributionChartProps
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
+                  {...({ activeIndex: activeIndex ?? undefined } as any)}
                   data={data as any}
                   cx="50%"
                   cy="50%"
@@ -134,7 +134,6 @@ export function SessionDistributionChart({ data }: SessionDistributionChartProps
                   onMouseLeave={handlePieLeave}
                   onTouchStart={(_, index) => setActiveIndex(index)}
                   onTouchEnd={handlePieLeave}
-                  activeIndex={activeIndex ?? undefined}
                   activeShape={renderActiveShape}
                 >
                   {data.map((entry, index) => (

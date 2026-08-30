@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Logger Integration Tests
  * Tests for logger usage in real timer scenarios
@@ -35,11 +34,12 @@ describe('Logger Integration', () => {
   describe('Timer Persistence Integration', () => {
     it('should log when saving timer state', () => {
       const testState = {
-        mode: 'countdown' as const,
+        mode: 'Countdown' as const,
         isActive: true,
         isPaused: false,
-        duration: 300000,
-        elapsed: 0,
+        totalDuration: 300000,
+        savedAt: Date.now(),
+        version: 1,
         pausedElapsed: 0,
         startTime: Date.now(),
       }
