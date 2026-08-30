@@ -1,11 +1,10 @@
-// @ts-nocheck
 /**
  * Premium History Page
  * Mobile-first timer history with beautiful session cards and analytics
  * Refactored to use modular components
  */
 
-import React, { useState, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTimerHistory } from '@/features/timer/hooks/useTimerHistory'
 import {
@@ -59,8 +58,6 @@ import type {
   IntervalsSession,
 } from '@/features/timer/components/premium-history/types/session.types'
 
-type TimerMode = 'Stopwatch' | 'Countdown' | 'Intervals'
-
 interface GroupedSessions {
   [key: string]: TimerSession[]
 }
@@ -68,7 +65,7 @@ interface GroupedSessions {
 function PremiumHistoryContent() {
   const navigate = useNavigate()
   const { message: liveMessage, announce } = useLiveRegion()
-  const [viewMode, setViewMode] = useState<'sessions'>('sessions')
+  const [viewMode] = useState<'sessions'>('sessions')
   const [filterMode, setFilterMode] = useState<FilterMode>('All')
   const [selectedSession, setSelectedSession] = useState<any | null>(null)
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false)
@@ -202,17 +199,6 @@ function PremiumHistoryContent() {
     searchQuery,
     completionFilter,
   ])
-
-  // Memoize expensive statistics calculations
-  const sessionStats = useMemo(() => {
-    return {
-      total: allHistory.length,
-      stopwatch: allHistory.filter((s) => s.mode === 'Stopwatch').length,
-      countdown: allHistory.filter((s) => s.mode === 'Countdown').length,
-      intervals: allHistory.filter((s) => s.mode === 'Intervals').length,
-      totalDuration: allHistory.reduce((sum, s) => sum + s.duration, 0),
-    }
-  }, [allHistory])
 
   // Group sessions by date
   const groupedSessions = useMemo(() => {
@@ -440,7 +426,6 @@ function PremiumHistoryContent() {
       sessionName: record.sessionName,
       targetDuration: record.targetDuration,
       completed: record.completed,
-      intervals: record.intervals,
     }))
 
     // Export based on format
