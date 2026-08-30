@@ -1,62 +1,73 @@
 # HabitFlow
 
-A modern, full-featured habit tracking and productivity application built with React, TypeScript, and Vite.
+A modern, full-featured habit tracking and productivity application built with React, TypeScript, and Vite. Includes a multi-mode timer (stopwatch/countdown/intervals), achievements, AI insights, analytics, exports, social/messaging, integrations with Google/Notion/Slack/Spotify/Fit, and email + TOTP MFA authentication. Ships as a Vite web app, a Capacitor Android wrapper, and a static landing page. Backend is Supabase (Postgres + Edge Functions) with Cloudflare Turnstile bot protection.
 
 ## 🌳 Branch Structure
 
-We follow a structured branching strategy for organized development:
+We follow a simplified two-branch flow:
 
-- **`main`** - Production-ready code (protected)
-- **`develop`** - Integration branch for active development (default)
-- **`staging`** - Pre-production testing environment
-- **`feature/*`** - Feature development branches
-- **`bugfix/*`** - Bug fix branches
-- **`hotfix/*`** - Critical production fixes
+- **`main`** — Production-ready code (protected)
+- **`docs/*`, `feat/*`, `chore/*`, `fix/*`** — short-lived branches off `main`, squash-merged via PR
 
-📖 See [BRANCHING_STRATEGY.md](./BRANCHING_STRATEGY.md) for complete workflow details.
-
----
+📖 See [CONTRIBUTING.md](./CONTRIBUTING.md) for the workflow details.
 
 ## ✨ Features
 
 ### Core
-- ⚛️ **React 18** - Latest version with concurrent features
-- 📘 **TypeScript** - Type safety and better developer experience
-- ⚡ **Vite** - Lightning-fast HMR and build tool
 
-### State Management & Data Fetching
-- 🐻 **Zustand** - Lightweight state management with persistence support
-- 🌐 **Axios** - Promise-based HTTP client with interceptors
-- 🔄 **React Query** - Powerful data synchronization for React
+- ⚛️ **React 18** — Concurrent rendering
+- 📘 **TypeScript (strict)** — Type safety end-to-end
+- ⚡ **Vite 6** — Fast HMR and builds
 
-### Routing & Forms
-- 🚀 **React Router v6** - Declarative routing for React
-- 📝 **React Hook Form** - Performant, flexible forms with easy validation
-- ✅ **Zod** - TypeScript-first schema validation
+### State, Data & Routing
+
+- 🐻 **Zustand 5** — Lightweight state with persistence (8 global stores + 8 domain stores)
+- 🗄️ **Supabase** — Postgres + Auth + Storage + Edge Functions (the only data layer)
+- 🚀 **React Router 7** — Declarative routing
+
+### Forms & Validation
+
+- 📝 **React Hook Form** — Performant, flexible forms
+- ✅ **Zod 3** — TypeScript-first schema validation
 
 ### UI & Styling
-- 🎨 **Tailwind CSS** - Utility-first CSS framework
-- 🎯 **Custom Components** - Pre-built Button, Input components
-- 🌗 **Dark Mode** - Built-in dark mode support
+
+- 🎨 **Tailwind CSS 3** — Utility-first, with dark mode
+- 🎬 **Framer Motion** — Animations
+- 🧱 **dnd-kit** — Accessible drag-and-drop
+- 📊 **Recharts** — Charts and analytics
+- 🍞 **react-hot-toast** — Notifications
+- 📄 **html2canvas + jspdf** — Premium exports
+
+### Security & Auth
+
+- 🔐 **Supabase Auth** — Email/password + JWT sessions
+- 🛡️ **Custom TOTP MFA** — In `src/lib/auth/mfa.ts`
+- 🤖 **Cloudflare Turnstile** — Bot protection on auth gateway
+- 🪵 **Sentry 10** — Error monitoring (opt-in via `VITE_ENABLE_SENTRY`)
 
 ### Testing & Quality
-- 🧪 **Vitest** - Fast unit testing framework
-- 🧩 **Testing Library** - React Testing Library for component tests
-- 📏 **ESLint** - Code linting with TypeScript support
-- ✨ **Prettier** - Code formatting with Tailwind plugin
+
+- 🧪 **Vitest 4** — Unit + component tests (jsdom)
+- 🧩 **React Testing Library** — Component tests
+- ♿ **jest-axe** — Accessibility assertions
+- 🎭 **Playwright** — E2E tests (Firefox)
+- 📏 **ESLint 9** — Flat config, with `@ts-nocheck` debt awareness
+- ✨ **Prettier 3** — Formatter with Tailwind plugin
+- 🐶 **Husky 9** — Pre-commit hook (installed via `npm run prepare`)
 
 ### Utilities
-- 📅 **date-fns** - Modern date utility library
-- 🔧 **Custom Hooks** - useDebounce, useLocalStorage, and more
-- 🛠️ **Helper Functions** - Formatters, class name utilities
-- 📁 **Path Aliases** - Import with `@/` prefix
+
+- 📅 **date-fns** — Date utilities
+- 🔧 **Custom Hooks** — `useDebounce`, `useLocalStorage`, etc.
+- 📁 **Path Aliases** — `@/` maps to `src/`
 
 ## 📁 Project Structure
 
 Feature-sliced architecture — domain code lives in `src/features/<domain>/`,
-cross-domain primitives in `src/shared/` and the shared layers. See
-[AGENTS.md](AGENTS.md) for the full architecture guide, dependency rules,
-and testing policy.
+cross-domain primitives in `src/shared/` and the classic shared layers. See
+[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full architecture guide,
+dependency rules, and testing policy.
 
 ```
 .
@@ -65,7 +76,7 @@ and testing policy.
 │   │                   #   categories, today, integrations, auth,
 │   │                   #   accessibility, onboarding)
 │   ├── shared/         # Cross-domain UI primitives + layout shell
-│   ├── lib/            # Framework-free logic (auth, storage, security)
+│   ├── lib/            # Framework-free logic (auth, storage, security, env, errors)
 │   ├── store/          # Global persisted Zustand stores
 │   ├── pages/          # Routing composition
 │   ├── hooks/ utils/ schemas/ types/ constants/
@@ -83,56 +94,81 @@ and testing policy.
 
 ### Prerequisites
 
-- Node.js (v18 or higher recommended)
-- npm, yarn, or pnpm
+- Node.js **v20+**
+- npm **v10+**
+- A Supabase project (for the backend)
+- Cloudflare Turnstile site key (for auth bot protection)
 
 ### Installation
 
 ```bash
 # Install dependencies
-npm install
+npm ci
 
-# Start development server
+# Copy env template and fill in your values
+cp .env.example .env
+
+# Start the dev server (validates env on boot)
 npm run dev
 
-# Build for production
+# Typecheck + production build
 npm run build
 
-# Preview production build
+# Preview the production build locally
 npm run preview
 ```
 
 ## 📜 Available Scripts
 
-- `npm run dev` - Start development server at http://localhost:3000
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint
-- `npm run lint:fix` - Run ESLint and auto-fix issues
-- `npm run format` - Format code with Prettier
-- `npm run format:check` - Check code formatting
-- `npm test` - Run tests with Vitest
-- `npm run test:ui` - Run tests with UI
-- `npm run test:coverage` - Generate test coverage report
+| Command | What it does |
+|---|---|
+| `npm run dev` | Vite dev server (port 3000) |
+| `npm run build` | Typecheck **then** Vite build |
+| `npm run typecheck` | `tsc --noEmit` over the strict tsconfig |
+| `npm run lint` | ESLint flat config |
+| `npm run lint:strict` | ESLint with `--max-warnings 0` (gated on debt burn-down) |
+| `npm run lint:debt` | ESLint in strict mode over `@ts-nocheck` files |
+| `npm run lint:fix` | ESLint with `--fix` |
+| `npm run format` | Prettier write |
+| `npm run format:check` | Prettier check (CI gate) |
+| `npm test` | Vitest watch |
+| `npm run test:coverage` | Vitest with v8 coverage |
+| `npm run test:e2e` | Playwright (Firefox) |
+| `npm run audit` | `npm audit --audit-level=high` |
 
 ## 🔧 Configuration
 
 ### Environment Variables
 
-Create a `.env` file based on `.env.example`:
+All `VITE_*` variables are validated at module load time by
+[`src/lib/env.ts`](src/lib/env.ts). Required vars throw in production;
+optional vars warn and fall through.
 
-```bash
-cp .env.example .env
-```
+| Var | Required | Notes |
+|---|---|---|
+| `VITE_SUPABASE_URL` | yes | Supabase project URL |
+| `VITE_SUPABASE_ANON_KEY` | yes | Supabase anon JWT |
+| `VITE_API_URL` | no | Backend base URL (unused in current build) |
+| `VITE_APP_NAME` | no | Display name (default: `HabitFlow`) |
+| `VITE_APP_VERSION` | no | Display version (default: `unknown`) |
+| `VITE_SENTRY_DSN` | no | Sentry DSN for error reporting |
+| `VITE_ENABLE_SENTRY` | no | `true` to enable Sentry init |
+| `VITE_ENABLE_ANALYTICS` | no | `true` to enable analytics |
+| `VITE_TURNSTILE_SITE_KEY` | no | Cloudflare Turnstile site key |
+| `VITE_TURNSTILE_DISABLED` | no | `true` to bypass Turnstile in dev |
+| `VITE_GOOGLE_CLIENT_ID` / `_SECRET` / `_REDIRECT_URI` | no | Google integration |
+| `VITE_NOTION_CLIENT_ID` / `_SECRET` / `_REDIRECT_URI` | no | Notion integration |
+| `VITE_SLACK_CLIENT_ID` / `_SECRET` / `_REDIRECT_URI` | no | Slack integration |
+| `VITE_SPOTIFY_CLIENT_ID` / `_SECRET` / `_REDIRECT_URI` | no | Spotify integration |
+| `VITE_GOOGLE_FIT_REDIRECT_URI` | no | Google Fit integration |
 
-Access environment variables in your code:
-```typescript
-const apiUrl = import.meta.env.VITE_API_URL
-```
+In **production**, missing required vars throw on import — the build fails fast.
+In **development**, missing required vars log to the console and fall back to
+placeholders so the dev server can boot.
 
 ### Path Aliases
 
-The template includes path alias configuration for cleaner imports:
+Imports use the `@/` alias (mapped to `src/` in both `tsconfig` and `vite.config.ts`):
 
 ```typescript
 // Instead of
@@ -142,99 +178,18 @@ import Component from '../../../components/Component'
 import Component from '@/components/Component'
 ```
 
-### State Management with Zustand
-
-Example store with persistence:
-
-```typescript
-import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
-
-interface Store {
-  count: number
-  increment: () => void
-}
-
-export const useStore = create<Store>()(
-  persist(
-    (set) => ({
-      count: 0,
-      increment: () => set((state) => ({ count: state.count + 1 })),
-    }),
-    { name: 'my-storage' }
-  )
-)
-```
-
-### API Configuration
-
-The template includes a configured Axios instance in `src/lib/api.ts` with:
-- Request/response interceptors
-- Auth token handling
-- Error handling
-- Base URL configuration
-
-### TypeScript
-
-TypeScript is configured with strict mode enabled. Modify `tsconfig.json` to adjust settings.
-
-### Vite
-
-Vite configuration is in `vite.config.ts`. The template includes:
-- React plugin
-- Path aliases
-- Test configuration
-- Build optimizations
-
-## 🎨 Styling
-
-This template comes with **Tailwind CSS** pre-configured with:
-- Custom color palette
-- Dark mode support
-- Prettier plugin for class sorting
-- PostCSS with autoprefixer
-
-### Customizing Tailwind
-Edit `tailwind.config.js` to customize colors, spacing, fonts, etc.
-
-### Using the `cn()` utility
-The template includes a `cn()` utility for conditional class names:
-
-```typescript
-import { cn } from '@/utils/cn'
-
-<div className={cn('base-class', isActive && 'active-class', className)} />
-```
-
 ## 🧪 Testing
 
-The template includes Vitest and React Testing Library with example tests:
-
-```typescript
-import { describe, it, expect, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
-import { Button } from './components/Button'
-
-describe('Button', () => {
-  it('calls onClick when clicked', async () => {
-    const handleClick = vi.fn()
-    const user = userEvent.setup()
-    
-    render(<Button onClick={handleClick}>Click me</Button>)
-    await user.click(screen.getByText('Click me'))
-    
-    expect(handleClick).toHaveBeenCalledOnce()
-  })
-})
-```
-
-Run tests:
 ```bash
-npm test              # Run tests in watch mode
-npm run test:ui       # Run tests with UI
-npm run test:coverage # Generate coverage report
+npm test              # Vitest in watch mode
+npm run test:coverage # Vitest with v8 coverage report
+npm run test:e2e      # Playwright (Firefox; install via `npx playwright install firefox`)
 ```
+
+Tests are colocated with their subjects in `__tests__/` directories. Two
+cross-cutting suites live in `src/__tests__/`. See
+[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#testing-policy) for the testing
+policy and known-debt caveats.
 
 ## 📦 Building for Production
 
@@ -242,20 +197,23 @@ npm run test:coverage # Generate coverage report
 npm run build
 ```
 
-The build output will be in the `dist/` directory, ready to be deployed to any static hosting service.
+The build runs `tsc --noEmit` first, then Vite. Output is in `dist/`,
+ready to be deployed to any static hosting service.
 
 ## 🚀 Deployment
 
-This template works with any static hosting service:
+The app is configured for **dual-target** deployment — both kept intentionally:
 
-- **Vercel**: `vercel`
-- **Netlify**: `netlify deploy`
-- **GitHub Pages**: Configure with GitHub Actions
-- **AWS S3**: Upload `dist/` folder
+- **Vercel** — `vercel.json` at the repo root
+- **Netlify** — `netlify.toml` at the repo root
+
+Both build the SPA statically; the Supabase backend is a separate concern
+managed in the Supabase dashboard.
 
 ## 🤝 Contributing
 
-Feel free to customize this template for your needs!
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for setup, branching strategy,
+commit conventions, and the PR process.
 
 ## 📄 License
 

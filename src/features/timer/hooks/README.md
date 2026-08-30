@@ -369,10 +369,8 @@ export const useMyTimer = () => {
 
 ## 📖 Further Reading
 
-- [Timer Refactoring Summary](../../../TIMER_MD/TIMER_REFACTORING_SUMMARY.md) - Complete architecture documentation
-- [Timer Analysis](../../../TIMER_MD/TIMER_REFACTORING_ANALYSIS.md) - Original refactoring analysis
-- [Error Handling](../../../TIMER_MD/ERROR_HANDLING_IMPLEMENTATION.md) - Error handling patterns
-- [Testing Guide](../../../TIMER_MD/TEST_IMPLEMENTATION_COMPLETE.md) - Comprehensive test documentation
+- [Timer Architecture](../../../docs/ARCHITECTURE.md) — overall architecture guide
+- [Contributing Guide](../../../CONTRIBUTING.md) — workflow and conventions
 
 ---
 
