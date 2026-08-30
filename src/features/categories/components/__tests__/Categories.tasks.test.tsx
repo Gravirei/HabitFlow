@@ -1,11 +1,9 @@
-// @ts-nocheck
 /**
  * Phase 5 - Categories tasks integration test (Tasks chip filters categories with tasks)
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { Categories } from '@/pages/bottomNav/Categories'
 import type { Category } from '@/types/category'
