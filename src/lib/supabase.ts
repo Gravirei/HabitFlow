@@ -80,18 +80,22 @@
  */
 
 import { createClient } from '@supabase/supabase-js'
+import { env, usingPlaceholderSupabase } from './env'
+import type { Database } from './supabase.types'
 
-// Get environment variables
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
-
-// Validate environment variables
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn(
-    'Missing Supabase environment variables. Please check your .env file and ensure VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are set.'
-  )
-  // Create a dummy client to prevent app crashes
-  // This allows the app to run without Supabase configured
+/**
+ * Local typed handle for `supabase.auth.mfa`. Supabase's published
+ * `@supabase/supabase-js` types don't fully cover the MFA namespace
+ * (see supabase/supabase-js#963), so we narrow the surface here. The cast
+ * that accesses it lives only at the boundary in `getMfaClient()` — callers
+ * see a typed value or `null`.
+ */
+export interface MfaApi {
+  enroll: (args: { factorType: 'totp'; friendlyName: string }) => Promise<{ data: unknown; error: Error | null }>
+  challenge: (args: { factorId: string }) => Promise<{ data: unknown; error: Error | null }>
+  verify: (args: { factorId: string; challengeId: string; code: string }) => Promise<{ data: unknown; error: Error | null }>
+  unenroll: (args: { factorId: string }) => Promise<{ data: unknown; error: Error | null }>
+  listFactors: () => Promise<{ data: { all: unknown[]; totp: unknown[] } | null; error: Error | null }>
 }
 
 const isTestEnv = import.meta.env.MODE === 'test'
@@ -111,27 +115,27 @@ const hasValidStorage = (() => {
 // the top of this file for the full rationale. Do NOT change this to
 // sessionStorage without first removing the "Remember this device" feature and
 // the persistent device-ID system, and verifying OAuth redirect flows work.
-export const supabase = createClient(
-  supabaseUrl || 'https://placeholder.supabase.co',
-  supabaseAnonKey || 'placeholder-key',
-  {
-    auth: {
-      // In tests, avoid background refresh timers and avoid broken storage mocks.
-      autoRefreshToken: !isTestEnv,
-      persistSession: !isTestEnv && hasValidStorage,
-      detectSessionInUrl: true,
-      ...(hasValidStorage ? { storage: window.localStorage } : {}),
-    },
-  }
-)
+export const supabase = createClient<Database>(env.SUPABASE_URL, env.SUPABASE_ANON_KEY, {
+  auth: {
+    // In tests, avoid background refresh timers and avoid broken storage mocks.
+    autoRefreshToken: !isTestEnv,
+    persistSession: !isTestEnv && hasValidStorage,
+    detectSessionInUrl: true,
+    ...(hasValidStorage ? { storage: window.localStorage } : {}),
+  },
+})
 
-// Type helper for Supabase tables (add your table types here)
-export type Database = {
-  // Placeholder schema — add real table types here as they are introduced.
-  public: {
-    Tables: Record<string, never>
-    Views: Record<string, never>
-    Functions: Record<string, never>
-    Enums: Record<string, never>
-  }
+/**
+ * Type-safe accessor for `supabase.auth.mfa`. Returns `null` if the running
+ * client doesn't expose MFA (older SDKs). Callers should `instanceof`-check
+ * the runtime and throw a `MfaError('MFA_NOT_AVAILABLE')` on null.
+ */
+export function getMfaClient(): MfaApi | null {
+  // Cast is local to the boundary; the public surface (`getMfaClient`) returns
+  // a narrow type so consumers don't need to.
+  const mfa = (supabase.auth as unknown as { mfa?: MfaApi }).mfa
+  return mfa ?? null
 }
+
+/** Re-export the placeholder-detection helper so callers can warn early. */
+export { usingPlaceholderSupabase }

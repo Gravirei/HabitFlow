@@ -34,6 +34,10 @@ export async function isAccountLocked(email: string): Promise<LockoutStatus> {
     }
 
     const lockout = lockouts[0]
+    if (!lockout.locked_until) {
+      // Locked but no expiry set — treat as locked indefinitely.
+      return { isLocked: true, reason: lockout.reason ?? undefined }
+    }
     const lockedUntil = new Date(lockout.locked_until)
 
     // Check if lockout has expired
@@ -46,7 +50,7 @@ export async function isAccountLocked(email: string): Promise<LockoutStatus> {
     return {
       isLocked: true,
       lockedUntil,
-      reason: lockout.reason,
+      reason: lockout.reason ?? undefined,
     }
   } catch (error) {
     console.error('Lockout check exception:', error)
