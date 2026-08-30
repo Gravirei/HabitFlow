@@ -1,10 +1,9 @@
-// @ts-nocheck
 /**
  * Timeline Session Component
  * Individual session block in the timeline
  */
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import type { TimelineSession } from './types'
 import { getSessionColor, formatDuration } from './timelineUtils'

@@ -1,11 +1,10 @@
-// @ts-nocheck
 /**
  * Time Series Chart Component
  * Mobile-first line chart showing daily/weekly trends
  * Optimized for small screens with touch interactions
  */
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 import {
   LineChart,
   Line,

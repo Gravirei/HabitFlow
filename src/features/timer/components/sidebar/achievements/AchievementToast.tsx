@@ -1,10 +1,8 @@
-// @ts-nocheck
 /**
  * Achievement Toast Component
  * Toast notification for newly unlocked achievements
  */
 
-import React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import type { Achievement } from './types'
 import { getRarityColor, getRarityLabel } from './achievementTracking'

@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Timer Persistence Integration Tests
  *
@@ -10,7 +9,7 @@ import { renderHook, act } from '@testing-library/react'
 import { useCountdown } from '@/features/timer/hooks/useCountdown'
 import { useStopwatch } from '@/features/timer/hooks/useStopwatch'
 import { useIntervals } from '@/features/timer/hooks/useIntervals'
-import { timerPersistence } from '@/features/timer/utils/timerPersistence'
+import { timerPersistence, type LapData } from '@/features/timer/utils/timerPersistence'
 
 // Mock dependencies
 vi.mock('../../hooks/useTimerSettings', () => ({
@@ -233,7 +232,7 @@ describe('Timer Persistence Integration', () => {
         isPaused: timer1.current.isPaused,
         startTime: timer1.current.timerStartTime,
         pausedElapsed: timer1.current.pausedElapsed,
-        laps: timer1.current.laps,
+        laps: timer1.current.laps as unknown as LapData[],
         savedAt: Date.now(),
         version: 1,
       })
@@ -284,7 +283,7 @@ describe('Timer Persistence Integration', () => {
         isPaused: result.current.isPaused,
         startTime: result.current.timerStartTime,
         pausedElapsed: result.current.pausedElapsed,
-        laps: result.current.laps,
+        laps: result.current.laps as unknown as LapData[],
         savedAt: Date.now(),
         version: 1,
       })
