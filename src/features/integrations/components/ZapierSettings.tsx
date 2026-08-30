@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import toast from 'react-hot-toast'
@@ -30,7 +29,7 @@ export function ZapierSettings() {
   const [newWebhookUrl, setNewWebhookUrl] = useState('')
   const [urlError, setUrlError] = useState('')
 
-  const settings = (connection.settings || {}) as ZapierSettingsData
+  const settings = (connection.settings || {}) as unknown as ZapierSettingsData
   const isConnected = connection.status === 'connected'
 
   useEffect(() => {
