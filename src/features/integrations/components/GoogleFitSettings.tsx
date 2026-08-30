@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import toast from 'react-hot-toast'
@@ -23,7 +22,6 @@ export function GoogleFitSettings() {
   const connection = useIntegrationStore((s) => s.connections['google-fit'])
   const {
     updateSettings,
-    disconnect: disconnectStore,
     updateLastSynced,
     setStatus,
     setError,
@@ -33,18 +31,18 @@ export function GoogleFitSettings() {
   const [loading, setLoading] = useState(false)
   const [syncing, setSyncing] = useState(false)
   const [settings, setSettings] = useState<Settings>({
-    syncSteps: connection?.settings?.syncSteps ?? true,
-    syncWorkouts: connection?.settings?.syncWorkouts ?? true,
-    syncSleep: connection?.settings?.syncSleep ?? true,
-    autoCompleteFitness: connection?.settings?.autoCompleteFitness ?? true,
+    syncSteps: (connection?.settings?.syncSteps as boolean) ?? true,
+    syncWorkouts: (connection?.settings?.syncWorkouts as boolean) ?? true,
+    syncSleep: (connection?.settings?.syncSleep as boolean) ?? true,
+    autoCompleteFitness: (connection?.settings?.autoCompleteFitness as boolean) ?? true,
   })
 
   // Fetch metrics when connected
   useEffect(() => {
-    if (connection?.isConnected && connection?.accessToken) {
+    if (connection?.status === 'connected' && connection?.accessToken) {
       fetchMetrics()
     }
-  }, [connection?.isConnected, connection?.accessToken])
+  }, [connection?.status, connection?.accessToken])
 
   const fetchMetrics = async () => {
     if (!connection?.accessToken) return
@@ -106,7 +104,7 @@ export function GoogleFitSettings() {
 
   const handleDisconnect = async () => {
     try {
-      setStatus('google-fit', 'disconnecting')
+      setStatus('google-fit', 'syncing')
       await googleFitService.disconnect()
       toast.success('Disconnected from Google Fit')
     } catch (error) {
@@ -117,7 +115,7 @@ export function GoogleFitSettings() {
   }
 
   // Disconnected state
-  if (!connection?.isConnected) {
+  if (connection?.status !== 'connected') {
     return (
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -192,7 +190,7 @@ export function GoogleFitSettings() {
           <p className="text-sm font-medium text-gray-900 dark:text-white">Connected</p>
           <p className="text-xs text-gray-600 dark:text-gray-400">
             Last synced{' '}
-            {connection?.lastSynced ? new Date(connection.lastSynced).toLocaleString() : 'never'}
+            {connection?.lastSyncedAt ? new Date(connection.lastSyncedAt).toLocaleString() : 'never'}
           </p>
         </div>
       </div>
