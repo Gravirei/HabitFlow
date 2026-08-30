@@ -869,8 +869,6 @@ export function Tasks() {
               <HybridKanban
                 tasks={filteredTasks}
                 onTaskClick={setEditingTask}
-                onTaskStatusChange={handleTaskStatusChange}
-                onDeleteTask={deleteTask}
               />
             )}
             {kanbanStyle === 'trello' && (
@@ -885,8 +883,6 @@ export function Tasks() {
               <MinimalKanban
                 tasks={filteredTasks}
                 onTaskClick={setEditingTask}
-                onTaskStatusChange={handleTaskStatusChange}
-                onDeleteTask={deleteTask}
               />
             )}
             {kanbanStyle === 'notion' && (

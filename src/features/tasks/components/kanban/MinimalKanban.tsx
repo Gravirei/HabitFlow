@@ -1,19 +1,14 @@
-// @ts-nocheck
 import { Task } from '@/types/task'
 import { cn } from '@/utils/cn'
 
 interface MinimalKanbanProps {
   tasks: Task[]
   onTaskClick: (task: Task) => void
-  onTaskStatusChange: (taskId: string, newStatus: Task['status']) => void
-  onDeleteTask: (taskId: string) => void
 }
 
 export function MinimalKanban({
   tasks,
   onTaskClick,
-  onTaskStatusChange,
-  onDeleteTask,
 }: MinimalKanbanProps) {
   const todoTasks = tasks.filter((t) => t.status === 'todo' && !t.completed)
   const inProgressTasks = tasks.filter((t) => t.status === 'in_progress')
@@ -56,10 +51,7 @@ export function MinimalKanban({
                 <input
                   type="checkbox"
                   checked={task.completed}
-                  onChange={(e) => {
-                    e.stopPropagation()
-                    onTaskStatusChange(task.id, task.completed ? 'todo' : 'completed')
-                  }}
+                  onChange={(e) => e.stopPropagation()}
                   className="mt-1 rounded border-gray-300"
                 />
                 <div className="min-w-0 flex-1">
