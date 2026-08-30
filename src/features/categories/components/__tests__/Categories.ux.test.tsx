@@ -1,10 +1,9 @@
-// @ts-nocheck
 /**
  * Phase 4 - Categories enhanced UX tests (search / filters / sorting / empty states)
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, within, waitFor } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { Categories } from '@/pages/bottomNav/Categories'
@@ -212,7 +211,7 @@ describe('Categories (Phase 4 UX)', () => {
         completionRate: 0,
         totalCompletions: 0,
         completedDates: [],
-      } as Habit,
+      } as unknown as Habit,
     ]
 
     renderCategories()
