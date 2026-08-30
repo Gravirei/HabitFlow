@@ -32,13 +32,13 @@ export function VirtualizedSessionList({
   onRepeatClick,
   onResumeClick,
   itemHeight = 200, // Approximate height of a session card
-  height = 600 // Default viewport height
+  height = 600, // Default viewport height
 }: VirtualizedSessionListProps) {
   // Memoize the row renderer to prevent unnecessary re-renders
   const Row = useMemo(() => {
     return ({ index, style }: { index: number; style: React.CSSProperties }) => {
       const session = sessions[index]
-      
+
       return (
         <div style={style} className="px-4">
           <SessionCard

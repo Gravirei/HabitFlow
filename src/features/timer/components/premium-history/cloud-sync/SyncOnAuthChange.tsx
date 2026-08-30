@@ -2,7 +2,7 @@
 /**
  * SyncOnAuthChange Component
  * Listens to auth state changes and triggers sync operations
- * 
+ *
  * This component should be placed inside AuthProvider but doesn't render anything.
  * It handles:
  * - Triggering sync on login (if enabled)

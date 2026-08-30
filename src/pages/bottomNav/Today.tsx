@@ -14,7 +14,13 @@ import { ConfirmDialog } from '@/shared/ui/ConfirmDialog'
 import { useState, useEffect } from 'react'
 import { format, isToday, isBefore } from 'date-fns'
 import { motion, AnimatePresence } from 'framer-motion'
-import { GreetingHero, HabitCard, HydrationCard, TaskCard, DateStrip } from '@/features/today/components'
+import {
+  GreetingHero,
+  HabitCard,
+  HydrationCard,
+  TaskCard,
+  DateStrip,
+} from '@/features/today/components'
 import { cn } from '@/utils/cn'
 import { shouldResetTaskForStartFresh } from '@/utils/habitResetUtils'
 import { createPortal } from 'react-dom'
@@ -597,7 +603,7 @@ export function Today() {
     <div className="relative mx-auto flex h-auto min-h-screen w-full max-w-md flex-col overflow-x-hidden bg-gray-950 text-slate-50 selection:bg-teal-500/30 sm:max-w-2xl md:max-w-4xl lg:max-w-6xl xl:max-w-7xl">
       {/* Fixed Header */}
       <header className="fixed left-0 right-0 top-0 z-30 mx-auto max-w-md shrink-0 bg-background-light/95 backdrop-blur-sm dark:bg-background-dark/95 sm:max-w-2xl md:max-w-4xl lg:max-w-6xl xl:max-w-7xl">
-        <div className="flex flex-col gap-1 px-4 pb-2 pt-safe sm:px-6 lg:px-8">
+        <div className="pt-safe flex flex-col gap-1 px-4 pb-2 sm:px-6 lg:px-8">
           <div className="relative flex h-10 items-center justify-between">
             {/* Menu button */}
             <button

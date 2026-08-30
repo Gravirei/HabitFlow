@@ -91,11 +91,21 @@ import type { Database } from './supabase.types'
  * see a typed value or `null`.
  */
 export interface MfaApi {
-  enroll: (args: { factorType: 'totp'; friendlyName: string }) => Promise<{ data: unknown; error: Error | null }>
+  enroll: (args: {
+    factorType: 'totp'
+    friendlyName: string
+  }) => Promise<{ data: unknown; error: Error | null }>
   challenge: (args: { factorId: string }) => Promise<{ data: unknown; error: Error | null }>
-  verify: (args: { factorId: string; challengeId: string; code: string }) => Promise<{ data: unknown; error: Error | null }>
+  verify: (args: {
+    factorId: string
+    challengeId: string
+    code: string
+  }) => Promise<{ data: unknown; error: Error | null }>
   unenroll: (args: { factorId: string }) => Promise<{ data: unknown; error: Error | null }>
-  listFactors: () => Promise<{ data: { all: unknown[]; totp: unknown[] } | null; error: Error | null }>
+  listFactors: () => Promise<{
+    data: { all: unknown[]; totp: unknown[] } | null
+    error: Error | null
+  }>
 }
 
 const isTestEnv = import.meta.env.MODE === 'test'

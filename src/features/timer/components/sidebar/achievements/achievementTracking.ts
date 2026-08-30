@@ -19,7 +19,7 @@ export function calculateUserStats(sessions: any[]): UserStats {
   let stopwatchTime = 0
   let countdownTime = 0
   let intervalsTime = 0
-  
+
   const uniqueDays = new Set<string>()
   let firstSessionDate: Date | undefined
   let lastSessionDate: Date | undefined
@@ -144,13 +144,16 @@ function calculateStreaks(sessions: any[]): { currentStreak: number; longestStre
 export function getAchievementStats(achievements: Achievement[]): AchievementStats {
   const totalAchievements = achievements.length
   const unlockedAchievements = achievements.filter((a) => a.unlocked).length
-  
+
   const commonUnlocked = achievements.filter((a) => a.unlocked && a.rarity === 'common').length
   const rareUnlocked = achievements.filter((a) => a.unlocked && a.rarity === 'rare').length
   const epicUnlocked = achievements.filter((a) => a.unlocked && a.rarity === 'epic').length
-  const legendaryUnlocked = achievements.filter((a) => a.unlocked && a.rarity === 'legendary').length
-  
-  const completionRate = totalAchievements > 0 ? (unlockedAchievements / totalAchievements) * 100 : 0
+  const legendaryUnlocked = achievements.filter(
+    (a) => a.unlocked && a.rarity === 'legendary'
+  ).length
+
+  const completionRate =
+    totalAchievements > 0 ? (unlockedAchievements / totalAchievements) * 100 : 0
 
   // Get next achievements to unlock (sorted by progress)
   const nextToUnlock = achievements

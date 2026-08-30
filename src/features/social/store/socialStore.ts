@@ -144,7 +144,7 @@ interface SocialState {
 
   // ─── Nudge Cooldown (GAP 4) ────────────────────────────────────────────
 
-  nudgeCooldowns: Record<string, string>  // userId → ISO timestamp of last nudge
+  nudgeCooldowns: Record<string, string> // userId → ISO timestamp of last nudge
   canNudge: (userId: string) => boolean
   getNudgeCooldownRemaining: (userId: string) => { hours: number; minutes: number } | null
 
@@ -257,8 +257,8 @@ export const useSocialStore = create<SocialState>()(
           let newTier = state.currentLeagueTier
           for (let i = LEAGUE_CONFIGS.length - 1; i >= 0; i--) {
             if (newTotalXP >= LEAGUE_CONFIGS[i].minXP) {
-              newTier = LEAGUE_CONFIGS[i].tier;
-              break;
+              newTier = LEAGUE_CONFIGS[i].tier
+              break
             }
           }
 
@@ -412,9 +412,7 @@ export const useSocialStore = create<SocialState>()(
 
       markNudgeRead: (nudgeId) => {
         set((state) => ({
-          nudges: state.nudges.map((n) =>
-            n.id === nudgeId ? { ...n, read: true } : n
-          ),
+          nudges: state.nudges.map((n) => (n.id === nudgeId ? { ...n, read: true } : n)),
         }))
       },
 
@@ -483,29 +481,63 @@ export const useSocialStore = create<SocialState>()(
 
           switch (badge.id) {
             // Streak badges
-            case 'streak-7': shouldUnlock = currentStreak >= 7; break
-            case 'streak-30': shouldUnlock = currentStreak >= 30; break
-            case 'streak-100': shouldUnlock = currentStreak >= 100; break
-            case 'streak-365': shouldUnlock = currentStreak >= 365; break
+            case 'streak-7':
+              shouldUnlock = currentStreak >= 7
+              break
+            case 'streak-30':
+              shouldUnlock = currentStreak >= 30
+              break
+            case 'streak-100':
+              shouldUnlock = currentStreak >= 100
+              break
+            case 'streak-365':
+              shouldUnlock = currentStreak >= 365
+              break
 
             // Social badges
-            case 'first-friend': shouldUnlock = friends.length >= 1; break
-            case 'nudge-5': shouldUnlock = sentNudgesCount >= 5; break
-            case 'friend-streak-7': shouldUnlock = friends.some((f) => f.mutualStreak >= 7); break
-            case 'friend-10': shouldUnlock = friends.length >= 10; break
+            case 'first-friend':
+              shouldUnlock = friends.length >= 1
+              break
+            case 'nudge-5':
+              shouldUnlock = sentNudgesCount >= 5
+              break
+            case 'friend-streak-7':
+              shouldUnlock = friends.some((f) => f.mutualStreak >= 7)
+              break
+            case 'friend-10':
+              shouldUnlock = friends.length >= 10
+              break
 
             // Milestone badges
-            case 'level-10': shouldUnlock = level >= 10; break
-            case 'level-25': shouldUnlock = level >= 25; break
-            case 'level-50': shouldUnlock = level >= 50; break
-            case 'xp-1000': shouldUnlock = totalXP >= 1000; break
-            case 'xp-10000': shouldUnlock = totalXP >= 10000; break
+            case 'level-10':
+              shouldUnlock = level >= 10
+              break
+            case 'level-25':
+              shouldUnlock = level >= 25
+              break
+            case 'level-50':
+              shouldUnlock = level >= 50
+              break
+            case 'xp-1000':
+              shouldUnlock = totalXP >= 1000
+              break
+            case 'xp-10000':
+              shouldUnlock = totalXP >= 10000
+              break
 
             // League badges
-            case 'league-silver': shouldUnlock = ['silver', 'gold', 'platinum', 'diamond'].includes(currentLeagueTier); break
-            case 'league-gold': shouldUnlock = ['gold', 'platinum', 'diamond'].includes(currentLeagueTier); break
-            case 'league-platinum': shouldUnlock = ['platinum', 'diamond'].includes(currentLeagueTier); break
-            case 'league-diamond': shouldUnlock = currentLeagueTier === 'diamond'; break
+            case 'league-silver':
+              shouldUnlock = ['silver', 'gold', 'platinum', 'diamond'].includes(currentLeagueTier)
+              break
+            case 'league-gold':
+              shouldUnlock = ['gold', 'platinum', 'diamond'].includes(currentLeagueTier)
+              break
+            case 'league-platinum':
+              shouldUnlock = ['platinum', 'diamond'].includes(currentLeagueTier)
+              break
+            case 'league-diamond':
+              shouldUnlock = currentLeagueTier === 'diamond'
+              break
           }
 
           if (shouldUnlock) {
@@ -633,9 +665,7 @@ export const useSocialStore = create<SocialState>()(
           state.lastActiveDate !== today &&
           state.dailySummaryShownDate !== state.lastActiveDate
         ) {
-          const lastSummary = state.dailySummaries.find(
-            (s) => s.date === state.lastActiveDate
-          )
+          const lastSummary = state.dailySummaries.find((s) => s.date === state.lastActiveDate)
           if (lastSummary && lastSummary.totalXP > 0) {
             set({ shouldShowDailySummary: true })
           }
@@ -682,7 +712,7 @@ export const useSocialStore = create<SocialState>()(
             .filter((r) => r.fromUserId === 'current-user' && r.status === 'pending')
             .map((r) => r.toUserId)
         )
-        const tiers: LeagueTier[] = LEAGUE_CONFIGS.map(c => c.tier)
+        const tiers: LeagueTier[] = LEAGUE_CONFIGS.map((c) => c.tier)
 
         return DEMO_NAMES.slice(8).map((name, i): DiscoverableUser => {
           const userId = `discover-${i}`
@@ -721,9 +751,7 @@ export const useSocialStore = create<SocialState>()(
         if (!query.trim()) return []
         const discoverable = get().getDiscoverableUsers()
         const q = query.toLowerCase()
-        return discoverable.filter((u) =>
-          u.displayName.toLowerCase().includes(q)
-        )
+        return discoverable.filter((u) => u.displayName.toLowerCase().includes(q))
       },
 
       dismissSuggestion: (userId) => {

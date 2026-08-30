@@ -16,19 +16,19 @@ interface SelectPinHabitsModalProps {
 export function SelectPinHabitsModal({ isOpen, onClose, habits }: SelectPinHabitsModalProps) {
   const { pinHabit, unpinHabit } = useHabitStore()
   const { categories } = useCategoryStore()
-  
+
   // Track pending pin changes (habit id -> pinned status)
   const [pendingChanges, setPendingChanges] = useState<Record<string, boolean>>({})
 
   // Get gradient based on habit's iconColor (0-5) - Same as Habits.tsx
   const getIconGradient = (iconColor: number = 0) => {
     const gradients = [
-      'from-blue-500 to-cyan-500',      // 0: Blue
-      'from-purple-500 to-pink-500',    // 1: Purple
-      'from-emerald-500 to-teal-500',   // 2: Green
-      'from-orange-500 to-amber-500',   // 3: Orange
-      'from-red-500 to-rose-500',       // 4: Red
-      'from-teal-500 to-cyan-500',      // 5: Teal
+      'from-blue-500 to-cyan-500', // 0: Blue
+      'from-purple-500 to-pink-500', // 1: Purple
+      'from-emerald-500 to-teal-500', // 2: Green
+      'from-orange-500 to-amber-500', // 3: Orange
+      'from-red-500 to-rose-500', // 4: Red
+      'from-teal-500 to-cyan-500', // 5: Teal
     ]
     return gradients[iconColor] || gradients[0]
   }
@@ -106,7 +106,7 @@ export function SelectPinHabitsModal({ isOpen, onClose, habits }: SelectPinHabit
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="relative w-full max-w-2xl max-h-[80vh] overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-gray-800"
+            className="relative max-h-[80vh] w-full max-w-2xl overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-gray-800"
           >
             {/* Header */}
             <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700">

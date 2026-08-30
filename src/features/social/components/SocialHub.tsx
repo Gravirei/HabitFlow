@@ -39,7 +39,8 @@ export function SocialHub({ activeTab, onNavigateToMessages }: SocialHubProps) {
     currentLeagueTier,
   } = useSocialStore()
 
-  const { activeConversationId, setActiveConversation, createDirectConversation, conversations } = useMessagingStore()
+  const { activeConversationId, setActiveConversation, createDirectConversation, conversations } =
+    useMessagingStore()
 
   const [leagueMode, setLeagueMode] = useState<'map' | 'details'>('map')
   const [selectedLeagueTier, setSelectedLeagueTier] = useState<LeagueTier>(currentLeagueTier)
@@ -70,9 +71,7 @@ export function SocialHub({ activeTab, onNavigateToMessages }: SocialHubProps) {
   // Compose new direct message — find a friend without an existing conversation
   const handleCompose = useCallback(async () => {
     const existingDMUserIds = new Set(
-      conversations
-        .filter((c) => c.type === 'direct')
-        .flatMap((c) => c.memberIds)
+      conversations.filter((c) => c.type === 'direct').flatMap((c) => c.memberIds)
     )
     const availableFriend = friends.find((f) => !existingDMUserIds.has(f.userId))
 
@@ -88,7 +87,12 @@ export function SocialHub({ activeTab, onNavigateToMessages }: SocialHubProps) {
     } else {
       toast('Add some friends first!', {
         icon: '👋',
-        style: { background: '#0f1628', color: '#fff', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.1)' },
+        style: {
+          background: '#0f1628',
+          color: '#fff',
+          borderRadius: '14px',
+          border: '1px solid rgba(255,255,255,0.1)',
+        },
       })
     }
   }, [friends, conversations, createDirectConversation, setActiveConversation])
@@ -116,25 +120,21 @@ export function SocialHub({ activeTab, onNavigateToMessages }: SocialHubProps) {
         >
           {activeTab === 'leaderboard' && <LeaderboardScreen />}
           {activeTab === 'friends' && <FriendsScreen onNavigateToMessages={onNavigateToMessages} />}
-          {activeTab === 'league' && (
-            leagueMode === 'map' ? (
-              <LeagueMapScreen 
+          {activeTab === 'league' &&
+            (leagueMode === 'map' ? (
+              <LeagueMapScreen
                 onSelectTier={(tier) => {
                   setSelectedLeagueTier(tier)
                   setLeagueMode('details')
-                }} 
+                }}
               />
             ) : (
               <div className="mx-auto mt-4 max-w-3xl px-4 sm:px-6 lg:px-8">
-                <LeagueScreen 
-                  tier={selectedLeagueTier} 
-                  onBack={() => setLeagueMode('map')} 
-                />
+                <LeagueScreen tier={selectedLeagueTier} onBack={() => setLeagueMode('map')} />
               </div>
-            )
-          )}
-          {activeTab === 'messages' && (
-            activeConversationId ? (
+            ))}
+          {activeTab === 'messages' &&
+            (activeConversationId ? (
               <ConversationScreen
                 conversationId={activeConversationId}
                 onBack={() => setActiveConversation(null)}
@@ -144,8 +144,7 @@ export function SocialHub({ activeTab, onNavigateToMessages }: SocialHubProps) {
                 onSelectConversation={(id) => setActiveConversation(id)}
                 onCompose={handleCompose}
               />
-            )
-          )}
+            ))}
           {activeTab === 'profile' && <ProfileTab />}
         </motion.div>
       </AnimatePresence>

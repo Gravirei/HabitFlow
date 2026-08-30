@@ -27,7 +27,7 @@ export function calculateCompletionRate(
   completedDatesCount: number,
   goal: number,
   weeklyTimesPerWeek?: number,
-  today: Date = new Date(),
+  today: Date = new Date()
 ): number {
   if (completedDatesCount === 0) return 0
 
@@ -218,18 +218,14 @@ export function calculateHabitStrength(habit: Habit): HabitStrength {
     habit.completedDates.length,
     habit.goal,
     habit.weeklyTimesPerWeek,
-    today,
+    today
   )
 
   // Streak score (0-100): dynamically computed current/best ratio
   const currentStreak = calculateCurrentStreak(habit.completedDates, today)
   const bestStreak = calculateBestStreak(habit.completedDates)
   const streak =
-    bestStreak > 0
-      ? Math.round((currentStreak / bestStreak) * 100)
-      : currentStreak > 0
-        ? 50
-        : 0
+    bestStreak > 0 ? Math.round((currentStreak / bestStreak) * 100) : currentStreak > 0 ? 50 : 0
 
   const overall = Math.round(recency * 0.4 + frequency * 0.35 + streak * 0.25)
 
@@ -312,7 +308,7 @@ export function getTargetVsActual(habits: Habit[]): TargetVsActual[] {
         h.startDate,
         h.completedDates.length,
         h.goal,
-        h.weeklyTimesPerWeek,
+        h.weeklyTimesPerWeek
       )
 
       let status: 'on-track' | 'behind' | 'ahead' = 'on-track'

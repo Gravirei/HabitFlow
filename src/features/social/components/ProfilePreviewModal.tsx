@@ -9,7 +9,13 @@
 
 import { motion, AnimatePresence } from 'framer-motion'
 import { getLeagueTierColor } from '../constants'
-import type { ProfilePreviewData, ProfilePreviewHabit, ProfilePreviewBadge, LeagueTier, BadgeRarity } from '../types'
+import type {
+  ProfilePreviewData,
+  ProfilePreviewHabit,
+  ProfilePreviewBadge,
+  LeagueTier,
+  BadgeRarity,
+} from '../types'
 
 // ─── Dummy data generators ─────────────────────────────────────────────
 
@@ -96,7 +102,11 @@ export function generateProfilePreview(
   const bio = DUMMY_BIOS[hash % DUMMY_BIOS.length]
 
   // Pick 3 unique habits deterministically
-  const habitIndices = [hash % DUMMY_HABITS.length, (hash + 3) % DUMMY_HABITS.length, (hash + 7) % DUMMY_HABITS.length]
+  const habitIndices = [
+    hash % DUMMY_HABITS.length,
+    (hash + 3) % DUMMY_HABITS.length,
+    (hash + 7) % DUMMY_HABITS.length,
+  ]
   const seenH = new Set<number>()
   const uniqueHabitIndices: number[] = []
   for (const idx of habitIndices) {
@@ -114,7 +124,11 @@ export function generateProfilePreview(
   }))
 
   // Pick 3 unique badges (sorted by rarity — rarest first)
-  const badgeIndices = [(hash + 2) % DUMMY_BADGES.length, (hash + 5) % DUMMY_BADGES.length, (hash + 9) % DUMMY_BADGES.length]
+  const badgeIndices = [
+    (hash + 2) % DUMMY_BADGES.length,
+    (hash + 5) % DUMMY_BADGES.length,
+    (hash + 9) % DUMMY_BADGES.length,
+  ]
   const seenB = new Set<number>()
   const uniqueBadgeIndices: number[] = []
   for (const idx of badgeIndices) {
@@ -129,7 +143,7 @@ export function generateProfilePreview(
     .sort((a, b) => rarityOrder.indexOf(a.rarity) - rarityOrder.indexOf(b.rarity))
 
   // Weekly activity (7 bools, deterministic)
-  const weeklyActivity = Array.from({ length: 7 }, (_, i) => ((hash + i * 13) % 5) !== 0)
+  const weeklyActivity = Array.from({ length: 7 }, (_, i) => (hash + i * 13) % 5 !== 0)
 
   // Streak
   const currentStreak = Math.max(1, 45 - (hash % 40))
@@ -218,7 +232,7 @@ export function ProfilePreviewModal({
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center">
+      <div className="fixed inset-0 z-[60] flex items-end justify-center sm:items-center">
         {/* Backdrop */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -234,38 +248,41 @@ export function ProfilePreviewModal({
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 50, scale: 0.95 }}
           transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-          className="relative w-full max-w-lg max-h-[90vh] bg-[#0f1628] border border-white/[0.08] rounded-t-3xl sm:rounded-3xl overflow-hidden flex flex-col"
+          className="relative flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-t-3xl border border-white/[0.08] bg-[#0f1628] sm:rounded-3xl"
         >
           {/* Close button */}
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 z-10 flex size-8 items-center justify-center rounded-full bg-white/[0.06] hover:bg-white/[0.1] transition-colors cursor-pointer"
+            className="absolute right-4 top-4 z-10 flex size-8 cursor-pointer items-center justify-center rounded-full bg-white/[0.06] transition-colors hover:bg-white/[0.1]"
           >
             <span className="material-symbols-outlined text-lg text-slate-400">close</span>
           </button>
 
           {/* Scrollable content */}
-          <div className="overflow-y-auto flex-1 no-scrollbar">
+          <div className="no-scrollbar flex-1 overflow-y-auto">
             {/* ── Header: Avatar + Name + Bio ─────────────────────────── */}
-            <div className="flex flex-col items-center pt-8 pb-4 px-5">
+            <div className="flex flex-col items-center px-5 pb-4 pt-8">
               {/* Avatar with league badge */}
               <div className="relative mb-3">
                 <img
                   src={profile.avatarUrl}
                   alt={profile.displayName}
-                  className="size-24 rounded-2xl object-cover ring-2 ring-white/10 shadow-xl"
+                  className="size-24 rounded-2xl object-cover shadow-xl ring-2 ring-white/10"
                 />
                 <div
-                  className="absolute -bottom-1.5 -right-1.5 size-6 rounded-lg border-2 border-[#0f1628] flex items-center justify-center"
+                  className="absolute -bottom-1.5 -right-1.5 flex size-6 items-center justify-center rounded-lg border-2 border-[#0f1628]"
                   style={{ backgroundColor: tierColor }}
                 >
-                  <span className="text-[9px] font-black text-white capitalize">
+                  <span className="text-[9px] font-black capitalize text-white">
                     {profile.leagueTier.charAt(0)}
                   </span>
                 </div>
                 {/* Online / last active indicator */}
                 {profile.lastActive && (
-                  <div className="absolute -top-1 -right-1 size-4 rounded-full border-2 border-[#0f1628] bg-emerald-400" title="Recently active" />
+                  <div
+                    className="absolute -right-1 -top-1 size-4 rounded-full border-2 border-[#0f1628] bg-emerald-400"
+                    title="Recently active"
+                  />
                 )}
               </div>
 
@@ -275,21 +292,25 @@ export function ProfilePreviewModal({
               </h3>
 
               {/* Bio */}
-              <p className="text-[13px] text-slate-400 mt-1.5 text-center max-w-[300px] leading-relaxed">
+              <p className="mt-1.5 max-w-[300px] text-center text-[13px] leading-relaxed text-slate-400">
                 {profile.bio}
               </p>
 
               {/* Last active */}
               {profile.lastActive && !profile.isCurrentUser && (
-                <div className="flex items-center gap-1 mt-2">
+                <div className="mt-2 flex items-center gap-1">
                   <span className="size-1.5 rounded-full bg-emerald-400" />
-                  <span className="text-[11px] text-slate-500">Active {timeAgo(profile.lastActive)}</span>
+                  <span className="text-[11px] text-slate-500">
+                    Active {timeAgo(profile.lastActive)}
+                  </span>
                 </div>
               )}
 
               {/* Joined date */}
-              <div className="flex items-center gap-1 mt-1.5">
-                <span className="material-symbols-outlined text-xs text-slate-600">calendar_month</span>
+              <div className="mt-1.5 flex items-center gap-1">
+                <span className="material-symbols-outlined text-xs text-slate-600">
+                  calendar_month
+                </span>
                 <span className="text-[11px] text-slate-500">
                   Joined {formatJoinDate(profile.joinedAt)}
                   <span className="text-slate-600"> · {timeAgo(profile.joinedAt)}</span>
@@ -300,7 +321,7 @@ export function ProfilePreviewModal({
             {/* ── Mutual Streak (friends only) ────────────────────────── */}
             {profile.mutualStreak != null && profile.mutualStreak > 0 && (
               <div className="mx-5 mb-3">
-                <div className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-orange-500/10 via-amber-500/10 to-orange-500/10 border border-orange-400/15 px-4 py-2.5">
+                <div className="flex items-center justify-center gap-2 rounded-xl border border-orange-400/15 bg-gradient-to-r from-orange-500/10 via-amber-500/10 to-orange-500/10 px-4 py-2.5">
                   <span className="text-lg">🔥</span>
                   <span className="text-[13px] font-semibold text-orange-300">
                     {profile.mutualStreak}-day mutual streak with you!
@@ -310,82 +331,89 @@ export function ProfilePreviewModal({
             )}
 
             {/* ── Stats Grid (2×2) ────────────────────────────────────── */}
-            <div className="grid grid-cols-4 gap-2 mx-5 mb-4">
+            <div className="mx-5 mb-4 grid grid-cols-4 gap-2">
               {/* Current Streak */}
-              <div className="flex flex-col items-center gap-1 rounded-xl bg-white/[0.03] border border-white/[0.06] py-3">
+              <div className="flex flex-col items-center gap-1 rounded-xl border border-white/[0.06] bg-white/[0.03] py-3">
                 <span className="text-base">🔥</span>
                 <p className="text-sm font-bold text-white">{profile.currentStreak}</p>
-                <p className="text-[10px] text-slate-500 font-medium">Streak</p>
+                <p className="text-[10px] font-medium text-slate-500">Streak</p>
               </div>
 
               {/* Weekly XP */}
-              <div className="flex flex-col items-center gap-1 rounded-xl bg-white/[0.03] border border-white/[0.06] py-3">
+              <div className="flex flex-col items-center gap-1 rounded-xl border border-white/[0.06] bg-white/[0.03] py-3">
                 <span className="text-base">⚡</span>
                 <p className="text-sm font-bold text-white">{profile.weeklyXP.toLocaleString()}</p>
-                <p className="text-[10px] text-slate-500 font-medium">Week XP</p>
+                <p className="text-[10px] font-medium text-slate-500">Week XP</p>
               </div>
 
               {/* Active Habits */}
-              <div className="flex flex-col items-center gap-1 rounded-xl bg-white/[0.03] border border-white/[0.06] py-3">
+              <div className="flex flex-col items-center gap-1 rounded-xl border border-white/[0.06] bg-white/[0.03] py-3">
                 <span className="text-base">📋</span>
                 <p className="text-sm font-bold text-white">{profile.activeHabitsCount}</p>
-                <p className="text-[10px] text-slate-500 font-medium">Habits</p>
+                <p className="text-[10px] font-medium text-slate-500">Habits</p>
               </div>
 
               {/* Today Status */}
-              <div className="flex flex-col items-center gap-1 rounded-xl bg-white/[0.03] border border-white/[0.06] py-3">
+              <div className="flex flex-col items-center gap-1 rounded-xl border border-white/[0.06] bg-white/[0.03] py-3">
                 <span className="text-base">{profile.todayCompleted ? '✅' : '⏳'}</span>
-                <p className={`text-sm font-bold ${profile.todayCompleted ? 'text-emerald-400' : 'text-amber-400'}`}>
+                <p
+                  className={`text-sm font-bold ${profile.todayCompleted ? 'text-emerald-400' : 'text-amber-400'}`}
+                >
                   {profile.todayCompleted ? 'Done' : 'Not yet'}
                 </p>
-                <p className="text-[10px] text-slate-500 font-medium">Today</p>
+                <p className="text-[10px] font-medium text-slate-500">Today</p>
               </div>
             </div>
 
             {/* ── Main Stats Bar ──────────────────────────────────────── */}
-            <div className="flex items-center justify-center gap-6 py-3 mx-5 mb-4 rounded-xl bg-white/[0.03] border border-white/[0.06]">
+            <div className="mx-5 mb-4 flex items-center justify-center gap-6 rounded-xl border border-white/[0.06] bg-white/[0.03] py-3">
               <div className="text-center">
                 <p className="text-base font-bold text-white">{profile.level}</p>
-                <p className="text-[10px] text-slate-500 font-medium">Level</p>
+                <p className="text-[10px] font-medium text-slate-500">Level</p>
               </div>
-              <div className="w-px h-8 bg-white/[0.06]" />
+              <div className="h-8 w-px bg-white/[0.06]" />
               <div className="text-center">
                 <p className="text-base font-bold text-white">{profile.xp.toLocaleString()}</p>
-                <p className="text-[10px] text-slate-500 font-medium">Total XP</p>
+                <p className="text-[10px] font-medium text-slate-500">Total XP</p>
               </div>
-              <div className="w-px h-8 bg-white/[0.06]" />
+              <div className="h-8 w-px bg-white/[0.06]" />
               <div className="text-center">
                 <p className="text-base font-bold capitalize" style={{ color: tierColor }}>
                   {profile.leagueTier}
                 </p>
-                <p className="text-[10px] text-slate-500 font-medium">League</p>
+                <p className="text-[10px] font-medium text-slate-500">League</p>
               </div>
             </div>
 
             {/* ── Weekly Activity Heatmap ─────────────────────────────── */}
             <div className="mx-5 mb-4">
-              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2.5">
+              <p className="mb-2.5 text-xs font-semibold uppercase tracking-wider text-slate-400">
                 This Week
               </p>
-              <div className="flex items-center gap-1.5 justify-between rounded-xl bg-white/[0.03] border border-white/[0.06] px-4 py-3">
+              <div className="flex items-center justify-between gap-1.5 rounded-xl border border-white/[0.06] bg-white/[0.03] px-4 py-3">
                 {profile.weeklyActivity.map((active, i) => (
                   <div key={i} className="flex flex-col items-center gap-1.5">
                     <div
-                      className={`size-7 rounded-lg flex items-center justify-center transition-colors ${
+                      className={`flex size-7 items-center justify-center rounded-lg transition-colors ${
                         active
-                          ? 'bg-emerald-400/20 border border-emerald-400/30'
-                          : 'bg-white/[0.03] border border-white/[0.04]'
+                          ? 'border border-emerald-400/30 bg-emerald-400/20'
+                          : 'border border-white/[0.04] bg-white/[0.03]'
                       }`}
                     >
                       {active ? (
-                        <span className="material-symbols-outlined text-sm text-emerald-400" style={{ fontVariationSettings: "'FILL' 1" }}>
+                        <span
+                          className="material-symbols-outlined text-sm text-emerald-400"
+                          style={{ fontVariationSettings: "'FILL' 1" }}
+                        >
                           check_circle
                         </span>
                       ) : (
                         <span className="size-2 rounded-full bg-slate-700" />
                       )}
                     </div>
-                    <span className={`text-[10px] font-medium ${active ? 'text-emerald-400/70' : 'text-slate-600'}`}>
+                    <span
+                      className={`text-[10px] font-medium ${active ? 'text-emerald-400/70' : 'text-slate-600'}`}
+                    >
                       {DAY_LABELS[i]}
                     </span>
                   </div>
@@ -395,42 +423,46 @@ export function ProfilePreviewModal({
 
             {/* ── Top 3 Habits ────────────────────────────────────────── */}
             <div className="mx-5 mb-4">
-              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2.5">
+              <p className="mb-2.5 text-xs font-semibold uppercase tracking-wider text-slate-400">
                 Top Habits
               </p>
               <div className="space-y-2">
                 {profile.topHabits.map((habit, i) => (
                   <div
                     key={habit.name}
-                    className="flex items-center gap-3 rounded-xl bg-white/[0.03] border border-white/[0.06] px-3.5 py-3"
+                    className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.03] px-3.5 py-3"
                   >
                     {/* Rank medal */}
-                    <div className="flex size-8 items-center justify-center flex-shrink-0">
+                    <div className="flex size-8 flex-shrink-0 items-center justify-center">
                       <span className="text-lg">{i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉'}</span>
                     </div>
 
                     {/* Habit icon + name */}
-                    <div className="flex-1 min-w-0">
+                    <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-1.5">
                         <span className="text-base">{habit.icon}</span>
-                        <span className="text-[13px] font-semibold text-white truncate">{habit.name}</span>
+                        <span className="truncate text-[13px] font-semibold text-white">
+                          {habit.name}
+                        </span>
                       </div>
                     </div>
 
                     {/* Streak + completion */}
-                    <div className="flex items-center gap-3 flex-shrink-0">
+                    <div className="flex flex-shrink-0 items-center gap-3">
                       <div className="flex items-center gap-1">
                         <span className="text-xs">🔥</span>
-                        <span className="text-[12px] font-semibold text-orange-400">{habit.streak}d</span>
+                        <span className="text-[12px] font-semibold text-orange-400">
+                          {habit.streak}d
+                        </span>
                       </div>
                       <div className="flex items-center gap-1.5">
-                        <div className="w-12 h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
+                        <div className="h-1.5 w-12 overflow-hidden rounded-full bg-white/[0.06]">
                           <div
                             className="h-full rounded-full bg-emerald-400/70"
                             style={{ width: `${habit.completionRate}%` }}
                           />
                         </div>
-                        <span className="text-[11px] text-slate-500 font-medium w-8 text-right">
+                        <span className="w-8 text-right text-[11px] font-medium text-slate-500">
                           {habit.completionRate}%
                         </span>
                       </div>
@@ -442,21 +474,21 @@ export function ProfilePreviewModal({
 
             {/* ── Badges Showcase ─────────────────────────────────────── */}
             <div className="mx-5 mb-5">
-              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2.5">
+              <p className="mb-2.5 text-xs font-semibold uppercase tracking-wider text-slate-400">
                 Badges
               </p>
               <div className="flex gap-2">
                 {profile.badges.map((badge) => (
                   <div
                     key={badge.name}
-                    className="flex-1 flex flex-col items-center gap-1.5 rounded-xl bg-white/[0.03] border border-white/[0.06] py-3 px-2"
+                    className="flex flex-1 flex-col items-center gap-1.5 rounded-xl border border-white/[0.06] bg-white/[0.03] px-2 py-3"
                   >
                     <span className="text-2xl">{badge.icon}</span>
-                    <span className="text-[11px] font-semibold text-white text-center leading-tight truncate w-full">
+                    <span className="w-full truncate text-center text-[11px] font-semibold leading-tight text-white">
                       {badge.name}
                     </span>
                     <span
-                      className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md"
+                      className="rounded-md px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider"
                       style={{
                         color: RARITY_COLORS[badge.rarity],
                         backgroundColor: RARITY_COLORS[badge.rarity] + '15',
@@ -471,11 +503,11 @@ export function ProfilePreviewModal({
 
             {/* ── Action Buttons ──────────────────────────────────────── */}
             {!profile.isCurrentUser && (showAddFriend || showMessage) && (
-              <div className="flex gap-2 mx-5 mb-6">
+              <div className="mx-5 mb-6 flex gap-2">
                 {showMessage && onMessage && (
                   <button
                     onClick={() => onMessage(profile.userId)}
-                    className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-primary/10 hover:bg-primary/20 py-3 text-[13px] font-semibold text-primary transition-colors cursor-pointer"
+                    className="flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-xl bg-primary/10 py-3 text-[13px] font-semibold text-primary transition-colors hover:bg-primary/20"
                   >
                     <span className="material-symbols-outlined text-lg">chat</span>
                     Message
@@ -484,7 +516,7 @@ export function ProfilePreviewModal({
                 {showAddFriend && onAddFriend && (
                   <button
                     onClick={() => onAddFriend(profile.userId)}
-                    className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-emerald-400/10 hover:bg-emerald-400/20 py-3 text-[13px] font-semibold text-emerald-400 transition-colors cursor-pointer"
+                    className="flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-xl bg-emerald-400/10 py-3 text-[13px] font-semibold text-emerald-400 transition-colors hover:bg-emerald-400/20"
                   >
                     <span className="material-symbols-outlined text-lg">person_add</span>
                     Add Friend

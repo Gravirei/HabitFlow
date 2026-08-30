@@ -64,7 +64,8 @@ vi.mock('@/store/useCategoryStore', () => ({
       togglePinned: vi.fn(),
       deleteCategory: vi.fn(),
       reorderCategories: reorderCategoriesMock,
-      getPinnedCategories: () => mockCategories.filter((c) => c.isPinned).sort((a, b) => a.order - b.order),
+      getPinnedCategories: () =>
+        mockCategories.filter((c) => c.isPinned).sort((a, b) => a.order - b.order),
       getAllCategories: () => [...mockCategories].sort((a, b) => a.order - b.order),
     }
 
@@ -76,7 +77,8 @@ vi.mock('@/store/useHabitStore', () => ({
   useHabitStore: (selector?: any) => {
     const state: HabitStoreState = {
       habits: mockHabits,
-      getHabitsByCategory: (categoryId: string) => mockHabits.filter((h) => h.categoryId === categoryId),
+      getHabitsByCategory: (categoryId: string) =>
+        mockHabits.filter((h) => h.categoryId === categoryId),
       isHabitCompletedToday: (habitId: string) => completedTodayIds.has(habitId),
       clearCategoryFromHabits: vi.fn(),
     }

@@ -11,7 +11,11 @@ declare const process: NodeJS.Process
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { timerPersistence, TimerPersistence } from '@/features/timer/utils/timerPersistence'
-import type { CountdownTimerState, StopwatchTimerState, IntervalsTimerState } from '@/features/timer/utils/timerPersistence'
+import type {
+  CountdownTimerState,
+  StopwatchTimerState,
+  IntervalsTimerState,
+} from '@/features/timer/utils/timerPersistence'
 
 describe('TimerPersistence', () => {
   let mockLocalStorage: { [key: string]: string } = {}
@@ -34,18 +38,18 @@ describe('TimerPersistence', () => {
     key: (index: number) => {
       const keys = Object.keys(mockLocalStorage)
       return keys[index] || null
-    }
+    },
   }
 
   beforeEach(() => {
     // Reset mock storage
     mockLocalStorage = {}
-    
+
     // Replace global localStorage with our mock
     Object.defineProperty(global, 'localStorage', {
       value: localStorageMock,
       writable: true,
-      configurable: true
+      configurable: true,
     })
 
     // Clear console spies
@@ -68,13 +72,13 @@ describe('TimerPersistence', () => {
         totalDuration: 300000, // 5 minutes
         pausedElapsed: 0,
         savedAt: Date.now(),
-        version: 1
+        version: 1,
       }
 
       const result = timerPersistence.saveState(state)
 
       expect(result).toBe(true)
-      
+
       // Verify data was saved to mock storage
       expect(mockLocalStorage['flowmodoro_timer_state']).toBeTruthy()
 
@@ -92,10 +96,10 @@ describe('TimerPersistence', () => {
         pausedElapsed: 0,
         laps: [
           { id: '1', time: 60000, timestamp: Date.now() },
-          { id: '2', time: 120000, timestamp: Date.now() }
+          { id: '2', time: 120000, timestamp: Date.now() },
         ],
         savedAt: Date.now(),
-        version: 1
+        version: 1,
       }
 
       const result = timerPersistence.saveState(state)
@@ -120,7 +124,7 @@ describe('TimerPersistence', () => {
         breakDuration: 300000, // 5 minutes
         pausedElapsed: 0,
         savedAt: Date.now(),
-        version: 1
+        version: 1,
       }
 
       const result = timerPersistence.saveState(state)
@@ -148,14 +152,14 @@ describe('TimerPersistence', () => {
         totalDuration: 300000,
         pausedElapsed: 0,
         savedAt: Date.now(),
-        version: 1
+        version: 1,
       }
 
       const result = timerPersistence.saveState(state)
 
       expect(result).toBe(false)
       expect(console.error).toHaveBeenCalled()
-      
+
       // Restore
       global.localStorage.setItem = originalSetItem
     })
@@ -172,7 +176,7 @@ describe('TimerPersistence', () => {
         totalDuration: 300000,
         pausedElapsed: 0,
         savedAt: now - 10000, // Old timestamp
-        version: 1
+        version: 1,
       }
 
       timerPersistence.saveState(state)
@@ -192,7 +196,7 @@ describe('TimerPersistence', () => {
         totalDuration: 300000,
         pausedElapsed: 0,
         savedAt: Date.now(),
-        version: 1
+        version: 1,
       }
 
       mockLocalStorage['flowmodoro_timer_state'] = JSON.stringify(state)
@@ -221,7 +225,7 @@ describe('TimerPersistence', () => {
       // Missing required fields
       const invalidState = {
         mode: 'Countdown',
-        isActive: true
+        isActive: true,
         // Missing other required fields
       }
 
@@ -238,11 +242,11 @@ describe('TimerPersistence', () => {
         mode: 'Countdown',
         isActive: true,
         isPaused: false,
-        startTime: Date.now() - (8 * 24 * 60 * 60 * 1000), // 8 days ago
+        startTime: Date.now() - 8 * 24 * 60 * 60 * 1000, // 8 days ago
         totalDuration: 300000,
         pausedElapsed: 0,
-        savedAt: Date.now() - (8 * 24 * 60 * 60 * 1000), // 8 days ago
-        version: 1
+        savedAt: Date.now() - 8 * 24 * 60 * 60 * 1000, // 8 days ago
+        version: 1,
       }
 
       mockLocalStorage['flowmodoro_timer_state'] = JSON.stringify(oldState)
@@ -265,7 +269,7 @@ describe('TimerPersistence', () => {
         totalDuration: 300000,
         pausedElapsed: 0,
         savedAt: Date.now() + 1000000, // Future timestamp
-        version: 1
+        version: 1,
       }
 
       mockLocalStorage['flowmodoro_timer_state'] = JSON.stringify(futureState)
@@ -305,7 +309,7 @@ describe('TimerPersistence', () => {
       timerPersistence.clearState()
 
       expect(console.error).toHaveBeenCalled()
-      
+
       // Restore
       global.localStorage.removeItem = originalRemoveItem
     })
@@ -329,7 +333,7 @@ describe('TimerPersistence', () => {
 
       // Verify data was saved
       expect(mockLocalStorage['flowmodoro_active_timer']).toBe('Countdown')
-      
+
       // Verify we can retrieve it
       const saved = timerPersistence.getActiveTimer()
       expect(saved).toBe('Countdown')
@@ -338,7 +342,7 @@ describe('TimerPersistence', () => {
     it('should get saved active timer', () => {
       // Save first
       timerPersistence.saveActiveTimer('Stopwatch')
-      
+
       // Then retrieve
       const active = timerPersistence.getActiveTimer()
       expect(active).toBe('Stopwatch')
@@ -354,10 +358,10 @@ describe('TimerPersistence', () => {
       // Save first
       timerPersistence.saveActiveTimer('Intervals')
       expect(timerPersistence.getActiveTimer()).toBe('Intervals')
-      
+
       // Clear
       timerPersistence.clearActiveTimer()
-      
+
       // Should be null now
       expect(timerPersistence.getActiveTimer()).toBeNull()
     })
@@ -373,7 +377,7 @@ describe('TimerPersistence', () => {
         totalDuration: 300000, // 5 minutes total
         pausedElapsed: 0,
         savedAt: Date.now(),
-        version: 1
+        version: 1,
       }
 
       const validation = timerPersistence.validateResume(state)
@@ -392,7 +396,7 @@ describe('TimerPersistence', () => {
         totalDuration: 300000, // 5 minutes total (already finished)
         pausedElapsed: 0,
         savedAt: Date.now(),
-        version: 1
+        version: 1,
       }
 
       const validation = timerPersistence.validateResume(state)
@@ -411,7 +415,7 @@ describe('TimerPersistence', () => {
         totalDuration: 300000,
         pausedElapsed: 0,
         savedAt: Date.now(),
-        version: 1
+        version: 1,
       }
 
       const validation = timerPersistence.validateResume(state)
@@ -431,7 +435,7 @@ describe('TimerPersistence', () => {
         pausedElapsed: 0,
         laps: [],
         savedAt: Date.now(),
-        version: 1
+        version: 1,
       }
 
       const validation = timerPersistence.validateResume(state)
@@ -454,7 +458,7 @@ describe('TimerPersistence', () => {
         breakDuration: 300000,
         pausedElapsed: 0,
         savedAt: Date.now(),
-        version: 1
+        version: 1,
       }
 
       const validation = timerPersistence.validateResume(state)
@@ -476,7 +480,7 @@ describe('TimerPersistence', () => {
         breakDuration: 300000,
         pausedElapsed: 0,
         savedAt: Date.now(),
-        version: 1
+        version: 1,
       }
 
       const validation = timerPersistence.validateResume(state)
@@ -496,7 +500,7 @@ describe('TimerPersistence', () => {
         totalDuration: 300000,
         pausedElapsed: 0,
         savedAt: Date.now() + 100000, // Saved in the "future"
-        version: 1
+        version: 1,
       }
 
       const validation = timerPersistence.validateResume(state)
@@ -510,11 +514,11 @@ describe('TimerPersistence', () => {
         mode: 'Countdown',
         isActive: true,
         isPaused: false,
-        startTime: Date.now() - (25 * 60 * 60 * 1000),
+        startTime: Date.now() - 25 * 60 * 60 * 1000,
         totalDuration: 300000,
         pausedElapsed: 0,
-        savedAt: Date.now() - (25 * 60 * 60 * 1000), // 25 hours ago
-        version: 1
+        savedAt: Date.now() - 25 * 60 * 60 * 1000, // 25 hours ago
+        version: 1,
       }
 
       const validation = timerPersistence.validateResume(state)
@@ -534,7 +538,7 @@ describe('TimerPersistence', () => {
         totalDuration: 300000,
         pausedElapsed: 0,
         savedAt: Date.now() - 75000, // 1 minute 15 seconds ago
-        version: 1
+        version: 1,
       }
 
       const timeSince = timerPersistence.getTimeSinceSave(state)
@@ -561,7 +565,7 @@ describe('TimerPersistence', () => {
         totalDuration: 300000,
         pausedElapsed: 0,
         savedAt: Date.now(),
-        version: 1
+        version: 1,
       }
 
       const description = timerPersistence.getTimerDescription(state)
@@ -587,7 +591,7 @@ describe('TimerPersistence', () => {
           hours: 1,
           minutes: 30,
           seconds: 0,
-          createdAt: Date.now()
+          createdAt: Date.now(),
         }
 
         const result = timerPersistence.saveRepeatSession(config)
@@ -609,7 +613,7 @@ describe('TimerPersistence', () => {
           breakMinutes: 5,
           targetLoops: 4,
           sessionName: 'Pomodoro Session',
-          createdAt: Date.now()
+          createdAt: Date.now(),
         }
 
         const result = timerPersistence.saveRepeatSession(config)
@@ -627,7 +631,7 @@ describe('TimerPersistence', () => {
       it('should save stopwatch repeat session configuration', () => {
         const config = {
           mode: 'Stopwatch' as const,
-          createdAt: Date.now()
+          createdAt: Date.now(),
         }
 
         const result = timerPersistence.saveRepeatSession(config)
@@ -641,7 +645,7 @@ describe('TimerPersistence', () => {
       it('should reject invalid timer mode', () => {
         const config = {
           mode: 'InvalidMode' as any,
-          createdAt: Date.now()
+          createdAt: Date.now(),
         }
 
         const result = timerPersistence.saveRepeatSession(config)
@@ -656,14 +660,14 @@ describe('TimerPersistence', () => {
           hours: 1,
           minutes: 0,
           seconds: 0,
-          createdAt: Date.now()
+          createdAt: Date.now(),
         }
 
         const config2 = {
           mode: 'Intervals' as const,
           workMinutes: 25,
           breakMinutes: 5,
-          createdAt: Date.now()
+          createdAt: Date.now(),
         }
 
         timerPersistence.saveRepeatSession(config1)
@@ -681,7 +685,7 @@ describe('TimerPersistence', () => {
           hours: 0,
           minutes: 25,
           seconds: 0,
-          createdAt: Date.now()
+          createdAt: Date.now(),
         }
 
         timerPersistence.saveRepeatSession(config)
@@ -709,7 +713,7 @@ describe('TimerPersistence', () => {
           hours: 0,
           minutes: 10,
           seconds: 0,
-          createdAt: Date.now() - (6 * 60 * 1000) // 6 minutes ago
+          createdAt: Date.now() - 6 * 60 * 1000, // 6 minutes ago
         }
 
         mockLocalStorage['flowmodoro_repeat_session'] = JSON.stringify(expiredConfig)
@@ -723,7 +727,7 @@ describe('TimerPersistence', () => {
       it('should return null and clear for invalid mode in stored config', () => {
         const invalidConfig = {
           mode: 'InvalidMode',
-          createdAt: Date.now()
+          createdAt: Date.now(),
         }
 
         mockLocalStorage['flowmodoro_repeat_session'] = JSON.stringify(invalidConfig)
@@ -751,7 +755,7 @@ describe('TimerPersistence', () => {
           hours: 1,
           minutes: 0,
           seconds: 0,
-          createdAt: Date.now()
+          createdAt: Date.now(),
         }
 
         timerPersistence.saveRepeatSession(config)
@@ -773,7 +777,7 @@ describe('TimerPersistence', () => {
           hours: 0,
           minutes: 15,
           seconds: 0,
-          createdAt: Date.now()
+          createdAt: Date.now(),
         }
 
         timerPersistence.saveRepeatSession(config)
@@ -790,7 +794,7 @@ describe('TimerPersistence', () => {
           mode: 'Intervals' as const,
           workMinutes: 25,
           breakMinutes: 5,
-          createdAt: Date.now()
+          createdAt: Date.now(),
         }
 
         timerPersistence.saveRepeatSession(config)
@@ -806,7 +810,7 @@ describe('TimerPersistence', () => {
           hours: 0,
           minutes: 10,
           seconds: 0,
-          createdAt: Date.now() - (6 * 60 * 1000) // 6 minutes ago
+          createdAt: Date.now() - 6 * 60 * 1000, // 6 minutes ago
         }
 
         mockLocalStorage['flowmodoro_repeat_session'] = JSON.stringify(expiredConfig)
@@ -836,7 +840,7 @@ describe('TimerPersistence', () => {
           hours,
           minutes,
           seconds,
-          createdAt: Date.now()
+          createdAt: Date.now(),
         }
 
         timerPersistence.saveRepeatSession(resumeConfig)
@@ -859,7 +863,7 @@ describe('TimerPersistence', () => {
             hours: 0,
             minutes: 0,
             seconds: 0,
-            createdAt: Date.now()
+            createdAt: Date.now(),
           }
 
           const result = timerPersistence.saveRepeatSession(config)
@@ -877,7 +881,7 @@ describe('TimerPersistence', () => {
             hours: 24,
             minutes: 0,
             seconds: 0,
-            createdAt: Date.now()
+            createdAt: Date.now(),
           }
 
           const result = timerPersistence.saveRepeatSession(config)
@@ -893,7 +897,7 @@ describe('TimerPersistence', () => {
             hours: 0,
             minutes: 0,
             seconds: 120, // 2 minutes worth of seconds
-            createdAt: Date.now()
+            createdAt: Date.now(),
           }
 
           const result = timerPersistence.saveRepeatSession(config)
@@ -910,7 +914,7 @@ describe('TimerPersistence', () => {
             hours: -1,
             minutes: -5,
             seconds: -10,
-            createdAt: Date.now()
+            createdAt: Date.now(),
           }
 
           // Should still save (validation is UI concern)
@@ -924,7 +928,7 @@ describe('TimerPersistence', () => {
             workMinutes: 999,
             breakMinutes: 999,
             targetLoops: 100,
-            createdAt: Date.now()
+            createdAt: Date.now(),
           }
 
           const result = timerPersistence.saveRepeatSession(config)
@@ -941,7 +945,7 @@ describe('TimerPersistence', () => {
             workMinutes: 0,
             breakMinutes: 0,
             targetLoops: 0,
-            createdAt: Date.now()
+            createdAt: Date.now(),
           }
 
           const result = timerPersistence.saveRepeatSession(config)
@@ -961,7 +965,7 @@ describe('TimerPersistence', () => {
             hours: 0,
             minutes: 10,
             seconds: 0,
-            createdAt: Date.now() - (5 * 60 * 1000 + 100) // 5 minutes + 100ms ago
+            createdAt: Date.now() - (5 * 60 * 1000 + 100), // 5 minutes + 100ms ago
           }
 
           mockLocalStorage['flowmodoro_repeat_session'] = JSON.stringify(config)
@@ -977,7 +981,7 @@ describe('TimerPersistence', () => {
             hours: 0,
             minutes: 10,
             seconds: 0,
-            createdAt: Date.now() - (4 * 60 * 1000 + 59 * 1000) // 4 min 59 sec ago
+            createdAt: Date.now() - (4 * 60 * 1000 + 59 * 1000), // 4 min 59 sec ago
           }
 
           mockLocalStorage['flowmodoro_repeat_session'] = JSON.stringify(config)
@@ -992,7 +996,7 @@ describe('TimerPersistence', () => {
             hours: 0,
             minutes: 10,
             seconds: 0,
-            createdAt: Date.now() - (5 * 60 * 1000 + 1) // 5 minutes + 1ms ago
+            createdAt: Date.now() - (5 * 60 * 1000 + 1), // 5 minutes + 1ms ago
           }
 
           mockLocalStorage['flowmodoro_repeat_session'] = JSON.stringify(config)
@@ -1007,7 +1011,7 @@ describe('TimerPersistence', () => {
             hours: 0,
             minutes: 10,
             seconds: 0,
-            createdAt: Date.now() + (60 * 1000) // 1 minute in the future
+            createdAt: Date.now() + 60 * 1000, // 1 minute in the future
           }
 
           mockLocalStorage['flowmodoro_repeat_session'] = JSON.stringify(config)
@@ -1023,7 +1027,7 @@ describe('TimerPersistence', () => {
             hours: 0,
             minutes: 10,
             seconds: 0,
-            createdAt: Date.now() - (24 * 60 * 60 * 1000) // 24 hours ago
+            createdAt: Date.now() - 24 * 60 * 60 * 1000, // 24 hours ago
           }
 
           mockLocalStorage['flowmodoro_repeat_session'] = JSON.stringify(config)
@@ -1060,7 +1064,7 @@ describe('TimerPersistence', () => {
             hours: 1,
             minutes: 30,
             seconds: 0,
-            createdAt: Date.now()
+            createdAt: Date.now(),
           }
 
           mockLocalStorage['flowmodoro_repeat_session'] = JSON.stringify(config)
@@ -1074,7 +1078,7 @@ describe('TimerPersistence', () => {
             mode: 'Countdown',
             hours: 1,
             minutes: 30,
-            seconds: 0
+            seconds: 0,
           }
 
           mockLocalStorage['flowmodoro_repeat_session'] = JSON.stringify(config)
@@ -1093,7 +1097,7 @@ describe('TimerPersistence', () => {
             hours: 1,
             minutes: 30,
             seconds: 0,
-            createdAt: Date.now()
+            createdAt: Date.now(),
           }
 
           mockLocalStorage['flowmodoro_repeat_session'] = JSON.stringify(config)
@@ -1109,7 +1113,7 @@ describe('TimerPersistence', () => {
             hours: 1,
             minutes: 30,
             seconds: 0,
-            createdAt: Date.now()
+            createdAt: Date.now(),
           }
 
           mockLocalStorage['flowmodoro_repeat_session'] = JSON.stringify(config)
@@ -1124,7 +1128,7 @@ describe('TimerPersistence', () => {
             workMinutes: 25,
             breakMinutes: 5,
             sessionName: '<script>alert("xss")</script>',
-            createdAt: Date.now()
+            createdAt: Date.now(),
           }
 
           const result = timerPersistence.saveRepeatSession(config)
@@ -1142,7 +1146,7 @@ describe('TimerPersistence', () => {
             workMinutes: 25,
             breakMinutes: 5,
             sessionName: longName,
-            createdAt: Date.now()
+            createdAt: Date.now(),
           }
 
           const result = timerPersistence.saveRepeatSession(config)
@@ -1158,7 +1162,7 @@ describe('TimerPersistence', () => {
             workMinutes: 25,
             breakMinutes: 5,
             sessionName: '🔥 深度工作 セッション 🎯',
-            createdAt: Date.now()
+            createdAt: Date.now(),
           }
 
           const result = timerPersistence.saveRepeatSession(config)
@@ -1181,7 +1185,7 @@ describe('TimerPersistence', () => {
             hours: 1,
             minutes: 0,
             seconds: 0,
-            createdAt: Date.now()
+            createdAt: Date.now(),
           }
 
           const result = timerPersistence.saveRepeatSession(config)
@@ -1226,19 +1230,19 @@ describe('TimerPersistence', () => {
               hours: 0,
               minutes: i,
               seconds: 0,
-              createdAt: Date.now()
+              createdAt: Date.now(),
             }
 
             timerPersistence.saveRepeatSession(config)
             const loaded = timerPersistence.loadRepeatSession()
-            
+
             expect(loaded?.minutes).toBe(i)
           }
         })
 
         it('should handle alternating mode saves', () => {
           const modes = ['Countdown', 'Intervals', 'Stopwatch'] as const
-          
+
           for (let i = 0; i < 30; i++) {
             const mode = modes[i % 3]
             const config = {
@@ -1248,12 +1252,12 @@ describe('TimerPersistence', () => {
               seconds: mode === 'Countdown' ? 0 : undefined,
               workMinutes: mode === 'Intervals' ? 25 : undefined,
               breakMinutes: mode === 'Intervals' ? 5 : undefined,
-              createdAt: Date.now()
+              createdAt: Date.now(),
             }
 
             timerPersistence.saveRepeatSession(config)
             const loaded = timerPersistence.loadRepeatSession()
-            
+
             expect(loaded?.mode).toBe(mode)
           }
         })
@@ -1263,7 +1267,7 @@ describe('TimerPersistence', () => {
         it('should handle countdown with only required fields', () => {
           const config = {
             mode: 'Countdown' as const,
-            createdAt: Date.now()
+            createdAt: Date.now(),
             // hours, minutes, seconds are undefined
           }
 
@@ -1280,7 +1284,7 @@ describe('TimerPersistence', () => {
         it('should handle intervals with only required fields', () => {
           const config = {
             mode: 'Intervals' as const,
-            createdAt: Date.now()
+            createdAt: Date.now(),
             // workMinutes, breakMinutes, targetLoops, sessionName are undefined
           }
 
@@ -1300,7 +1304,7 @@ describe('TimerPersistence', () => {
             // breakMinutes is undefined
             targetLoops: 4,
             // sessionName is undefined
-            createdAt: Date.now()
+            createdAt: Date.now(),
           }
 
           const result = timerPersistence.saveRepeatSession(config)
@@ -1318,7 +1322,7 @@ describe('TimerPersistence', () => {
             workMinutes: 25,
             breakMinutes: 5,
             sessionName: '',
-            createdAt: Date.now()
+            createdAt: Date.now(),
           }
 
           const result = timerPersistence.saveRepeatSession(config)

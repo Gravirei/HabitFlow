@@ -65,7 +65,11 @@ describe('Integration Error Tests', () => {
           <div>
             <h1>Parent Component</h1>
             <TimerErrorBoundary>
-              <div>{(() => { throw new Error('Child error') })()}</div>
+              <div>
+                {(() => {
+                  throw new Error('Child error')
+                })()}
+              </div>
             </TimerErrorBoundary>
           </div>
         )
@@ -83,12 +87,15 @@ describe('Integration Error Tests', () => {
   describe('State Management Errors', () => {
     // Skip: Component rendering with corrupted localStorage is timing-sensitive
     it.skip('should handle timer state corruption', () => {
-      localStorage.setItem('flowmodoro_active_timer', JSON.stringify({
-        mode: 'Countdown',
-        startTime: 'invalid',
-        duration: -1000,
-        isRunning: 'not a boolean'
-      }))
+      localStorage.setItem(
+        'flowmodoro_active_timer',
+        JSON.stringify({
+          mode: 'Countdown',
+          startTime: 'invalid',
+          duration: -1000,
+          isRunning: 'not a boolean',
+        })
+      )
 
       renderWithRouter(
         <TimerErrorBoundary>
@@ -100,7 +107,7 @@ describe('Integration Error Tests', () => {
       expect(screen.getByText(/stopwatch|countdown|intervals/i)).toBeInTheDocument()
     })
 
-    // Skip: Timer container render with corrupted localStorage is timing-sensitive  
+    // Skip: Timer container render with corrupted localStorage is timing-sensitive
     it.skip('should recover from invalid persisted state', () => {
       localStorage.setItem('flowmodoro_active_timer', 'corrupted data')
 
@@ -164,8 +171,8 @@ describe('Integration Error Tests', () => {
         writable: true,
         value: {
           permission: 'denied',
-          requestPermission: vi.fn().mockResolvedValue('denied')
-        }
+          requestPermission: vi.fn().mockResolvedValue('denied'),
+        },
       })
 
       renderWithRouter(
@@ -194,7 +201,7 @@ describe('Integration Error Tests', () => {
       const audioMock = {
         play: vi.fn().mockRejectedValue(new Error('Audio playback failed')),
         pause: vi.fn(),
-        volume: 0.5
+        volume: 0.5,
       }
       global.Audio = vi.fn().mockImplementation(() => audioMock) as any
 
@@ -224,7 +231,7 @@ describe('Integration Error Tests', () => {
         writable: true,
         value: vi.fn().mockImplementation(() => {
           throw new Error('Vibration failed')
-        })
+        }),
       })
 
       renderWithRouter(
@@ -369,9 +376,10 @@ describe('Integration Error Tests', () => {
     it('should handle invalid preset selection', async () => {
       // const user = userEvent.setup()
 
-      localStorage.setItem('flowmodoro_presets', JSON.stringify([
-        { id: '1', name: 'Invalid', duration: -1000 }
-      ]))
+      localStorage.setItem(
+        'flowmodoro_presets',
+        JSON.stringify([{ id: '1', name: 'Invalid', duration: -1000 }])
+      )
 
       renderWithRouter(
         <TimerErrorBoundary>
@@ -448,7 +456,7 @@ describe('Integration Error Tests', () => {
       Object.defineProperty(document, 'hidden', {
         writable: true,
         configurable: true,
-        value: true
+        value: true,
       })
       document.dispatchEvent(new Event('visibilitychange'))
 
@@ -456,7 +464,7 @@ describe('Integration Error Tests', () => {
       Object.defineProperty(document, 'hidden', {
         writable: true,
         configurable: true,
-        value: false
+        value: false,
       })
       document.dispatchEvent(new Event('visibilitychange'))
 
@@ -541,7 +549,7 @@ describe('Integration Error Tests', () => {
       )
 
       // Clear corrupted data
-      Object.keys(localStorage).forEach(key => localStorage.removeItem(key))
+      Object.keys(localStorage).forEach((key) => localStorage.removeItem(key))
 
       // Rerender
       rerender(

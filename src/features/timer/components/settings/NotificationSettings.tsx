@@ -24,14 +24,14 @@ export const NotificationSettings: React.FC = () => {
 
   const handleToggle = async (key: keyof typeof settings) => {
     const newValue = !settings[key]
-    
+
     // If enabling notifications, request permission first
     if (key === 'notificationsEnabled' && newValue) {
       setIsRequesting(true)
       const granted = await notificationManager.requestPermission()
       setIsRequesting(false)
       setPermissionStatus(notificationManager.getPermission())
-      
+
       // Only enable if permission granted
       if (granted) {
         updateSettings({ [key]: newValue })
@@ -64,7 +64,7 @@ export const NotificationSettings: React.FC = () => {
     const granted = await notificationManager.requestPermission()
     setIsRequesting(false)
     setPermissionStatus(notificationManager.getPermission())
-    
+
     if (granted) {
       updateSettings({ notificationsEnabled: true })
     }
@@ -76,28 +76,28 @@ export const NotificationSettings: React.FC = () => {
       return {
         color: 'bg-gray-500/20 text-gray-400',
         icon: '⚠️',
-        text: 'Not Supported'
+        text: 'Not Supported',
       }
     }
-    
+
     switch (permissionStatus) {
       case 'granted':
         return {
           color: 'bg-green-500/20 text-green-400',
           icon: '🟢',
-          text: 'Granted'
+          text: 'Granted',
         }
       case 'denied':
         return {
           color: 'bg-red-500/20 text-red-400',
           icon: '🔴',
-          text: 'Denied'
+          text: 'Denied',
         }
       default:
         return {
           color: 'bg-yellow-500/20 text-yellow-400',
           icon: '🟡',
-          text: 'Not Requested'
+          text: 'Not Requested',
         }
     }
   }
@@ -113,20 +113,21 @@ export const NotificationSettings: React.FC = () => {
     >
       {/* Browser Support Warning */}
       {!notificationManager.isSupported() && (
-        <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 space-y-2">
+        <div className="space-y-2 rounded-xl border border-red-500/30 bg-red-500/10 p-4">
           <div className="flex items-center gap-2">
             <span className="text-2xl">⚠️</span>
             <span className="text-sm font-semibold text-red-400">Browser Not Supported</span>
           </div>
           <p className="text-xs text-red-300">
-            Your browser doesn't support desktop notifications. Try Chrome, Firefox, Safari, or Edge.
+            Your browser doesn't support desktop notifications. Try Chrome, Firefox, Safari, or
+            Edge.
           </p>
         </div>
       )}
 
       {/* Permission Status Indicator */}
       {notificationManager.isSupported() && (
-        <div className="p-4 rounded-xl bg-white/5 border border-white/10">
+        <div className="rounded-xl border border-white/10 bg-white/5 p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <span className="text-2xl">{permissionBadge.icon}</span>
@@ -137,7 +138,9 @@ export const NotificationSettings: React.FC = () => {
                 </p>
               </div>
             </div>
-            <span className={`text-xs px-3 py-1.5 rounded-full font-medium ${permissionBadge.color}`}>
+            <span
+              className={`rounded-full px-3 py-1.5 text-xs font-medium ${permissionBadge.color}`}
+            >
               {permissionBadge.text}
             </span>
           </div>
@@ -149,17 +152,29 @@ export const NotificationSettings: React.FC = () => {
         <button
           onClick={handleRequestPermission}
           disabled={isRequesting || permissionStatus === 'denied'}
-          className={`w-full py-3 px-4 rounded-xl font-semibold transition-all ${
+          className={`w-full rounded-xl px-4 py-3 font-semibold transition-all ${
             permissionStatus === 'denied'
-              ? 'bg-gray-600/50 text-gray-400 cursor-not-allowed'
-              : 'bg-orange-500 hover:bg-orange-600 text-white'
+              ? 'cursor-not-allowed bg-gray-600/50 text-gray-400'
+              : 'bg-orange-500 text-white hover:bg-orange-600'
           }`}
         >
           {isRequesting ? (
             <span className="flex items-center justify-center gap-2">
-              <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              <svg className="h-5 w-5 animate-spin" viewBox="0 0 24 24">
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                  fill="none"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                />
               </svg>
               Requesting...
             </span>
@@ -190,24 +205,22 @@ export const NotificationSettings: React.FC = () => {
       {settings.notificationsEnabled && permissionStatus === 'granted' && (
         <>
           {/* Notification Message Input */}
-          <div className="p-4 rounded-2xl bg-white/5 space-y-3">
+          <div className="space-y-3 rounded-2xl bg-white/5 p-4">
             <label className="text-sm font-semibold text-white">Notification Message</label>
             <input
               type="text"
               value={settings.notificationMessage}
               onChange={handleMessageChange}
               placeholder="Timer Complete!"
-              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+              className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-gray-500 transition-all focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
-            <p className="text-xs text-gray-400">
-              This message will appear in your notification
-            </p>
+            <p className="text-xs text-gray-400">This message will appear in your notification</p>
           </div>
 
           {/* Test Notification Button */}
           <button
             onClick={handleTestNotification}
-            className="w-full py-3 px-4 rounded-xl font-semibold bg-white/10 hover:bg-white/20 text-white transition-all border border-white/10 hover:border-white/20"
+            className="w-full rounded-xl border border-white/10 bg-white/10 px-4 py-3 font-semibold text-white transition-all hover:border-white/20 hover:bg-white/20"
           >
             {showTestFeedback ? (
               <span className="flex items-center justify-center gap-2">

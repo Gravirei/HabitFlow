@@ -19,7 +19,7 @@ function createMockSession(overrides: Partial<TimerSessionData> = {}): TimerSess
     startTime: now,
     endTime: new Date(now.getTime() + 1500 * 1000),
     completed: true,
-    ...overrides
+    ...overrides,
   }
 }
 
@@ -31,7 +31,7 @@ function createSessionOnDate(daysAgo: number, completed = true): TimerSessionDat
   return createMockSession({
     startTime: date,
     endTime: new Date(date.getTime() + 1500 * 1000),
-    completed
+    completed,
   })
 }
 
@@ -43,9 +43,7 @@ function createBaseInsights(sessions: TimerSessionData[]): AIInsights {
 describe('insightGenerators', () => {
   describe('generateInsightMessages', () => {
     it('should add messages to all insight types', () => {
-      const sessions = Array.from({ length: 15 }, (_, i) =>
-        createSessionOnDate(i)
-      )
+      const sessions = Array.from({ length: 15 }, (_, i) => createSessionOnDate(i))
       const baseInsights = createBaseInsights(sessions)
       const result = generateInsightMessages(baseInsights)
 
@@ -80,7 +78,7 @@ describe('insightGenerators', () => {
           duration: 1500,
           completed: true,
           startTime: new Date(Date.now() - i * 24 * 60 * 60 * 1000),
-          endTime: new Date(Date.now() - i * 24 * 60 * 60 * 1000 + 1500000)
+          endTime: new Date(Date.now() - i * 24 * 60 * 60 * 1000 + 1500000),
         })
       )
       const baseInsights = createBaseInsights(sessions)
@@ -140,9 +138,7 @@ describe('insightGenerators', () => {
 
   describe('generateDurationMessage', () => {
     it('should format duration ranges in message', () => {
-      const sessions = Array.from({ length: 10 }, () =>
-        createMockSession({ duration: 1200 })
-      )
+      const sessions = Array.from({ length: 10 }, () => createMockSession({ duration: 1200 }))
       const baseInsights = createBaseInsights(sessions)
       const result = generateInsightMessages(baseInsights)
 
@@ -156,14 +152,14 @@ describe('insightGenerators', () => {
         createMockSession({
           duration: 600,
           startTime: new Date(Date.now() - (20 - i) * 24 * 60 * 60 * 1000),
-          endTime: new Date(Date.now() - (20 - i) * 24 * 60 * 60 * 1000 + 600000)
+          endTime: new Date(Date.now() - (20 - i) * 24 * 60 * 60 * 1000 + 600000),
         })
       )
       const recentSessions = Array.from({ length: 10 }, (_, i) =>
         createMockSession({
           duration: 1800,
           startTime: new Date(Date.now() - (9 - i) * 24 * 60 * 60 * 1000),
-          endTime: new Date(Date.now() - (9 - i) * 24 * 60 * 60 * 1000 + 1800000)
+          endTime: new Date(Date.now() - (9 - i) * 24 * 60 * 60 * 1000 + 1800000),
         })
       )
       const baseInsights = createBaseInsights([...oldSessions, ...recentSessions])
@@ -177,9 +173,7 @@ describe('insightGenerators', () => {
 
   describe('generateModeMasteryMessage', () => {
     it('should include mode name in message', () => {
-      const sessions = Array.from({ length: 15 }, () =>
-        createMockSession({ mode: 'Countdown' })
-      )
+      const sessions = Array.from({ length: 15 }, () => createMockSession({ mode: 'Countdown' }))
       const baseInsights = createBaseInsights(sessions)
       const result = generateInsightMessages(baseInsights)
 
@@ -189,9 +183,7 @@ describe('insightGenerators', () => {
     })
 
     it('should include emoji for mode type', () => {
-      const sessions = Array.from({ length: 15 }, () =>
-        createMockSession({ mode: 'Stopwatch' })
-      )
+      const sessions = Array.from({ length: 15 }, () => createMockSession({ mode: 'Stopwatch' }))
       const baseInsights = createBaseInsights(sessions)
       const result = generateInsightMessages(baseInsights)
 
@@ -216,9 +208,7 @@ describe('insightGenerators', () => {
 
   describe('generateConsistencyMessage', () => {
     it('should indicate exceptional consistency for high scores', () => {
-      const sessions = Array.from({ length: 30 }, (_, i) =>
-        createSessionOnDate(i)
-      )
+      const sessions = Array.from({ length: 30 }, (_, i) => createSessionOnDate(i))
       const baseInsights = createBaseInsights(sessions)
       const result = generateInsightMessages(baseInsights)
 
@@ -228,9 +218,7 @@ describe('insightGenerators', () => {
     })
 
     it('should mention active days and total days', () => {
-      const sessions = Array.from({ length: 10 }, (_, i) =>
-        createSessionOnDate(i * 2)
-      )
+      const sessions = Array.from({ length: 10 }, (_, i) => createSessionOnDate(i * 2))
       const baseInsights = createBaseInsights(sessions)
       const result = generateInsightMessages(baseInsights)
 
@@ -238,11 +226,7 @@ describe('insightGenerators', () => {
     })
 
     it('should mention current streak when active', () => {
-      const sessions = [
-        createSessionOnDate(0),
-        createSessionOnDate(1),
-        createSessionOnDate(2),
-      ]
+      const sessions = [createSessionOnDate(0), createSessionOnDate(1), createSessionOnDate(2)]
       const baseInsights = createBaseInsights(sessions)
       const result = generateInsightMessages(baseInsights)
 
@@ -252,9 +236,7 @@ describe('insightGenerators', () => {
     })
 
     it('should mention trend direction', () => {
-      const sessions = Array.from({ length: 20 }, (_, i) =>
-        createSessionOnDate(i)
-      )
+      const sessions = Array.from({ length: 20 }, (_, i) => createSessionOnDate(i))
       const baseInsights = createBaseInsights(sessions)
       const result = generateInsightMessages(baseInsights)
 
@@ -269,13 +251,13 @@ describe('insightGenerators', () => {
       const currentWeek = Array.from({ length: 10 }, (_, i) =>
         createMockSession({
           startTime: new Date(now - i * dayMs),
-          endTime: new Date(now - i * dayMs + 1500000)
+          endTime: new Date(now - i * dayMs + 1500000),
         })
       )
       const previousWeek = Array.from({ length: 3 }, (_, i) =>
         createMockSession({
           startTime: new Date(now - (7 + i) * dayMs),
-          endTime: new Date(now - (7 + i) * dayMs + 1500000)
+          endTime: new Date(now - (7 + i) * dayMs + 1500000),
         })
       )
       const baseInsights = createBaseInsights([...currentWeek, ...previousWeek])
@@ -292,13 +274,13 @@ describe('insightGenerators', () => {
       const currentWeek = Array.from({ length: 2 }, (_, i) =>
         createMockSession({
           startTime: new Date(now - i * dayMs),
-          endTime: new Date(now - i * dayMs + 1500000)
+          endTime: new Date(now - i * dayMs + 1500000),
         })
       )
       const previousWeek = Array.from({ length: 10 }, (_, i) =>
         createMockSession({
           startTime: new Date(now - (7 + i) * dayMs),
-          endTime: new Date(now - (7 + i) * dayMs + 1500000)
+          endTime: new Date(now - (7 + i) * dayMs + 1500000),
         })
       )
       const baseInsights = createBaseInsights([...currentWeek, ...previousWeek])
@@ -315,13 +297,13 @@ describe('insightGenerators', () => {
       const currentWeek = Array.from({ length: 5 }, (_, i) =>
         createMockSession({
           startTime: new Date(now - i * dayMs),
-          endTime: new Date(now - i * dayMs + 1500000)
+          endTime: new Date(now - i * dayMs + 1500000),
         })
       )
       const previousWeek = Array.from({ length: 5 }, (_, i) =>
         createMockSession({
           startTime: new Date(now - (7 + i) * dayMs),
-          endTime: new Date(now - (7 + i) * dayMs + 1500000)
+          endTime: new Date(now - (7 + i) * dayMs + 1500000),
         })
       )
       const baseInsights = createBaseInsights([...currentWeek, ...previousWeek])
@@ -344,7 +326,11 @@ describe('insightGenerators', () => {
     it('should format duration correctly in message', () => {
       const now = Date.now()
       const sessions = [
-        createMockSession({ duration: 3700, startTime: new Date(now), endTime: new Date(now + 3700000) }),
+        createMockSession({
+          duration: 3700,
+          startTime: new Date(now),
+          endTime: new Date(now + 3700000),
+        }),
       ]
       const baseInsights = createBaseInsights(sessions)
       const result = generateInsightMessages(baseInsights)
@@ -357,7 +343,7 @@ describe('insightGenerators', () => {
       const sessions = Array.from({ length: 5 }, (_, i) =>
         createMockSession({
           startTime: new Date(now - i * 1000),
-          endTime: new Date(now - i * 1000 + 1500000)
+          endTime: new Date(now - i * 1000 + 1500000),
         })
       )
       const baseInsights = createBaseInsights(sessions)
@@ -369,8 +355,16 @@ describe('insightGenerators', () => {
     it('should include completion rate', () => {
       const now = Date.now()
       const sessions = [
-        createMockSession({ completed: true, startTime: new Date(now), endTime: new Date(now + 1000) }),
-        createMockSession({ completed: false, startTime: new Date(now), endTime: new Date(now + 1000) }),
+        createMockSession({
+          completed: true,
+          startTime: new Date(now),
+          endTime: new Date(now + 1000),
+        }),
+        createMockSession({
+          completed: false,
+          startTime: new Date(now),
+          endTime: new Date(now + 1000),
+        }),
       ]
       const baseInsights = createBaseInsights(sessions)
       const result = generateInsightMessages(baseInsights)
@@ -381,7 +375,11 @@ describe('insightGenerators', () => {
     it('should include appropriate emoji based on completion rate', () => {
       const now = Date.now()
       const sessions = Array.from({ length: 10 }, () =>
-        createMockSession({ completed: true, startTime: new Date(now), endTime: new Date(now + 1000) })
+        createMockSession({
+          completed: true,
+          startTime: new Date(now),
+          endTime: new Date(now + 1000),
+        })
       )
       const baseInsights = createBaseInsights(sessions)
       const result = generateInsightMessages(baseInsights)
@@ -403,25 +401,27 @@ describe('insightGenerators', () => {
     })
 
     it('should recommend longer sessions for short average duration', () => {
-      const sessions = Array.from({ length: 10 }, () =>
-        createMockSession({ duration: 300 }) // 5 min sessions
+      const sessions = Array.from(
+        { length: 10 },
+        () => createMockSession({ duration: 300 }) // 5 min sessions
       )
       const baseInsights = createBaseInsights(sessions)
       const recommendations = generateRecommendations(baseInsights)
 
-      const durationRec = recommendations.find(r => r.category === 'duration')
+      const durationRec = recommendations.find((r) => r.category === 'duration')
       expect(durationRec).toBeDefined()
       expect(durationRec?.title).toContain('Longer')
     })
 
     it('should recommend breaks for very long sessions', () => {
-      const sessions = Array.from({ length: 10 }, () =>
-        createMockSession({ duration: 4500 }) // 75 min sessions
+      const sessions = Array.from(
+        { length: 10 },
+        () => createMockSession({ duration: 4500 }) // 75 min sessions
       )
       const baseInsights = createBaseInsights(sessions)
       const recommendations = generateRecommendations(baseInsights)
 
-      const breakRec = recommendations.find(r => r.title.includes('Break'))
+      const breakRec = recommendations.find((r) => r.title.includes('Break'))
       expect(breakRec).toBeDefined()
     })
 
@@ -429,30 +429,27 @@ describe('insightGenerators', () => {
       const sessions = Array.from({ length: 15 }, () => {
         const date = new Date()
         date.setHours(9, 0, 0, 0)
-        return createMockSession({ 
-          startTime: date, 
+        return createMockSession({
+          startTime: date,
           endTime: new Date(date.getTime() + 1500000),
-          completed: true
+          completed: true,
         })
       })
       const baseInsights = createBaseInsights(sessions)
       const recommendations = generateRecommendations(baseInsights)
 
-      const timingRec = recommendations.find(r => r.category === 'timing')
+      const timingRec = recommendations.find((r) => r.category === 'timing')
       if (timingRec) {
         expect(timingRec.title).toContain('Peak Hours')
       }
     })
 
     it('should recommend building daily habits for low consistency', () => {
-      const sessions = [
-        createSessionOnDate(0),
-        createSessionOnDate(10),
-      ]
+      const sessions = [createSessionOnDate(0), createSessionOnDate(10)]
       const baseInsights = createBaseInsights(sessions)
       const recommendations = generateRecommendations(baseInsights)
 
-      const consistencyRec = recommendations.find(r => r.category === 'consistency')
+      const consistencyRec = recommendations.find((r) => r.category === 'consistency')
       if (consistencyRec) {
         expect(consistencyRec.title).toMatch(/Daily|Habit/i)
       }
@@ -471,7 +468,7 @@ describe('insightGenerators', () => {
       const baseInsights = createBaseInsights(sessions)
       const recommendations = generateRecommendations(baseInsights)
 
-      const streakRec = recommendations.find(r => r.title.includes('Streak'))
+      const streakRec = recommendations.find((r) => r.title.includes('Streak'))
       // May or may not be present depending on streak calculation
       expect(recommendations.length).toBeGreaterThanOrEqual(0)
     })
@@ -479,15 +476,21 @@ describe('insightGenerators', () => {
     it('should recommend using best mode more if underutilized', () => {
       const sessions = [
         // Best mode with few sessions
-        ...Array.from({ length: 4 }, () => createMockSession({ mode: 'Intervals', completed: true })),
+        ...Array.from({ length: 4 }, () =>
+          createMockSession({ mode: 'Intervals', completed: true })
+        ),
         // Other modes with many sessions
-        ...Array.from({ length: 8 }, () => createMockSession({ mode: 'Stopwatch', completed: false })),
-        ...Array.from({ length: 8 }, () => createMockSession({ mode: 'Countdown', completed: false })),
+        ...Array.from({ length: 8 }, () =>
+          createMockSession({ mode: 'Stopwatch', completed: false })
+        ),
+        ...Array.from({ length: 8 }, () =>
+          createMockSession({ mode: 'Countdown', completed: false })
+        ),
       ]
       const baseInsights = createBaseInsights(sessions)
       const recommendations = generateRecommendations(baseInsights)
 
-      const modeRec = recommendations.find(r => r.category === 'mode')
+      const modeRec = recommendations.find((r) => r.category === 'mode')
       if (modeRec) {
         expect(modeRec.description).toMatch(/completion rate/i)
       }
@@ -499,19 +502,19 @@ describe('insightGenerators', () => {
       const currentWeek = Array.from({ length: 2 }, (_, i) =>
         createMockSession({
           startTime: new Date(now - i * dayMs),
-          endTime: new Date(now - i * dayMs + 1500000)
+          endTime: new Date(now - i * dayMs + 1500000),
         })
       )
       const previousWeek = Array.from({ length: 10 }, (_, i) =>
         createMockSession({
           startTime: new Date(now - (7 + i) * dayMs),
-          endTime: new Date(now - (7 + i) * dayMs + 1500000)
+          endTime: new Date(now - (7 + i) * dayMs + 1500000),
         })
       )
       const baseInsights = createBaseInsights([...currentWeek, ...previousWeek])
       const recommendations = generateRecommendations(baseInsights)
 
-      const trendRec = recommendations.find(r => r.title.includes('Track'))
+      const trendRec = recommendations.find((r) => r.title.includes('Track'))
       // May or may not be present depending on trend calculation
       expect(recommendations.length).toBeGreaterThanOrEqual(0)
     })
@@ -522,13 +525,13 @@ describe('insightGenerators', () => {
         createMockSession({
           completed: i < 3, // only 30% completion
           startTime: new Date(now - i * 1000),
-          endTime: new Date(now - i * 1000 + 1000)
+          endTime: new Date(now - i * 1000 + 1000),
         })
       )
       const baseInsights = createBaseInsights(sessions)
       const recommendations = generateRecommendations(baseInsights)
 
-      const completionRec = recommendations.find(r => r.title.includes('Completion'))
+      const completionRec = recommendations.find((r) => r.title.includes('Completion'))
       if (completionRec) {
         expect(completionRec.description).toMatch(/shorter|achievable/i)
       }
@@ -540,13 +543,13 @@ describe('insightGenerators', () => {
           duration: 1500,
           completed: true,
           startTime: new Date(Date.now() - i * 24 * 60 * 60 * 1000),
-          endTime: new Date(Date.now() - i * 24 * 60 * 60 * 1000 + 1500000)
+          endTime: new Date(Date.now() - i * 24 * 60 * 60 * 1000 + 1500000),
         })
       )
       const baseInsights = createBaseInsights(sessions)
       const recommendations = generateRecommendations(baseInsights)
 
-      const congratsRec = recommendations.find(r => r.title.includes('Crushing'))
+      const congratsRec = recommendations.find((r) => r.title.includes('Crushing'))
       // May or may not be present depending on exact scores
       expect(recommendations.length).toBeLessThanOrEqual(5)
     })
@@ -559,10 +562,12 @@ describe('insightGenerators', () => {
       const recommendations = generateRecommendations(baseInsights)
 
       if (recommendations.length >= 2) {
-        const priorities = recommendations.map(r => r.priority)
+        const priorities = recommendations.map((r) => r.priority)
         const priorityOrder = { high: 1, medium: 2, low: 3 }
         for (let i = 1; i < priorities.length; i++) {
-          expect(priorityOrder[priorities[i]]).toBeGreaterThanOrEqual(priorityOrder[priorities[i - 1]])
+          expect(priorityOrder[priorities[i]]).toBeGreaterThanOrEqual(
+            priorityOrder[priorities[i - 1]]
+          )
         }
       }
     })
@@ -573,7 +578,7 @@ describe('insightGenerators', () => {
           duration: 300,
           completed: i % 3 === 0,
           startTime: new Date(Date.now() - i * 24 * 60 * 60 * 1000),
-          endTime: new Date(Date.now() - i * 24 * 60 * 60 * 1000 + 300000)
+          endTime: new Date(Date.now() - i * 24 * 60 * 60 * 1000 + 300000),
         })
       )
       const baseInsights = createBaseInsights(sessions)
@@ -587,7 +592,7 @@ describe('insightGenerators', () => {
       const baseInsights = createBaseInsights(sessions)
       const recommendations = generateRecommendations(baseInsights)
 
-      recommendations.forEach(rec => {
+      recommendations.forEach((rec) => {
         expect(rec).toHaveProperty('id')
         expect(rec).toHaveProperty('category')
         expect(rec).toHaveProperty('priority')
@@ -596,7 +601,9 @@ describe('insightGenerators', () => {
         expect(rec).toHaveProperty('description')
         expect(rec).toHaveProperty('actionable')
         expect(['high', 'medium', 'low']).toContain(rec.priority)
-        expect(['duration', 'timing', 'consistency', 'mode', 'breaks', 'general']).toContain(rec.category)
+        expect(['duration', 'timing', 'consistency', 'mode', 'breaks', 'general']).toContain(
+          rec.category
+        )
       })
     })
 
@@ -607,7 +614,7 @@ describe('insightGenerators', () => {
       const baseInsights = createBaseInsights(sessions)
       const recommendations = generateRecommendations(baseInsights)
 
-      const ids = recommendations.map(r => r.id)
+      const ids = recommendations.map((r) => r.id)
       const uniqueIds = new Set(ids)
       expect(uniqueIds.size).toBe(ids.length)
     })

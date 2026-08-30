@@ -1,19 +1,19 @@
 /**
  * Timer Persistence Utility
- * 
+ *
  * Handles saving and restoring timer state to/from localStorage.
  * Allows users to resume timers after browser refresh, tab close, or crash.
- * 
+ *
  * Features:
  * - Auto-save active timer state
  * - Smart time calculation (accounts for time passed while closed)
  * - State validation and corruption handling
  * - Edge case detection (completed timers, time changes)
  * - Multi-timer mode support (Countdown, Stopwatch, Intervals)
- * 
+ *
  * CRITICAL FIX: Added input validation and sanitization to prevent XSS
  * and other injection attacks from malicious localStorage data.
- * 
+ *
  * @module timerPersistence
  */
 
@@ -44,15 +44,15 @@ function sanitizeString(input: unknown): string {
   if (typeof input !== 'string') {
     return ''
   }
-  
+
   // Remove HTML tags
   let sanitized = input.replace(/<[^>]*>/g, '')
-  
+
   // Remove potential script injection patterns
   sanitized = sanitized.replace(/javascript:/gi, '')
   sanitized = sanitized.replace(/on\w+\s*=/gi, '')
   sanitized = sanitized.replace(/data:/gi, '')
-  
+
   // Encode special HTML characters
   sanitized = sanitized
     .replace(/&/g, '&amp;')
@@ -60,7 +60,7 @@ function sanitizeString(input: unknown): string {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#x27;')
-  
+
   // Truncate to max length
   return sanitized.slice(0, MAX_STRING_LENGTH)
 }
@@ -151,10 +151,7 @@ export interface IntervalsTimerState extends BaseTimerState {
 /**
  * Union type for all timer states
  */
-export type SavedTimerState =
-  | CountdownTimerState
-  | StopwatchTimerState
-  | IntervalsTimerState
+export type SavedTimerState = CountdownTimerState | StopwatchTimerState | IntervalsTimerState
 
 /**
  * Resume validation result
@@ -209,13 +206,10 @@ class TimerPersistence {
       const stateWithMetadata = {
         ...state,
         savedAt: Date.now(),
-        version: this.currentVersion
+        version: this.currentVersion,
       }
 
-      localStorage.setItem(
-        this.storageKey,
-        JSON.stringify(stateWithMetadata)
-      )
+      localStorage.setItem(this.storageKey, JSON.stringify(stateWithMetadata))
 
       logger.persistence('State saved', { mode: state.mode })
       return true
@@ -238,7 +232,8 @@ class TimerPersistence {
       }
 
       // Parse with size limit check (prevent DoS from huge payloads)
-      if (savedData.length > 100000) { // 100KB max
+      if (savedData.length > 100000) {
+        // 100KB max
         logger.warn('State data too large, clearing', { context: 'TimerPersistence' })
         this.clearState()
         return null
@@ -255,7 +250,7 @@ class TimerPersistence {
 
       // Sanitize the state before returning
       const sanitizedState = this.sanitizeState(rawState)
-      
+
       if (!sanitizedState) {
         logger.warn('State sanitization failed, clearing', { context: 'TimerPersistence' })
         this.clearState()
@@ -298,7 +293,7 @@ class TimerPersistence {
         isActive: Boolean(state.isActive),
         isPaused: Boolean(state.isPaused),
         savedAt: state.savedAt,
-        version: sanitizeNumber(state.version, 1, 100, 1)
+        version: sanitizeNumber(state.version, 1, 100, 1),
       }
 
       switch (state.mode) {
@@ -307,11 +302,12 @@ class TimerPersistence {
           return {
             ...baseState,
             mode: 'Countdown' as const,
-            startTime: countdownState.startTime !== null && isValidTimestamp(countdownState.startTime) 
-              ? countdownState.startTime 
-              : null,
+            startTime:
+              countdownState.startTime !== null && isValidTimestamp(countdownState.startTime)
+                ? countdownState.startTime
+                : null,
             totalDuration: sanitizeNumber(countdownState.totalDuration, 0, MAX_SAFE_DURATION, 0),
-            pausedElapsed: sanitizeNumber(countdownState.pausedElapsed, 0, MAX_SAFE_DURATION, 0)
+            pausedElapsed: sanitizeNumber(countdownState.pausedElapsed, 0, MAX_SAFE_DURATION, 0),
           }
         }
 
@@ -325,7 +321,7 @@ class TimerPersistence {
                 sanitizedLaps.push({
                   id: sanitizeString(lap.id) || String(sanitizedLaps.length + 1),
                   time: sanitizeNumber(lap.time, 0, MAX_SAFE_DURATION, 0),
-                  timestamp: isValidTimestamp(lap.timestamp) ? lap.timestamp : Date.now()
+                  timestamp: isValidTimestamp(lap.timestamp) ? lap.timestamp : Date.now(),
                 })
               }
             }
@@ -333,34 +329,50 @@ class TimerPersistence {
           return {
             ...baseState,
             mode: 'Stopwatch' as const,
-            startTime: stopwatchState.startTime !== null && isValidTimestamp(stopwatchState.startTime)
-              ? stopwatchState.startTime
-              : null,
+            startTime:
+              stopwatchState.startTime !== null && isValidTimestamp(stopwatchState.startTime)
+                ? stopwatchState.startTime
+                : null,
             pausedElapsed: sanitizeNumber(stopwatchState.pausedElapsed, 0, MAX_SAFE_DURATION, 0),
-            laps: sanitizedLaps
+            laps: sanitizedLaps,
           }
         }
 
         case 'Intervals': {
           const intervalsState = state as IntervalsTimerState
-          const currentInterval = VALID_INTERVAL_TYPES.includes(intervalsState.currentInterval as any)
+          const currentInterval = VALID_INTERVAL_TYPES.includes(
+            intervalsState.currentInterval as any
+          )
             ? intervalsState.currentInterval
             : 'work'
-          
+
           return {
             ...baseState,
             mode: 'Intervals' as const,
             currentLoop: sanitizeNumber(intervalsState.currentLoop, 0, MAX_SAFE_LOOP_COUNT, 0),
-            targetLoops: intervalsState.targetLoops !== undefined 
-              ? sanitizeNumber(intervalsState.targetLoops, 1, MAX_SAFE_LOOP_COUNT, 4)
-              : undefined,
+            targetLoops:
+              intervalsState.targetLoops !== undefined
+                ? sanitizeNumber(intervalsState.targetLoops, 1, MAX_SAFE_LOOP_COUNT, 4)
+                : undefined,
             currentInterval: currentInterval as 'work' | 'break',
-            intervalStartTime: intervalsState.intervalStartTime !== null && isValidTimestamp(intervalsState.intervalStartTime)
-              ? intervalsState.intervalStartTime
-              : null,
-            workDuration: sanitizeNumber(intervalsState.workDuration, 0, MAX_SAFE_DURATION, 25 * 60 * 1000),
-            breakDuration: sanitizeNumber(intervalsState.breakDuration, 0, MAX_SAFE_DURATION, 5 * 60 * 1000),
-            pausedElapsed: sanitizeNumber(intervalsState.pausedElapsed, 0, MAX_SAFE_DURATION, 0)
+            intervalStartTime:
+              intervalsState.intervalStartTime !== null &&
+              isValidTimestamp(intervalsState.intervalStartTime)
+                ? intervalsState.intervalStartTime
+                : null,
+            workDuration: sanitizeNumber(
+              intervalsState.workDuration,
+              0,
+              MAX_SAFE_DURATION,
+              25 * 60 * 1000
+            ),
+            breakDuration: sanitizeNumber(
+              intervalsState.breakDuration,
+              0,
+              MAX_SAFE_DURATION,
+              5 * 60 * 1000
+            ),
+            pausedElapsed: sanitizeNumber(intervalsState.pausedElapsed, 0, MAX_SAFE_DURATION, 0),
           }
         }
 
@@ -405,18 +417,18 @@ class TimerPersistence {
   getActiveTimer(): TimerMode | null {
     try {
       const mode = localStorage.getItem(ACTIVE_TIMER_KEY)
-      
+
       // Validate against whitelist (prevent arbitrary string injection)
       if (mode && isValidTimerMode(mode)) {
         return mode
       }
-      
+
       // If invalid mode found, clear it
       if (mode) {
         logger.warn('Invalid active timer mode found, clearing', { context: 'TimerPersistence' })
         this.clearActiveTimer()
       }
-      
+
       return null
     } catch (error) {
       logger.error('Failed to get active timer', error, { context: 'TimerPersistence' })
@@ -465,23 +477,16 @@ class TimerPersistence {
     // Validate mode-specific fields
     switch (s.mode) {
       case 'Countdown':
-        return (
-          typeof s.totalDuration === 'number' &&
-          typeof s.pausedElapsed === 'number'
-        )
+        return typeof s.totalDuration === 'number' && typeof s.pausedElapsed === 'number'
 
       case 'Stopwatch':
-        return (
-          typeof s.pausedElapsed === 'number' &&
-          Array.isArray(s.laps)
-        )
+        return typeof s.pausedElapsed === 'number' && Array.isArray(s.laps)
 
       case 'Intervals':
         return (
           typeof s.currentLoop === 'number' &&
           (s.targetLoops === undefined || typeof s.targetLoops === 'number') &&
-          (s.currentInterval === 'work' ||
-            s.currentInterval === 'break') &&
+          (s.currentInterval === 'work' || s.currentInterval === 'break') &&
           typeof s.workDuration === 'number' &&
           typeof s.breakDuration === 'number' &&
           typeof s.pausedElapsed === 'number'
@@ -513,14 +518,14 @@ class TimerPersistence {
     if (timeSinceSave < 0) {
       return {
         canResume: false,
-        reason: 'System time was changed (went backwards)'
+        reason: 'System time was changed (went backwards)',
       }
     }
 
     if (timeSinceSave > 24 * 60 * 60 * 1000) {
       return {
         canResume: false,
-        reason: 'Timer is more than 24 hours old'
+        reason: 'Timer is more than 24 hours old',
       }
     }
 
@@ -539,7 +544,7 @@ class TimerPersistence {
       default:
         return {
           canResume: false,
-          reason: 'Unknown timer mode'
+          reason: 'Unknown timer mode',
         }
     }
   }
@@ -547,9 +552,7 @@ class TimerPersistence {
   /**
    * Validate Countdown timer resume
    */
-  private validateCountdownResume(
-    state: CountdownTimerState
-  ): ResumeValidation {
+  private validateCountdownResume(state: CountdownTimerState): ResumeValidation {
     if (!state.startTime) {
       return { canResume: false, reason: 'No start time recorded' }
     }
@@ -563,31 +566,27 @@ class TimerPersistence {
         canResume: false,
         reason: 'Timer already completed',
         isCompleted: true,
-        remainingTime: 0
+        remainingTime: 0,
       }
     }
 
     return {
       canResume: true,
-      remainingTime: remaining
+      remainingTime: remaining,
     }
   }
 
   /**
    * Validate Intervals timer resume
    */
-  private validateIntervalsResume(
-    state: IntervalsTimerState
-  ): ResumeValidation {
+  private validateIntervalsResume(state: IntervalsTimerState): ResumeValidation {
     if (!state.intervalStartTime) {
       return { canResume: false, reason: 'No interval start time recorded' }
     }
 
     const now = Date.now()
     const intervalDuration =
-      state.currentInterval === 'work'
-        ? state.workDuration
-        : state.breakDuration
+      state.currentInterval === 'work' ? state.workDuration : state.breakDuration
 
     const elapsed = now - state.intervalStartTime + state.pausedElapsed
     const remaining = intervalDuration - elapsed
@@ -604,20 +603,20 @@ class TimerPersistence {
           canResume: false,
           reason: 'Session already completed',
           isCompleted: true,
-          remainingTime: 0
+          remainingTime: 0,
         }
       }
 
       // Still can resume - will start next interval
       return {
         canResume: true,
-        remainingTime: 0
+        remainingTime: 0,
       }
     }
 
     return {
       canResume: true,
-      remainingTime: remaining
+      remainingTime: remaining,
     }
   }
 
@@ -682,9 +681,7 @@ class TimerPersistence {
           return 'Session completed while you were away'
         }
         const intervalType =
-          (state as IntervalsTimerState).currentInterval === 'work'
-            ? 'Work'
-            : 'Break'
+          (state as IntervalsTimerState).currentInterval === 'work' ? 'Work' : 'Break'
         return `${intervalType} interval - Loop ${(state as IntervalsTimerState).currentLoop}/${(state as IntervalsTimerState).targetLoops}`
       }
 
@@ -707,7 +704,7 @@ class TimerPersistence {
 
       const configWithTimestamp = {
         ...config,
-        createdAt: Date.now()
+        createdAt: Date.now(),
       }
 
       localStorage.setItem(REPEAT_SESSION_KEY, JSON.stringify(configWithTimestamp))
@@ -727,7 +724,7 @@ class TimerPersistence {
   loadRepeatSession(): RepeatSessionConfig | null {
     try {
       const savedData = localStorage.getItem(REPEAT_SESSION_KEY)
-      
+
       if (!savedData) {
         return null
       }
@@ -750,7 +747,7 @@ class TimerPersistence {
 
       // Clear after reading (one-time use)
       this.clearRepeatSession()
-      
+
       logger.persistence('Repeat session loaded', { mode: config.mode })
       return config
     } catch (error) {
@@ -778,16 +775,16 @@ class TimerPersistence {
     try {
       const savedData = localStorage.getItem(REPEAT_SESSION_KEY)
       if (!savedData) return false
-      
+
       const config = JSON.parse(savedData) as RepeatSessionConfig
-      
+
       // Check expiry
       const MAX_REPEAT_AGE = 5 * 60 * 1000
       if (Date.now() - config.createdAt > MAX_REPEAT_AGE) {
         this.clearRepeatSession()
         return false
       }
-      
+
       if (mode) {
         return config.mode === mode
       }

@@ -1,6 +1,6 @@
 /**
  * Storage Error Handling Tests
- * 
+ *
  * Tests for localStorage and storage-related error handling
  */
 
@@ -18,7 +18,7 @@ describe('Storage Error Handling', () => {
     consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
     // Clear localStorage manually since .clear() might not be available
-    Object.keys(localStorage).forEach(key => localStorage.removeItem(key))
+    Object.keys(localStorage).forEach((key) => localStorage.removeItem(key))
   })
 
   afterEach(() => {
@@ -29,7 +29,7 @@ describe('Storage Error Handling', () => {
     vi.restoreAllMocks()
     // Clear localStorage manually since .clear() might not be available
     try {
-      Object.keys(localStorage).forEach(key => localStorage.removeItem(key))
+      Object.keys(localStorage).forEach((key) => localStorage.removeItem(key))
     } catch {
       // localStorage might be mocked/unavailable
     }
@@ -119,7 +119,7 @@ describe('Storage Error Handling', () => {
         }
         // Success after retry
       })
-      
+
       Storage.prototype.setItem = setItemMock
       const removeItemMock = vi.fn()
       Storage.prototype.removeItem = removeItemMock
@@ -190,11 +190,13 @@ describe('Storage Error Handling', () => {
 
   describe('Data Corruption', () => {
     it('should detect corrupted timer state', () => {
-      const getItemMock = vi.fn().mockReturnValue(JSON.stringify({
-        mode: 'Countdown',
-        startTime: 'not a number',
-        duration: -1000
-      }))
+      const getItemMock = vi.fn().mockReturnValue(
+        JSON.stringify({
+          mode: 'Countdown',
+          startTime: 'not a number',
+          duration: -1000,
+        })
+      )
       Storage.prototype.getItem = getItemMock
 
       const state = loadTimerState()
@@ -205,7 +207,7 @@ describe('Storage Error Handling', () => {
     it('should validate data types', () => {
       const invalidData = [
         { id: '1', mode: 'Stopwatch', duration: '1000', timestamp: Date.now() },
-        { id: '2', mode: 'Countdown', duration: 2000, timestamp: 'not a number' }
+        { id: '2', mode: 'Countdown', duration: 2000, timestamp: 'not a number' },
       ]
 
       const result = validateTimerHistory(invalidData)
@@ -218,7 +220,7 @@ describe('Storage Error Handling', () => {
       const data = [
         { id: '1', mode: 'Stopwatch', duration: 1000, timestamp: Date.now() },
         { corrupted: 'data' },
-        { id: '2', mode: 'Countdown', duration: 2000, timestamp: Date.now() }
+        { id: '2', mode: 'Countdown', duration: 2000, timestamp: Date.now() },
       ]
 
       const result = validateTimerHistory(data)
@@ -231,7 +233,7 @@ describe('Storage Error Handling', () => {
     it('should handle missing required fields', () => {
       const data = [
         { id: '1', mode: 'Stopwatch' }, // Missing duration and timestamp
-        { mode: 'Countdown', duration: 2000, timestamp: Date.now() } // Missing id
+        { mode: 'Countdown', duration: 2000, timestamp: Date.now() }, // Missing id
       ]
 
       const result = validateTimerHistory(data)
@@ -284,11 +286,11 @@ describe('Storage Error Handling', () => {
       })
 
       try {
-        Object.keys(localStorage).forEach(key => localStorage.removeItem(key))
+        Object.keys(localStorage).forEach((key) => localStorage.removeItem(key))
       } catch (e) {
         expect(e).toBeDefined()
       }
-      
+
       Storage.prototype.removeItem = originalRemove
     })
   })
@@ -297,11 +299,13 @@ describe('Storage Error Handling', () => {
     it('should handle concurrent writes to same key', async () => {
       const { result } = renderHook(() => useLocalStorage('shared_key', 0))
 
-      const updates = Array(10).fill(null).map((_, i) =>
-        act(() => {
-          result.current[1](i)
-        })
-      )
+      const updates = Array(10)
+        .fill(null)
+        .map((_, i) =>
+          act(() => {
+            result.current[1](i)
+          })
+        )
 
       await Promise.all(updates)
 
@@ -312,17 +316,17 @@ describe('Storage Error Handling', () => {
     // Skip: vitest mock timing issues - Storage.prototype mocking doesn't work correctly
     it.skip('should handle simultaneous read/write operations', () => {
       const key = 'concurrent_key'
-      
+
       // Setup a valid getItem first
       const originalGetItem = Storage.prototype.getItem
       const originalSetItem = Storage.prototype.setItem
       let storedValue = ''
-      
+
       const setItemMock = vi.fn().mockImplementation((_k, v) => {
         storedValue = v
       })
       const getItemMock = vi.fn().mockImplementation((_k2) => storedValue)
-      
+
       Storage.prototype.setItem = setItemMock
       Storage.prototype.getItem = getItemMock
 
@@ -333,7 +337,7 @@ describe('Storage Error Handling', () => {
 
       // Should complete without errors
       expect(setItemMock).toHaveBeenCalled()
-      
+
       // Restore
       Storage.prototype.getItem = originalGetItem
       Storage.prototype.setItem = originalSetItem
@@ -344,13 +348,18 @@ describe('Storage Error Handling', () => {
     // Skip: jsdom doesn't properly support StorageEvent with storageArea parameter
     it.skip('should handle storage events from other tabs', () => {
       // First set some data
-      localStorage.setItem('flowmodoro_history', JSON.stringify([{ id: '1', mode: 'Stopwatch', duration: 1000, timestamp: Date.now() }]))
-      
+      localStorage.setItem(
+        'flowmodoro_history',
+        JSON.stringify([{ id: '1', mode: 'Stopwatch', duration: 1000, timestamp: Date.now() }])
+      )
+
       const storageEvent = new StorageEvent('storage', {
         key: 'flowmodoro_history',
         oldValue: JSON.stringify([]),
-        newValue: JSON.stringify([{ id: '1', mode: 'Stopwatch', duration: 1000, timestamp: Date.now() }]),
-        storageArea: localStorage
+        newValue: JSON.stringify([
+          { id: '1', mode: 'Stopwatch', duration: 1000, timestamp: Date.now() },
+        ]),
+        storageArea: localStorage,
       })
 
       window.dispatchEvent(storageEvent)
@@ -362,15 +371,16 @@ describe('Storage Error Handling', () => {
 
     // Skip: jsdom doesn't properly support StorageEvent with storageArea parameter
     it.skip('should handle storage cleared event', () => {
-      localStorage.setItem('flowmodoro_history', JSON.stringify([
-        { id: '1', mode: 'Stopwatch', duration: 1000, timestamp: Date.now() }
-      ]))
+      localStorage.setItem(
+        'flowmodoro_history',
+        JSON.stringify([{ id: '1', mode: 'Stopwatch', duration: 1000, timestamp: Date.now() }])
+      )
 
       const storageEvent = new StorageEvent('storage', {
         key: null, // null means storage.clear() was called
         oldValue: null,
         newValue: null,
-        storageArea: localStorage
+        storageArea: localStorage,
       })
 
       window.dispatchEvent(storageEvent)
@@ -382,9 +392,10 @@ describe('Storage Error Handling', () => {
 
   describe('Migration and Compatibility', () => {
     it('should migrate old data format', () => {
-      localStorage.setItem('flowmodoro_history', JSON.stringify([
-        { id: 1, mode: 'Stopwatch', duration: 1000, timestamp: Date.now() }
-      ]))
+      localStorage.setItem(
+        'flowmodoro_history',
+        JSON.stringify([{ id: 1, mode: 'Stopwatch', duration: 1000, timestamp: Date.now() }])
+      )
 
       const result = loadTimerHistory('flowmodoro_history', [])
 
@@ -395,9 +406,7 @@ describe('Storage Error Handling', () => {
 
     it('should handle version mismatches', () => {
       localStorage.setItem('flowmodoro_version', '1.0.0')
-      localStorage.setItem('flowmodoro_history', JSON.stringify([
-        { id: 1, oldFormat: true }
-      ]))
+      localStorage.setItem('flowmodoro_history', JSON.stringify([{ id: 1, oldFormat: true }]))
 
       const result = loadTimerHistory('flowmodoro_history', [])
 
@@ -406,9 +415,7 @@ describe('Storage Error Handling', () => {
     })
 
     it('should preserve backward compatibility', () => {
-      const legacyData = [
-        { id: 1, mode: 'Stopwatch', duration: 1000, timestamp: Date.now() }
-      ]
+      const legacyData = [{ id: 1, mode: 'Stopwatch', duration: 1000, timestamp: Date.now() }]
       localStorage.setItem('flowmodoro_history', JSON.stringify(legacyData))
 
       const result = loadTimerHistory('flowmodoro_history', [])
@@ -452,19 +459,23 @@ describe('Storage Error Handling', () => {
       Storage.prototype.getItem = getItemMock
 
       const defaultTimestamp = Date.now()
-      const result = loadTimerHistory('flowmodoro_history', [{ 
-        id: 'default', 
-        mode: 'Stopwatch', 
-        duration: 0, 
-        timestamp: defaultTimestamp
-      }])
+      const result = loadTimerHistory('flowmodoro_history', [
+        {
+          id: 'default',
+          mode: 'Stopwatch',
+          duration: 0,
+          timestamp: defaultTimestamp,
+        },
+      ])
 
-      expect(result).toEqual([{ 
-        id: 'default', 
-        mode: 'Stopwatch', 
-        duration: 0, 
-        timestamp: defaultTimestamp
-      }])
+      expect(result).toEqual([
+        {
+          id: 'default',
+          mode: 'Stopwatch',
+          duration: 0,
+          timestamp: defaultTimestamp,
+        },
+      ])
     })
 
     it('should clear corrupted data automatically', () => {
@@ -474,7 +485,7 @@ describe('Storage Error Handling', () => {
 
       // Should recover with empty state
       expect(result).toEqual([])
-      
+
       // Note: The current implementation doesn't auto-clear corrupted data
       // It just returns the default value. This is acceptable behavior.
       // If we wanted to clear, we'd need to modify loadTimerHistory
@@ -483,12 +494,14 @@ describe('Storage Error Handling', () => {
 
   describe('Performance and Limits', () => {
     it('should handle very large datasets', () => {
-      const largeHistory = Array(10000).fill(null).map((_, i) => ({
-        id: `record-${i}`,
-        mode: 'Stopwatch' as const,
-        duration: 1000,
-        timestamp: Date.now() + i
-      }))
+      const largeHistory = Array(10000)
+        .fill(null)
+        .map((_, i) => ({
+          id: `record-${i}`,
+          mode: 'Stopwatch' as const,
+          duration: 1000,
+          timestamp: Date.now() + i,
+        }))
 
       localStorage.setItem('flowmodoro_history', JSON.stringify(largeHistory))
 
@@ -513,7 +526,7 @@ describe('Storage Error Handling', () => {
         id: 'x'.repeat(1000),
         mode: 'Stopwatch',
         duration: 1000,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       })
 
       try {

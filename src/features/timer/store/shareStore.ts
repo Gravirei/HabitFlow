@@ -5,23 +5,37 @@
 
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { SharedSession, ShareLink, TeamMember } from '@/features/timer/components/premium-history/team-sharing/types'
+import type {
+  SharedSession,
+  ShareLink,
+  TeamMember,
+} from '@/features/timer/components/premium-history/team-sharing/types'
 
 interface ShareStore {
   sharedSessions: SharedSession[]
   shareLinks: ShareLink[]
   teamMembers: TeamMember[]
-  
+
   // Share session
-  shareSession: (sessionId: string, emails: string[], permissions: 'view' | 'comment' | 'edit', message?: string) => void
+  shareSession: (
+    sessionId: string,
+    emails: string[],
+    permissions: 'view' | 'comment' | 'edit',
+    message?: string
+  ) => void
   unshareSession: (sharedSessionId: string) => void
   getSharedSessions: () => SharedSession[]
-  
+
   // Share links
-  createShareLink: (sessionIds: string[], expiresIn?: number, maxViews?: number, password?: string) => ShareLink
+  createShareLink: (
+    sessionIds: string[],
+    expiresIn?: number,
+    maxViews?: number,
+    password?: string
+  ) => ShareLink
   deleteShareLink: (linkId: string) => void
   getShareLinks: () => ShareLink[]
-  
+
   // Team members
   addTeamMember: (member: Omit<TeamMember, 'id'>) => void
   removeTeamMember: (memberId: string) => void
@@ -107,9 +121,7 @@ export const useShareStore = create<ShareStore>()(
 
       updateTeamMember: (memberId, updates) => {
         set((state) => ({
-          teamMembers: state.teamMembers.map((m) =>
-            m.id === memberId ? { ...m, ...updates } : m
-          ),
+          teamMembers: state.teamMembers.map((m) => (m.id === memberId ? { ...m, ...updates } : m)),
         }))
       },
 

@@ -78,7 +78,7 @@ export function MessageInputBar({
   }
 
   return (
-    <div className="bg-[#000000] px-3 pb-safe pt-2">
+    <div className="pb-safe bg-[#000000] px-3 pt-2">
       <AnimatePresence>
         {shareTrayOpen && (
           <motion.div
@@ -137,8 +137,10 @@ export function MessageInputBar({
           onClick={onToggleShareTray}
           className="mb-1 flex size-[34px] shrink-0 items-center justify-center rounded-full bg-[#2C2C2E] text-[#8E8E93] transition-colors hover:bg-[#3A3A3C] hover:text-white"
         >
-          <span className={`material-symbols-outlined text-[24px] ${shareTrayOpen ? 'rotate-45' : ''}`}
-                style={{ transition: 'transform 200ms ease' }}>
+          <span
+            className={`material-symbols-outlined text-[24px] ${shareTrayOpen ? 'rotate-45' : ''}`}
+            style={{ transition: 'transform 200ms ease' }}
+          >
             add
           </span>
         </button>
@@ -150,7 +152,7 @@ export function MessageInputBar({
             onChange={handleTextChange}
             placeholder="iMessage"
             rows={1}
-            className="w-full resize-none bg-transparent text-[16px] leading-[22px] text-white placeholder:text-[#8E8E93] outline-none max-h-[120px]"
+            className="max-h-[120px] w-full resize-none bg-transparent text-[16px] leading-[22px] text-white outline-none placeholder:text-[#8E8E93]"
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault()

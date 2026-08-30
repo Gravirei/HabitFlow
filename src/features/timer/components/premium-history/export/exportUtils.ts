@@ -44,10 +44,13 @@ export function calculateStats(sessions: TimerSession[]) {
   const totalSessions = sessions.length
   const avgDuration = totalSessions > 0 ? totalDuration / totalSessions : 0
 
-  const byMode = sessions.reduce((acc, s) => {
-    acc[s.mode] = (acc[s.mode] || 0) + 1
-    return acc
-  }, {} as Record<string, number>)
+  const byMode = sessions.reduce(
+    (acc, s) => {
+      acc[s.mode] = (acc[s.mode] || 0) + 1
+      return acc
+    },
+    {} as Record<string, number>
+  )
 
   return {
     totalDuration,
@@ -55,7 +58,7 @@ export function calculateStats(sessions: TimerSession[]) {
     avgDuration,
     byMode,
     totalDurationFormatted: formatDuration(totalDuration),
-    avgDurationFormatted: formatDuration(Math.round(avgDuration))
+    avgDurationFormatted: formatDuration(Math.round(avgDuration)),
   }
 }
 
@@ -69,7 +72,7 @@ export function exportToCSV(sessions: TimerSession[], options: ExportOptions): v
   let csv = 'Date,Time,Mode,Duration,Session Name,Status\n'
 
   // Add data rows
-  sessions.forEach(session => {
+  sessions.forEach((session) => {
     const date = format(new Date(session.timestamp), 'yyyy-MM-dd')
     const time = format(new Date(session.timestamp), 'HH:mm:ss')
     const duration = formatDuration(session.duration)
@@ -105,11 +108,11 @@ export function exportToJSON(sessions: TimerSession[], options: ExportOptions): 
   const data = {
     exportDate: new Date().toISOString(),
     totalSessions: sessions.length,
-    sessions: sessions.map(session => ({
+    sessions: sessions.map((session) => ({
       ...session,
       date: format(new Date(session.timestamp), 'yyyy-MM-dd'),
       time: format(new Date(session.timestamp), 'HH:mm:ss'),
-      durationFormatted: formatDuration(session.duration)
+      durationFormatted: formatDuration(session.duration),
     })),
     ...(stats && {
       statistics: {
@@ -117,9 +120,9 @@ export function exportToJSON(sessions: TimerSession[], options: ExportOptions): 
         totalDurationFormatted: stats.totalDurationFormatted,
         averageDuration: stats.avgDuration,
         averageDurationFormatted: stats.avgDurationFormatted,
-        sessionsByMode: stats.byMode
-      }
-    })
+        sessionsByMode: stats.byMode,
+      },
+    }),
   }
 
   const json = JSON.stringify(data, null, 2)
@@ -138,7 +141,7 @@ async function captureChartAsImage(elementId: string): Promise<string | null> {
       backgroundColor: '#ffffff',
       scale: 2,
       logging: false,
-      useCORS: true
+      useCORS: true,
     })
 
     return canvas.toDataURL('image/png')
@@ -154,7 +157,7 @@ async function captureChartAsImage(elementId: string): Promise<string | null> {
 export async function exportToPDF(sessions: TimerSession[], options: ExportOptions): Promise<void> {
   const doc = new jsPDF()
   const stats = calculateStats(sessions)
-  
+
   // Capture charts if requested (before generating PDF)
   let statisticsCards: string | null = null
   let timeSeriesChart: string | null = null
@@ -163,20 +166,20 @@ export async function exportToPDF(sessions: TimerSession[], options: ExportOptio
 
   if (options.includeCharts) {
     console.log('📊 Capturing charts...')
-    
+
     statisticsCards = await captureChartAsImage('statistics-cards')
     console.log('  • Statistics cards:', statisticsCards ? '✅ captured' : '❌ failed')
-    
+
     timeSeriesChart = await captureChartAsImage('time-series-chart')
     console.log('  • Time series chart:', timeSeriesChart ? '✅ captured' : '❌ failed')
-    
+
     distributionChart = await captureChartAsImage('distribution-chart')
     console.log('  • Distribution chart (donut):', distributionChart ? '✅ captured' : '❌ failed')
-    
+
     heatmapChart = await captureChartAsImage('heatmap-chart')
     console.log('  • Heatmap chart:', heatmapChart ? '✅ captured' : '❌ failed')
   }
-  
+
   const pageWidth = doc.internal.pageSize.getWidth()
   const pageHeight = doc.internal.pageSize.getHeight()
   const margin = 20
@@ -200,12 +203,12 @@ export async function exportToPDF(sessions: TimerSession[], options: ExportOptio
   // Header
   doc.setFillColor(...primaryColor)
   doc.rect(0, 0, pageWidth, 40, 'F')
-  
+
   doc.setTextColor(255, 255, 255)
   doc.setFontSize(24)
   doc.setFont('helvetica', 'bold')
   doc.text('Timer History Report', margin, 25)
-  
+
   doc.setFontSize(10)
   doc.setFont('helvetica', 'normal')
   doc.text(`Generated: ${format(new Date(), 'MMMM dd, yyyy HH:mm')}`, margin, 33)
@@ -228,10 +231,10 @@ export async function exportToPDF(sessions: TimerSession[], options: ExportOptio
     doc.setFontSize(11)
     doc.setFont('helvetica', 'bold')
     doc.setTextColor(...primaryColor)
-    
+
     const col1 = margin + 10
     const col2 = pageWidth / 2 + 10
-    
+
     // Total Sessions
     doc.text('Total Sessions', col1, yPos + 12)
     doc.setFont('helvetica', 'normal')
@@ -259,7 +262,7 @@ export async function exportToPDF(sessions: TimerSession[], options: ExportOptio
     // Sessions by Mode
     if (Object.keys(stats.byMode).length > 0) {
       checkNewPage(30)
-      
+
       doc.setFontSize(12)
       doc.setFont('helvetica', 'bold')
       doc.setTextColor(...darkGray)
@@ -276,15 +279,18 @@ export async function exportToPDF(sessions: TimerSession[], options: ExportOptio
         doc.text(String(count), margin + 50, yPos)
         yPos += 6
       })
-      
+
       yPos += 10
     }
   }
 
   // Charts Section (if available and enabled)
-  if (options.includeCharts && (statisticsCards || timeSeriesChart || distributionChart || heatmapChart)) {
+  if (
+    options.includeCharts &&
+    (statisticsCards || timeSeriesChart || distributionChart || heatmapChart)
+  ) {
     checkNewPage(40)
-    
+
     doc.setFontSize(16)
     doc.setFont('helvetica', 'bold')
     doc.setTextColor(...darkGray)
@@ -294,7 +300,7 @@ export async function exportToPDF(sessions: TimerSession[], options: ExportOptio
     // Statistics Cards
     if (statisticsCards) {
       checkNewPage(50)
-      
+
       doc.setFontSize(12)
       doc.setFont('helvetica', 'bold')
       doc.setTextColor(...darkGray)
@@ -303,7 +309,7 @@ export async function exportToPDF(sessions: TimerSession[], options: ExportOptio
 
       const imgWidth = pageWidth - 2 * margin
       const imgHeight = 40
-      
+
       doc.addImage(statisticsCards, 'PNG', margin, yPos, imgWidth, imgHeight)
       yPos += imgHeight + 15
     }
@@ -311,7 +317,7 @@ export async function exportToPDF(sessions: TimerSession[], options: ExportOptio
     // Time Series Chart
     if (timeSeriesChart) {
       checkNewPage(80)
-      
+
       doc.setFontSize(12)
       doc.setFont('helvetica', 'bold')
       doc.setTextColor(...darkGray)
@@ -320,7 +326,7 @@ export async function exportToPDF(sessions: TimerSession[], options: ExportOptio
 
       const imgWidth = pageWidth - 2 * margin
       const imgHeight = 60
-      
+
       doc.addImage(timeSeriesChart, 'PNG', margin, yPos, imgWidth, imgHeight)
       yPos += imgHeight + 15
     }
@@ -328,7 +334,7 @@ export async function exportToPDF(sessions: TimerSession[], options: ExportOptio
     // Distribution Chart
     if (distributionChart) {
       checkNewPage(70)
-      
+
       doc.setFontSize(12)
       doc.setFont('helvetica', 'bold')
       doc.setTextColor(...darkGray)
@@ -338,7 +344,7 @@ export async function exportToPDF(sessions: TimerSession[], options: ExportOptio
       const imgWidth = 70
       const imgHeight = 70
       const xPos = (pageWidth - imgWidth) / 2
-      
+
       doc.addImage(distributionChart, 'PNG', xPos, yPos, imgWidth, imgHeight)
       yPos += imgHeight + 15
     }
@@ -346,7 +352,7 @@ export async function exportToPDF(sessions: TimerSession[], options: ExportOptio
     // Heatmap Chart
     if (heatmapChart) {
       checkNewPage(80)
-      
+
       doc.setFontSize(12)
       doc.setFont('helvetica', 'bold')
       doc.setTextColor(...darkGray)
@@ -355,7 +361,7 @@ export async function exportToPDF(sessions: TimerSession[], options: ExportOptio
 
       const imgWidth = pageWidth - 2 * margin
       const imgHeight = 60
-      
+
       doc.addImage(heatmapChart, 'PNG', margin, yPos, imgWidth, imgHeight)
       yPos += imgHeight + 15
     }
@@ -363,7 +369,7 @@ export async function exportToPDF(sessions: TimerSession[], options: ExportOptio
 
   // Session History Section
   checkNewPage(40)
-  
+
   doc.setFontSize(16)
   doc.setFont('helvetica', 'bold')
   doc.setTextColor(...darkGray)
@@ -391,20 +397,16 @@ export async function exportToPDF(sessions: TimerSession[], options: ExportOptio
     doc.setFontSize(10)
     doc.setFont('helvetica', 'bold')
     doc.setTextColor(...darkGray)
-    doc.text(
-      format(new Date(session.timestamp), 'MMM dd, yyyy HH:mm'),
-      margin + 20,
-      yPos + 8
-    )
+    doc.text(format(new Date(session.timestamp), 'MMM dd, yyyy HH:mm'), margin + 20, yPos + 8)
 
     // Mode badge
     const modeColors: Record<string, [number, number, number]> = {
       Stopwatch: [34, 197, 94],
       Countdown: [239, 68, 68],
-      Intervals: [249, 115, 22]
+      Intervals: [249, 115, 22],
     }
     const modeColor = modeColors[session.mode] || primaryColor
-    
+
     doc.setFillColor(...modeColor)
     doc.setTextColor(255, 255, 255)
     doc.setFontSize(8)
@@ -435,14 +437,23 @@ export async function exportToPDF(sessions: TimerSession[], options: ExportOptio
     // Status
     const statusY = session.sessionName ? yPos + 23 : yPos + 16
     const status = session.completed === false ? 'Stopped' : 'Completed'
-    const statusColor: [number, number, number] = session.completed === false ? [239, 68, 68] : [34, 197, 94]
-    
+    const statusColor: [number, number, number] =
+      session.completed === false ? [239, 68, 68] : [34, 197, 94]
+
     doc.setFillColor(...statusColor)
     doc.setTextColor(255, 255, 255)
     doc.setFontSize(7)
     doc.setFont('helvetica', 'bold')
     const statusWidth = doc.getTextWidth(status) + 6
-    doc.roundedRect(pageWidth - margin - statusWidth - 5, statusY - 4, statusWidth, 7, 1.5, 1.5, 'F')
+    doc.roundedRect(
+      pageWidth - margin - statusWidth - 5,
+      statusY - 4,
+      statusWidth,
+      7,
+      1.5,
+      1.5,
+      'F'
+    )
     doc.text(status, pageWidth - margin - statusWidth / 2 - 5, statusY, { align: 'center' })
 
     yPos += cardHeight + 5
@@ -456,12 +467,7 @@ export async function exportToPDF(sessions: TimerSession[], options: ExportOptio
     doc.setFontSize(8)
     doc.setTextColor(...lightGray)
     doc.setFont('helvetica', 'normal')
-    doc.text(
-      `Page ${i} of ${totalPages}`,
-      pageWidth / 2,
-      pageHeight - 10,
-      { align: 'center' }
-    )
+    doc.text(`Page ${i} of ${totalPages}`, pageWidth / 2, pageHeight - 10, { align: 'center' })
   }
 
   // Save PDF

@@ -1,6 +1,6 @@
 /**
  * Hook Error Handling Tests
- * 
+ *
  * Tests for error handling in custom hooks
  */
 
@@ -17,14 +17,14 @@ import { useCustomPresets } from '@/features/timer/hooks/useCustomPresets'
 vi.mock('../../utils/soundManager', () => ({
   soundManager: {
     playSound: vi.fn(),
-    cleanup: vi.fn()
-  }
+    cleanup: vi.fn(),
+  },
 }))
 
 vi.mock('../../utils/vibrationManager', () => ({
   vibrationManager: {
-    vibrate: vi.fn()
-  }
+    vibrate: vi.fn(),
+  },
 }))
 
 describe('Hook Error Handling', () => {
@@ -140,9 +140,11 @@ describe('Hook Error Handling', () => {
         throw new Error('Callback error')
       })
 
-      const { result } = renderHook(() => useCountdown({
-        onSessionComplete: errorCallback
-      }))
+      const { result } = renderHook(() =>
+        useCountdown({
+          onSessionComplete: errorCallback,
+        })
+      )
 
       act(() => {
         result.current.setSelectedHours(0)
@@ -270,9 +272,11 @@ describe('Hook Error Handling', () => {
         throw new Error('Phase callback error')
       })
 
-      const { result } = renderHook(() => useIntervals({
-        onSessionComplete: errorCallback
-      }))
+      const { result } = renderHook(() =>
+        useIntervals({
+          onSessionComplete: errorCallback,
+        })
+      )
 
       act(() => {
         result.current.setWorkMinutes(1)
@@ -291,17 +295,19 @@ describe('Hook Error Handling', () => {
       await vi.waitFor(() => {
         expect(result.current.isActive).toBe(false)
       })
-      
+
       expect(consoleErrorSpy).toHaveBeenCalled()
     })
   })
 
   describe('useTimerHistory Error Handling', () => {
     it('should validate record before adding', () => {
-      const { result } = renderHook(() => useTimerHistory({
-        mode: 'Stopwatch',
-        storageKey: 'test-history'
-      }))
+      const { result } = renderHook(() =>
+        useTimerHistory({
+          mode: 'Stopwatch',
+          storageKey: 'test-history',
+        })
+      )
 
       act(() => {
         result.current.saveToHistory({ duration: 1000 }) // Valid duration
@@ -309,7 +315,7 @@ describe('Hook Error Handling', () => {
 
       // Should add valid record
       expect(result.current.history.length).toBe(1)
-      
+
       act(() => {
         result.current.saveToHistory({ duration: -1000 }) // Invalid duration
       })
@@ -319,10 +325,12 @@ describe('Hook Error Handling', () => {
     })
 
     it('should handle duplicate IDs', () => {
-      const { result } = renderHook(() => useTimerHistory({
-        mode: 'Stopwatch',
-        storageKey: 'test-history'
-      }))
+      const { result } = renderHook(() =>
+        useTimerHistory({
+          mode: 'Stopwatch',
+          storageKey: 'test-history',
+        })
+      )
 
       act(() => {
         result.current.saveToHistory({ duration: 1000 })
@@ -334,10 +342,12 @@ describe('Hook Error Handling', () => {
     })
 
     it('should handle delete non-existent record', () => {
-      const { result } = renderHook(() => useTimerHistory({
-        mode: 'Stopwatch',
-        storageKey: 'test-history'
-      }))
+      const { result } = renderHook(() =>
+        useTimerHistory({
+          mode: 'Stopwatch',
+          storageKey: 'test-history',
+        })
+      )
 
       // clearHistory should work even with empty history
       act(() => {
@@ -352,10 +362,12 @@ describe('Hook Error Handling', () => {
       vi.useRealTimers()
       localStorage.setItem('timer-stopwatch-history', 'invalid{json}')
 
-      const { result } = renderHook(() => useTimerHistory({
-        mode: 'Stopwatch',
-        storageKey: 'test-corrupted-history'
-      }))
+      const { result } = renderHook(() =>
+        useTimerHistory({
+          mode: 'Stopwatch',
+          storageKey: 'test-corrupted-history',
+        })
+      )
 
       await waitFor(() => expect(result.current.isLoading).toBe(false))
 
@@ -371,7 +383,7 @@ describe('Hook Error Handling', () => {
 
       act(() => {
         result.current.updateSettings({
-          soundVolume: 150 // Invalid: should be 0-100
+          soundVolume: 150, // Invalid: should be 0-100
         })
       })
 
@@ -384,7 +396,7 @@ describe('Hook Error Handling', () => {
 
       act(() => {
         result.current.updateSettings({
-          soundVolume: -50
+          soundVolume: -50,
         })
       })
 
@@ -409,7 +421,7 @@ describe('Hook Error Handling', () => {
 
       act(() => {
         result.current.updateSettings({
-          soundVolume: 75
+          soundVolume: 75,
         })
       })
 

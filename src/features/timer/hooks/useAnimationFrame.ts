@@ -1,28 +1,28 @@
 /**
  * useAnimationFrame Hook
- * 
+ *
  * Provides optimized rendering updates using requestAnimationFrame.
  * Separates visual updates from time calculations for better performance.
- * 
+ *
  * Benefits:
  * - Syncs with browser's refresh rate (~60fps)
  * - Reduces unnecessary renders
  * - Better battery life on mobile
  * - Smoother animations
- * 
+ *
  * CRITICAL FIX: Ensures proper cleanup of animation frames on unmount
  * to prevent memory leaks and stale callbacks.
- * 
+ *
  * Usage:
  * ```tsx
  * const [displayTime, setDisplayTime] = useState(0)
- * 
+ *
  * useAnimationFrame((deltaTime) => {
  *   // Update display state at ~60fps
  *   setDisplayTime(getCurrentTime())
  * }, [dependency])
  * ```
- * 
+ *
  * @module useAnimationFrame
  */
 
@@ -33,7 +33,7 @@ export type AnimationFrameCallback = (deltaTime: number) => void
 
 /**
  * Hook that calls a callback function on every animation frame
- * 
+ *
  * @param callback - Function to call on each frame (receives deltaTime in ms)
  * @param deps - Dependencies array (like useEffect)
  * @param isActive - Whether the animation should be running (default: true)
@@ -86,9 +86,7 @@ export const useAnimationFrame = (
       }
 
       // Calculate delta time (time since last frame)
-      const deltaTime = previousTimeRef.current !== undefined 
-        ? time - previousTimeRef.current 
-        : 0
+      const deltaTime = previousTimeRef.current !== undefined ? time - previousTimeRef.current : 0
 
       previousTimeRef.current = time
 
@@ -114,7 +112,7 @@ export const useAnimationFrame = (
       isMountedRef.current = false
       cleanup()
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [...deps, isActive, cleanup])
 
   // Additional cleanup on component unmount (belt and suspenders)
@@ -132,7 +130,7 @@ export const useAnimationFrame = (
 /**
  * Hook variant that provides the current time value updated via RAF
  * Useful for simple time-based animations
- * 
+ *
  * @param isActive - Whether updates should be active
  * @returns Current timestamp from performance.now()
  */
@@ -148,12 +146,16 @@ export const useAnimationFrameTime = (isActive: boolean = true): number => {
     }
   }, [])
 
-  useAnimationFrame(() => {
-    // Only update state if component is still mounted
-    if (isMountedRef.current) {
-      setTime(performance.now())
-    }
-  }, [], isActive)
+  useAnimationFrame(
+    () => {
+      // Only update state if component is still mounted
+      if (isMountedRef.current) {
+        setTime(performance.now())
+      }
+    },
+    [],
+    isActive
+  )
 
   return time
 }

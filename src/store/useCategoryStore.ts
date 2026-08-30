@@ -1,7 +1,11 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type { Category, CategoryId, CategoryStats } from '@/types/category'
-import { DEFAULT_CATEGORIES, GENERAL_CATEGORY, GENERAL_CATEGORY_ID } from '@/constants/defaultCategories'
+import {
+  DEFAULT_CATEGORIES,
+  GENERAL_CATEGORY,
+  GENERAL_CATEGORY_ID,
+} from '@/constants/defaultCategories'
 
 type AddCategoryInput = Omit<
   Category,
@@ -25,17 +29,13 @@ interface CategoryState {
   addCategory: (category: AddCategoryInput) => Category
   /** Returns the built-in General category, creating it on first call. */
   ensureGeneralCategory: () => Category
-  updateCategory: (
-    id: CategoryId,
-    patch: Partial<Omit<Category, 'id' | 'createdAt'>>
-  ) => void
+  updateCategory: (id: CategoryId, patch: Partial<Omit<Category, 'id' | 'createdAt'>>) => void
   deleteCategory: (id: CategoryId) => void
   reorderCategories: (orderedIds: CategoryId[]) => void
   togglePinned: (id: CategoryId) => void
 }
 
-const sortByOrder = (categories: Category[]) =>
-  [...categories].sort((a, b) => a.order - b.order)
+const sortByOrder = (categories: Category[]) => [...categories].sort((a, b) => a.order - b.order)
 
 const createStats = (): CategoryStats => ({
   habitCount: 0,
@@ -58,8 +58,7 @@ export const useCategoryStore = create<CategoryState>()(
 
       getCategoryById: (id) => get().categories.find((c) => c.id === id),
 
-      getPinnedCategories: () =>
-        sortByOrder(get().categories).filter((c) => c.isPinned),
+      getPinnedCategories: () => sortByOrder(get().categories).filter((c) => c.isPinned),
 
       getAllCategories: () => sortByOrder(get().categories),
 
@@ -79,10 +78,7 @@ export const useCategoryStore = create<CategoryState>()(
           throw new Error('A category with that name already exists.')
         }
 
-        const maxOrder = get().categories.reduce(
-          (max, c) => Math.max(max, c.order),
-          0
-        )
+        const maxOrder = get().categories.reduce((max, c) => Math.max(max, c.order), 0)
 
         const created: Category = {
           ...categoryInput,
@@ -103,10 +99,7 @@ export const useCategoryStore = create<CategoryState>()(
         const existing = get().categories.find((c) => c.id === GENERAL_CATEGORY_ID)
         if (existing) return existing
 
-        const maxOrder = get().categories.reduce(
-          (max, c) => Math.max(max, c.order),
-          0
-        )
+        const maxOrder = get().categories.reduce((max, c) => Math.max(max, c.order), 0)
         const created: Category = {
           ...GENERAL_CATEGORY,
           order: maxOrder + 1,
@@ -118,9 +111,7 @@ export const useCategoryStore = create<CategoryState>()(
 
       updateCategory: (id, patch) => {
         set((state) => ({
-          categories: state.categories.map((c) =>
-            c.id === id ? { ...c, ...patch } : c
-          ),
+          categories: state.categories.map((c) => (c.id === id ? { ...c, ...patch } : c)),
         }))
       },
 

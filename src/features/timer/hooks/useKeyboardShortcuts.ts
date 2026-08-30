@@ -1,7 +1,7 @@
 /**
  * useKeyboardShortcuts Hook
  * Global keyboard shortcut manager for timer controls
- * 
+ *
  * Provides keyboard shortcuts for timer operations:
  * - Space: Start/Pause/Continue timer
  * - Escape: Stop timer
@@ -9,7 +9,7 @@
  * - L: Add lap (Stopwatch only)
  * - R: Restart timer (when stopped)
  * - ?: Show keyboard shortcuts help
- * 
+ *
  * Features:
  * - Respects user settings (enabled/disabled)
  * - Prevents conflicts with typing in inputs
@@ -36,7 +36,7 @@ export const useKeyboardShortcuts = (options: UseKeyboardShortcutsOptions) => {
     onStop,
     onKill,
     onLap,
-    enabled = true
+    enabled = true,
   } = options
 
   useEffect(() => {
@@ -55,8 +55,11 @@ export const useKeyboardShortcuts = (options: UseKeyboardShortcutsOptions) => {
       const target = e.target as HTMLElement
       const tagName = target?.tagName || ''
       const isTyping = ['INPUT', 'TEXTAREA', 'SELECT'].includes(tagName)
-      const isEditing = target && typeof target.getAttribute === 'function' && target.getAttribute('contenteditable') === 'true'
-      
+      const isEditing =
+        target &&
+        typeof target.getAttribute === 'function' &&
+        target.getAttribute('contenteditable') === 'true'
+
       // Don't trigger shortcuts while user is typing
       if (isTyping || isEditing) {
         return
@@ -139,6 +142,6 @@ export const useKeyboardShortcuts = (options: UseKeyboardShortcutsOptions) => {
     onLap,
     enabled,
     settings.keyboardShortcutsEnabled,
-    isHelpModalOpen
+    isHelpModalOpen,
   ])
 }

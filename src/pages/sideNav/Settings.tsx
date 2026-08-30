@@ -59,30 +59,24 @@ function SettingRow({
   return (
     <Component
       {...(onClick ? { onClick } : {})}
-      className={`w-full p-4 flex items-center justify-between transition-colors duration-200 ${
-        onClick
-          ? 'cursor-pointer hover:bg-white/5 active:bg-white/10'
-          : ''
+      className={`flex w-full items-center justify-between p-4 transition-colors duration-200 ${
+        onClick ? 'cursor-pointer hover:bg-white/5 active:bg-white/10' : ''
       }`}
     >
-      <div className="flex items-center gap-3 min-w-0">
+      <div className="flex min-w-0 items-center gap-3">
         <div
           className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${iconGradient}`}
         >
-          <span className="material-symbols-outlined text-white text-lg">{icon}</span>
+          <span className="material-symbols-outlined text-lg text-white">{icon}</span>
         </div>
         <div className="min-w-0 text-left">
-          <p className="text-sm font-semibold text-white truncate">{label}</p>
-          {description && (
-            <p className="text-xs text-slate-400 truncate">{description}</p>
-          )}
+          <p className="truncate text-sm font-semibold text-white">{label}</p>
+          {description && <p className="truncate text-xs text-slate-400">{description}</p>}
         </div>
       </div>
-      <div className="shrink-0 ml-3 flex items-center">
+      <div className="ml-3 flex shrink-0 items-center">
         {trailing ?? (
-          <span className="material-symbols-outlined text-slate-500 text-xl">
-            chevron_right
-          </span>
+          <span className="material-symbols-outlined text-xl text-slate-500">chevron_right</span>
         )}
       </div>
     </Component>
@@ -91,7 +85,7 @@ function SettingRow({
 
 /* ─── Divider ───────────────────────────────────────────────────────────────── */
 function Divider() {
-  return <div className="h-px bg-slate-800/80 mx-4" />
+  return <div className="mx-4 h-px bg-slate-800/80" />
 }
 
 /* ─── Toggle switch ─────────────────────────────────────────────────────────── */
@@ -124,26 +118,18 @@ function Toggle({
 /* ─── Section card wrapper ──────────────────────────────────────────────────── */
 function SectionCard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="bg-slate-900/60 rounded-2xl border border-slate-800 overflow-hidden">
+    <div className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/60">
       {children}
     </div>
   )
 }
 
 /* ─── Section heading ───────────────────────────────────────────────────────── */
-function SectionHeading({
-  children,
-  danger,
-}: {
-  children: React.ReactNode
-  danger?: boolean
-}) {
+function SectionHeading({ children, danger }: { children: React.ReactNode; danger?: boolean }) {
   return (
     <h2
-      className={`text-xs font-bold uppercase tracking-wider mb-3 px-1 ${
-        danger
-          ? 'text-red-400'
-          : 'text-slate-400'
+      className={`mb-3 px-1 text-xs font-bold uppercase tracking-wider ${
+        danger ? 'text-red-400' : 'text-slate-400'
       }`}
     >
       {children}
@@ -171,8 +157,8 @@ function PillSelector<T extends string>({
           onClick={() => onChange(opt)}
           className={`cursor-pointer rounded-lg px-3 py-1.5 text-xs font-semibold capitalize transition-all duration-200 focus-visible:ring-2 focus-visible:ring-primary/50 ${
             value === opt
-              ? 'bg-primary/20 text-primary border border-primary/30'
-              : 'bg-slate-800 text-slate-400 border border-transparent hover:text-slate-200'
+              ? 'border border-primary/30 bg-primary/20 text-primary'
+              : 'border border-transparent bg-slate-800 text-slate-400 hover:text-slate-200'
           }`}
           aria-pressed={value === opt}
         >
@@ -184,14 +170,22 @@ function PillSelector<T extends string>({
 }
 
 /* ─── Badge ─────────────────────────────────────────────────────────────────── */
-function Badge({ children, variant = 'default' }: { children: React.ReactNode; variant?: 'default' | 'success' | 'warning' }) {
+function Badge({
+  children,
+  variant = 'default',
+}: {
+  children: React.ReactNode
+  variant?: 'default' | 'success' | 'warning'
+}) {
   const colors = {
     default: 'bg-slate-800 text-slate-400',
     success: 'bg-green-900/30 text-green-400',
     warning: 'bg-amber-900/30 text-amber-400',
   }
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${colors[variant]}`}>
+    <span
+      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${colors[variant]}`}
+    >
       {children}
     </span>
   )
@@ -286,30 +280,30 @@ export function Settings() {
   ]
 
   return (
-    <div className="relative mx-auto flex h-auto min-h-screen w-full max-w-md sm:max-w-2xl md:max-w-4xl lg:max-w-6xl xl:max-w-7xl flex-col overflow-hidden bg-gray-950 text-slate-50 selection:bg-teal-500/30">
+    <div className="relative mx-auto flex h-auto min-h-screen w-full max-w-md flex-col overflow-hidden bg-gray-950 text-slate-50 selection:bg-teal-500/30 sm:max-w-2xl md:max-w-4xl lg:max-w-6xl xl:max-w-7xl">
       {/* ── Top App Bar (matches Today page) ──────────────────────────────── */}
-      <header className="sticky top-0 z-30 backdrop-blur-sm bg-background-light/95 dark:bg-background-dark/95 shrink-0">
-        <div className="flex flex-col gap-2 px-4 pt-4 pb-3 sm:px-6 lg:px-8">
+      <header className="sticky top-0 z-30 shrink-0 bg-background-light/95 backdrop-blur-sm dark:bg-background-dark/95">
+        <div className="flex flex-col gap-2 px-4 pb-3 pt-4 sm:px-6 lg:px-8">
           <div className="flex h-12 items-center justify-between">
             {/* Back button */}
             <button
               onClick={() => navigate('/today')}
               aria-label="Go back"
-              className="flex size-10 cursor-pointer items-center justify-center rounded-xl text-slate-400 hover:text-white hover:bg-white/5 active:scale-95 transition-all"
+              className="flex size-10 cursor-pointer items-center justify-center rounded-xl text-slate-400 transition-all hover:bg-white/5 hover:text-white active:scale-95"
             >
               <span className="material-symbols-outlined text-xl">arrow_back</span>
             </button>
 
             {/* Title */}
             <div className="flex-1 overflow-hidden px-4 text-center">
-              <h1 className="text-lg font-bold text-white tracking-tight">Settings</h1>
+              <h1 className="text-lg font-bold tracking-tight text-white">Settings</h1>
             </div>
 
             {/* Action button */}
             <button
               onClick={() => {}}
               aria-label="Search settings"
-              className="flex size-10 cursor-pointer items-center justify-center rounded-xl text-slate-400 hover:text-white hover:bg-white/5 active:scale-95 transition-all"
+              className="flex size-10 cursor-pointer items-center justify-center rounded-xl text-slate-400 transition-all hover:bg-white/5 hover:text-white active:scale-95"
             >
               <span className="material-symbols-outlined text-xl font-bold">search</span>
             </button>
@@ -318,37 +312,37 @@ export function Settings() {
       </header>
 
       {/* ── Content ────────────────────────────────────────────────────────── */}
-      <main className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 pt-6 pb-safe">
-        <div className="max-w-5xl mx-auto space-y-8 pb-8">
-
+      <main className="pb-safe flex-1 overflow-y-auto px-4 pt-6 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-5xl space-y-8 pb-8">
           {/* ── Profile Card ───────────────────────────────────────────────── */}
           <section>
             <SectionHeading>Profile</SectionHeading>
             <button
               onClick={() => navigate('/profile')}
-              className="group w-full cursor-pointer bg-slate-900/60 rounded-2xl border border-slate-800 p-4 sm:p-5 flex items-center gap-4 transition-all duration-200 hover:border-primary/20 hover:shadow-md "
+              className="group flex w-full cursor-pointer items-center gap-4 rounded-2xl border border-slate-800 bg-slate-900/60 p-4 transition-all duration-200 hover:border-primary/20 hover:shadow-md sm:p-5 "
             >
               <div className="relative shrink-0">
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary-focus shadow-glow/20">
+                <div className="shadow-glow/20 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary-focus">
                   <span className="text-xl font-bold text-white">AM</span>
                 </div>
                 {verified && (
-                  <div className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-green-500 border-2 border-gray-950">
-                    <span className="material-symbols-outlined text-white text-[10px]">check</span>
+                  <div className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full border-2 border-gray-950 bg-green-500">
+                    <span className="material-symbols-outlined text-[10px] text-white">check</span>
                   </div>
                 )}
               </div>
-              <div className="flex-1 min-w-0 text-left">
-                <p className="text-white font-semibold truncate">Alex Morgan</p>
-                <p className="text-slate-400 text-sm truncate">alex.morgan@example.com</p>
+              <div className="min-w-0 flex-1 text-left">
+                <p className="truncate font-semibold text-white">Alex Morgan</p>
+                <p className="truncate text-sm text-slate-400">alex.morgan@example.com</p>
               </div>
-              <span className="material-symbols-outlined text-slate-500 text-xl transition-transform duration-200 group-hover:translate-x-0.5">chevron_right</span>
+              <span className="material-symbols-outlined text-xl text-slate-500 transition-transform duration-200 group-hover:translate-x-0.5">
+                chevron_right
+              </span>
             </button>
           </section>
 
           {/* ── Grid: 2‑col on lg ──────────────────────────────────────────── */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
-
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-8">
             {/* ── General ────────────────────────────────────────────────── */}
             <section>
               <SectionHeading>General</SectionHeading>
@@ -361,8 +355,12 @@ export function Settings() {
                   onClick={() => {}}
                   trailing={
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium text-slate-400">{languageLabels[language]}</span>
-                      <span className="material-symbols-outlined text-slate-500 text-xl">chevron_right</span>
+                      <span className="text-sm font-medium text-slate-400">
+                        {languageLabels[language]}
+                      </span>
+                      <span className="material-symbols-outlined text-xl text-slate-500">
+                        chevron_right
+                      </span>
                     </div>
                   }
                 />
@@ -370,9 +368,11 @@ export function Settings() {
                 <Divider />
 
                 <div className="p-4">
-                  <div className="flex items-center gap-3 mb-3">
+                  <div className="mb-3 flex items-center gap-3">
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-500">
-                      <span className="material-symbols-outlined text-white text-lg">calendar_today</span>
+                      <span className="material-symbols-outlined text-lg text-white">
+                        calendar_today
+                      </span>
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-white">Start of Week</p>
@@ -394,7 +394,14 @@ export function Settings() {
                   iconGradient="from-emerald-500 to-green-600"
                   label="Show Completed Habits"
                   description="Display finished habits in Today view"
-                  trailing={<Toggle id="show-completed" label="Show completed habits" checked={showCompleted} onChange={setShowCompleted} />}
+                  trailing={
+                    <Toggle
+                      id="show-completed"
+                      label="Show completed habits"
+                      checked={showCompleted}
+                      onChange={setShowCompleted}
+                    />
+                  }
                 />
 
                 <Divider />
@@ -404,7 +411,14 @@ export function Settings() {
                   iconGradient="from-slate-500 to-slate-700"
                   label="Compact Mode"
                   description="Smaller cards for more density"
-                  trailing={<Toggle id="compact-mode" label="Toggle compact mode" checked={compactMode} onChange={setCompactMode} />}
+                  trailing={
+                    <Toggle
+                      id="compact-mode"
+                      label="Toggle compact mode"
+                      checked={compactMode}
+                      onChange={setCompactMode}
+                    />
+                  }
                 />
               </SectionCard>
             </section>
@@ -415,9 +429,9 @@ export function Settings() {
               <SectionCard>
                 {/* Theme selector */}
                 <div className="p-4">
-                  <div className="flex items-center gap-3 mb-4">
+                  <div className="mb-4 flex items-center gap-3">
                     <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-pink-500">
-                      <span className="material-symbols-outlined text-white text-lg">palette</span>
+                      <span className="material-symbols-outlined text-lg text-white">palette</span>
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-white">Theme</p>
@@ -429,7 +443,7 @@ export function Settings() {
                       <button
                         key={t}
                         onClick={() => setTheme(t)}
-                        className={`cursor-pointer flex items-center justify-center gap-1.5 rounded-lg px-3 py-2.5 text-sm font-semibold capitalize transition-all duration-200 focus-visible:ring-2 focus-visible:ring-primary/50 ${
+                        className={`flex cursor-pointer items-center justify-center gap-1.5 rounded-lg px-3 py-2.5 text-sm font-semibold capitalize transition-all duration-200 focus-visible:ring-2 focus-visible:ring-primary/50 ${
                           theme === t
                             ? 'bg-slate-700 text-white shadow-sm'
                             : 'text-slate-400 hover:text-slate-200'
@@ -447,9 +461,9 @@ export function Settings() {
 
                 {/* Accent color */}
                 <div className="p-4">
-                  <div className="flex items-center gap-3 mb-3">
+                  <div className="mb-3 flex items-center gap-3">
                     <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-rose-500 to-orange-500">
-                      <span className="material-symbols-outlined text-white text-lg">colorize</span>
+                      <span className="material-symbols-outlined text-lg text-white">colorize</span>
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-white">Accent Color</p>
@@ -461,9 +475,9 @@ export function Settings() {
                       <button
                         key={c.name}
                         onClick={() => setAccentColor(c.name)}
-                        className={`cursor-pointer w-8 h-8 rounded-full ${c.class} transition-all duration-200 focus-visible:ring-2 focus-visible:ring-primary/50 ${
+                        className={`h-8 w-8 cursor-pointer rounded-full ${c.class} transition-all duration-200 focus-visible:ring-2 focus-visible:ring-primary/50 ${
                           accentColor === c.name
-                            ? 'ring-2 ring-offset-2 ring-offset-gray-950 ring-white scale-110'
+                            ? 'scale-110 ring-2 ring-white ring-offset-2 ring-offset-gray-950'
                             : 'hover:scale-105'
                         }`}
                         aria-label={`Select ${c.name} accent color`}
@@ -477,9 +491,11 @@ export function Settings() {
 
                 {/* Font size */}
                 <div className="p-4">
-                  <div className="flex items-center gap-3 mb-3">
+                  <div className="mb-3 flex items-center gap-3">
                     <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 to-yellow-500">
-                      <span className="material-symbols-outlined text-white text-lg">format_size</span>
+                      <span className="material-symbols-outlined text-lg text-white">
+                        format_size
+                      </span>
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-white">Font Size</p>
@@ -514,7 +530,14 @@ export function Settings() {
                   iconGradient="from-orange-500 to-red-500"
                   label="Daily Reminders"
                   description="Get notified daily"
-                  trailing={<Toggle id="daily-reminders" label="Toggle daily reminders" checked={dailyReminders} onChange={setDailyReminders} />}
+                  trailing={
+                    <Toggle
+                      id="daily-reminders"
+                      label="Toggle daily reminders"
+                      checked={dailyReminders}
+                      onChange={setDailyReminders}
+                    />
+                  }
                 />
                 <Divider />
                 <SettingRow
@@ -526,7 +549,9 @@ export function Settings() {
                   trailing={
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-medium text-slate-400">{reminderTime}</span>
-                      <span className="material-symbols-outlined text-slate-500 text-xl">chevron_right</span>
+                      <span className="material-symbols-outlined text-xl text-slate-500">
+                        chevron_right
+                      </span>
                     </div>
                   }
                 />
@@ -539,8 +564,12 @@ export function Settings() {
                   onClick={() => {}}
                   trailing={
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium text-slate-400">{notificationSound}</span>
-                      <span className="material-symbols-outlined text-slate-500 text-xl">chevron_right</span>
+                      <span className="text-sm font-medium text-slate-400">
+                        {notificationSound}
+                      </span>
+                      <span className="material-symbols-outlined text-xl text-slate-500">
+                        chevron_right
+                      </span>
                     </div>
                   }
                 />
@@ -550,7 +579,14 @@ export function Settings() {
                   iconGradient="from-slate-600 to-slate-800"
                   label="Quiet Hours"
                   description={quietHours ? `${quietStart} – ${quietEnd}` : 'Mute during sleep'}
-                  trailing={<Toggle id="quiet-hours" label="Toggle quiet hours" checked={quietHours} onChange={setQuietHours} />}
+                  trailing={
+                    <Toggle
+                      id="quiet-hours"
+                      label="Toggle quiet hours"
+                      checked={quietHours}
+                      onChange={setQuietHours}
+                    />
+                  }
                 />
                 <Divider />
                 <SettingRow
@@ -558,7 +594,14 @@ export function Settings() {
                   iconGradient="from-amber-500 to-red-500"
                   label="Streak Reminders"
                   description="Protect your streaks"
-                  trailing={<Toggle id="streak-reminders" label="Toggle streak reminders" checked={streakReminders} onChange={setStreakReminders} />}
+                  trailing={
+                    <Toggle
+                      id="streak-reminders"
+                      label="Toggle streak reminders"
+                      checked={streakReminders}
+                      onChange={setStreakReminders}
+                    />
+                  }
                 />
                 <Divider />
                 <SettingRow
@@ -566,7 +609,14 @@ export function Settings() {
                   iconGradient="from-teal-500 to-emerald-500"
                   label="Weekly Summary"
                   description="Get a weekly progress report"
-                  trailing={<Toggle id="weekly-summary" label="Toggle weekly summary" checked={weeklySummary} onChange={setWeeklySummary} />}
+                  trailing={
+                    <Toggle
+                      id="weekly-summary"
+                      label="Toggle weekly summary"
+                      checked={weeklySummary}
+                      onChange={setWeeklySummary}
+                    />
+                  }
                 />
                 <Divider />
                 <SettingRow
@@ -574,7 +624,14 @@ export function Settings() {
                   iconGradient="from-red-500 to-rose-600"
                   label="Missed Habit Alerts"
                   description="Follow-up for incomplete habits"
-                  trailing={<Toggle id="missed-reminders" label="Toggle missed habit reminders" checked={missedHabitReminders} onChange={setMissedHabitReminders} />}
+                  trailing={
+                    <Toggle
+                      id="missed-reminders"
+                      label="Toggle missed habit reminders"
+                      checked={missedHabitReminders}
+                      onChange={setMissedHabitReminders}
+                    />
+                  }
                 />
               </SectionCard>
             </section>
@@ -600,9 +657,9 @@ export function Settings() {
                 />
                 <Divider />
                 <div className="p-4">
-                  <div className="flex items-center gap-3 mb-3">
+                  <div className="mb-3 flex items-center gap-3">
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-purple-600">
-                      <span className="material-symbols-outlined text-white text-lg">backup</span>
+                      <span className="material-symbols-outlined text-lg text-white">backup</span>
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-white">Auto Backup</p>
@@ -617,9 +674,9 @@ export function Settings() {
                 </div>
                 <Divider />
                 <div className="p-4">
-                  <div className="flex items-center gap-3 mb-3">
+                  <div className="mb-3 flex items-center gap-3">
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600">
-                      <span className="material-symbols-outlined text-white text-lg">history</span>
+                      <span className="material-symbols-outlined text-lg text-white">history</span>
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-white">Data Retention</p>
@@ -630,7 +687,12 @@ export function Settings() {
                     options={['30', '90', '180', 'forever'] as DataRetention[]}
                     value={dataRetention}
                     onChange={setDataRetention}
-                    labels={{ '30': '30 days', '90': '90 days', '180': '180 days', forever: 'Forever' }}
+                    labels={{
+                      '30': '30 days',
+                      '90': '90 days',
+                      '180': '180 days',
+                      forever: 'Forever',
+                    }}
                   />
                 </div>
                 <Divider />
@@ -639,7 +701,14 @@ export function Settings() {
                   iconGradient="from-sky-500 to-blue-500"
                   label="Sync on Wi-Fi Only"
                   description="Reduce mobile data usage"
-                  trailing={<Toggle id="sync-wifi" label="Sync on wifi only" checked={syncWifiOnly} onChange={setSyncWifiOnly} />}
+                  trailing={
+                    <Toggle
+                      id="sync-wifi"
+                      label="Sync on wifi only"
+                      checked={syncWifiOnly}
+                      onChange={setSyncWifiOnly}
+                    />
+                  }
                 />
                 <Divider />
                 <SettingRow
@@ -647,7 +716,14 @@ export function Settings() {
                   iconGradient="from-pink-500 to-fuchsia-500"
                   label="Anonymous Analytics"
                   description="Help improve the app"
-                  trailing={<Toggle id="analytics" label="Toggle analytics sharing" checked={analyticsSharing} onChange={setAnalyticsSharing} />}
+                  trailing={
+                    <Toggle
+                      id="analytics"
+                      label="Toggle analytics sharing"
+                      checked={analyticsSharing}
+                      onChange={setAnalyticsSharing}
+                    />
+                  }
                 />
                 <Divider />
                 <SettingRow
@@ -659,7 +735,9 @@ export function Settings() {
                   trailing={
                     <div className="flex items-center gap-2">
                       <Badge>24 MB</Badge>
-                      <span className="material-symbols-outlined text-slate-500 text-xl">chevron_right</span>
+                      <span className="material-symbols-outlined text-xl text-slate-500">
+                        chevron_right
+                      </span>
                     </div>
                   }
                 />
@@ -674,12 +752,18 @@ export function Settings() {
                   <div className="p-4">
                     <div className="flex items-start gap-3">
                       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-indigo-500">
-                        <span className="material-symbols-outlined text-white text-lg">verified_user</span>
+                        <span className="material-symbols-outlined text-lg text-white">
+                          verified_user
+                        </span>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-white mb-1.5">Email Verification</p>
+                      <div className="min-w-0 flex-1">
+                        <p className="mb-1.5 text-sm font-semibold text-white">
+                          Email Verification
+                        </p>
                         <Badge variant={verified ? 'success' : 'warning'}>
-                          <span className="material-symbols-outlined text-xs mr-0.5">{verified ? 'check_circle' : 'warning'}</span>
+                          <span className="material-symbols-outlined mr-0.5 text-xs">
+                            {verified ? 'check_circle' : 'warning'}
+                          </span>
                           {verified ? 'Verified' : 'Not Verified'}
                         </Badge>
                       </div>
@@ -689,7 +773,10 @@ export function Settings() {
                         type="button"
                         onClick={async () => {
                           try {
-                            const { error } = await supabase.auth.resend({ type: 'signup', email: user.email! })
+                            const { error } = await supabase.auth.resend({
+                              type: 'signup',
+                              email: user.email!,
+                            })
                             if (error) throw error
                             toast.success('Verification email resent')
                           } catch (e: any) {
@@ -697,7 +784,7 @@ export function Settings() {
                             toast.error(e?.message || 'Failed to resend verification email')
                           }
                         }}
-                        className="w-full mt-4 cursor-pointer rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white transition-colors duration-200 hover:bg-primary-focus active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2"
+                        className="mt-4 w-full cursor-pointer rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white transition-colors duration-200 hover:bg-primary-focus focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 active:scale-[0.98]"
                       >
                         Resend Verification Email
                       </button>
@@ -718,7 +805,14 @@ export function Settings() {
                   iconGradient="from-fuchsia-500 to-pink-600"
                   label="Reduce Motion"
                   description="Minimize animations"
-                  trailing={<Toggle id="reduce-motion" label="Toggle reduce motion" checked={reduceMotion} onChange={setReduceMotion} />}
+                  trailing={
+                    <Toggle
+                      id="reduce-motion"
+                      label="Toggle reduce motion"
+                      checked={reduceMotion}
+                      onChange={setReduceMotion}
+                    />
+                  }
                 />
                 <Divider />
                 <SettingRow
@@ -726,7 +820,14 @@ export function Settings() {
                   iconGradient="from-lime-500 to-green-600"
                   label="Haptic Feedback"
                   description="Vibrate on interactions"
-                  trailing={<Toggle id="haptic" label="Toggle haptic feedback" checked={hapticFeedback} onChange={setHapticFeedback} />}
+                  trailing={
+                    <Toggle
+                      id="haptic"
+                      label="Toggle haptic feedback"
+                      checked={hapticFeedback}
+                      onChange={setHapticFeedback}
+                    />
+                  }
                 />
                 <Divider />
                 <SettingRow
@@ -734,7 +835,14 @@ export function Settings() {
                   iconGradient="from-gray-700 to-gray-900"
                   label="High Contrast"
                   description="Increase text and border contrast"
-                  trailing={<Toggle id="high-contrast" label="Toggle high contrast" checked={highContrast} onChange={setHighContrast} />}
+                  trailing={
+                    <Toggle
+                      id="high-contrast"
+                      label="Toggle high contrast"
+                      checked={highContrast}
+                      onChange={setHighContrast}
+                    />
+                  }
                 />
                 <Divider />
                 <SettingRow
@@ -742,7 +850,14 @@ export function Settings() {
                   iconGradient="from-blue-400 to-blue-600"
                   label="Screen Reader Support"
                   description="Enhanced screen reader hints"
-                  trailing={<Toggle id="screen-reader" label="Toggle screen reader support" checked={screenReader} onChange={setScreenReader} />}
+                  trailing={
+                    <Toggle
+                      id="screen-reader"
+                      label="Toggle screen reader support"
+                      checked={screenReader}
+                      onChange={setScreenReader}
+                    />
+                  }
                 />
                 <Divider />
                 <SettingRow
@@ -766,15 +881,33 @@ export function Settings() {
             <section>
               <SectionHeading>Account</SectionHeading>
               <SectionCard>
-                <SettingRow icon="lock" iconGradient="from-amber-500 to-orange-500" label="Change Password" description="Update your password" onClick={() => {}} />
+                <SettingRow
+                  icon="lock"
+                  iconGradient="from-amber-500 to-orange-500"
+                  label="Change Password"
+                  description="Update your password"
+                  onClick={() => {}}
+                />
                 <Divider />
-                <SettingRow icon="mail" iconGradient="from-blue-500 to-sky-500" label="Change Email" description="Update your email address" onClick={() => {}} />
+                <SettingRow
+                  icon="mail"
+                  iconGradient="from-blue-500 to-sky-500"
+                  label="Change Email"
+                  description="Update your email address"
+                  onClick={() => {}}
+                />
                 <Divider />
-                <SettingRow icon="link" iconGradient="from-violet-500 to-purple-500" label="Linked Accounts" description="Google, Apple, GitHub" onClick={() => {}} />
+                <SettingRow
+                  icon="link"
+                  iconGradient="from-violet-500 to-purple-500"
+                  label="Linked Accounts"
+                  description="Google, Apple, GitHub"
+                  onClick={() => {}}
+                />
                 <Divider />
                 <button
                   onClick={() => setShowLogoutConfirm(true)}
-                  className="w-full cursor-pointer p-4 flex items-center justify-center gap-2 text-red-400 font-semibold transition-colors duration-200 hover:bg-red-900/10 focus-visible:ring-2 focus-visible:ring-red-500/50"
+                  className="flex w-full cursor-pointer items-center justify-center gap-2 p-4 font-semibold text-red-400 transition-colors duration-200 hover:bg-red-900/10 focus-visible:ring-2 focus-visible:ring-red-500/50"
                 >
                   <span className="material-symbols-outlined text-xl">logout</span>
                   Log Out
@@ -786,11 +919,35 @@ export function Settings() {
             <section className="lg:col-span-2">
               <SectionHeading>Support & About</SectionHeading>
               <SectionCard>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-slate-800/80">
-                  <SettingRow icon="help" iconGradient="from-teal-500 to-cyan-500" label="Help Center" description="Get support" onClick={() => navigate('/help')} />
-                  <SettingRow icon="feedback" iconGradient="from-amber-500 to-yellow-500" label="Send Feedback" description="Share your thoughts" onClick={() => navigate('/feedback')} />
-                  <SettingRow icon="share" iconGradient="from-green-500 to-emerald-500" label="Share HabitFlow" description="Invite friends" onClick={() => navigate('/share')} />
-                  <SettingRow icon="star" iconGradient="from-yellow-400 to-orange-500" label="Rate the App" description="Leave a review" onClick={() => {}} />
+                <div className="grid grid-cols-1 divide-y divide-slate-800/80 sm:grid-cols-2 sm:divide-x sm:divide-y-0 lg:grid-cols-4">
+                  <SettingRow
+                    icon="help"
+                    iconGradient="from-teal-500 to-cyan-500"
+                    label="Help Center"
+                    description="Get support"
+                    onClick={() => navigate('/help')}
+                  />
+                  <SettingRow
+                    icon="feedback"
+                    iconGradient="from-amber-500 to-yellow-500"
+                    label="Send Feedback"
+                    description="Share your thoughts"
+                    onClick={() => navigate('/feedback')}
+                  />
+                  <SettingRow
+                    icon="share"
+                    iconGradient="from-green-500 to-emerald-500"
+                    label="Share HabitFlow"
+                    description="Invite friends"
+                    onClick={() => navigate('/share')}
+                  />
+                  <SettingRow
+                    icon="star"
+                    iconGradient="from-yellow-400 to-orange-500"
+                    label="Rate the App"
+                    description="Leave a review"
+                    onClick={() => {}}
+                  />
                 </div>
               </SectionCard>
             </section>
@@ -799,32 +956,50 @@ export function Settings() {
             <section className="lg:col-span-2">
               <SectionHeading>Legal</SectionHeading>
               <SectionCard>
-                <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-slate-800/80">
-                  <SettingRow icon="shield" iconGradient="from-violet-500 to-purple-500" label="Privacy Policy" description="How we protect you" onClick={() => navigate('/privacy')} />
-                  <SettingRow icon="description" iconGradient="from-indigo-500 to-blue-500" label="Terms of Service" description="Our agreement" onClick={() => navigate('/terms')} />
-                  <SettingRow icon="license" iconGradient="from-slate-500 to-slate-700" label="Open Source" description="Third-party licenses" onClick={() => {}} />
+                <div className="grid grid-cols-1 divide-y divide-slate-800/80 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+                  <SettingRow
+                    icon="shield"
+                    iconGradient="from-violet-500 to-purple-500"
+                    label="Privacy Policy"
+                    description="How we protect you"
+                    onClick={() => navigate('/privacy')}
+                  />
+                  <SettingRow
+                    icon="description"
+                    iconGradient="from-indigo-500 to-blue-500"
+                    label="Terms of Service"
+                    description="Our agreement"
+                    onClick={() => navigate('/terms')}
+                  />
+                  <SettingRow
+                    icon="license"
+                    iconGradient="from-slate-500 to-slate-700"
+                    label="Open Source"
+                    description="Third-party licenses"
+                    onClick={() => {}}
+                  />
                 </div>
               </SectionCard>
             </section>
           </div>
 
           {/* ── Danger Zone (centered, outside grid) ────────────────────── */}
-          <section className="max-w-md mx-auto w-full">
+          <section className="mx-auto w-full max-w-md">
             <SectionHeading danger>Danger Zone</SectionHeading>
             <button
               onClick={handleDeleteAccount}
-              className="w-full cursor-pointer bg-red-500 hover:bg-red-600 rounded-2xl p-4 flex items-center justify-center gap-2 text-white font-bold shadow-lg shadow-red-500/20 transition-all duration-200 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-red-500/50 focus-visible:ring-offset-2"
+              className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl bg-red-500 p-4 font-bold text-white shadow-lg shadow-red-500/20 transition-all duration-200 hover:bg-red-600 focus-visible:ring-2 focus-visible:ring-red-500/50 focus-visible:ring-offset-2 active:scale-[0.98]"
             >
               <span className="material-symbols-outlined text-xl">delete_forever</span>
               Delete Account
             </button>
-            <p className="text-xs text-center text-slate-400 mt-2.5 px-4">
+            <p className="mt-2.5 px-4 text-center text-xs text-slate-400">
               This action cannot be undone. All your data will be permanently deleted.
             </p>
           </section>
 
           {/* ── Version ─────────────────────────────────────────────────── */}
-          <div className="text-center pb-2">
+          <div className="pb-2 text-center">
             <p className="text-xs text-slate-500">HabitFlow v1.2.3</p>
           </div>
         </div>

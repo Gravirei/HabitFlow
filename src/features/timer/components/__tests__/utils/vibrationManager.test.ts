@@ -17,15 +17,15 @@ describe('vibrationManager', () => {
   beforeEach(() => {
     // Ensure navigator exists in test environment
     if (typeof navigator === 'undefined') {
-      (global as any).navigator = {}
+      ;(global as any).navigator = {}
     }
-    
+
     // Mock navigator.vibrate
     mockVibrate = vi.fn()
     Object.defineProperty(navigator, 'vibrate', {
       value: mockVibrate,
       writable: true,
-      configurable: true
+      configurable: true,
     })
   })
 
@@ -36,7 +36,7 @@ describe('vibrationManager', () => {
     Object.defineProperty(navigator, 'vibrate', {
       value: mockVibrate,
       writable: true,
-      configurable: true
+      configurable: true,
     })
   })
 
@@ -57,7 +57,6 @@ describe('vibrationManager', () => {
       delete (global as any).navigator
 
       expect(() => vibrationManager.isSupported()).not.toThrow()
-
       ;(global as any).navigator = originalNavigator
     })
   })
@@ -203,7 +202,7 @@ describe('vibrationManager', () => {
 
     it('should handle stop errors gracefully', () => {
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-      
+
       mockVibrate.mockImplementation(() => {
         throw new Error('Stop error')
       })
@@ -218,7 +217,7 @@ describe('vibrationManager', () => {
     it('should support all 3 vibration patterns', () => {
       const patterns: Array<'short' | 'long' | 'pulse'> = ['short', 'long', 'pulse']
 
-      patterns.forEach(pattern => {
+      patterns.forEach((pattern) => {
         vi.clearAllMocks()
         vibrationManager.vibrate(pattern)
         expect(mockVibrate).toHaveBeenCalled()
@@ -302,9 +301,9 @@ describe('vibrationManager', () => {
       // Pattern should be: vibrate, pause, vibrate, pause, vibrate
       // Odd indices are vibrations, even indices (in gaps) are pauses
       expect(pattern[0]).toBe(100) // vibrate
-      expect(pattern[1]).toBe(50)  // pause
+      expect(pattern[1]).toBe(50) // pause
       expect(pattern[2]).toBe(100) // vibrate
-      expect(pattern[3]).toBe(50)  // pause
+      expect(pattern[3]).toBe(50) // pause
       expect(pattern[4]).toBe(100) // vibrate
     })
   })
@@ -320,8 +319,9 @@ describe('vibrationManager', () => {
 
     it('should maintain state across multiple imports', async () => {
       // Import module again
-      const { vibrationManager: reimported } = await import('@/features/timer/utils/vibrationManager')
-      
+      const { vibrationManager: reimported } =
+        await import('@/features/timer/utils/vibrationManager')
+
       // Should be the same instance
       expect(reimported).toBe(vibrationManager)
     })

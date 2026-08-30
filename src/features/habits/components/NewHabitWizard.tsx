@@ -61,7 +61,7 @@ export function NewHabitWizard({
   defaultFrequency,
   onClose,
   onRequestClose,
-  onDirtyChange
+  onDirtyChange,
 }: NewHabitWizardProps) {
   const { addHabit } = useHabitStore()
   const ensureGeneralCategory = useCategoryStore((s) => s.ensureGeneralCategory)
@@ -87,7 +87,7 @@ export function NewHabitWizard({
     watch,
     setValue,
     trigger,
-    formState: { errors, isSubmitting, isDirty }
+    formState: { errors, isSubmitting, isDirty },
   } = useForm<HabitFormData>({
     resolver: zodResolver(habitSchema),
     mode: 'onChange', // Enable real-time validation
@@ -97,8 +97,8 @@ export function NewHabitWizard({
       frequency: defaultFrequency || 'weekly',
       goal: 3,
       reminderEnabled: true,
-      reminderTime: '09:00'
-    }
+      reminderTime: '09:00',
+    },
   })
 
   const frequency = watch('frequency')
@@ -111,7 +111,8 @@ export function NewHabitWizard({
   }, [isDirty, onDirtyChange])
 
   const onSubmit = (data: HabitFormData) => {
-    const goalPeriod = data.frequency === 'daily' ? 'day' : data.frequency === 'weekly' ? 'week' : 'month'
+    const goalPeriod =
+      data.frequency === 'daily' ? 'day' : data.frequency === 'weekly' ? 'week' : 'month'
 
     // Habits created without picking a category land in the built-in
     // General category so they show up on Today/Habits right away.
@@ -178,7 +179,7 @@ export function NewHabitWizard({
   return (
     <div className={rootClass}>
       {/* Desktop step navigator */}
-      <aside className="hidden w-64 shrink-0 flex-col border-r border-gray-200/60 bg-violet-500/[0.04] p-8 backdrop-blur-xl md:flex dark:border-white/5 dark:bg-violet-500/[0.06] lg:w-72">
+      <aside className="hidden w-64 shrink-0 flex-col border-r border-gray-200/60 bg-violet-500/[0.04] p-8 backdrop-blur-xl dark:border-white/5 dark:bg-violet-500/[0.06] md:flex lg:w-72">
         <motion.div
           variants={sidebarEdge(reducedMotion, 0.15)}
           initial="hidden"
@@ -195,9 +196,7 @@ export function NewHabitWizard({
             <p className="font-display text-xl font-bold tracking-tight text-gray-900 dark:text-white">
               New habit
             </p>
-            <p className="truncate text-xs text-gray-500 dark:text-gray-400">
-              Shape a new routine
-            </p>
+            <p className="truncate text-xs text-gray-500 dark:text-gray-400">Shape a new routine</p>
           </div>
         </motion.div>
 
@@ -224,7 +223,7 @@ export function NewHabitWizard({
                       : isLocked
                         ? 'cursor-not-allowed opacity-50'
                         : 'cursor-pointer hover:bg-gray-900/5 dark:hover:bg-white/5'
-                  } focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:outline-none`}
+                  } focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500`}
                 >
                   <span
                     className={`flex size-9 shrink-0 items-center justify-center rounded-xl text-sm font-bold transition-colors duration-200 ${
@@ -243,7 +242,9 @@ export function NewHabitWizard({
                     )}
                   </span>
                   <span className="min-w-0">
-                    <span className={`block truncate text-sm font-semibold ${isCurrent ? 'text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-300'}`}>
+                    <span
+                      className={`block truncate text-sm font-semibold ${isCurrent ? 'text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-300'}`}
+                    >
                       {title}
                     </span>
                     <span className="block truncate text-xs text-gray-500 dark:text-gray-400">
@@ -269,8 +270,8 @@ export function NewHabitWizard({
       {/* Main column */}
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Top App Bar */}
-        <header className="shrink-0 pt-safe">
-          <div className="flex items-center justify-between px-4 pt-4 pb-2 md:justify-end">
+        <header className="pt-safe shrink-0">
+          <div className="flex items-center justify-between px-4 pb-2 pt-4 md:justify-end">
             {/* Progress dots (mobile / tablet portrait) */}
             <div
               className="flex items-center gap-1.5 md:hidden"
@@ -295,7 +296,7 @@ export function NewHabitWizard({
               type="button"
               onClick={onRequestClose ?? onClose}
               aria-label="Close"
-              className="flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-full text-gray-900 transition-colors hover:bg-gray-900/5 active:bg-gray-900/10 focus-visible:ring-2 focus-visible:ring-violet-500 dark:text-white dark:hover:bg-white/10 dark:active:bg-white/15"
+              className="flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-full text-gray-900 transition-colors hover:bg-gray-900/5 focus-visible:ring-2 focus-visible:ring-violet-500 active:bg-gray-900/10 dark:text-white dark:hover:bg-white/10 dark:active:bg-white/15"
             >
               <span className="material-symbols-outlined text-2xl">close</span>
             </button>
@@ -305,8 +306,15 @@ export function NewHabitWizard({
           </div>
         </header>
 
-        <form id="new-habit-form" onSubmit={onFormSubmit} className="flex min-h-0 flex-1 flex-col overflow-y-auto no-scrollbar">
-          <div key={step} className="mx-auto flex w-full max-w-lg flex-1 flex-col px-6 pt-8 pb-8 sm:px-8 lg:px-10">
+        <form
+          id="new-habit-form"
+          onSubmit={onFormSubmit}
+          className="no-scrollbar flex min-h-0 flex-1 flex-col overflow-y-auto"
+        >
+          <div
+            key={step}
+            className="mx-auto flex w-full max-w-lg flex-1 flex-col px-6 pb-8 pt-8 sm:px-8 lg:px-10"
+          >
             {/* ─── Step 1 · Name ─── */}
             {step === 0 && (
               <motion.section
@@ -316,18 +324,31 @@ export function NewHabitWizard({
                 animate="visible"
                 className="flex flex-1 flex-col"
               >
-                <motion.div variants={stepItem(reducedMotion)} className="mb-6 flex size-16 items-center justify-center rounded-3xl bg-gradient-to-br from-violet-500 to-purple-600 text-white shadow-lg shadow-violet-500/30">
-                  <span className="material-symbols-outlined text-3xl" aria-hidden="true">emoji_objects</span>
+                <motion.div
+                  variants={stepItem(reducedMotion)}
+                  className="mb-6 flex size-16 items-center justify-center rounded-3xl bg-gradient-to-br from-violet-500 to-purple-600 text-white shadow-lg shadow-violet-500/30"
+                >
+                  <span className="material-symbols-outlined text-3xl" aria-hidden="true">
+                    emoji_objects
+                  </span>
                 </motion.div>
-                <motion.h3 variants={stepItem(reducedMotion)} className="font-display text-2xl font-bold leading-snug tracking-tight text-gray-900 dark:text-white sm:text-3xl lg:text-4xl">
+                <motion.h3
+                  variants={stepItem(reducedMotion)}
+                  className="font-display text-2xl font-bold leading-snug tracking-tight text-gray-900 dark:text-white sm:text-3xl lg:text-4xl"
+                >
                   What do you want to achieve?
                 </motion.h3>
-                <motion.p variants={stepItem(reducedMotion)} className="mt-2 text-sm text-gray-500 dark:text-gray-400 lg:text-base">
+                <motion.p
+                  variants={stepItem(reducedMotion)}
+                  className="mt-2 text-sm text-gray-500 dark:text-gray-400 lg:text-base"
+                >
                   Give your habit a name — keep it short and specific.
                 </motion.p>
 
                 <motion.div variants={stepItem(reducedMotion)} className="mt-8">
-                  <label htmlFor="habit-name" className="sr-only">Habit name</label>
+                  <label htmlFor="habit-name" className="sr-only">
+                    Habit name
+                  </label>
                   <input
                     id="habit-name"
                     {...register('name')}
@@ -335,41 +356,49 @@ export function NewHabitWizard({
                     autoComplete="off"
                     placeholder="Name your habit…"
                     maxLength={100}
-                    className={`w-full rounded-3xl border bg-white/60 px-5 py-5 font-display text-xl font-bold text-gray-900 shadow-sm transition-colors focus:outline-none focus:ring-4 dark:bg-white/5 dark:text-white placeholder:font-sans placeholder:text-base placeholder:font-normal placeholder:text-gray-400 dark:placeholder:text-gray-500 lg:text-2xl ${
+                    className={`w-full rounded-3xl border bg-white/60 px-5 py-5 font-display text-xl font-bold text-gray-900 shadow-sm transition-colors placeholder:font-sans placeholder:text-base placeholder:font-normal placeholder:text-gray-400 focus:outline-none focus:ring-4 dark:bg-white/5 dark:text-white dark:placeholder:text-gray-500 lg:text-2xl ${
                       errors.name
-                        ? 'border-red-500 dark:border-red-500/70 focus:border-red-500 focus:ring-red-500/20'
-                        : 'border-gray-200/70 dark:border-white/10 focus:border-violet-500 focus:ring-violet-500/20'
+                        ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20 dark:border-red-500/70'
+                        : 'border-gray-200/70 focus:border-violet-500 focus:ring-violet-500/20 dark:border-white/10'
                     }`}
                   />
                   {errors.name && (
                     <p role="alert" className="mt-2 flex items-center gap-1 text-sm text-red-500">
-                      <span className="material-symbols-outlined text-base" aria-hidden="true">error</span>
+                      <span className="material-symbols-outlined text-base" aria-hidden="true">
+                        error
+                      </span>
                       {errors.name.message}
                     </p>
                   )}
                 </motion.div>
 
                 <motion.div variants={stepItem(reducedMotion)} className="mt-5">
-                  <label htmlFor="habit-description" className="sr-only">Description (optional)</label>
+                  <label htmlFor="habit-description" className="sr-only">
+                    Description (optional)
+                  </label>
                   <textarea
                     id="habit-description"
                     {...register('description')}
                     rows={3}
                     placeholder="Add details (optional)"
-                    className={`w-full resize-none rounded-3xl border bg-white/60 px-5 py-4 text-sm leading-relaxed text-gray-900 shadow-sm transition-colors focus:outline-none focus:ring-4 dark:bg-white/5 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 lg:text-base ${
+                    className={`w-full resize-none rounded-3xl border bg-white/60 px-5 py-4 text-sm leading-relaxed text-gray-900 shadow-sm transition-colors placeholder:text-gray-400 focus:outline-none focus:ring-4 dark:bg-white/5 dark:text-white dark:placeholder:text-gray-500 lg:text-base ${
                       errors.description
-                        ? 'border-red-500 dark:border-red-500/70 focus:border-red-500 focus:ring-red-500/20'
-                        : 'border-gray-200/70 dark:border-white/10 focus:border-violet-500 focus:ring-violet-500/20'
+                        ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20 dark:border-red-500/70'
+                        : 'border-gray-200/70 focus:border-violet-500 focus:ring-violet-500/20 dark:border-white/10'
                     }`}
                   />
                   <div className="mt-1.5 flex items-center justify-between gap-3">
                     {errors.description && (
                       <p role="alert" className="flex items-center gap-1 text-sm text-red-500">
-                        <span className="material-symbols-outlined text-base" aria-hidden="true">error</span>
+                        <span className="material-symbols-outlined text-base" aria-hidden="true">
+                          error
+                        </span>
                         {errors.description.message}
                       </p>
                     )}
-                    <span className={`ml-auto shrink-0 text-xs tabular-nums ${description.length > 450 ? 'text-warning-light dark:text-warning-dark' : 'text-gray-400 dark:text-gray-500'}`}>
+                    <span
+                      className={`ml-auto shrink-0 text-xs tabular-nums ${description.length > 450 ? 'text-warning-light dark:text-warning-dark' : 'text-gray-400 dark:text-gray-500'}`}
+                    >
                       {description.length}/500
                     </span>
                   </div>
@@ -386,13 +415,24 @@ export function NewHabitWizard({
                 animate="visible"
                 className="flex flex-1 flex-col"
               >
-                <motion.div variants={stepItem(reducedMotion)} className="mb-6 flex size-16 items-center justify-center rounded-3xl bg-gradient-to-br from-violet-500 to-purple-600 text-white shadow-lg shadow-violet-500/30">
-                  <span className="material-symbols-outlined text-3xl" aria-hidden="true">event_repeat</span>
+                <motion.div
+                  variants={stepItem(reducedMotion)}
+                  className="mb-6 flex size-16 items-center justify-center rounded-3xl bg-gradient-to-br from-violet-500 to-purple-600 text-white shadow-lg shadow-violet-500/30"
+                >
+                  <span className="material-symbols-outlined text-3xl" aria-hidden="true">
+                    event_repeat
+                  </span>
                 </motion.div>
-                <motion.h3 variants={stepItem(reducedMotion)} className="font-display text-2xl font-bold leading-snug tracking-tight text-gray-900 dark:text-white sm:text-3xl lg:text-4xl">
+                <motion.h3
+                  variants={stepItem(reducedMotion)}
+                  className="font-display text-2xl font-bold leading-snug tracking-tight text-gray-900 dark:text-white sm:text-3xl lg:text-4xl"
+                >
                   How often will you do it?
                 </motion.h3>
-                <motion.p variants={stepItem(reducedMotion)} className="mt-2 text-sm text-gray-500 dark:text-gray-400 lg:text-base">
+                <motion.p
+                  variants={stepItem(reducedMotion)}
+                  className="mt-2 text-sm text-gray-500 dark:text-gray-400 lg:text-base"
+                >
                   Pick a rhythm you can sustain.
                 </motion.p>
 
@@ -410,11 +450,19 @@ export function NewHabitWizard({
                               : 'border-gray-200/70 bg-white/50 text-gray-500 shadow-sm hover:border-violet-500/40 dark:border-white/10 dark:bg-white/5 dark:text-gray-400 dark:hover:border-violet-500/40'
                           }`}
                         >
-                          <span className={`material-symbols-outlined text-2xl lg:text-3xl ${selected ? 'text-violet-600 dark:text-violet-400' : ''}`} aria-hidden="true">
+                          <span
+                            className={`material-symbols-outlined text-2xl lg:text-3xl ${selected ? 'text-violet-600 dark:text-violet-400' : ''}`}
+                            aria-hidden="true"
+                          >
                             {icon}
                           </span>
                           <span className="text-sm font-semibold lg:text-base">{label}</span>
-                          <input {...register('frequency')} type="radio" value={value} className="sr-only" />
+                          <input
+                            {...register('frequency')}
+                            type="radio"
+                            value={value}
+                            className="sr-only"
+                          />
                         </label>
                       )
                     })}
@@ -432,13 +480,24 @@ export function NewHabitWizard({
                 animate="visible"
                 className="flex flex-1 flex-col"
               >
-                <motion.div variants={stepItem(reducedMotion)} className="mb-6 flex size-16 items-center justify-center rounded-3xl bg-gradient-to-br from-violet-500 to-purple-600 text-white shadow-lg shadow-violet-500/30">
-                  <span className="material-symbols-outlined text-3xl" aria-hidden="true">flag</span>
+                <motion.div
+                  variants={stepItem(reducedMotion)}
+                  className="mb-6 flex size-16 items-center justify-center rounded-3xl bg-gradient-to-br from-violet-500 to-purple-600 text-white shadow-lg shadow-violet-500/30"
+                >
+                  <span className="material-symbols-outlined text-3xl" aria-hidden="true">
+                    flag
+                  </span>
                 </motion.div>
-                <motion.h3 variants={stepItem(reducedMotion)} className="font-display text-2xl font-bold leading-snug tracking-tight text-gray-900 dark:text-white sm:text-3xl lg:text-4xl">
+                <motion.h3
+                  variants={stepItem(reducedMotion)}
+                  className="font-display text-2xl font-bold leading-snug tracking-tight text-gray-900 dark:text-white sm:text-3xl lg:text-4xl"
+                >
                   Set a gentle goal.
                 </motion.h3>
-                <motion.p variants={stepItem(reducedMotion)} className="mt-2 text-sm text-gray-500 dark:text-gray-400 lg:text-base">
+                <motion.p
+                  variants={stepItem(reducedMotion)}
+                  className="mt-2 text-sm text-gray-500 dark:text-gray-400 lg:text-base"
+                >
                   Small wins add up — you can always raise it later.
                 </motion.p>
 
@@ -448,11 +507,15 @@ export function NewHabitWizard({
                       <button
                         type="button"
                         aria-label="Decrease goal"
-                        onClick={() => setValue('goal', Math.max(1, goal - 1), { shouldValidate: true })}
+                        onClick={() =>
+                          setValue('goal', Math.max(1, goal - 1), { shouldValidate: true })
+                        }
                         disabled={goal <= 1}
-                        className="flex size-14 cursor-pointer items-center justify-center rounded-full bg-white/70 text-gray-700 shadow-sm transition-all duration-200 hover:bg-violet-500/10 hover:text-violet-600 active:bg-violet-500/20 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white/70 disabled:hover:text-gray-700 focus-visible:ring-2 focus-visible:ring-violet-500 dark:bg-white/10 dark:text-gray-200 dark:hover:bg-violet-500/20 dark:hover:text-violet-400 lg:size-16"
+                        className="flex size-14 cursor-pointer items-center justify-center rounded-full bg-white/70 text-gray-700 shadow-sm transition-all duration-200 hover:bg-violet-500/10 hover:text-violet-600 focus-visible:ring-2 focus-visible:ring-violet-500 active:bg-violet-500/20 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white/70 disabled:hover:text-gray-700 dark:bg-white/10 dark:text-gray-200 dark:hover:bg-violet-500/20 dark:hover:text-violet-400 lg:size-16"
                       >
-                        <span className="material-symbols-outlined text-2xl" aria-hidden="true">remove</span>
+                        <span className="material-symbols-outlined text-2xl" aria-hidden="true">
+                          remove
+                        </span>
                       </button>
 
                       <span
@@ -465,11 +528,15 @@ export function NewHabitWizard({
                       <button
                         type="button"
                         aria-label="Increase goal"
-                        onClick={() => setValue('goal', Math.min(100, goal + 1), { shouldValidate: true })}
+                        onClick={() =>
+                          setValue('goal', Math.min(100, goal + 1), { shouldValidate: true })
+                        }
                         disabled={goal >= 100}
-                        className="flex size-14 cursor-pointer items-center justify-center rounded-full bg-white/70 text-gray-700 shadow-sm transition-all duration-200 hover:bg-violet-500/10 hover:text-violet-600 active:bg-violet-500/20 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white/70 disabled:hover:text-gray-700 focus-visible:ring-2 focus-visible:ring-violet-500 dark:bg-white/10 dark:text-gray-200 dark:hover:bg-violet-500/20 dark:hover:text-violet-400 lg:size-16"
+                        className="flex size-14 cursor-pointer items-center justify-center rounded-full bg-white/70 text-gray-700 shadow-sm transition-all duration-200 hover:bg-violet-500/10 hover:text-violet-600 focus-visible:ring-2 focus-visible:ring-violet-500 active:bg-violet-500/20 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white/70 disabled:hover:text-gray-700 dark:bg-white/10 dark:text-gray-200 dark:hover:bg-violet-500/20 dark:hover:text-violet-400 lg:size-16"
                       >
-                        <span className="material-symbols-outlined text-2xl" aria-hidden="true">add</span>
+                        <span className="material-symbols-outlined text-2xl" aria-hidden="true">
+                          add
+                        </span>
                       </button>
                     </div>
 
@@ -482,7 +549,9 @@ export function NewHabitWizard({
                   </div>
                   {errors.goal && (
                     <p role="alert" className="mt-2 flex items-center gap-1 text-sm text-red-500">
-                      <span className="material-symbols-outlined text-base" aria-hidden="true">error</span>
+                      <span className="material-symbols-outlined text-base" aria-hidden="true">
+                        error
+                      </span>
                       {errors.goal.message}
                     </p>
                   )}
@@ -499,31 +568,57 @@ export function NewHabitWizard({
                 animate="visible"
                 className="flex flex-1 flex-col"
               >
-                <motion.div variants={stepItem(reducedMotion)} className="mb-6 flex size-16 items-center justify-center rounded-3xl bg-gradient-to-br from-violet-500 to-purple-600 text-white shadow-lg shadow-violet-500/30">
-                  <span className="material-symbols-outlined text-3xl" aria-hidden="true">notifications</span>
+                <motion.div
+                  variants={stepItem(reducedMotion)}
+                  className="mb-6 flex size-16 items-center justify-center rounded-3xl bg-gradient-to-br from-violet-500 to-purple-600 text-white shadow-lg shadow-violet-500/30"
+                >
+                  <span className="material-symbols-outlined text-3xl" aria-hidden="true">
+                    notifications
+                  </span>
                 </motion.div>
-                <motion.h3 variants={stepItem(reducedMotion)} className="font-display text-2xl font-bold leading-snug tracking-tight text-gray-900 dark:text-white sm:text-3xl lg:text-4xl">
+                <motion.h3
+                  variants={stepItem(reducedMotion)}
+                  className="font-display text-2xl font-bold leading-snug tracking-tight text-gray-900 dark:text-white sm:text-3xl lg:text-4xl"
+                >
                   Stay on track.
                 </motion.h3>
-                <motion.p variants={stepItem(reducedMotion)} className="mt-2 text-sm text-gray-500 dark:text-gray-400 lg:text-base">
+                <motion.p
+                  variants={stepItem(reducedMotion)}
+                  className="mt-2 text-sm text-gray-500 dark:text-gray-400 lg:text-base"
+                >
                   A gentle nudge at the right moment works wonders.
                 </motion.p>
 
-                <motion.div variants={stepItem(reducedMotion)} className="mt-8 flex flex-col gap-3 lg:gap-4">
+                <motion.div
+                  variants={stepItem(reducedMotion)}
+                  className="mt-8 flex flex-col gap-3 lg:gap-4"
+                >
                   <div className="flex items-center justify-between rounded-3xl border border-gray-200/70 bg-white/50 p-5 shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/5 lg:p-6">
                     <label htmlFor="reminder-toggle" className="cursor-pointer select-none">
-                      <span className="block text-sm font-semibold text-gray-900 dark:text-white">Daily reminder</span>
-                      <span className="block text-xs text-gray-500 dark:text-gray-400">Get a nudge once a day</span>
+                      <span className="block text-sm font-semibold text-gray-900 dark:text-white">
+                        Daily reminder
+                      </span>
+                      <span className="block text-xs text-gray-500 dark:text-gray-400">
+                        Get a nudge once a day
+                      </span>
                     </label>
                     <label className="relative inline-flex cursor-pointer items-center">
-                      <input id="reminder-toggle" {...register('reminderEnabled')} type="checkbox" className="peer sr-only" />
-                      <div className="h-7 w-12 rounded-full bg-gray-300 transition-colors duration-200 after:absolute after:left-1 after:top-1 after:h-5 after:w-5 after:rounded-full after:bg-white after:shadow-sm after:transition-transform after:duration-200 peer-checked:bg-violet-500 peer-focus-visible:ring-2 peer-focus-visible:ring-violet-500/50 peer-checked:after:translate-x-5 dark:bg-white/15" />
+                      <input
+                        id="reminder-toggle"
+                        {...register('reminderEnabled')}
+                        type="checkbox"
+                        className="peer sr-only"
+                      />
+                      <div className="h-7 w-12 rounded-full bg-gray-300 transition-colors duration-200 after:absolute after:left-1 after:top-1 after:h-5 after:w-5 after:rounded-full after:bg-white after:shadow-sm after:transition-transform after:duration-200 peer-checked:bg-violet-500 peer-checked:after:translate-x-5 peer-focus-visible:ring-2 peer-focus-visible:ring-violet-500/50 dark:bg-white/15" />
                     </label>
                   </div>
 
                   {reminderEnabled && (
-                    <div className="flex items-center justify-between rounded-3xl border border-gray-200/70 bg-white/50 p-5 shadow-sm backdrop-blur motion-safe:animate-fade-in dark:border-white/10 dark:bg-white/5 lg:p-6">
-                      <label htmlFor="reminder-time" className="text-sm font-semibold text-gray-900 dark:text-white">
+                    <div className="motion-safe:animate-fade-in flex items-center justify-between rounded-3xl border border-gray-200/70 bg-white/50 p-5 shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/5 lg:p-6">
+                      <label
+                        htmlFor="reminder-time"
+                        className="text-sm font-semibold text-gray-900 dark:text-white"
+                      >
                         Remind me at
                       </label>
                       <input
@@ -547,9 +642,11 @@ export function NewHabitWizard({
               <button
                 type="button"
                 onClick={() => setStep((s) => s - 1)}
-                className="flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full border border-gray-200/70 px-5 py-4 text-sm font-semibold text-gray-600 transition-colors hover:bg-gray-900/5 active:bg-gray-900/10 focus-visible:ring-2 focus-visible:ring-violet-500 dark:border-white/10 dark:text-gray-300 dark:hover:bg-white/5 dark:active:bg-white/10 touch-manipulation"
+                className="flex shrink-0 cursor-pointer touch-manipulation items-center gap-1.5 rounded-full border border-gray-200/70 px-5 py-4 text-sm font-semibold text-gray-600 transition-colors hover:bg-gray-900/5 focus-visible:ring-2 focus-visible:ring-violet-500 active:bg-gray-900/10 dark:border-white/10 dark:text-gray-300 dark:hover:bg-white/5 dark:active:bg-white/10"
               >
-                <span className="material-symbols-outlined text-lg" aria-hidden="true">arrow_back</span>
+                <span className="material-symbols-outlined text-lg" aria-hidden="true">
+                  arrow_back
+                </span>
                 Back
               </button>
             )}
@@ -568,19 +665,23 @@ export function NewHabitWizard({
                       opacity: { delay: 0.2, duration: 0.15, ease: 'easeOut' },
                     }
               }
-              className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-full bg-gradient-to-r from-violet-500 to-purple-600 px-6 py-4 text-base font-bold text-white shadow-lg shadow-violet-500/30 transition-colors duration-200 hover:from-violet-600 hover:to-purple-700 hover:shadow-xl hover:shadow-violet-500/40 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background-light dark:focus-visible:ring-offset-background-dark touch-manipulation"
+              className="flex flex-1 cursor-pointer touch-manipulation items-center justify-center gap-2 rounded-full bg-gradient-to-r from-violet-500 to-purple-600 px-6 py-4 text-base font-bold text-white shadow-lg shadow-violet-500/30 transition-colors duration-200 hover:from-violet-600 hover:to-purple-700 hover:shadow-xl hover:shadow-violet-500/40 focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background-light disabled:cursor-not-allowed disabled:opacity-50 dark:focus-visible:ring-offset-background-dark"
             >
               {isSubmitting ? (
                 'Saving…'
               ) : isLastStep ? (
                 <>
                   Create Habit
-                  <span className="material-symbols-outlined text-xl" aria-hidden="true">check</span>
+                  <span className="material-symbols-outlined text-xl" aria-hidden="true">
+                    check
+                  </span>
                 </>
               ) : (
                 <>
                   Continue
-                  <span className="material-symbols-outlined text-xl" aria-hidden="true">arrow_forward</span>
+                  <span className="material-symbols-outlined text-xl" aria-hidden="true">
+                    arrow_forward
+                  </span>
                 </>
               )}
             </motion.button>

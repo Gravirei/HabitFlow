@@ -80,9 +80,7 @@ export function CreateCategoryModal({ isOpen, onClose, onCreated }: CreateCatego
     }
 
     // Check for duplicate
-    const duplicate = categories.find(
-      (c) => c.name.trim().toLowerCase() === trimmed.toLowerCase()
-    )
+    const duplicate = categories.find((c) => c.name.trim().toLowerCase() === trimmed.toLowerCase())
     if (duplicate) {
       setError('A category with this name already exists')
       return
@@ -161,9 +159,11 @@ export function CreateCategoryModal({ isOpen, onClose, onCreated }: CreateCatego
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <span className="material-symbols-outlined text-sm text-gray-500">visibility</span>
-                <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Preview</p>
+                <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+                  Preview
+                </p>
               </div>
-              
+
               <motion.div
                 layout
                 className={clsx(
@@ -180,7 +180,12 @@ export function CreateCategoryModal({ isOpen, onClose, onCreated }: CreateCatego
               >
                 <div className="absolute left-4 top-4">
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/80 shadow-sm backdrop-blur-sm">
-                    <span className={clsx("material-symbols-outlined text-xl", getIconColorClass(color))}>
+                    <span
+                      className={clsx(
+                        'material-symbols-outlined text-xl',
+                        getIconColorClass(color)
+                      )}
+                    >
                       {icon}
                     </span>
                   </div>
@@ -211,7 +216,7 @@ export function CreateCategoryModal({ isOpen, onClose, onCreated }: CreateCatego
             </div>
 
             {/* Form Content */}
-            <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
+            <div className="custom-scrollbar flex-1 overflow-y-auto p-6">
               <div className="space-y-6">
                 {/* Name Input */}
                 <div>
@@ -261,7 +266,9 @@ export function CreateCategoryModal({ isOpen, onClose, onCreated }: CreateCatego
                     </label>
                     <div className="rounded-xl border border-white/10 bg-slate-800/50 p-3">
                       <div className="mb-2 flex items-center gap-2">
-                        <span className="material-symbols-outlined text-lg text-primary">{icon}</span>
+                        <span className="material-symbols-outlined text-lg text-primary">
+                          {icon}
+                        </span>
                         <span className="text-sm text-gray-300">{icon}</span>
                       </div>
                       <IconPicker value={icon} onChange={setIcon} />
@@ -275,7 +282,7 @@ export function CreateCategoryModal({ isOpen, onClose, onCreated }: CreateCatego
                     </label>
                     <div className="rounded-xl border border-white/10 bg-slate-800/50 p-3">
                       <div className="mb-2 flex items-center gap-2">
-                        <span className="text-sm text-gray-300 capitalize">{color}</span>
+                        <span className="text-sm capitalize text-gray-300">{color}</span>
                       </div>
                       <ColorPicker value={color} onChange={setColor} />
                     </div>
@@ -284,8 +291,8 @@ export function CreateCategoryModal({ isOpen, onClose, onCreated }: CreateCatego
 
                 {/* Gradient (Optional) */}
                 <div>
-                  <GradientPicker 
-                    value={gradient} 
+                  <GradientPicker
+                    value={gradient}
                     onChange={setGradient}
                     label="Gradient (optional)"
                   />
@@ -293,11 +300,7 @@ export function CreateCategoryModal({ isOpen, onClose, onCreated }: CreateCatego
 
                 {/* Image (Optional) */}
                 <div>
-                  <ImagePicker 
-                    value={imagePath} 
-                    onChange={setImagePath}
-                    label="Image (optional)"
-                  />
+                  <ImagePicker value={imagePath} onChange={setImagePath} label="Image (optional)" />
                 </div>
 
                 {/* Height */}

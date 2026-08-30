@@ -513,7 +513,7 @@ describe('useTagStore', () => {
       })
 
       const state = useTagStore.getState()
-      expect(state.sessionTags.find(st => st.sessionId === 'session-1')).toBeUndefined()
+      expect(state.sessionTags.find((st) => st.sessionId === 'session-1')).toBeUndefined()
     })
 
     it('should not affect other sessions', () => {
@@ -535,7 +535,7 @@ describe('useTagStore', () => {
       })
 
       const state = useTagStore.getState()
-      expect(state.sessionTags.find(st => st.sessionId === 'session-2')).toBeDefined()
+      expect(state.sessionTags.find((st) => st.sessionId === 'session-2')).toBeDefined()
     })
   })
 

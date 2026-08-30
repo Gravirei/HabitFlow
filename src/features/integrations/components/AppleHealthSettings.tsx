@@ -1,100 +1,100 @@
 // @ts-nocheck
-import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
-import toast from 'react-hot-toast';
-import { useIntegrationStore } from '../store/integrationStore';
-import { appleHealthService } from './appleHealth';
+import { useEffect, useState } from 'react'
+import { motion } from 'framer-motion'
+import toast from 'react-hot-toast'
+import { useIntegrationStore } from '../store/integrationStore'
+import { appleHealthService } from './appleHealth'
 
 interface HealthMetrics {
-  steps: number;
-  sleepHours: number;
-  mindfulMinutes: number;
+  steps: number
+  sleepHours: number
+  mindfulMinutes: number
 }
 
 export function AppleHealthSettings() {
-  const connection = useIntegrationStore((s) => s.connections['apple-health']);
-  const { updateSettings, disconnect: disconnectStore, setStatus } = useIntegrationStore();
-  
-  const [isLoading, setIsLoading] = useState(false);
+  const connection = useIntegrationStore((s) => s.connections['apple-health'])
+  const { updateSettings, disconnect: disconnectStore, setStatus } = useIntegrationStore()
+
+  const [isLoading, setIsLoading] = useState(false)
   const [metrics, setMetrics] = useState<HealthMetrics>({
     steps: 0,
     sleepHours: 0,
     mindfulMinutes: 0,
-  });
+  })
   const [syncSettings, setSyncSettings] = useState({
     syncSteps: true,
     syncSleep: true,
     syncMindfulness: true,
     syncFrequency: 'daily' as 'hourly' | '6hourly' | 'daily',
-  });
+  })
 
   // Load metrics when connected
   useEffect(() => {
     if (connection?.status === 'connected') {
-      loadMetrics();
+      loadMetrics()
     }
-  }, [connection?.status]);
+  }, [connection?.status])
 
   const loadMetrics = async () => {
     try {
-      const today = new Date().toISOString().split('T')[0];
+      const today = new Date().toISOString().split('T')[0]
       const [steps, sleepHours, mindfulMinutes] = await Promise.all([
         appleHealthService.getSteps(today),
         appleHealthService.getSleepData(today),
         appleHealthService.getMindfulMinutes(today),
-      ]);
+      ])
 
       setMetrics({
         steps,
         sleepHours,
         mindfulMinutes,
-      });
+      })
     } catch (error) {
-      console.error('Failed to load metrics:', error);
+      console.error('Failed to load metrics:', error)
     }
-  };
+  }
 
   const handleConnect = async () => {
-    setIsLoading(true);
+    setIsLoading(true)
     try {
-      const success = await appleHealthService.connect();
+      const success = await appleHealthService.connect()
       if (success) {
         // Load metrics after connection
-        setTimeout(loadMetrics, 500);
+        setTimeout(loadMetrics, 500)
       }
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   const handleSync = async () => {
-    setIsLoading(true);
+    setIsLoading(true)
     try {
-      await appleHealthService.syncHealthData();
-      loadMetrics();
+      await appleHealthService.syncHealthData()
+      loadMetrics()
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   const handleDisconnect = async () => {
     if (window.confirm('Are you sure you want to disconnect Apple Health?')) {
-      setIsLoading(true);
+      setIsLoading(true)
       try {
-        await appleHealthService.disconnect();
-        disconnectStore('apple-health');
-        setMetrics({ steps: 0, sleepHours: 0, mindfulMinutes: 0 });
+        await appleHealthService.disconnect()
+        disconnectStore('apple-health')
+        setMetrics({ steps: 0, sleepHours: 0, mindfulMinutes: 0 })
       } finally {
-        setIsLoading(false);
+        setIsLoading(false)
       }
     }
-  };
+  }
 
   const handleSettingsChange = (key: keyof typeof syncSettings, value: any) => {
-    const newSettings = { ...syncSettings, [key]: value };
-    setSyncSettings(newSettings);
-    updateSettings('apple-health', newSettings);
-  };
+    const newSettings = { ...syncSettings, [key]: value }
+    setSyncSettings(newSettings)
+    updateSettings('apple-health', newSettings)
+  }
 
   // Disconnected state
   if (!connection?.status || connection.status !== 'connected') {
@@ -114,7 +114,7 @@ export function AppleHealthSettings() {
                   Apple Health
                 </h3>
               </div>
-              
+
               <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">
                 Sync your health data automatically and track your wellness habits.
               </p>
@@ -122,15 +122,21 @@ export function AppleHealthSettings() {
               {/* Features List */}
               <div className="mb-4 space-y-2">
                 <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-                  <span className="material-symbols-outlined text-lg text-red-500">check_circle</span>
+                  <span className="material-symbols-outlined text-lg text-red-500">
+                    check_circle
+                  </span>
                   <span>Sync steps and daily activity</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-                  <span className="material-symbols-outlined text-lg text-red-500">check_circle</span>
+                  <span className="material-symbols-outlined text-lg text-red-500">
+                    check_circle
+                  </span>
                   <span>Track sleep and rest patterns</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-                  <span className="material-symbols-outlined text-lg text-red-500">check_circle</span>
+                  <span className="material-symbols-outlined text-lg text-red-500">
+                    check_circle
+                  </span>
                   <span>Monitor mindfulness and meditation</span>
                 </div>
               </div>
@@ -156,7 +162,7 @@ export function AppleHealthSettings() {
           </button>
         </div>
       </motion.div>
-    );
+    )
   }
 
   // Connected state
@@ -168,7 +174,7 @@ export function AppleHealthSettings() {
     >
       {/* Connection Status */}
       <div className="flex items-center gap-2 rounded-lg bg-red-500/10 p-3 dark:bg-red-500/5">
-        <div className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
+        <div className="h-2 w-2 animate-pulse rounded-full bg-red-500" />
         <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
           Connected to Apple Health
         </span>
@@ -192,9 +198,7 @@ export function AppleHealthSettings() {
           <div className="text-2xl font-bold text-gray-900 dark:text-white">
             {metrics.steps.toLocaleString()}
           </div>
-          <div className="mt-1 text-xs text-gray-600 dark:text-gray-400">
-            Goal: 10,000
-          </div>
+          <div className="mt-1 text-xs text-gray-600 dark:text-gray-400">Goal: 10,000</div>
         </motion.div>
 
         {/* Sleep Card */}
@@ -213,9 +217,7 @@ export function AppleHealthSettings() {
           <div className="text-2xl font-bold text-gray-900 dark:text-white">
             {metrics.sleepHours.toFixed(1)}h
           </div>
-          <div className="mt-1 text-xs text-gray-600 dark:text-gray-400">
-            Target: 8h
-          </div>
+          <div className="mt-1 text-xs text-gray-600 dark:text-gray-400">Target: 8h</div>
         </motion.div>
 
         {/* Mindfulness Card */}
@@ -234,9 +236,7 @@ export function AppleHealthSettings() {
           <div className="text-2xl font-bold text-gray-900 dark:text-white">
             {metrics.mindfulMinutes}m
           </div>
-          <div className="mt-1 text-xs text-gray-600 dark:text-gray-400">
-            Daily activity
-          </div>
+          <div className="mt-1 text-xs text-gray-600 dark:text-gray-400">Daily activity</div>
         </motion.div>
       </div>
 
@@ -247,12 +247,10 @@ export function AppleHealthSettings() {
         transition={{ delay: 0.25 }}
         className="rounded-2xl border border-gray-200 bg-white/50 p-4 dark:border-gray-700 dark:bg-gray-800/30"
       >
-        <h4 className="mb-4 font-semibold text-gray-900 dark:text-white">
-          Sync Settings
-        </h4>
+        <h4 className="mb-4 font-semibold text-gray-900 dark:text-white">Sync Settings</h4>
 
         {/* Toggle Switches */}
-        <div className="space-y-3 mb-4">
+        <div className="mb-4 space-y-3">
           <div className="flex items-center justify-between">
             <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
               Sync Steps
@@ -321,9 +319,7 @@ export function AppleHealthSettings() {
           </label>
           <select
             value={syncSettings.syncFrequency}
-            onChange={(e) =>
-              handleSettingsChange('syncFrequency', e.target.value as any)
-            }
+            onChange={(e) => handleSettingsChange('syncFrequency', e.target.value as any)}
             className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 transition-colors hover:border-gray-400 focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500/20 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:hover:border-gray-500 dark:focus:border-red-500"
           >
             <option value="hourly">Every hour</option>
@@ -369,5 +365,5 @@ export function AppleHealthSettings() {
         </button>
       </div>
     </motion.div>
-  );
+  )
 }

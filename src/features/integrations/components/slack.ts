@@ -1,79 +1,80 @@
 // @ts-nocheck
-import { useIntegrationStore } from '../store/integrationStore';
-import type { SlackSettings } from './types';
+import { useIntegrationStore } from '../store/integrationStore'
+import type { SlackSettings } from './types'
 
-const SLACK_CLIENT_ID = import.meta.env.VITE_SLACK_CLIENT_ID || 'placeholder_client_id';
-const SLACK_CLIENT_SECRET = import.meta.env.VITE_SLACK_CLIENT_SECRET || 'placeholder_client_secret';
-const SLACK_REDIRECT_URI = import.meta.env.VITE_SLACK_REDIRECT_URI || 'http://localhost:5173/auth/slack/callback';
+const SLACK_CLIENT_ID = import.meta.env.VITE_SLACK_CLIENT_ID || 'placeholder_client_id'
+const SLACK_CLIENT_SECRET = import.meta.env.VITE_SLACK_CLIENT_SECRET || 'placeholder_client_secret'
+const SLACK_REDIRECT_URI =
+  import.meta.env.VITE_SLACK_REDIRECT_URI || 'http://localhost:5173/auth/slack/callback'
 
-const SLACK_API_BASE = 'https://slack.com/api';
-const SLACK_OAUTH_URL = 'https://slack.com/oauth/v2/authorize';
+const SLACK_API_BASE = 'https://slack.com/api'
+const SLACK_OAUTH_URL = 'https://slack.com/oauth/v2/authorize'
 
 interface SlackOAuthResponse {
-  ok: boolean;
-  access_token?: string;
-  token_type?: string;
-  scope?: string;
-  bot_user_id?: string;
-  app_id?: string;
+  ok: boolean
+  access_token?: string
+  token_type?: string
+  scope?: string
+  bot_user_id?: string
+  app_id?: string
   team?: {
-    id: string;
-    name: string;
-  };
+    id: string
+    name: string
+  }
   enterprise?: {
-    id: string;
-    name: string;
-  };
+    id: string
+    name: string
+  }
   authed_user?: {
-    id: string;
-    scope?: string;
-    token_type?: string;
-  };
+    id: string
+    scope?: string
+    token_type?: string
+  }
   incoming_webhook?: {
-    channel: string;
-    channel_id: string;
-    configuration_url: string;
-    url: string;
-  };
-  error?: string;
+    channel: string
+    channel_id: string
+    configuration_url: string
+    url: string
+  }
+  error?: string
 }
 
 interface SlackChannel {
-  id: string;
-  name: string;
-  is_member: boolean;
-  is_private: boolean;
+  id: string
+  name: string
+  is_member: boolean
+  is_private: boolean
 }
 
 interface SlackConversationsListResponse {
-  ok: boolean;
-  channels?: SlackChannel[];
-  error?: string;
+  ok: boolean
+  channels?: SlackChannel[]
+  error?: string
 }
 
 interface SlackMessageResponse {
-  ok: boolean;
-  channel?: string;
-  ts?: string;
+  ok: boolean
+  channel?: string
+  ts?: string
   message?: {
-    type: string;
-    user: string;
-    text: string;
-    ts: string;
-  };
-  error?: string;
+    type: string
+    user: string
+    text: string
+    ts: string
+  }
+  error?: string
 }
 
 interface DailySummary {
-  total: number;
-  completed: number;
-  streak: number;
-  topHabit: string;
+  total: number
+  completed: number
+  streak: number
+  topHabit: string
 }
 
 interface BlockKitBlock {
-  type: string;
-  [key: string]: unknown;
+  type: string
+  [key: string]: unknown
 }
 
 export const slackService = {
@@ -81,16 +82,16 @@ export const slackService = {
    * Initiates Slack OAuth flow by opening the authorization URL
    */
   initiateAuth(): void {
-    const scopes = ['channels:read', 'chat:write', 'incoming-webhook'];
+    const scopes = ['channels:read', 'chat:write', 'incoming-webhook']
     const params = new URLSearchParams({
       client_id: SLACK_CLIENT_ID,
       redirect_uri: SLACK_REDIRECT_URI,
       scope: scopes.join(','),
       user_scope: 'chat:write',
-    });
+    })
 
-    const authUrl = `${SLACK_OAUTH_URL}?${params.toString()}`;
-    window.location.href = authUrl;
+    const authUrl = `${SLACK_OAUTH_URL}?${params.toString()}`
+    window.location.href = authUrl
   },
 
   /**
@@ -103,23 +104,23 @@ export const slackService = {
         client_secret: SLACK_CLIENT_SECRET,
         code,
         redirect_uri: SLACK_REDIRECT_URI,
-      });
+      })
 
       const response = await fetch(`${SLACK_API_BASE}/oauth.v2.access`, {
         method: 'POST',
         body: params,
-      });
+      })
 
-      const data: SlackOAuthResponse = await response.json();
+      const data: SlackOAuthResponse = await response.json()
 
       if (!data.ok) {
-        throw new Error(data.error || 'Failed to exchange authorization code');
+        throw new Error(data.error || 'Failed to exchange authorization code')
       }
 
-      return data;
+      return data
     } catch (error) {
-      console.error('Error exchanging Slack code:', error);
-      throw error;
+      console.error('Error exchanging Slack code:', error)
+      throw error
     }
   },
 
@@ -130,7 +131,7 @@ export const slackService = {
     return {
       Authorization: `Bearer ${accessToken}`,
       'Content-Type': 'application/json',
-    };
+    }
   },
 
   /**
@@ -141,18 +142,18 @@ export const slackService = {
       const response = await fetch(`${SLACK_API_BASE}/conversations.list?exclude_archived=true`, {
         method: 'GET',
         headers: this.getHeaders(accessToken),
-      });
+      })
 
-      const data: SlackConversationsListResponse = await response.json();
+      const data: SlackConversationsListResponse = await response.json()
 
       if (!data.ok) {
-        throw new Error(data.error || 'Failed to fetch channels');
+        throw new Error(data.error || 'Failed to fetch channels')
       }
 
-      return data.channels || [];
+      return data.channels || []
     } catch (error) {
-      console.error('Error fetching Slack channels:', error);
-      throw error;
+      console.error('Error fetching Slack channels:', error)
+      throw error
     }
   },
 
@@ -169,28 +170,28 @@ export const slackService = {
       const payload: Record<string, unknown> = {
         channel: channelId,
         text,
-      };
+      }
 
       if (blocks && blocks.length > 0) {
-        payload.blocks = blocks;
+        payload.blocks = blocks
       }
 
       const response = await fetch(`${SLACK_API_BASE}/chat.postMessage`, {
         method: 'POST',
         headers: this.getHeaders(accessToken),
         body: JSON.stringify(payload),
-      });
+      })
 
-      const data: SlackMessageResponse = await response.json();
+      const data: SlackMessageResponse = await response.json()
 
       if (!data.ok) {
-        throw new Error(data.error || 'Failed to send message');
+        throw new Error(data.error || 'Failed to send message')
       }
 
-      return data;
+      return data
     } catch (error) {
-      console.error('Error sending Slack message:', error);
-      throw error;
+      console.error('Error sending Slack message:', error)
+      throw error
     }
   },
 
@@ -209,11 +210,12 @@ export const slackService = {
       30: '🌟',
       60: '💎',
       100: '👑',
-    };
+    }
 
-    const emoji = Object.entries(emojiMap)
-      .reverse()
-      .find(([days]) => streak >= parseInt(days))?.[1] || '✅';
+    const emoji =
+      Object.entries(emojiMap)
+        .reverse()
+        .find(([days]) => streak >= parseInt(days))?.[1] || '✅'
 
     const blocks: BlockKitBlock[] = [
       {
@@ -245,14 +247,9 @@ export const slackService = {
           },
         ],
       },
-    ];
+    ]
 
-    return this.sendMessage(
-      accessToken,
-      channelId,
-      `Habit Completed: ${habitName}`,
-      blocks
-    );
+    return this.sendMessage(accessToken, channelId, `Habit Completed: ${habitName}`, blocks)
   },
 
   /**
@@ -263,11 +260,10 @@ export const slackService = {
     channelId: string,
     summary: DailySummary
   ): Promise<SlackMessageResponse> {
-    const completionRate = summary.total > 0 
-      ? Math.round((summary.completed / summary.total) * 100) 
-      : 0;
+    const completionRate =
+      summary.total > 0 ? Math.round((summary.completed / summary.total) * 100) : 0
 
-    const progressBar = this.generateProgressBar(completionRate);
+    const progressBar = this.generateProgressBar(completionRate)
 
     const blocks: BlockKitBlock[] = [
       {
@@ -314,14 +310,14 @@ export const slackService = {
           },
         ],
       },
-    ];
+    ]
 
     return this.sendMessage(
       accessToken,
       channelId,
       `Daily Summary: ${summary.completed}/${summary.total} habits completed`,
       blocks
-    );
+    )
   },
 
   /**
@@ -334,17 +330,17 @@ export const slackService = {
     streak: number
   ): Promise<SlackMessageResponse> {
     const milestoneData: Record<number, { emoji: string; message: string }> = {
-      7: { emoji: '🔥', message: 'You\'re on fire! 7-day streak achieved!' },
-      14: { emoji: '⚡', message: 'Two weeks strong! You\'re unstoppable!' },
+      7: { emoji: '🔥', message: "You're on fire! 7-day streak achieved!" },
+      14: { emoji: '⚡', message: "Two weeks strong! You're unstoppable!" },
       30: { emoji: '🌟', message: 'One month of consistency! Amazing work!' },
-      60: { emoji: '💎', message: 'Two months! You\'re a habit master!' },
-      100: { emoji: '👑', message: 'One hundred days! You\'re a legend!' },
-    };
+      60: { emoji: '💎', message: "Two months! You're a habit master!" },
+      100: { emoji: '👑', message: "One hundred days! You're a legend!" },
+    }
 
-    const milestone = milestoneData[streak] || { 
-      emoji: '🎉', 
-      message: `Milestone reached: ${streak} days!` 
-    };
+    const milestone = milestoneData[streak] || {
+      emoji: '🎉',
+      message: `Milestone reached: ${streak} days!`,
+    }
 
     const blocks: BlockKitBlock[] = [
       {
@@ -383,20 +379,23 @@ export const slackService = {
           },
         ],
       },
-    ];
+    ]
 
     return this.sendMessage(
       accessToken,
       channelId,
       `Milestone: ${streak} days on ${habitName}!`,
       blocks
-    );
+    )
   },
 
   /**
    * Sends a message via incoming webhook
    */
-  async sendWebhookMessage(webhookUrl: string, message: Record<string, unknown>): Promise<Response> {
+  async sendWebhookMessage(
+    webhookUrl: string,
+    message: Record<string, unknown>
+  ): Promise<Response> {
     try {
       const response = await fetch(webhookUrl, {
         method: 'POST',
@@ -404,16 +403,16 @@ export const slackService = {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(message),
-      });
+      })
 
       if (!response.ok) {
-        throw new Error(`Webhook request failed with status ${response.status}`);
+        throw new Error(`Webhook request failed with status ${response.status}`)
       }
 
-      return response;
+      return response
     } catch (error) {
-      console.error('Error sending webhook message:', error);
-      throw error;
+      console.error('Error sending webhook message:', error)
+      throw error
     }
   },
 
@@ -421,28 +420,28 @@ export const slackService = {
    * Disconnects the Slack integration
    */
   disconnect(): void {
-    const store = // eslint-disable-next-line react-hooks/rules-of-hooks -- TODO(burn-down): zustand hook called inside plain function; should be getState(), see refactor plan P1
-    useIntegrationStore();
-    store.disconnect('slack');
+    // eslint-disable-next-line react-hooks/rules-of-hooks -- TODO(burn-down): zustand hook called inside plain function; should be getState(), see refactor plan P1
+    const store = useIntegrationStore()
+    store.disconnect('slack')
   },
 
   /**
    * Helper: Generate ASCII progress bar
    */
   generateProgressBar(percentage: number): string {
-    const filled = Math.round(percentage / 10);
-    const empty = 10 - filled;
-    return `\`${'█'.repeat(filled)}${'░'.repeat(empty)}\``;
+    const filled = Math.round(percentage / 10)
+    const empty = 10 - filled
+    return `\`${'█'.repeat(filled)}${'░'.repeat(empty)}\``
   },
 
   /**
    * Helper: Get motivational message based on completion rate
    */
   getDailyMotivation(completionRate: number): string {
-    if (completionRate === 100) return '🌟 Perfect day! All habits completed!';
-    if (completionRate >= 80) return '🔥 Excellent work! Keep pushing!';
-    if (completionRate >= 60) return '💪 Good progress! Don\'t stop now!';
-    if (completionRate >= 40) return '⚡ You\'re making progress! Keep going!';
-    return '🎯 Get started! Every habit counts!';
+    if (completionRate === 100) return '🌟 Perfect day! All habits completed!'
+    if (completionRate >= 80) return '🔥 Excellent work! Keep pushing!'
+    if (completionRate >= 60) return "💪 Good progress! Don't stop now!"
+    if (completionRate >= 40) return "⚡ You're making progress! Keep going!"
+    return '🎯 Get started! Every habit counts!'
   },
-};
+}

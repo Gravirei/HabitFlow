@@ -13,12 +13,7 @@ interface TimerAnnouncerProps {
 
 export const TimerAnnouncer: React.FC<TimerAnnouncerProps> = ({ message, priority = 'polite' }) => {
   return (
-    <div
-      role="status"
-      aria-live={priority}
-      aria-atomic="true"
-      className="sr-only"
-    >
+    <div role="status" aria-live={priority} aria-atomic="true" className="sr-only">
       {message}
     </div>
   )

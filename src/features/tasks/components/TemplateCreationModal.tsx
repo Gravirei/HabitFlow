@@ -183,11 +183,11 @@ export function TemplateCreationModal({
   const selectedColorHex = (() => {
     const matched = colorOptions.find((c) => c.value === color)
     if (matched) return matched.hex
-    
+
     // Extract hex from custom bg-[...] format
     const customMatch = color.match(/bg-\[([a-fA-F0-9]{6})\]/)
     if (customMatch) return '#' + customMatch[1]
-    
+
     return '#3b82f6' // fallback
   })()
 
@@ -207,7 +207,7 @@ export function TemplateCreationModal({
         <div className="relative border-b border-gray-100 bg-gradient-to-br from-gray-50 to-white px-6 py-5 dark:border-gray-800 dark:from-gray-800 dark:to-gray-900">
           <div className="flex items-center gap-3">
             <div
-              className="h-10 w-10 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20"
+              className="flex h-10 w-10 items-center justify-center rounded-xl shadow-lg shadow-indigo-500/20"
               style={{ backgroundColor: selectedColorHex }}
             >
               <span className="material-symbols-outlined text-white">{icon}</span>
@@ -227,10 +227,12 @@ export function TemplateCreationModal({
                 onClose()
                 resetForm()
               }}
-              className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors"
+              className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100 transition-colors hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700"
               aria-label="Close"
             >
-              <span className="material-symbols-outlined text-gray-600 dark:text-gray-400 text-xl">close</span>
+              <span className="material-symbols-outlined text-xl text-gray-600 dark:text-gray-400">
+                close
+              </span>
             </button>
           </div>
         </div>
@@ -398,12 +400,12 @@ export function TemplateCreationModal({
                   className="absolute inset-0 h-12 w-12 cursor-pointer opacity-0"
                 />
                 <div
-                  className="h-12 w-12 rounded-xl border-2 border-gray-300 dark:border-gray-600 shadow-md cursor-pointer hover:scale-110 transition-transform"
+                  className="h-12 w-12 cursor-pointer rounded-xl border-2 border-gray-300 shadow-md transition-transform hover:scale-110 dark:border-gray-600"
                   style={{ backgroundColor: selectedColorHex }}
                 />
               </div>
               <div className="flex-1">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Custom Color
                 </label>
                 <div className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 dark:border-gray-700 dark:bg-gray-900">

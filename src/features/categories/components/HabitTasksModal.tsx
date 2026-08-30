@@ -15,23 +15,55 @@ interface HabitTasksModalProps {
   habitIconColor?: number
 }
 
-export function HabitTasksModal({ isOpen, onClose, habitId, habitName, habitIcon = 'checklist', habitIconColor = 0 }: HabitTasksModalProps) {
+export function HabitTasksModal({
+  isOpen,
+  onClose,
+  habitId,
+  habitName,
+  habitIcon = 'checklist',
+  habitIconColor = 0,
+}: HabitTasksModalProps) {
   const { getTasksByHabitId, addTask, updateTask, deleteTask } = useHabitTaskStore()
   const tasks = getTasksByHabitId(habitId)
-  
+
   // Get gradient and base color from habit's iconColor
   const colorScheme = iconColorOptions[habitIconColor] || iconColorOptions[0]
   const gradientClass = colorScheme.gradient // e.g., 'from-blue-500 to-cyan-500'
   const baseColorClass = colorScheme.textColor.replace('text-', '') // e.g., 'blue-500'
-  
+
   // Extract actual color values for inline styles (Tailwind dynamic classes don't work)
   const colorMap: Record<string, { from: string; to: string; base: string; light: string }> = {
-    'blue-500': { from: '#3b82f6', to: '#06b6d4', base: '#3b82f6', light: 'rgba(59, 130, 246, 0.1)' },
-    'purple-500': { from: '#a855f7', to: '#ec4899', base: '#a855f7', light: 'rgba(168, 85, 247, 0.1)' },
-    'emerald-500': { from: '#10b981', to: '#14b8a6', base: '#10b981', light: 'rgba(16, 185, 129, 0.1)' },
-    'orange-500': { from: '#f97316', to: '#f59e0b', base: '#f97316', light: 'rgba(249, 115, 22, 0.1)' },
+    'blue-500': {
+      from: '#3b82f6',
+      to: '#06b6d4',
+      base: '#3b82f6',
+      light: 'rgba(59, 130, 246, 0.1)',
+    },
+    'purple-500': {
+      from: '#a855f7',
+      to: '#ec4899',
+      base: '#a855f7',
+      light: 'rgba(168, 85, 247, 0.1)',
+    },
+    'emerald-500': {
+      from: '#10b981',
+      to: '#14b8a6',
+      base: '#10b981',
+      light: 'rgba(16, 185, 129, 0.1)',
+    },
+    'orange-500': {
+      from: '#f97316',
+      to: '#f59e0b',
+      base: '#f97316',
+      light: 'rgba(249, 115, 22, 0.1)',
+    },
     'red-500': { from: '#ef4444', to: '#f43f5e', base: '#ef4444', light: 'rgba(239, 68, 68, 0.1)' },
-    'teal-500': { from: '#14b8a6', to: '#06b6d4', base: '#14b8a6', light: 'rgba(20, 184, 166, 0.1)' },
+    'teal-500': {
+      from: '#14b8a6',
+      to: '#06b6d4',
+      base: '#14b8a6',
+      light: 'rgba(20, 184, 166, 0.1)',
+    },
   }
   const colors = colorMap[baseColorClass] || colorMap['blue-500']
 
@@ -55,11 +87,11 @@ export function HabitTasksModal({ isOpen, onClose, habitId, habitName, habitIcon
   // Check for duplicate task name
   const hasDuplicateName = useMemo(() => {
     if (!formData.title.trim()) return false
-    
-    return tasks.some(task => {
+
+    return tasks.some((task) => {
       // If editing, exclude current task from duplicate check
       if (editingTaskId && task.id === editingTaskId) return false
-      
+
       // Case-insensitive comparison
       return task.title.toLowerCase().trim() === formData.title.toLowerCase().trim()
     })
@@ -86,7 +118,7 @@ export function HabitTasksModal({ isOpen, onClose, habitId, habitName, habitIcon
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (!formData.title.trim()) return
 
     // Check for duplicate when adding new task (not editing)
@@ -119,7 +151,7 @@ export function HabitTasksModal({ isOpen, onClose, habitId, habitName, habitIcon
         completed: false,
       })
     }
-    
+
     resetForm()
     setIsAddingTask(false)
     setShowDuplicateConfirm(false)
@@ -184,25 +216,31 @@ export function HabitTasksModal({ isOpen, onClose, habitId, habitName, habitIcon
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header - Compact & Modern */}
-          <div className={clsx(
-            "relative flex items-center justify-between border-b border-slate-200 px-6 py-4 dark:border-slate-700",
-            `bg-gradient-to-r from-${baseColorClass}/10 via-white to-${baseColorClass}/10 dark:from-slate-800 dark:via-slate-900 dark:to-slate-800`
-          )}>
+          <div
+            className={clsx(
+              'relative flex items-center justify-between border-b border-slate-200 px-6 py-4 dark:border-slate-700',
+              `bg-gradient-to-r from-${baseColorClass}/10 via-white to-${baseColorClass}/10 dark:from-slate-800 dark:via-slate-900 dark:to-slate-800`
+            )}
+          >
             <div className="flex items-center gap-3">
-              <div className={clsx(
-                "flex h-10 w-10 items-center justify-center rounded-xl shadow-sm bg-gradient-to-br",
-                iconColorOptions[habitIconColor]?.gradient || 'from-teal-500 to-teal-600'
-              )}>
+              <div
+                className={clsx(
+                  'flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br shadow-sm',
+                  iconColorOptions[habitIconColor]?.gradient || 'from-teal-500 to-teal-600'
+                )}
+              >
                 <span className="material-symbols-outlined text-xl text-white">{habitIcon}</span>
               </div>
               <div>
-                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">{habitName}</h2>
+                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+                  {habitName}
+                </h2>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
                   {totalTasks} {totalTasks === 1 ? 'task' : 'tasks'}
                 </p>
               </div>
             </div>
-            
+
             <button
               type="button"
               onClick={onClose}
@@ -211,7 +249,6 @@ export function HabitTasksModal({ isOpen, onClose, habitId, habitName, habitIcon
               <span className="material-symbols-outlined text-xl">close</span>
             </button>
           </div>
-
 
           {/* Content Area */}
           <div className="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-900/30">
@@ -224,7 +261,7 @@ export function HabitTasksModal({ isOpen, onClose, habitId, habitName, habitIcon
               /* Container without slide animation */
               <div className="p-6 pb-24">
                 {/* Task List */}
-                <div className="space-y-2 mb-6">
+                <div className="mb-6 space-y-2">
                   <AnimatePresence mode="popLayout">
                     {tasks.map((task, index) => (
                       <TaskCard
@@ -245,28 +282,28 @@ export function HabitTasksModal({ isOpen, onClose, habitId, habitName, habitIcon
                       initial={{ opacity: 0, y: 30 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 30 }}
-                      transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
+                      transition={{ duration: 0.6, ease: 'easeOut', delay: 0.2 }}
                     >
                       <TaskForm
-                      formData={formData}
-                      setFormData={setFormData}
-                      tagInput={tagInput}
-                      setTagInput={setTagInput}
-                      isEditing={!!editingTaskId}
-                      onSubmit={handleSubmit}
-                      onCancel={() => {
-                        setIsAddingTask(false)
-                        setEditingTaskId(null)
-                        resetForm()
-                      }}
-                      onAddTag={handleAddTag}
-                      onRemoveTag={handleRemoveTag}
-                      hasExistingTasks={tasks.length > 0}
-                      hasDuplicateName={hasDuplicateName}
-                      gradientClass={gradientClass}
-                      baseColorClass={baseColorClass}
-                      colors={colors}
-                    />
+                        formData={formData}
+                        setFormData={setFormData}
+                        tagInput={tagInput}
+                        setTagInput={setTagInput}
+                        isEditing={!!editingTaskId}
+                        onSubmit={handleSubmit}
+                        onCancel={() => {
+                          setIsAddingTask(false)
+                          setEditingTaskId(null)
+                          resetForm()
+                        }}
+                        onAddTag={handleAddTag}
+                        onRemoveTag={handleRemoveTag}
+                        hasExistingTasks={tasks.length > 0}
+                        hasDuplicateName={hasDuplicateName}
+                        gradientClass={gradientClass}
+                        baseColorClass={baseColorClass}
+                        colors={colors}
+                      />
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -281,9 +318,9 @@ export function HabitTasksModal({ isOpen, onClose, habitId, habitName, habitIcon
                 type="button"
                 onClick={() => setIsAddingTask(true)}
                 initial={{ opacity: 0, y: 20, scale: 0.8 }}
-                animate={{ 
-                  opacity: 1, 
-                  y: 0, 
+                animate={{
+                  opacity: 1,
+                  y: 0,
                   scale: 1,
                 }}
                 exit={{ opacity: 0, y: 20, scale: 0.8 }}
@@ -291,23 +328,23 @@ export function HabitTasksModal({ isOpen, onClose, habitId, habitName, habitIcon
                   type: 'spring',
                   stiffness: 400,
                   damping: 17,
-                  delay: 0.1
+                  delay: 0.1,
                 }}
                 whileHover={{ scale: 1.05, y: -2 }}
                 whileTap={{ scale: 0.95 }}
                 className={clsx(
-                  "group absolute bottom-6 left-0 right-0 z-10 mx-auto w-fit flex items-center gap-2 rounded-full bg-gradient-to-r px-6 py-3 text-sm font-semibold text-white shadow-xl transition-shadow hover:shadow-2xl",
+                  'group absolute bottom-6 left-0 right-0 z-10 mx-auto flex w-fit items-center gap-2 rounded-full bg-gradient-to-r px-6 py-3 text-sm font-semibold text-white shadow-xl transition-shadow hover:shadow-2xl',
                   gradientClass,
                   `shadow-${baseColorClass}/30 hover:shadow-${baseColorClass}/40`
                 )}
               >
-                <motion.span 
+                <motion.span
                   className="material-symbols-outlined text-lg"
                   animate={{ rotate: [0, 90, 0] }}
-                  transition={{ 
+                  transition={{
                     duration: 0.6,
                     repeat: Infinity,
-                    repeatDelay: 3
+                    repeatDelay: 3,
                   }}
                 >
                   add_circle
@@ -334,7 +371,7 @@ export function HabitTasksModal({ isOpen, onClose, habitId, habitName, habitIcon
                   onClick={(e) => e.stopPropagation()}
                   className="mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl dark:bg-slate-800"
                 >
-                  <div className="flex items-center gap-3 mb-4">
+                  <div className="mb-4 flex items-center gap-3">
                     <div className="flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-500/20">
                       <span className="material-symbols-outlined text-2xl text-amber-600 dark:text-amber-400">
                         warning
@@ -351,7 +388,12 @@ export function HabitTasksModal({ isOpen, onClose, habitId, habitName, habitIcon
                   </div>
 
                   <p className="mb-4 text-sm text-slate-600 dark:text-slate-400">
-                    A task with the name "<span className="font-medium text-slate-900 dark:text-white">{formData.title}</span>" already exists. Are you sure you want to create another task with the same name?
+                    A task with the name "
+                    <span className="font-medium text-slate-900 dark:text-white">
+                      {formData.title}
+                    </span>
+                    " already exists. Are you sure you want to create another task with the same
+                    name?
                   </p>
 
                   <div className="flex gap-3">
@@ -390,7 +432,7 @@ export function HabitTasksModal({ isOpen, onClose, habitId, habitName, habitIcon
                   onClick={(e) => e.stopPropagation()}
                   className="mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl dark:bg-slate-800"
                 >
-                  <div className="flex items-center gap-3 mb-4">
+                  <div className="mb-4 flex items-center gap-3">
                     <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-100 dark:bg-red-500/20">
                       <span className="material-symbols-outlined text-2xl text-red-600 dark:text-red-400">
                         warning
@@ -443,22 +485,26 @@ function EmptyState({ onAddTask, colors }: EmptyStateProps) {
       animate={{ opacity: 1, y: 0 }}
       className="flex h-full min-h-[300px] flex-col items-center justify-center text-center"
     >
-      <div 
+      <div
         className="flex h-20 w-20 items-center justify-center rounded-2xl"
         style={{
-          backgroundImage: `linear-gradient(to bottom right, ${colors.light}, ${colors.light})`
+          backgroundImage: `linear-gradient(to bottom right, ${colors.light}, ${colors.light})`,
         }}
       >
-        <span className="material-symbols-outlined text-5xl" style={{ color: colors.base }}>task_alt</span>
+        <span className="material-symbols-outlined text-5xl" style={{ color: colors.base }}>
+          task_alt
+        </span>
       </div>
       <h3 className="mt-6 text-lg font-semibold text-slate-900 dark:text-white">No tasks yet</h3>
-      <p className="mt-2 max-w-sm text-sm text-slate-500 dark:text-slate-400">Create your first task to start tracking progress on this habit.</p>
+      <p className="mt-2 max-w-sm text-sm text-slate-500 dark:text-slate-400">
+        Create your first task to start tracking progress on this habit.
+      </p>
       <button
         type="button"
         onClick={onAddTask}
         className="mt-6 flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-white transition-all hover:shadow-md"
         style={{
-          backgroundImage: `linear-gradient(to right, ${colors.from}, ${colors.to})`
+          backgroundImage: `linear-gradient(to right, ${colors.from}, ${colors.to})`,
         }}
       >
         <span className="material-symbols-outlined text-lg">add</span>
@@ -503,9 +549,9 @@ function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, x: -20, height: 0, marginBottom: 0 }}
-      transition={{ 
+      transition={{
         duration: 0.3,
-        ease: "easeInOut"
+        ease: 'easeInOut',
       }}
       layout
       className="group relative overflow-hidden rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-slate-700 dark:bg-slate-800"
@@ -515,12 +561,10 @@ function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
 
       <div className="flex items-center gap-3 pl-2">
         {/* Content */}
-        <div className="flex-1 min-w-0">
+        <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
-            <h4 className="font-medium text-slate-900 dark:text-white">
-              {task.title}
-            </h4>
-            
+            <h4 className="font-medium text-slate-900 dark:text-white">{task.title}</h4>
+
             {/* Priority Badge */}
             <div className="flex items-center gap-1 rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600 dark:bg-slate-700 dark:text-slate-300">
               <span className="material-symbols-outlined text-xs">{config.icon}</span>
@@ -529,9 +573,7 @@ function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
           </div>
 
           {task.description && (
-            <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-              {task.description}
-            </p>
+            <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">{task.description}</p>
           )}
 
           {/* Meta Info */}
@@ -539,10 +581,13 @@ function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
             {task.dueDate && (
               <span className="flex items-center gap-1 rounded-md bg-slate-100 px-2 py-0.5 text-xs text-slate-600 dark:bg-slate-700 dark:text-slate-400">
                 <span className="material-symbols-outlined text-xs">event</span>
-                {new Date(task.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                {new Date(task.dueDate).toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                })}
               </span>
             )}
-            
+
             {task.tags?.map((tag) => (
               <span
                 key={tag}
@@ -585,7 +630,13 @@ interface TaskFormProps {
     dueDate: string
     tags: string[]
   }
-  setFormData: (data: { title: string; description: string; priority: HabitTaskPriority; dueDate: string; tags: string[] }) => void
+  setFormData: (data: {
+    title: string
+    description: string
+    priority: HabitTaskPriority
+    dueDate: string
+    tags: string[]
+  }) => void
   tagInput: string
   setTagInput: (value: string) => void
   isEditing: boolean
@@ -634,7 +685,10 @@ function TaskForm({
 
       {/* Title */}
       <div className="mb-4">
-        <label htmlFor="task-title" className="mb-1.5 block text-xs font-medium text-slate-700 dark:text-slate-300">
+        <label
+          htmlFor="task-title"
+          className="mb-1.5 block text-xs font-medium text-slate-700 dark:text-slate-300"
+        >
           Title <span className="text-red-500">*</span>
         </label>
         <input
@@ -644,14 +698,18 @@ function TaskForm({
           onChange={(e) => setFormData({ ...formData, title: e.target.value })}
           placeholder="e.g., Read 10 pages"
           className={clsx(
-            "w-full rounded-lg border bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 transition-colors focus:outline-none focus:ring-2 dark:bg-slate-700 dark:text-white dark:placeholder-slate-500",
+            'w-full rounded-lg border bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 transition-colors focus:outline-none focus:ring-2 dark:bg-slate-700 dark:text-white dark:placeholder-slate-500',
             hasDuplicateName
-              ? "border-amber-300 focus:border-amber-500 focus:ring-amber-500/20 dark:border-amber-500/50 dark:focus:border-amber-400"
-              : "border-slate-300 dark:border-slate-600"
+              ? 'border-amber-300 focus:border-amber-500 focus:ring-amber-500/20 dark:border-amber-500/50 dark:focus:border-amber-400'
+              : 'border-slate-300 dark:border-slate-600'
           )}
-          style={!hasDuplicateName ? {
-            ['--tw-ring-color' as string]: `${colors.base}33`,
-          } : {}}
+          style={
+            !hasDuplicateName
+              ? {
+                  ['--tw-ring-color' as string]: `${colors.base}33`,
+                }
+              : {}
+          }
           onFocus={(e) => {
             if (!hasDuplicateName) {
               e.target.style.borderColor = colors.base
@@ -664,7 +722,7 @@ function TaskForm({
           }}
           autoFocus
         />
-        
+
         {/* Duplicate Name Warning */}
         <AnimatePresence>
           {hasDuplicateName && (
@@ -688,7 +746,10 @@ function TaskForm({
 
       {/* Description */}
       <div className="mb-4">
-        <label htmlFor="task-description" className="mb-1.5 block text-xs font-medium text-slate-700 dark:text-slate-300">
+        <label
+          htmlFor="task-description"
+          className="mb-1.5 block text-xs font-medium text-slate-700 dark:text-slate-300"
+        >
           Description
         </label>
         <textarea
@@ -701,27 +762,32 @@ function TaskForm({
           style={{
             ['--tw-ring-color' as string]: `${colors.base}33`,
           }}
-          onFocus={(e) => e.target.style.borderColor = colors.base}
-          onBlur={(e) => e.target.style.borderColor = ''}
+          onFocus={(e) => (e.target.style.borderColor = colors.base)}
+          onBlur={(e) => (e.target.style.borderColor = '')}
         />
       </div>
 
       {/* Priority and Due Date */}
       <div className="mb-4 grid grid-cols-2 gap-3">
         <div>
-          <label htmlFor="task-priority" className="mb-1.5 block text-xs font-medium text-slate-700 dark:text-slate-300">
+          <label
+            htmlFor="task-priority"
+            className="mb-1.5 block text-xs font-medium text-slate-700 dark:text-slate-300"
+          >
             Priority
           </label>
           <select
             id="task-priority"
             value={formData.priority}
-            onChange={(e) => setFormData({ ...formData, priority: e.target.value as HabitTaskPriority })}
+            onChange={(e) =>
+              setFormData({ ...formData, priority: e.target.value as HabitTaskPriority })
+            }
             className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 transition-colors focus:outline-none focus:ring-2 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
             style={{
               ['--tw-ring-color' as string]: `${colors.base}33`,
             }}
-            onFocus={(e) => e.target.style.borderColor = colors.base}
-            onBlur={(e) => e.target.style.borderColor = ''}
+            onFocus={(e) => (e.target.style.borderColor = colors.base)}
+            onBlur={(e) => (e.target.style.borderColor = '')}
           >
             <option value="low">Low</option>
             <option value="medium">Medium</option>
@@ -729,7 +795,10 @@ function TaskForm({
           </select>
         </div>
         <div>
-          <label htmlFor="task-duedate" className="mb-1.5 block text-xs font-medium text-slate-700 dark:text-slate-300">
+          <label
+            htmlFor="task-duedate"
+            className="mb-1.5 block text-xs font-medium text-slate-700 dark:text-slate-300"
+          >
             Due Date
           </label>
           <input
@@ -741,15 +810,18 @@ function TaskForm({
             style={{
               ['--tw-ring-color' as string]: `${colors.base}33`,
             }}
-            onFocus={(e) => e.target.style.borderColor = colors.base}
-            onBlur={(e) => e.target.style.borderColor = ''}
+            onFocus={(e) => (e.target.style.borderColor = colors.base)}
+            onBlur={(e) => (e.target.style.borderColor = '')}
           />
         </div>
       </div>
 
       {/* Tags */}
       <div className="mb-5">
-        <label htmlFor="task-tags" className="mb-1.5 block text-xs font-medium text-slate-700 dark:text-slate-300">
+        <label
+          htmlFor="task-tags"
+          className="mb-1.5 block text-xs font-medium text-slate-700 dark:text-slate-300"
+        >
           Tags
         </label>
         <div className="flex gap-2">
@@ -769,8 +841,8 @@ function TaskForm({
             style={{
               ['--tw-ring-color' as string]: `${colors.base}33`,
             }}
-            onFocus={(e) => e.target.style.borderColor = colors.base}
-            onBlur={(e) => e.target.style.borderColor = ''}
+            onFocus={(e) => (e.target.style.borderColor = colors.base)}
+            onBlur={(e) => (e.target.style.borderColor = '')}
           />
           <button
             type="button"
@@ -786,7 +858,7 @@ function TaskForm({
               <span
                 key={tag}
                 className={clsx(
-                  "inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium",
+                  'inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium',
                   `bg-${baseColorClass}/10 text-${baseColorClass} dark:bg-${baseColorClass}/10 dark:text-${baseColorClass}`
                 )}
               >

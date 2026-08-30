@@ -1,6 +1,6 @@
 /**
  * Error Messages Utility
- * 
+ *
  * Provides user-friendly error messages for common timer errors.
  * Helps users understand what went wrong and how to fix it.
  */
@@ -12,7 +12,7 @@ export enum ErrorCategory {
   VALIDATION = 'VALIDATION',
   NOTIFICATION = 'NOTIFICATION',
   SOUND = 'SOUND',
-  VIBRATION = 'VIBRATION'
+  VIBRATION = 'VIBRATION',
 }
 
 // Error Severities
@@ -20,10 +20,10 @@ export enum ErrorSeverity {
   LOW = 'LOW',
   MEDIUM = 'MEDIUM',
   HIGH = 'HIGH',
-  CRITICAL = 'CRITICAL'
+  CRITICAL = 'CRITICAL',
 }
 
-export type ErrorType = 
+export type ErrorType =
   | 'localStorage_quota'
   | 'localStorage_disabled'
   | 'localStorage_corrupted'
@@ -59,7 +59,7 @@ export const getErrorMessage = (errorType: ErrorType, details?: string): ErrorMe
         title: 'Storage Full',
         message: 'Your browser storage is full. Please clear some space to save timer data.',
         action: 'Try clearing browser cache or removing unused data from other sites.',
-        icon: '💾'
+        icon: '💾',
       }
 
     case 'localStorage_disabled':
@@ -67,7 +67,7 @@ export const getErrorMessage = (errorType: ErrorType, details?: string): ErrorMe
         title: 'Storage Disabled',
         message: 'Browser storage is disabled. Timer state cannot be saved.',
         action: 'Enable cookies and site data in your browser settings.',
-        icon: '🔒'
+        icon: '🔒',
       }
 
     case 'localStorage_corrupted':
@@ -75,23 +75,23 @@ export const getErrorMessage = (errorType: ErrorType, details?: string): ErrorMe
         title: 'Corrupted Data',
         message: 'Saved timer data is corrupted and has been cleared.',
         action: 'Your timer has been reset. You can start a new session.',
-        icon: '⚠️'
+        icon: '⚠️',
       }
 
     case 'notification_denied':
       return {
         title: 'Notifications Blocked',
-        message: 'You\'ve blocked notifications for this site.',
+        message: "You've blocked notifications for this site.",
         action: 'Enable notifications in your browser settings to receive timer alerts.',
-        icon: '🔴'
+        icon: '🔴',
       }
 
     case 'notification_unsupported':
       return {
         title: 'Notifications Not Supported',
-        message: 'Your browser doesn\'t support desktop notifications.',
+        message: "Your browser doesn't support desktop notifications.",
         action: 'Try using Chrome, Firefox, Safari, or Edge for notification support.',
-        icon: '❌'
+        icon: '❌',
       }
 
     case 'sound_failed':
@@ -99,15 +99,15 @@ export const getErrorMessage = (errorType: ErrorType, details?: string): ErrorMe
         title: 'Sound Failed',
         message: 'Unable to play completion sound.',
         action: 'Check your volume settings or try a different sound type.',
-        icon: '🔇'
+        icon: '🔇',
       }
 
     case 'vibration_unsupported':
       return {
         title: 'Vibration Not Supported',
-        message: 'Your device doesn\'t support vibration.',
+        message: "Your device doesn't support vibration.",
         action: 'This feature only works on mobile devices with vibration hardware.',
-        icon: '📱'
+        icon: '📱',
       }
 
     case 'timer_validation':
@@ -115,7 +115,7 @@ export const getErrorMessage = (errorType: ErrorType, details?: string): ErrorMe
         title: 'Invalid Timer',
         message: details || 'The timer configuration is invalid.',
         action: 'Please check your timer settings and try again.',
-        icon: '⚙️'
+        icon: '⚙️',
       }
 
     case 'state_restoration':
@@ -123,7 +123,7 @@ export const getErrorMessage = (errorType: ErrorType, details?: string): ErrorMe
         title: 'Cannot Resume Timer',
         message: details || 'Unable to restore previous timer state.',
         action: 'The saved timer may be too old or corrupted. Start a new timer.',
-        icon: '🔄'
+        icon: '🔄',
       }
 
     case 'unknown':
@@ -132,7 +132,7 @@ export const getErrorMessage = (errorType: ErrorType, details?: string): ErrorMe
         title: 'Something Went Wrong',
         message: details || 'An unexpected error occurred.',
         action: 'Try refreshing the page. If the problem persists, contact support.',
-        icon: '❓'
+        icon: '❓',
       }
   }
 }
@@ -142,14 +142,14 @@ export const getErrorMessage = (errorType: ErrorType, details?: string): ErrorMe
  */
 export const showErrorToast = (errorType: ErrorType, details?: string): void => {
   const error = getErrorMessage(errorType, details)
-  
+
   // For now, use console.error
   // TODO: Integrate with a toast notification library
   console.error(`[Timer Error] ${error.title}: ${error.message}`, {
     action: error.action,
-    details
+    details,
   })
-  
+
   // Optional: Show browser alert for critical errors
   if (errorType === 'localStorage_disabled' || errorType === 'localStorage_quota') {
     // Could show a modal or toast here
@@ -168,13 +168,13 @@ export const logError = (
 ): void => {
   const categoryTag = category ? `[${category}]` : ''
   const severityTag = severity ? `[${severity}]` : ''
-  
+
   if (context) {
     console.error(`[Timer Error]${categoryTag}${severityTag} ${context}:`, error, additionalContext)
   } else {
     console.error(`[Timer Error]${categoryTag}${severityTag}:`, error, additionalContext)
   }
-  
+
   // Optional: Send to error tracking service
   // Example: Sentry.captureException(error, { tags: { context, category, severity }, extra: additionalContext })
 }
@@ -185,9 +185,11 @@ export const logError = (
 export const isQuotaExceededError = (error: unknown): boolean => {
   if (error instanceof DOMException) {
     // Chrome, Firefox
-    return error.name === 'QuotaExceededError' ||
-           // Safari
-           error.name === 'NS_ERROR_DOM_QUOTA_REACHED'
+    return (
+      error.name === 'QuotaExceededError' ||
+      // Safari
+      error.name === 'NS_ERROR_DOM_QUOTA_REACHED'
+    )
   }
   return false
 }
@@ -243,7 +245,7 @@ export const safeLocalStorage = {
       logError(error, 'localStorage_disabled', { operation: 'removeItem', key })
       return false
     }
-  }
+  },
 }
 
 /**
@@ -383,6 +385,6 @@ export const formatErrorForUser = (
     title,
     message: sanitizedMessage || 'An error occurred',
     category,
-    severity
+    severity,
   }
 }

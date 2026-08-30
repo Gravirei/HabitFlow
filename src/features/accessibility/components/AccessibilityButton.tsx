@@ -56,12 +56,12 @@ export function AccessibilityButton() {
     const handlePointerUp = () => {
       if (isDragging) {
         setIsDragging(false)
-        
+
         // Snap to nearest edge
         const buttonSize = 64
         const centerX = position.x + buttonSize / 2
         const centerY = position.y + buttonSize / 2
-        
+
         let finalX = position.x
         let finalY = position.y
 
@@ -208,17 +208,17 @@ export function AccessibilityButton() {
             // Stop event from reaching backdrop
             e.stopPropagation()
             // If panel is open, close it. If closed, open it.
-            setIsOpen(prev => !prev)
+            setIsOpen((prev) => !prev)
           }
         }}
         className={cn(
-          "fixed w-16 h-16 rounded-full flex items-center justify-center group",
-          "bg-white/20 dark:bg-white/10 backdrop-blur-xl",
-          "border border-white/30 dark:border-white/20",
-          "shadow-2xl shadow-black/30",
-          isDragging 
-            ? 'cursor-grabbing scale-110' 
-            : 'cursor-grab hover:bg-white/30 dark:hover:bg-white/20 hover:scale-110 active:scale-95 transition-all duration-300'
+          'group fixed flex h-16 w-16 items-center justify-center rounded-full',
+          'bg-white/20 backdrop-blur-xl dark:bg-white/10',
+          'border border-white/30 dark:border-white/20',
+          'shadow-2xl shadow-black/30',
+          isDragging
+            ? 'scale-110 cursor-grabbing'
+            : 'cursor-grab transition-all duration-300 hover:scale-110 hover:bg-white/30 active:scale-95 dark:hover:bg-white/20'
         )}
         style={{
           position: 'fixed',
@@ -233,12 +233,12 @@ export function AccessibilityButton() {
         {/* Siri-like pulsing rings on hover */}
         {!isDragging && (
           <>
-            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 via-purple-600 to-pink-500 opacity-0 group-hover:opacity-60 group-hover:animate-ping pointer-events-none shadow-[0_0_30px_rgba(147,51,234,0.6)]"></div>
-            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-400 via-purple-500 to-pink-400 opacity-0 group-hover:opacity-50 group-hover:animate-pulse pointer-events-none shadow-[0_0_40px_rgba(147,51,234,0.8)]"></div>
+            <div className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 via-purple-600 to-pink-500 opacity-0 shadow-[0_0_30px_rgba(147,51,234,0.6)] group-hover:animate-ping group-hover:opacity-60"></div>
+            <div className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-r from-blue-400 via-purple-500 to-pink-400 opacity-0 shadow-[0_0_40px_rgba(147,51,234,0.8)] group-hover:animate-pulse group-hover:opacity-50"></div>
           </>
         )}
-        
-        <span className="material-symbols-outlined text-3xl text-gray-900 dark:text-white relative z-10">
+
+        <span className="material-symbols-outlined relative z-10 text-3xl text-gray-900 dark:text-white">
           accessibility
         </span>
       </button>
@@ -248,30 +248,32 @@ export function AccessibilityButton() {
         <>
           {/* Backdrop */}
           <div
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] animate-in fade-in duration-300"
+            className="animate-in fade-in fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm duration-300"
             style={{ animationTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)' }}
             onClick={() => setIsOpen(false)}
           />
 
           {/* Panel */}
-          <div 
-            className="fixed z-[70] w-80 h-80 bg-gray-50 dark:bg-gray-950 rounded-3xl shadow-2xl overflow-hidden border border-gray-200 dark:border-gray-800"
+          <div
+            className="fixed z-[70] h-80 w-80 overflow-hidden rounded-3xl border border-gray-200 bg-gray-50 shadow-2xl dark:border-gray-800 dark:bg-gray-950"
             style={{
-              left: position.x + 64 + 16 < window.innerWidth - 320 
-                ? `${position.x + 64 + 16}px` // Right of button
-                : `${position.x - 320 - 16}px`, // Left of button
-              top: position.y < window.innerHeight / 2
-                ? `${position.y}px` // Align to button top
-                : `${position.y + 64 - 320}px`, // Align to button bottom
+              left:
+                position.x + 64 + 16 < window.innerWidth - 320
+                  ? `${position.x + 64 + 16}px` // Right of button
+                  : `${position.x - 320 - 16}px`, // Left of button
+              top:
+                position.y < window.innerHeight / 2
+                  ? `${position.y}px` // Align to button top
+                  : `${position.y + 64 - 320}px`, // Align to button bottom
               animation: 'springIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
               transformOrigin: 'center center',
             }}
           >
             {/* Circular Arrangement of Features */}
-            <div className="absolute inset-0 pointer-events-none">
+            <div className="pointer-events-none absolute inset-0">
               {/* Center Option */}
               <div
-                className="absolute pointer-events-none"
+                className="pointer-events-none absolute"
                 style={{
                   left: '160px',
                   top: '160px',
@@ -280,9 +282,9 @@ export function AccessibilityButton() {
               >
                 <button
                   onClick={() => console.log('Settings clicked')}
-                  className="flex flex-col items-center gap-1 hover:bg-white/10 active:bg-white/20 rounded-xl p-1.5 transition-all duration-200 group pointer-events-auto"
+                  className="group pointer-events-auto flex flex-col items-center gap-1 rounded-xl p-1.5 transition-all duration-200 hover:bg-white/10 active:bg-white/20"
                   style={{
-                    animation: itemsAnimated 
+                    animation: itemsAnimated
                       ? `springIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards`
                       : 'none',
                     animationDelay: '0ms',
@@ -290,18 +292,16 @@ export function AccessibilityButton() {
                   }}
                 >
                   {/* Icon */}
-                  <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-white/10 backdrop-blur-sm group-hover:bg-white/15 group-active:scale-95 transition-all duration-200">
-                    <span className="material-symbols-outlined text-white text-xl">
-                      settings
-                    </span>
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/10 backdrop-blur-sm transition-all duration-200 group-hover:bg-white/15 group-active:scale-95">
+                    <span className="material-symbols-outlined text-xl text-white">settings</span>
                   </div>
                   {/* Label */}
-                  <span className="text-[10px] text-white text-center font-medium leading-tight max-w-[55px]">
+                  <span className="max-w-[55px] text-center text-[10px] font-medium leading-tight text-white">
                     Settings
                   </span>
                 </button>
               </div>
-              
+
               {accessibilityFeatures.map((feature, index) => {
                 // Calculate position in circle
                 const angle = (index * 60 - 90) * (Math.PI / 180) // 60 degrees apart, starting from top
@@ -314,7 +314,7 @@ export function AccessibilityButton() {
                 return (
                   <div
                     key={feature.id}
-                    className="absolute pointer-events-none"
+                    className="pointer-events-none absolute"
                     style={{
                       left: `${x}px`,
                       top: `${y}px`,
@@ -323,26 +323,26 @@ export function AccessibilityButton() {
                   >
                     <button
                       onClick={() => console.log(`${feature.name} clicked`)}
-                      className="flex flex-col items-center gap-1 hover:bg-white/10 active:bg-white/20 rounded-xl p-1.5 transition-all duration-200 group pointer-events-auto"
+                      className="group pointer-events-auto flex flex-col items-center gap-1 rounded-xl p-1.5 transition-all duration-200 hover:bg-white/10 active:bg-white/20"
                       style={{
-                        animation: itemsAnimated 
+                        animation: itemsAnimated
                           ? `springIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards`
                           : 'none',
                         animationDelay: `${index * 80}ms`,
                         opacity: 0,
                       }}
                     >
-                    {/* Icon */}
-                    <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-white/10 backdrop-blur-sm group-hover:bg-white/15 group-active:scale-95 transition-all duration-200">
-                      <span className="material-symbols-outlined text-white text-xl">
-                        {feature.icon}
+                      {/* Icon */}
+                      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/10 backdrop-blur-sm transition-all duration-200 group-hover:bg-white/15 group-active:scale-95">
+                        <span className="material-symbols-outlined text-xl text-white">
+                          {feature.icon}
+                        </span>
+                      </div>
+                      {/* Label */}
+                      <span className="max-w-[55px] text-center text-[10px] font-medium leading-tight text-white">
+                        {feature.name}
                       </span>
-                    </div>
-                    {/* Label */}
-                    <span className="text-[10px] text-white text-center font-medium leading-tight max-w-[55px]">
-                      {feature.name}
-                    </span>
-                  </button>
+                    </button>
                   </div>
                 )
               })}

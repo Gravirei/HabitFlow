@@ -1,7 +1,7 @@
 // @ts-nocheck
 /**
  * Timer Drift Edge Case Tests
- * 
+ *
  * Tests timer behavior under unusual conditions:
  * - System sleep/wake
  * - Tab backgrounding

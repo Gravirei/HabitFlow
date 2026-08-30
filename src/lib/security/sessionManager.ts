@@ -90,10 +90,7 @@ export async function updateSessionActivity(sessionToken: string): Promise<void>
  */
 export async function terminateSession(sessionId: string): Promise<void> {
   try {
-    await supabase
-      .from('user_sessions')
-      .update({ is_active: false })
-      .eq('id', sessionId)
+    await supabase.from('user_sessions').update({ is_active: false }).eq('id', sessionId)
   } catch (error) {
     console.error('Failed to terminate session:', error)
   }

@@ -1,9 +1,9 @@
 /**
  * TimerErrorBoundary Component
- * 
+ *
  * Catches React errors in the timer section and provides a fallback UI.
  * Prevents the entire app from crashing when timer components error.
- * 
+ *
  * Features:
  * - Catches errors in timer components
  * - Shows user-friendly error message
@@ -33,7 +33,7 @@ export class TimerErrorBoundary extends Component<Props, State> {
     this.state = {
       hasError: false,
       error: null,
-      errorInfo: null
+      errorInfo: null,
     }
   }
 
@@ -41,7 +41,7 @@ export class TimerErrorBoundary extends Component<Props, State> {
     // Update state so the next render will show the fallback UI
     return {
       hasError: true,
-      error
+      error,
     }
   }
 
@@ -51,7 +51,7 @@ export class TimerErrorBoundary extends Component<Props, State> {
 
     // Store error info in state
     this.setState({
-      errorInfo
+      errorInfo,
     })
 
     // Send to Sentry for error tracking
@@ -81,7 +81,7 @@ export class TimerErrorBoundary extends Component<Props, State> {
     this.setState({
       hasError: false,
       error: null,
-      errorInfo: null
+      errorInfo: null,
     })
   }
 
@@ -98,37 +98,31 @@ export class TimerErrorBoundary extends Component<Props, State> {
 
       // Default fallback UI
       return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
-          <div className="max-w-md w-full bg-gradient-to-br from-red-500/10 to-orange-500/10 rounded-3xl border border-red-500/30 p-8 space-y-6">
+        <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4">
+          <div className="w-full max-w-md space-y-6 rounded-3xl border border-red-500/30 bg-gradient-to-br from-red-500/10 to-orange-500/10 p-8">
             {/* Icon */}
             <div className="flex justify-center">
-              <div className="w-20 h-20 rounded-full bg-red-500/20 flex items-center justify-center">
+              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-red-500/20">
                 <span className="text-5xl">⚠️</span>
               </div>
             </div>
 
             {/* Title */}
-            <div className="text-center space-y-2">
-              <h2 className="text-2xl font-bold text-white">
-                Something Went Wrong
-              </h2>
-              <p className="text-gray-400 text-sm">
-                The timer encountered an unexpected error
-              </p>
+            <div className="space-y-2 text-center">
+              <h2 className="text-2xl font-bold text-white">Something Went Wrong</h2>
+              <p className="text-sm text-gray-400">The timer encountered an unexpected error</p>
             </div>
 
             {/* Error details (collapsed) */}
             {import.meta.env.DEV && this.state.error && (
-              <details className="bg-black/30 rounded-xl p-4 text-xs">
-                <summary className="cursor-pointer text-red-400 font-semibold mb-2">
+              <details className="rounded-xl bg-black/30 p-4 text-xs">
+                <summary className="mb-2 cursor-pointer font-semibold text-red-400">
                   Error Details (Development)
                 </summary>
                 <div className="space-y-2 text-gray-300">
                   <div>
                     <strong>Error:</strong>
-                    <pre className="mt-1 overflow-x-auto">
-                      {this.state.error.toString()}
-                    </pre>
+                    <pre className="mt-1 overflow-x-auto">{this.state.error.toString()}</pre>
                   </div>
                   {this.state.errorInfo && (
                     <div>
@@ -146,21 +140,21 @@ export class TimerErrorBoundary extends Component<Props, State> {
             <div className="space-y-3">
               <button
                 onClick={this.handleReset}
-                className="w-full py-3 px-4 rounded-xl font-semibold bg-orange-500 hover:bg-orange-600 text-white transition-all shadow-lg hover:shadow-xl"
+                className="w-full rounded-xl bg-orange-500 px-4 py-3 font-semibold text-white shadow-lg transition-all hover:bg-orange-600 hover:shadow-xl"
               >
                 🔄 Reset Timer
               </button>
 
               <button
                 onClick={this.handleReload}
-                className="w-full py-3 px-4 rounded-xl font-semibold bg-white/10 hover:bg-white/20 text-white border border-white/20 transition-all"
+                className="w-full rounded-xl border border-white/20 bg-white/10 px-4 py-3 font-semibold text-white transition-all hover:bg-white/20"
               >
                 ↻ Reload Page
               </button>
 
               <button
-                onClick={() => window.location.href = '/'}
-                className="w-full py-3 px-4 rounded-xl font-semibold bg-white/5 hover:bg-white/10 text-gray-300 transition-all"
+                onClick={() => (window.location.href = '/')}
+                className="w-full rounded-xl bg-white/5 px-4 py-3 font-semibold text-gray-300 transition-all hover:bg-white/10"
               >
                 ← Go to Home
               </button>

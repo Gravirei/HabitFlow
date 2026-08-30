@@ -61,7 +61,7 @@ function cacheInsights(insights: AIInsights): void {
     const cache: InsightsCache = {
       insights,
       cachedAt: now,
-      expiresAt: now + CACHE_DURATION
+      expiresAt: now + CACHE_DURATION,
     }
     localStorage.setItem(CACHE_KEY, JSON.stringify(cache))
   } catch (error) {

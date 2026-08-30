@@ -27,7 +27,9 @@ export function EmailVerificationBanner() {
             <p className="font-semibold">Verify your email to continue</p>
             <p className="text-sm text-white/90">
               {email ? (
-                <>We sent a verification link to <span className="font-semibold">{email}</span>.</>
+                <>
+                  We sent a verification link to <span className="font-semibold">{email}</span>.
+                </>
               ) : (
                 <>We sent a verification link to your email.</>
               )}

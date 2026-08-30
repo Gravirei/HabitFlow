@@ -76,24 +76,21 @@ export function TaskCardWithMenu({
 
   // Handle visual toggle in modal (staging only)
   const handleStageSubtaskToggle = (subtaskId: string) => {
-    setStagedSubtasks(prev => 
-      prev.map(st => 
-        st.id === subtaskId ? { ...st, completed: !st.completed } : st
-      )
+    setStagedSubtasks((prev) =>
+      prev.map((st) => (st.id === subtaskId ? { ...st, completed: !st.completed } : st))
     )
     setHasUnsavedChanges(true)
   }
 
   // Original function for actual subtask toggle (used when applying changes)
 
-
   // Apply all staged changes at once
   const applySubtaskChanges = () => {
     // Check if trying to uncheck from completed task
     if (task.completed) {
-      const wasChecked = task.subtasks.find(st => st.completed)
-      const willBeUnchecked = stagedSubtasks.find(st => !st.completed)
-      
+      const wasChecked = task.subtasks.find((st) => st.completed)
+      const willBeUnchecked = stagedSubtasks.find((st) => !st.completed)
+
       if (wasChecked && willBeUnchecked) {
         setShowUncheckSubtaskWarning(true)
         return
@@ -105,20 +102,21 @@ export function TaskCardWithMenu({
       tasks.map((t) => {
         if (t.id === task.id) {
           // Check if all staged subtasks are completed
-          const allSubtasksCompleted = stagedSubtasks.length > 0 && stagedSubtasks.every(st => st.completed)
-          
+          const allSubtasksCompleted =
+            stagedSubtasks.length > 0 && stagedSubtasks.every((st) => st.completed)
+
           return {
             ...t,
             subtasks: [...stagedSubtasks],
             // Auto-complete task when all subtasks are done
             completed: allSubtasksCompleted,
-            status: allSubtasksCompleted ? 'completed' : t.status
+            status: allSubtasksCompleted ? 'completed' : t.status,
           }
         }
         return t
       })
     )
-    
+
     // Close modal and reset state
     setShowSubtasksMenu(false)
     setStagedSubtasks([])
@@ -446,7 +444,7 @@ export function TaskCardWithMenu({
                     </span>
                     {task.subtasks.length > 0 && (
                       <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
-                        {task.subtasks.filter(s => s.completed).length}/{task.subtasks.length}
+                        {task.subtasks.filter((s) => s.completed).length}/{task.subtasks.length}
                       </span>
                     )}
                   </div>
@@ -903,12 +901,15 @@ export function TaskCardWithMenu({
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent-purple shadow-lg shadow-primary/20">
-                      <span className="material-symbols-outlined text-2xl text-white">checklist</span>
+                      <span className="material-symbols-outlined text-2xl text-white">
+                        checklist
+                      </span>
                     </div>
                     <div>
                       <h3 className="text-lg font-bold text-gray-900 dark:text-white">Subtasks</h3>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
-                        {stagedSubtasks.filter(s => s.completed).length} of {stagedSubtasks.length} completed
+                        {stagedSubtasks.filter((s) => s.completed).length} of{' '}
+                        {stagedSubtasks.length} completed
                       </p>
                     </div>
                   </div>
@@ -920,7 +921,9 @@ export function TaskCardWithMenu({
                     className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100 transition-colors hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700"
                     aria-label="Close"
                   >
-                    <span className="material-symbols-outlined text-xl text-gray-600 dark:text-gray-400">close</span>
+                    <span className="material-symbols-outlined text-xl text-gray-600 dark:text-gray-400">
+                      close
+                    </span>
                   </button>
                 </div>
 
@@ -930,8 +933,8 @@ export function TaskCardWithMenu({
                     <div className="h-2 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
                       <div
                         className="h-full rounded-full bg-gradient-to-r from-primary via-accent-purple to-primary transition-all duration-300"
-                        style={{ 
-                          width: `${stagedSubtasks.length > 0 ? (stagedSubtasks.filter(s => s.completed).length / stagedSubtasks.length) * 100 : 0}%` 
+                        style={{
+                          width: `${stagedSubtasks.length > 0 ? (stagedSubtasks.filter((s) => s.completed).length / stagedSubtasks.length) * 100 : 0}%`,
                         }}
                       />
                     </div>
@@ -967,7 +970,9 @@ export function TaskCardWithMenu({
                           )}
                         >
                           {subtask.completed && (
-                            <span className="material-symbols-outlined text-sm font-bold text-white">check</span>
+                            <span className="material-symbols-outlined text-sm font-bold text-white">
+                              check
+                            </span>
                           )}
                         </div>
 
@@ -995,7 +1000,9 @@ export function TaskCardWithMenu({
                 ) : (
                   <div className="flex flex-col items-center justify-center py-16">
                     <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
-                      <span className="material-symbols-outlined text-4xl text-gray-400">add_task</span>
+                      <span className="material-symbols-outlined text-4xl text-gray-400">
+                        add_task
+                      </span>
                     </div>
                     <h3 className="mt-4 text-lg font-semibold text-gray-900 dark:text-white">
                       No subtasks yet
@@ -1025,10 +1032,10 @@ export function TaskCardWithMenu({
                   }}
                   disabled={!hasUnsavedChanges}
                   className={cn(
-                    "rounded-xl px-6 py-2.5 font-semibold text-white transition-all duration-200 active:scale-95",
+                    'rounded-xl px-6 py-2.5 font-semibold text-white transition-all duration-200 active:scale-95',
                     hasUnsavedChanges
-                      ? "bg-gradient-to-r from-primary to-green-500 hover:shadow-lg hover:shadow-primary/30"
-                      : "bg-gray-400 cursor-not-allowed dark:bg-gray-600"
+                      ? 'bg-gradient-to-r from-primary to-green-500 hover:shadow-lg hover:shadow-primary/30'
+                      : 'cursor-not-allowed bg-gray-400 dark:bg-gray-600'
                   )}
                 >
                   Apply Changes
@@ -1049,8 +1056,8 @@ export function TaskCardWithMenu({
               e.stopPropagation()
               e.preventDefault()
               setShowUncheckSubtaskWarning(false)
-                    // setPendingSubtaskToggle(null)
-                  }}
+              // setPendingSubtaskToggle(null)
+            }}
             onMouseDown={(e) => e.stopPropagation()}
           />
 
@@ -1087,10 +1094,12 @@ export function TaskCardWithMenu({
               {/* Content */}
               <div className="px-6 py-5">
                 <p className="mb-4 text-gray-700 dark:text-gray-300">
-                  <span className="font-semibold">"{task.title}"</span> is currently marked as completed.
+                  <span className="font-semibold">"{task.title}"</span> is currently marked as
+                  completed.
                 </p>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Unchecking this subtask will automatically mark the task as incomplete. Do you want to continue?
+                  Unchecking this subtask will automatically mark the task as incomplete. Do you
+                  want to continue?
                 </p>
               </div>
 
@@ -1109,24 +1118,25 @@ export function TaskCardWithMenu({
                 <button
                   onClick={(e) => {
                     e.stopPropagation()
-                    
+
                     // Apply staged changes directly (they already include the uncheck action)
                     setTasks(
                       tasks.map((t) => {
                         if (t.id === task.id) {
-                          const allSubtasksCompleted = stagedSubtasks.length > 0 && stagedSubtasks.every(st => st.completed)
-                          
+                          const allSubtasksCompleted =
+                            stagedSubtasks.length > 0 && stagedSubtasks.every((st) => st.completed)
+
                           return {
                             ...t,
                             subtasks: [...stagedSubtasks],
                             completed: allSubtasksCompleted,
-                            status: allSubtasksCompleted ? 'completed' : t.status
+                            status: allSubtasksCompleted ? 'completed' : t.status,
                           }
                         }
                         return t
                       })
                     )
-                    
+
                     setShowUncheckSubtaskWarning(false)
                     setShowSubtasksMenu(false)
                     setStagedSubtasks([])
@@ -1232,7 +1242,6 @@ export function TaskCardWithMenu({
           </div>
         </>
       )}
-
     </div>
   )
 }

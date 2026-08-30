@@ -6,7 +6,7 @@ import type { ReportData, ReportInsight, ReportPeriod } from './types'
 
 export function generateReport(sessions: any[], period: ReportPeriod): ReportData {
   const filteredSessions = filterSessionsByPeriod(sessions, period)
-  
+
   const totalSessions = filteredSessions.length
   const totalDuration = filteredSessions.reduce((sum, s) => sum + s.duration, 0)
   const averageDuration = totalSessions > 0 ? Math.round(totalDuration / totalSessions) : 0
@@ -83,16 +83,19 @@ function filterSessionsByPeriod(sessions: any[], period: ReportPeriod): any[] {
 
 function findMostProductiveDay(sessions: any[]): string {
   const dayStats: Record<string, number> = {}
-  
+
   sessions.forEach((session) => {
     const date = new Date(session.timestamp)
     const dayName = date.toLocaleDateString('en-US', { weekday: 'long' })
     dayStats[dayName] = (dayStats[dayName] || 0) + session.duration
   })
 
-  const mostProductiveDay = Object.entries(dayStats).reduce((max, [day, duration]) => {
-    return duration > (max[1] || 0) ? [day, duration] : max
-  }, ['N/A', 0])
+  const mostProductiveDay = Object.entries(dayStats).reduce(
+    (max, [day, duration]) => {
+      return duration > (max[1] || 0) ? [day, duration] : max
+    },
+    ['N/A', 0]
+  )
 
   return mostProductiveDay[0]
 }
@@ -107,7 +110,7 @@ function findMostProductiveTime(sessions: any[]): string {
 
   sessions.forEach((session) => {
     const hour = new Date(session.timestamp).getHours()
-    
+
     if (hour >= 6 && hour < 12) {
       timeBlocks['Morning (6-12)'] += session.duration
     } else if (hour >= 12 && hour < 18) {
@@ -119,9 +122,12 @@ function findMostProductiveTime(sessions: any[]): string {
     }
   })
 
-  const mostProductiveTime = Object.entries(timeBlocks).reduce((max, [time, duration]) => {
-    return duration > (max[1] || 0) ? [time, duration] : max
-  }, ['N/A', 0])
+  const mostProductiveTime = Object.entries(timeBlocks).reduce(
+    (max, [time, duration]) => {
+      return duration > (max[1] || 0) ? [time, duration] : max
+    },
+    ['N/A', 0]
+  )
 
   return mostProductiveTime[0]
 }
@@ -186,10 +192,8 @@ function generateInsights(
 
   // Consistency insight
   if (sessions.length >= 7) {
-    const daysWithSessions = new Set(
-      sessions.map((s) => new Date(s.timestamp).toDateString())
-    ).size
-    
+    const daysWithSessions = new Set(sessions.map((s) => new Date(s.timestamp).toDateString())).size
+
     if (daysWithSessions >= 5) {
       insights.push({
         id: 'consistency',
@@ -207,7 +211,7 @@ function generateInsights(
   if (countdowns.length >= 3) {
     const completed = countdowns.filter((s) => s.completed !== false).length
     const completionRate = Math.round((completed / countdowns.length) * 100)
-    
+
     if (completionRate >= 80) {
       insights.push({
         id: 'completion',
@@ -232,17 +236,30 @@ function generateInsights(
   return insights
 }
 
-function generateTrends(allSessions: any[], period: ReportPeriod, currentPeriodSessions: any[]): any[] {
+function generateTrends(
+  allSessions: any[],
+  period: ReportPeriod,
+  currentPeriodSessions: any[]
+): any[] {
   // Calculate previous period sessions
   const now = new Date()
   let periodDays: number
 
   switch (period) {
-    case 'week': periodDays = 7; break
-    case 'month': periodDays = 30; break
-    case 'quarter': periodDays = 90; break
-    case 'year': periodDays = 365; break
-    default: return []
+    case 'week':
+      periodDays = 7
+      break
+    case 'month':
+      periodDays = 30
+      break
+    case 'quarter':
+      periodDays = 90
+      break
+    case 'year':
+      periodDays = 365
+      break
+    default:
+      return []
   }
 
   const previousPeriodStart = new Date(now.getTime() - 2 * periodDays * 24 * 60 * 60 * 1000)
@@ -280,18 +297,23 @@ function generateTrends(allSessions: any[], period: ReportPeriod, currentPeriodS
 
 function getPeriodLabel(period: ReportPeriod): string {
   switch (period) {
-    case 'week': return 'Last 7 Days'
-    case 'month': return 'Last 30 Days'
-    case 'quarter': return 'Last 90 Days'
-    case 'year': return 'Last Year'
-    case 'all': return 'All Time'
+    case 'week':
+      return 'Last 7 Days'
+    case 'month':
+      return 'Last 30 Days'
+    case 'quarter':
+      return 'Last 90 Days'
+    case 'year':
+      return 'Last Year'
+    case 'all':
+      return 'All Time'
   }
 }
 
 function formatDuration(seconds: number): string {
   const hrs = Math.floor(seconds / 3600)
   const mins = Math.floor((seconds % 3600) / 60)
-  
+
   if (hrs > 0) {
     return `${hrs}h ${mins}m`
   }

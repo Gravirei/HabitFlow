@@ -1,11 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { supabase } from '@/lib/supabase'
-import {
-  isAccountLocked,
-  lockAccount,
-  unlockAccount,
-  checkAndLockAccount,
-} from '../accountLockout'
+import { isAccountLocked, lockAccount, unlockAccount, checkAndLockAccount } from '../accountLockout'
 import { createQueryBuilder } from './helpers'
 
 vi.mock('@/lib/supabase', () => ({
@@ -39,7 +34,14 @@ describe('accountLockout', () => {
     it('returns locked with reason and expiry for an active lockout', async () => {
       const lockedUntil = '2026-01-15T13:00:00.000Z'
       const builder = createQueryBuilder({
-        data: [{ email: 'user@example.com', is_locked: true, locked_until: lockedUntil, reason: 'Too many failed login attempts' }],
+        data: [
+          {
+            email: 'user@example.com',
+            is_locked: true,
+            locked_until: lockedUntil,
+            reason: 'Too many failed login attempts',
+          },
+        ],
       })
       fromMock.mockReturnValue(builder)
 
@@ -56,9 +58,7 @@ describe('accountLockout', () => {
         data: [{ email: 'user@example.com', is_locked: true, locked_until: expired }],
       })
       const updateBuilder = createQueryBuilder()
-      fromMock
-        .mockReturnValueOnce(selectBuilder)
-        .mockReturnValueOnce(updateBuilder)
+      fromMock.mockReturnValueOnce(selectBuilder).mockReturnValueOnce(updateBuilder)
 
       const status = await isAccountLocked('user@example.com')
 
@@ -126,9 +126,7 @@ describe('accountLockout', () => {
       const attempts = Array.from({ length: 5 }, () => ({ success: false, user_id: 'user-1' }))
       const countBuilder = createQueryBuilder({ data: attempts })
       const insertBuilder = createQueryBuilder()
-      fromMock
-        .mockReturnValueOnce(countBuilder)
-        .mockReturnValueOnce(insertBuilder)
+      fromMock.mockReturnValueOnce(countBuilder).mockReturnValueOnce(insertBuilder)
 
       const status = await checkAndLockAccount('user@example.com', 5, 15, 30)
 

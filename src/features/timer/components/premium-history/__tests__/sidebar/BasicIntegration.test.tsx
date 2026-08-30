@@ -16,11 +16,11 @@ describe('Premium History Sidebar Features', () => {
         'Timeline View',
         'Archive',
         'Filter Visibility',
-        'Notifications'
+        'Notifications',
       ]
 
       expect(features).toHaveLength(8)
-      features.forEach(feature => {
+      features.forEach((feature) => {
         expect(feature).toBeTruthy()
       })
     })
@@ -34,7 +34,7 @@ describe('Premium History Sidebar Features', () => {
         timelineView: true,
         archive: true,
         filterVisibility: true,
-        notifications: true
+        notifications: true,
       }
 
       const implemented = Object.values(completionStatus).filter(Boolean).length
@@ -67,7 +67,7 @@ describe('Premium History Sidebar Features', () => {
         id: '1',
         mode: 'Stopwatch',
         duration: 1500,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       const jsonExport = JSON.stringify([session])
@@ -135,14 +135,14 @@ describe('Premium History Sidebar Features', () => {
         'Consistency',
         'Productivity Trends',
         'Recommendations',
-        'Weekly Summary'
+        'Weekly Summary',
       ]
       expect(categories).toHaveLength(7)
     })
 
     it('calculates productivity score 0-100', () => {
       const scores = [0, 50, 85, 100]
-      scores.forEach(score => {
+      scores.forEach((score) => {
         expect(score).toBeGreaterThanOrEqual(0)
         expect(score).toBeLessThanOrEqual(100)
       })
@@ -217,9 +217,9 @@ describe('Premium History Sidebar Features', () => {
         dateRange: true,
         duration: true,
         completion: true,
-        search: true
+        search: true,
       }
-      expect(Object.values(defaults).every(v => v === true)).toBe(true)
+      expect(Object.values(defaults).every((v) => v === true)).toBe(true)
     })
   })
 
@@ -250,7 +250,7 @@ describe('Premium History Sidebar Features', () => {
         timelineView: '3 view modes for session visualization',
         archive: 'Archive and restore old sessions',
         filterVisibility: 'Show/hide 4 filter types',
-        notifications: '4 notification types with scheduling'
+        notifications: '4 notification types with scheduling',
       }
 
       expect(Object.keys(documentation)).toHaveLength(8)
@@ -265,7 +265,7 @@ describe('Premium History Sidebar Features', () => {
         timelineView: 24,
         archive: 34,
         filterVisibility: 32,
-        notifications: 41
+        notifications: 41,
       }
 
       const totalSpecs = Object.values(testFiles).reduce((sum, count) => sum + count, 0)
@@ -278,7 +278,7 @@ describe('Premium History Sidebar Features', () => {
         totalTestSpecs: 281,
         integrationTests: 19,
         testFiles: 9,
-        completionPercentage: 100
+        completionPercentage: 100,
       }
 
       expect(metrics.featuresImplemented).toBe(8)
@@ -301,7 +301,7 @@ describe('Premium History Sidebar Features', () => {
         'TimelineView',
         'Archive',
         'FilterVisibility',
-        'Notifications'
+        'Notifications',
       ]
       expect(specFiles).toHaveLength(8)
     })

@@ -85,11 +85,7 @@ describe('NewHabitModal', () => {
     await user.type(screen.getByPlaceholderText('Name your habit…'), 'No Category Habit')
 
     // Walk through all steps
-    const markers = [
-      /how often will you do it/i,
-      /set a gentle goal/i,
-      /stay on track/i,
-    ]
+    const markers = [/how often will you do it/i, /set a gentle goal/i, /stay on track/i]
     fireEvent.click(screen.getByRole('button', { name: /continue/i }))
     for (const marker of markers) {
       await screen.findByText(marker)
@@ -103,18 +99,15 @@ describe('NewHabitModal', () => {
     })
   }, 10000)
 
-  it('creates a habit in the category passed via open() options', async () => {    const user = userEvent.setup()
+  it('creates a habit in the category passed via open() options', async () => {
+    const user = userEvent.setup()
     useNewHabitModalStore.getState().open({ categoryId: 'cat-123' })
     render(<NewHabitModal />)
 
     await user.type(screen.getByPlaceholderText('Name your habit…'), 'Categorized Habit')
 
     // Walk through all steps
-    const markers = [
-      /how often will you do it/i,
-      /set a gentle goal/i,
-      /stay on track/i,
-    ]
+    const markers = [/how often will you do it/i, /set a gentle goal/i, /stay on track/i]
     fireEvent.click(screen.getByRole('button', { name: /continue/i }))
     for (const marker of markers) {
       await screen.findByText(marker)
@@ -241,11 +234,7 @@ describe('NewHabitModal', () => {
     await user.type(screen.getByPlaceholderText('Name your habit…'), 'Morning Run')
 
     // Walk through all steps
-    const markers = [
-      /how often will you do it/i,
-      /set a gentle goal/i,
-      /stay on track/i,
-    ]
+    const markers = [/how often will you do it/i, /set a gentle goal/i, /stay on track/i]
     fireEvent.click(screen.getByRole('button', { name: /continue/i }))
     for (const marker of markers) {
       await screen.findByText(marker)
@@ -253,9 +242,7 @@ describe('NewHabitModal', () => {
     }
 
     await waitFor(() => {
-      expect(addHabitMock).toHaveBeenCalledWith(
-        expect.objectContaining({ name: 'Morning Run' })
-      )
+      expect(addHabitMock).toHaveBeenCalledWith(expect.objectContaining({ name: 'Morning Run' }))
     })
     expect(toast.success).toHaveBeenCalled()
     expectClosed()

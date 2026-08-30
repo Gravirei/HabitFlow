@@ -54,7 +54,7 @@ function CategoryTemplatePreviewModal({
         allHabits[cat.name] = new Set(cat.habits.map((h) => h.name))
       })
       setSelectedHabits(allHabits)
-      
+
       const totalHabits = Object.values(allHabits).reduce((sum, habits) => sum + habits.size, 0)
       setPrevTotalSelected(totalHabits)
     }
@@ -181,7 +181,7 @@ function CategoryTemplatePreviewModal({
                       </span>
                     </motion.div>
                     <div>
-                      <h3 className="mb-1.5 font-lora text-2xl font-bold text-gray-900 dark:text-white">
+                      <h3 className="font-lora mb-1.5 text-2xl font-bold text-gray-900 dark:text-white">
                         {template.name}
                       </h3>
                       <p className="font-raleway text-sm font-medium text-gray-600 dark:text-gray-400">
@@ -204,7 +204,7 @@ function CategoryTemplatePreviewModal({
                     initial={{ scale: 1.2, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-                    className="flex items-center gap-2 rounded-full bg-gradient-to-r from-teal-50 to-teal-100/50 px-4 py-2 font-raleway font-semibold text-teal-700 ring-1 ring-teal-200/50 dark:from-teal-500/10 dark:to-teal-500/5 dark:text-teal-400 dark:ring-teal-500/20"
+                    className="font-raleway flex items-center gap-2 rounded-full bg-gradient-to-r from-teal-50 to-teal-100/50 px-4 py-2 font-semibold text-teal-700 ring-1 ring-teal-200/50 dark:from-teal-500/10 dark:to-teal-500/5 dark:text-teal-400 dark:ring-teal-500/20"
                   >
                     <span className="material-symbols-outlined text-base">folder</span>
                     <span>{totalSelected}</span>
@@ -217,7 +217,7 @@ function CategoryTemplatePreviewModal({
                     initial={{ scale: 1.2, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-                    className="flex items-center gap-2 rounded-full bg-gradient-to-r from-orange-50 to-orange-100/50 px-4 py-2 font-raleway font-semibold text-orange-700 ring-1 ring-orange-200/50 dark:from-orange-500/10 dark:to-orange-500/5 dark:text-orange-400 dark:ring-orange-500/20"
+                    className="font-raleway flex items-center gap-2 rounded-full bg-gradient-to-r from-orange-50 to-orange-100/50 px-4 py-2 font-semibold text-orange-700 ring-1 ring-orange-200/50 dark:from-orange-500/10 dark:to-orange-500/5 dark:text-orange-400 dark:ring-orange-500/20"
                   >
                     <span className="material-symbols-outlined text-base">check_circle</span>
                     <span>{totalHabitsSelected}</span>
@@ -243,7 +243,12 @@ function CategoryTemplatePreviewModal({
                         key={category.name}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.05, type: 'spring', stiffness: 300, damping: 25 }}
+                        transition={{
+                          delay: index * 0.05,
+                          type: 'spring',
+                          stiffness: 300,
+                          damping: 25,
+                        }}
                         className={clsx(
                           'overflow-hidden rounded-2xl transition-all duration-200',
                           isCategorySelected
@@ -263,7 +268,9 @@ function CategoryTemplatePreviewModal({
                             whileTap={{ scale: 0.95 }}
                             className={clsx(
                               'flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-xl shadow-md',
-                              isCategorySelected ? 'bg-white/90 dark:bg-gray-900/90' : 'bg-white/50 dark:bg-gray-800/50'
+                              isCategorySelected
+                                ? 'bg-white/90 dark:bg-gray-900/90'
+                                : 'bg-white/50 dark:bg-gray-800/50'
                             )}
                           >
                             <span
@@ -278,7 +285,7 @@ function CategoryTemplatePreviewModal({
 
                           {/* Info */}
                           <div className="min-w-0 flex-1">
-                            <h4 className="mb-1 font-lora text-lg font-bold text-gray-900 dark:text-white">
+                            <h4 className="font-lora mb-1 text-lg font-bold text-gray-900 dark:text-white">
                               {category.name}
                             </h4>
                             <p className="font-raleway text-xs font-medium text-gray-600 dark:text-gray-400">
@@ -287,7 +294,9 @@ function CategoryTemplatePreviewModal({
                                   {selectedCount} of {totalCount} selected
                                 </span>
                               ) : (
-                                <span>{totalCount} {totalCount === 1 ? 'habit' : 'habits'}</span>
+                                <span>
+                                  {totalCount} {totalCount === 1 ? 'habit' : 'habits'}
+                                </span>
                               )}
                             </p>
                           </div>
@@ -374,7 +383,7 @@ function CategoryTemplatePreviewModal({
 
                                       {/* Habit Info */}
                                       <div className="min-w-0 flex-1">
-                                        <div className="mb-0.5 font-raleway font-semibold text-gray-900 dark:text-white">
+                                        <div className="font-raleway mb-0.5 font-semibold text-gray-900 dark:text-white">
                                           {habit.name}
                                         </div>
                                         {habit.description && (
@@ -387,7 +396,7 @@ function CategoryTemplatePreviewModal({
                                       {/* Goal Badge */}
                                       <div
                                         className={clsx(
-                                          'flex-shrink-0 rounded-full px-2.5 py-1 font-raleway text-xs font-semibold transition-all duration-150',
+                                          'font-raleway flex-shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold transition-all duration-150',
                                           isHabitSelected
                                             ? 'bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-400'
                                             : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
@@ -428,7 +437,7 @@ function CategoryTemplatePreviewModal({
                 <div className="flex items-center gap-3">
                   <button
                     onClick={onClose}
-                    className="flex-1 rounded-xl border border-gray-300 bg-white/50 px-6 py-3 font-raleway font-semibold text-gray-700 transition-all duration-150 hover:bg-gray-50 hover:shadow-md active:scale-95 dark:border-gray-700 dark:bg-gray-800/50 dark:text-gray-300 dark:hover:bg-gray-800"
+                    className="font-raleway flex-1 rounded-xl border border-gray-300 bg-white/50 px-6 py-3 font-semibold text-gray-700 transition-all duration-150 hover:bg-gray-50 hover:shadow-md active:scale-95 dark:border-gray-700 dark:bg-gray-800/50 dark:text-gray-300 dark:hover:bg-gray-800"
                   >
                     Cancel
                   </button>
@@ -438,7 +447,7 @@ function CategoryTemplatePreviewModal({
                     whileHover={totalSelected > 0 ? { scale: 1.02 } : {}}
                     whileTap={totalSelected > 0 ? { scale: 0.98 } : {}}
                     className={clsx(
-                      'relative flex-[2] overflow-hidden rounded-xl px-6 py-3 font-raleway font-bold transition-all duration-150',
+                      'font-raleway relative flex-[2] overflow-hidden rounded-xl px-6 py-3 font-bold transition-all duration-150',
                       totalSelected === 0
                         ? 'cursor-not-allowed bg-gray-300 text-gray-500 dark:bg-gray-700 dark:text-gray-500'
                         : 'bg-gradient-to-r from-teal-500 to-teal-600 text-white shadow-lg shadow-teal-500/30 hover:shadow-xl hover:shadow-teal-500/40'
@@ -714,228 +723,232 @@ export function CategoryTemplateLibraryModal({
               className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-xl"
             />
 
-          {/* Modal Container */}
-          <div className="pointer-events-none fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-8">
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              onClick={(e) => e.stopPropagation()}
-              className="pointer-events-auto w-full max-w-[90rem]"
-            >
-              <div
-                className="relative flex h-[90vh] w-full flex-col rounded-[2.5rem] border border-white/20 bg-white/95 shadow-2xl ring-1 ring-black/5 backdrop-blur-3xl dark:border-white/5 dark:bg-gray-950/90 md:h-[50rem]"
-                style={{ overflow: 'hidden' }}
+            {/* Modal Container */}
+            <div className="pointer-events-none fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-8">
+              <motion.div
+                initial={{ scale: 0.95, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.95, opacity: 0 }}
+                transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                onClick={(e) => e.stopPropagation()}
+                className="pointer-events-auto w-full max-w-[90rem]"
               >
-                {/* Decorative Background Elements */}
-                <div className="pointer-events-none absolute left-0 top-0 h-96 w-96 rounded-full bg-blue-500/10 blur-[100px]"></div>
-                <div className="pointer-events-none absolute bottom-0 right-0 h-96 w-96 rounded-full bg-indigo-500/10 blur-[100px]"></div>
+                <div
+                  className="relative flex h-[90vh] w-full flex-col rounded-[2.5rem] border border-white/20 bg-white/95 shadow-2xl ring-1 ring-black/5 backdrop-blur-3xl dark:border-white/5 dark:bg-gray-950/90 md:h-[50rem]"
+                  style={{ overflow: 'hidden' }}
+                >
+                  {/* Decorative Background Elements */}
+                  <div className="pointer-events-none absolute left-0 top-0 h-96 w-96 rounded-full bg-blue-500/10 blur-[100px]"></div>
+                  <div className="pointer-events-none absolute bottom-0 right-0 h-96 w-96 rounded-full bg-indigo-500/10 blur-[100px]"></div>
 
-                {/* Header */}
-                <div className="relative z-10 border-b border-gray-200/50 bg-white/50 p-4 pb-4 backdrop-blur-xl dark:border-white/5 dark:bg-gray-950/50 sm:p-8 sm:pb-6">
-                  <div className="flex items-center justify-between gap-3 sm:gap-6">
-                    {/* Left side: Icon + Title */}
-                    <div className="flex min-w-0 flex-1 items-center gap-3 sm:gap-4">
-                      <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/30 ring-1 ring-black/5 sm:h-14 sm:w-14">
-                        <span className="material-symbols-outlined text-xl text-white sm:text-2xl">
-                          store
-                        </span>
+                  {/* Header */}
+                  <div className="relative z-10 border-b border-gray-200/50 bg-white/50 p-4 pb-4 backdrop-blur-xl dark:border-white/5 dark:bg-gray-950/50 sm:p-8 sm:pb-6">
+                    <div className="flex items-center justify-between gap-3 sm:gap-6">
+                      {/* Left side: Icon + Title */}
+                      <div className="flex min-w-0 flex-1 items-center gap-3 sm:gap-4">
+                        <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/30 ring-1 ring-black/5 sm:h-14 sm:w-14">
+                          <span className="material-symbols-outlined text-xl text-white sm:text-2xl">
+                            store
+                          </span>
+                        </div>
+                        <div className="min-w-0">
+                          <h2 className="mb-0.5 truncate text-lg font-bold leading-none text-gray-900 dark:text-white sm:mb-1 sm:text-2xl">
+                            Template Store
+                          </h2>
+                          <p className="truncate text-xs font-medium text-gray-500 sm:text-sm">
+                            Import category packs
+                          </p>
+                        </div>
                       </div>
-                      <div className="min-w-0">
-                        <h2 className="mb-0.5 truncate text-lg font-bold leading-none text-gray-900 dark:text-white sm:mb-1 sm:text-2xl">
-                          Template Store
-                        </h2>
-                        <p className="truncate text-xs font-medium text-gray-500 sm:text-sm">
-                          Import category packs
-                        </p>
-                      </div>
-                    </div>
 
-                    {/* Right: Hamburger (mobile/tablet) / Search + Filter Tabs (desktop) + Close */}
-                    <div className="relative flex items-center gap-1">
-                      {/* Hamburger Menu - mobile/tablet only */}
-                      <button
-                        ref={hamburgerButtonRef}
-                        className="pointer-events-auto lg:hidden"
-                        onClick={(e) => {
-                          e.preventDefault()
-                          e.stopPropagation()
-                          
-                          // Calculate position immediately before toggling
-                          if (!isDropdownOpen && hamburgerButtonRef.current) {
-                            const rect = hamburgerButtonRef.current.getBoundingClientRect()
-                            const newPosition = {
-                              top: rect.bottom + 8,
-                              right: window.innerWidth - rect.right,
+                      {/* Right: Hamburger (mobile/tablet) / Search + Filter Tabs (desktop) + Close */}
+                      <div className="relative flex items-center gap-1">
+                        {/* Hamburger Menu - mobile/tablet only */}
+                        <button
+                          ref={hamburgerButtonRef}
+                          className="pointer-events-auto lg:hidden"
+                          onClick={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+
+                            // Calculate position immediately before toggling
+                            if (!isDropdownOpen && hamburgerButtonRef.current) {
+                              const rect = hamburgerButtonRef.current.getBoundingClientRect()
+                              const newPosition = {
+                                top: rect.bottom + 8,
+                                right: window.innerWidth - rect.right,
+                              }
+                              setDropdownPosition(newPosition)
                             }
-                            setDropdownPosition(newPosition)
-                          }
-                          
-                          setIsDropdownOpen(!isDropdownOpen)
-                        }}
-                        aria-label="Menu"
-                      >
-                        <div
-                          className="flex size-10 items-center justify-center transition-all duration-150 active:scale-95"
+
+                            setIsDropdownOpen(!isDropdownOpen)
+                          }}
                           aria-label="Menu"
                         >
-                          {/* Animated Hamburger Icon */}
-                          <div className="relative h-5 w-5">
-                            <span
-                              className={clsx(
-                                'absolute left-0 top-1 h-0.5 w-5 rounded-full transition-all duration-300',
-                                isDropdownOpen
-                                  ? 'top-2 rotate-45 bg-gray-700 dark:bg-gray-200'
-                                  : 'top-1 bg-gray-600 dark:bg-gray-400'
-                              )}
+                          <div
+                            className="flex size-10 items-center justify-center transition-all duration-150 active:scale-95"
+                            aria-label="Menu"
+                          >
+                            {/* Animated Hamburger Icon */}
+                            <div className="relative h-5 w-5">
+                              <span
+                                className={clsx(
+                                  'absolute left-0 top-1 h-0.5 w-5 rounded-full transition-all duration-300',
+                                  isDropdownOpen
+                                    ? 'top-2 rotate-45 bg-gray-700 dark:bg-gray-200'
+                                    : 'top-1 bg-gray-600 dark:bg-gray-400'
+                                )}
+                              />
+                              <span
+                                className={clsx(
+                                  'absolute left-0 top-2.5 h-0.5 w-5 rounded-full transition-all duration-300',
+                                  isDropdownOpen
+                                    ? 'bg-gray-700 opacity-0 dark:bg-gray-200'
+                                    : 'bg-gray-600 opacity-100 dark:bg-gray-400'
+                                )}
+                              />
+                              <span
+                                className={clsx(
+                                  'absolute left-0 top-4 h-0.5 w-5 rounded-full transition-all duration-300',
+                                  isDropdownOpen
+                                    ? 'top-2 -rotate-45 bg-gray-700 dark:bg-gray-200'
+                                    : 'top-4 bg-gray-600 dark:bg-gray-400'
+                                )}
+                              />
+                            </div>
+                          </div>
+                        </button>
+
+                        {/* Search - visible on desktop only */}
+                        <div ref={searchRef} className="relative hidden items-center lg:flex">
+                          {!isSearchOpen && (
+                            <button
+                              onClick={() => setIsSearchOpen(true)}
+                              className="relative z-10 flex size-10 items-center justify-center rounded-full text-gray-400 transition-all duration-150 hover:bg-gray-100 active:scale-95 dark:text-gray-500 dark:hover:bg-white/5"
+                              aria-label="Search"
+                            >
+                              <span className="material-symbols-outlined text-xl font-bold">
+                                search
+                              </span>
+                            </button>
+                          )}
+                          <input
+                            type="text"
+                            placeholder="Search templates..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className={`absolute right-0 h-10 rounded-full border border-gray-200 bg-gray-100 pl-4 pr-10 text-sm text-gray-900 transition-all duration-300 ease-out placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30 dark:border-gray-700 dark:bg-gray-800/50 dark:text-white ${
+                              isSearchOpen
+                                ? 'w-64 opacity-100'
+                                : 'pointer-events-none w-10 opacity-0'
+                            }`}
+                            autoFocus={isSearchOpen}
+                          />
+                          {isSearchOpen && (
+                            <button
+                              onClick={() => {
+                                setSearchQuery('')
+                                setIsSearchOpen(false)
+                              }}
+                              className="absolute right-1 z-10 flex size-8 items-center justify-center rounded-full text-gray-400 transition-all duration-150 hover:bg-gray-200 dark:text-gray-500 dark:hover:bg-gray-700"
+                              aria-label="Close search"
+                            >
+                              <span className="material-symbols-outlined text-base">close</span>
+                            </button>
+                          )}
+                        </div>
+
+                        {/* Category Filter Tabs - desktop only */}
+                        <div className="relative hidden lg:block">
+                          <div className="scrollbar-hide relative flex items-center gap-2 overflow-x-auto pb-2">
+                            {/* Animated sliding indicator */}
+                            <motion.div
+                              className="absolute bottom-2 h-0.5 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600"
+                              animate={{
+                                left: indicatorStyle.left,
+                                width: indicatorStyle.width,
+                              }}
+                              transition={{
+                                type: 'spring',
+                                stiffness: 380,
+                                damping: 30,
+                              }}
                             />
-                            <span
-                              className={clsx(
-                                'absolute left-0 top-2.5 h-0.5 w-5 rounded-full transition-all duration-300',
-                                isDropdownOpen
-                                  ? 'opacity-0 bg-gray-700 dark:bg-gray-200'
-                                  : 'opacity-100 bg-gray-600 dark:bg-gray-400'
-                              )}
-                            />
-                            <span
-                              className={clsx(
-                                'absolute left-0 top-4 h-0.5 w-5 rounded-full transition-all duration-300',
-                                isDropdownOpen
-                                  ? 'top-2 -rotate-45 bg-gray-700 dark:bg-gray-200'
-                                  : 'top-4 bg-gray-600 dark:bg-gray-400'
-                              )}
-                            />
+
+                            {categories.map((cat) => (
+                              <button
+                                key={cat.value}
+                                ref={(el) => (categoryRefs.current[cat.value] = el)}
+                                onClick={() => setSelectedCategory(cat.value)}
+                                className={clsx(
+                                  'flex items-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-all duration-200',
+                                  selectedCategory === cat.value
+                                    ? 'text-blue-600 dark:text-blue-400'
+                                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/50 dark:hover:text-gray-200'
+                                )}
+                              >
+                                <span className="material-symbols-outlined text-lg">
+                                  {cat.icon}
+                                </span>
+                                {cat.label}
+                              </button>
+                            ))}
                           </div>
                         </div>
-                      </button>
 
-                      {/* Search - visible on desktop only */}
-                      <div ref={searchRef} className="relative hidden items-center lg:flex">
-                        {!isSearchOpen && (
-                          <button
-                            onClick={() => setIsSearchOpen(true)}
-                            className="relative z-10 flex size-10 items-center justify-center rounded-full text-gray-400 transition-all duration-150 hover:bg-gray-100 active:scale-95 dark:text-gray-500 dark:hover:bg-white/5"
-                            aria-label="Search"
-                          >
-                            <span className="material-symbols-outlined text-xl font-bold">
-                              search
-                            </span>
-                          </button>
-                        )}
-                        <input
-                          type="text"
-                          placeholder="Search templates..."
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                          className={`absolute right-0 h-10 rounded-full border border-gray-200 bg-gray-100 pl-4 pr-10 text-sm text-gray-900 transition-all duration-300 ease-out placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30 dark:border-gray-700 dark:bg-gray-800/50 dark:text-white ${
-                            isSearchOpen ? 'w-64 opacity-100' : 'pointer-events-none w-10 opacity-0'
-                          }`}
-                          autoFocus={isSearchOpen}
-                        />
-                        {isSearchOpen && (
-                          <button
-                            onClick={() => {
-                              setSearchQuery('')
-                              setIsSearchOpen(false)
-                            }}
-                            className="absolute right-1 z-10 flex size-8 items-center justify-center rounded-full text-gray-400 transition-all duration-150 hover:bg-gray-200 dark:text-gray-500 dark:hover:bg-gray-700"
-                            aria-label="Close search"
-                          >
-                            <span className="material-symbols-outlined text-base">close</span>
-                          </button>
-                        )}
+                        {/* Close button */}
+                        <button
+                          onMouseDown={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                          }}
+                          onClick={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            onClose()
+                          }}
+                          className="pointer-events-auto flex size-10 items-center justify-center rounded-full text-gray-400 transition-all duration-150 hover:bg-gray-100 active:scale-95 dark:text-gray-500 dark:hover:bg-white/5"
+                          aria-label="Close"
+                        >
+                          <span className="material-symbols-outlined text-xl font-bold">close</span>
+                        </button>
                       </div>
-
-                      {/* Category Filter Tabs - desktop only */}
-                      <div className="relative hidden lg:block">
-                        <div className="scrollbar-hide relative flex items-center gap-2 overflow-x-auto pb-2">
-                          {/* Animated sliding indicator */}
-                          <motion.div
-                            className="absolute bottom-2 h-0.5 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600"
-                            animate={{
-                              left: indicatorStyle.left,
-                              width: indicatorStyle.width,
-                            }}
-                            transition={{
-                              type: 'spring',
-                              stiffness: 380,
-                              damping: 30,
-                            }}
-                          />
-
-                          {categories.map((cat) => (
-                            <button
-                              key={cat.value}
-                              ref={(el) => (categoryRefs.current[cat.value] = el)}
-                              onClick={() => setSelectedCategory(cat.value)}
-                              className={clsx(
-                                'flex items-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-all duration-200',
-                                selectedCategory === cat.value
-                                  ? 'text-blue-600 dark:text-blue-400'
-                                  : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/50 dark:hover:text-gray-200'
-                              )}
-                            >
-                              <span className="material-symbols-outlined text-lg">{cat.icon}</span>
-                              {cat.label}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Close button */}
-                      <button
-                        onMouseDown={(e) => {
-                          e.preventDefault()
-                          e.stopPropagation()
-                        }}
-                        onClick={(e) => {
-                          e.preventDefault()
-                          e.stopPropagation()
-                          onClose()
-                        }}
-                        className="pointer-events-auto flex size-10 items-center justify-center rounded-full text-gray-400 transition-all duration-150 hover:bg-gray-100 active:scale-95 dark:text-gray-500 dark:hover:bg-white/5"
-                        aria-label="Close"
-                      >
-                        <span className="material-symbols-outlined text-xl font-bold">close</span>
-                      </button>
                     </div>
                   </div>
-                </div>
 
-                {/* Content - Template Grid */}
-                <div className="relative z-10 flex-1 overflow-y-auto p-4 sm:p-8">
-                  {filteredTemplates.length === 0 ? (
-                    <div className="flex h-full flex-col items-center justify-center text-center">
-                      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 sm:h-20 sm:w-20">
-                        <span className="material-symbols-outlined text-3xl text-gray-400 sm:text-4xl">
-                          search_off
-                        </span>
+                  {/* Content - Template Grid */}
+                  <div className="relative z-10 flex-1 overflow-y-auto p-4 sm:p-8">
+                    {filteredTemplates.length === 0 ? (
+                      <div className="flex h-full flex-col items-center justify-center text-center">
+                        <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 sm:h-20 sm:w-20">
+                          <span className="material-symbols-outlined text-3xl text-gray-400 sm:text-4xl">
+                            search_off
+                          </span>
+                        </div>
+                        <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-white sm:text-xl">
+                          No templates found
+                        </h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 sm:text-base">
+                          Try adjusting your search or filter
+                        </p>
                       </div>
-                      <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-white sm:text-xl">
-                        No templates found
-                      </h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 sm:text-base">
-                        Try adjusting your search or filter
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
-                      {filteredTemplates.map((template) => (
-                        <LibraryCategoryTemplateCard
-                          key={template.id}
-                          template={template}
-                          onClick={() => handleTemplateClick(template)}
-                        />
-                      ))}
-                    </div>
-                  )}
+                    ) : (
+                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
+                        {filteredTemplates.map((template) => (
+                          <LibraryCategoryTemplateCard
+                            key={template.id}
+                            template={template}
+                            onClick={() => handleTemplateClick(template)}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            </motion.div>
-          </div>
-        </>
-      )}
+              </motion.div>
+            </div>
+          </>
+        )}
       </AnimatePresence>
 
       {/* Preview Modal */}

@@ -26,11 +26,8 @@ jobs:
 
       - run: npm ci
 
-      # TODO: re-enable `npm run format:check` once the codebase is
-      # formatted (374 files out of sync). This is a follow-up to the
-      # debt-ledger burn-down in Phase 3.
-      # - name: Prettier format check
-      #   run: npm run format:check
+      - name: Prettier format check
+        run: npm run format:check
 
       - name: Typecheck
         run: npm run typecheck

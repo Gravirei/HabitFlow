@@ -19,7 +19,7 @@ describe.skip('Filter Visibility Feature', () => {
     dateRange: true,
     duration: true,
     completion: true,
-    search: true
+    search: true,
   }
 
   describe('FilterSettingsModal Component', () => {
@@ -76,9 +76,9 @@ describe.skip('Filter Visibility Feature', () => {
         />
       )
 
-      const closeButton = screen.getAllByRole('button').find(btn =>
-        btn.querySelector('.material-symbols-outlined')?.textContent === 'close'
-      )
+      const closeButton = screen
+        .getAllByRole('button')
+        .find((btn) => btn.querySelector('.material-symbols-outlined')?.textContent === 'close')
 
       if (closeButton) {
         fireEvent.click(closeButton)
@@ -100,15 +100,15 @@ describe.skip('Filter Visibility Feature', () => {
         />
       )
 
-      const toggleButtons = screen.getAllByRole('button').filter(btn =>
-        btn.className.includes('rounded-full')
-      )
+      const toggleButtons = screen
+        .getAllByRole('button')
+        .filter((btn) => btn.className.includes('rounded-full'))
 
       fireEvent.click(toggleButtons[0])
 
       expect(onVisibilityChange).toHaveBeenCalledWith({
         ...defaultVisibility,
-        search: false
+        search: false,
       })
     })
 
@@ -124,15 +124,15 @@ describe.skip('Filter Visibility Feature', () => {
         />
       )
 
-      const toggleButtons = screen.getAllByRole('button').filter(btn =>
-        btn.className.includes('rounded-full')
-      )
+      const toggleButtons = screen
+        .getAllByRole('button')
+        .filter((btn) => btn.className.includes('rounded-full'))
 
       fireEvent.click(toggleButtons[1])
 
       expect(onVisibilityChange).toHaveBeenCalledWith({
         ...defaultVisibility,
-        dateRange: false
+        dateRange: false,
       })
     })
 
@@ -148,15 +148,15 @@ describe.skip('Filter Visibility Feature', () => {
         />
       )
 
-      const toggleButtons = screen.getAllByRole('button').filter(btn =>
-        btn.className.includes('rounded-full')
-      )
+      const toggleButtons = screen
+        .getAllByRole('button')
+        .filter((btn) => btn.className.includes('rounded-full'))
 
       fireEvent.click(toggleButtons[2])
 
       expect(onVisibilityChange).toHaveBeenCalledWith({
         ...defaultVisibility,
-        duration: false
+        duration: false,
       })
     })
 
@@ -172,15 +172,15 @@ describe.skip('Filter Visibility Feature', () => {
         />
       )
 
-      const toggleButtons = screen.getAllByRole('button').filter(btn =>
-        btn.className.includes('rounded-full')
-      )
+      const toggleButtons = screen
+        .getAllByRole('button')
+        .filter((btn) => btn.className.includes('rounded-full'))
 
       fireEvent.click(toggleButtons[3])
 
       expect(onVisibilityChange).toHaveBeenCalledWith({
         ...defaultVisibility,
-        completion: false
+        completion: false,
       })
     })
   })
@@ -205,7 +205,7 @@ describe.skip('Filter Visibility Feature', () => {
         dateRange: true,
         duration: false,
         completion: true,
-        search: false
+        search: false,
       }
 
       render(
@@ -240,7 +240,7 @@ describe.skip('Filter Visibility Feature', () => {
         dateRange: false,
         duration: false,
         completion: false,
-        search: false
+        search: false,
       }
 
       render(
@@ -270,7 +270,7 @@ describe.skip('Filter Visibility Feature', () => {
       act(() => {
         result.current.setFilterVisibility({
           ...defaultVisibility,
-          search: false
+          search: false,
         })
       })
 
@@ -286,7 +286,7 @@ describe.skip('Filter Visibility Feature', () => {
         dateRange: false,
         duration: true,
         completion: false,
-        search: true
+        search: true,
       }
 
       localStorage.setItem(
@@ -470,7 +470,7 @@ describe.skip('Filter Visibility Feature', () => {
       )
 
       fireEvent.keyDown(document, { key: 'Escape' })
-      
+
       // Should close on ESC
       expect(true).toBe(true)
     })
@@ -480,14 +480,14 @@ describe.skip('Filter Visibility Feature', () => {
 // Helper functions for hook testing
 function renderHook<T>(hook: () => T) {
   const result: { current: T } = { current: undefined as any }
-  
+
   function TestComponent() {
     result.current = hook()
     return null
   }
 
   render(<TestComponent />)
-  
+
   return { result }
 }
 

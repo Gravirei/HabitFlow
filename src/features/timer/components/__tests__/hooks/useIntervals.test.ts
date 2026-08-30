@@ -64,8 +64,7 @@ describe('useIntervals', () => {
     it('should start with work interval', () => {
       const { result } = renderHook(() => useIntervals())
 
-      act(() => {
-      })
+      act(() => {})
 
       act(() => {
         result.current.startTimer()
@@ -1130,7 +1129,7 @@ describe('useIntervals', () => {
         vi.advanceTimersByTime(120100)
       })
       expect(result.current.currentInterval).toBe('break')
-      
+
       act(() => {
         vi.advanceTimersByTime(60100)
       })
@@ -1143,11 +1142,11 @@ describe('useIntervals', () => {
       })
       expect(result.current.currentInterval).toBe('break')
       expect(result.current.isActive).toBe(true)
-      
+
       act(() => {
         vi.advanceTimersByTime(60100)
       })
-      
+
       expect(result.current.isActive).toBe(false)
       expect(result.current.timeLeft).toBe(0)
     })
@@ -1156,10 +1155,12 @@ describe('useIntervals', () => {
   describe('Auto-Save on Session Completion', () => {
     it('should auto-save to history when session completes all target loops', () => {
       const mockOnSessionComplete = vi.fn()
-      
-      const { result } = renderHook(() => useIntervals({
-        onSessionComplete: mockOnSessionComplete
-      }))
+
+      const { result } = renderHook(() =>
+        useIntervals({
+          onSessionComplete: mockOnSessionComplete,
+        })
+      )
 
       act(() => {
         result.current.setWorkMinutes(1)
@@ -1173,16 +1174,24 @@ describe('useIntervals', () => {
       expect(mockOnSessionComplete).not.toHaveBeenCalled()
 
       // Complete 2 full cycles
-      act(() => { vi.advanceTimersByTime(60100) }) // Cycle 1 Work
-      expect(mockOnSessionComplete).not.toHaveBeenCalled()
-      
-      act(() => { vi.advanceTimersByTime(60100) }) // Cycle 1 Break
+      act(() => {
+        vi.advanceTimersByTime(60100)
+      }) // Cycle 1 Work
       expect(mockOnSessionComplete).not.toHaveBeenCalled()
 
-      act(() => { vi.advanceTimersByTime(60100) }) // Cycle 2 Work
+      act(() => {
+        vi.advanceTimersByTime(60100)
+      }) // Cycle 1 Break
       expect(mockOnSessionComplete).not.toHaveBeenCalled()
-      
-      act(() => { vi.advanceTimersByTime(60100) }) // Cycle 2 Break - Should auto-save
+
+      act(() => {
+        vi.advanceTimersByTime(60100)
+      }) // Cycle 2 Work
+      expect(mockOnSessionComplete).not.toHaveBeenCalled()
+
+      act(() => {
+        vi.advanceTimersByTime(60100)
+      }) // Cycle 2 Break - Should auto-save
 
       // Verify auto-save was called with correct parameters
       expect(mockOnSessionComplete).toHaveBeenCalledTimes(1)
@@ -1204,10 +1213,12 @@ describe('useIntervals', () => {
 
     it('should NOT auto-save when session is manually killed before completion', () => {
       const mockOnSessionComplete = vi.fn()
-      
-      const { result } = renderHook(() => useIntervals({
-        onSessionComplete: mockOnSessionComplete
-      }))
+
+      const { result } = renderHook(() =>
+        useIntervals({
+          onSessionComplete: mockOnSessionComplete,
+        })
+      )
 
       act(() => {
         result.current.setWorkMinutes(1)
@@ -1234,10 +1245,12 @@ describe('useIntervals', () => {
 
     it('should auto-save with correct data for multiple loops', () => {
       const mockOnSessionComplete = vi.fn()
-      
-      const { result } = renderHook(() => useIntervals({
-        onSessionComplete: mockOnSessionComplete
-      }))
+
+      const { result } = renderHook(() =>
+        useIntervals({
+          onSessionComplete: mockOnSessionComplete,
+        })
+      )
 
       act(() => {
         result.current.setWorkMinutes(1)
@@ -1250,8 +1263,12 @@ describe('useIntervals', () => {
 
       // Complete all 3 cycles
       for (let i = 0; i < 3; i++) {
-        act(() => { vi.advanceTimersByTime(60100) }) // Work
-        act(() => { vi.advanceTimersByTime(60100) }) // Break
+        act(() => {
+          vi.advanceTimersByTime(60100)
+        }) // Work
+        act(() => {
+          vi.advanceTimersByTime(60100)
+        }) // Break
       }
 
       expect(mockOnSessionComplete).toHaveBeenCalledTimes(1)
@@ -1294,10 +1311,12 @@ describe('useIntervals', () => {
 
     it('should NOT auto-save sessions with zero duration', () => {
       const mockOnSessionComplete = vi.fn()
-      
-      const { result } = renderHook(() => useIntervals({
-        onSessionComplete: mockOnSessionComplete
-      }))
+
+      const { result } = renderHook(() =>
+        useIntervals({
+          onSessionComplete: mockOnSessionComplete,
+        })
+      )
 
       act(() => {
         result.current.setWorkMinutes(0)

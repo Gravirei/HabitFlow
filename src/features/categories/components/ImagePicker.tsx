@@ -17,7 +17,12 @@ const CATEGORY_IMAGES: readonly { name: string; path: string }[] = [
   { name: 'Work', path: '/images/work_category_1765389575321.png' },
 ]
 
-export function ImagePicker({ value, onChange, label = 'Image (optional)', className }: ImagePickerProps) {
+export function ImagePicker({
+  value,
+  onChange,
+  label = 'Image (optional)',
+  className,
+}: ImagePickerProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -50,7 +55,9 @@ export function ImagePicker({ value, onChange, label = 'Image (optional)', class
   return (
     <div className={clsx('w-full', className)}>
       <div className="mb-2 flex items-center justify-between">
-        <label className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">{label}</label>
+        <label className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+          {label}
+        </label>
         {value && (
           <button
             type="button"
@@ -78,7 +85,7 @@ export function ImagePicker({ value, onChange, label = 'Image (optional)', class
             type="button"
             onClick={() => onChange(value)}
             className={clsx(
-              'relative aspect-video overflow-hidden rounded-xl border transition-colors duration-200 cursor-pointer',
+              'relative aspect-video cursor-pointer overflow-hidden rounded-xl border transition-colors duration-200',
               'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50',
               'border-primary ring-2 ring-primary/20'
             )}
@@ -111,9 +118,11 @@ export function ImagePicker({ value, onChange, label = 'Image (optional)', class
               type="button"
               onClick={() => onChange(img.path)}
               className={clsx(
-                'relative overflow-hidden rounded-xl border transition-colors duration-200 cursor-pointer',
+                'relative cursor-pointer overflow-hidden rounded-xl border transition-colors duration-200',
                 'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50',
-                isSelected ? 'border-primary ring-2 ring-primary/20' : 'border-gray-200 hover:border-gray-300 dark:border-white/10 dark:hover:border-white/20'
+                isSelected
+                  ? 'border-primary ring-2 ring-primary/20'
+                  : 'border-gray-200 hover:border-gray-300 dark:border-white/10 dark:hover:border-white/20'
               )}
               aria-pressed={isSelected}
               title={img.name}
@@ -129,7 +138,9 @@ export function ImagePicker({ value, onChange, label = 'Image (optional)', class
         })}
       </div>
 
-      <p className="mt-2 text-xs text-gray-400 dark:text-gray-500">Select a background image for your category card.</p>
+      <p className="mt-2 text-xs text-gray-400 dark:text-gray-500">
+        Select a background image for your category card.
+      </p>
     </div>
   )
 }

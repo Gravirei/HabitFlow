@@ -28,7 +28,7 @@ describe('useShareStore', () => {
 
     // Clear localStorage first
     localStorage.clear()
-    
+
     // Dynamic import to ensure fresh store after localStorage is ready
     vi.resetModules()
     const module = await import('@/features/timer/store/shareStore')
@@ -423,7 +423,7 @@ describe('useShareStore', () => {
 
       const state = useShareStore.getState()
       expect(state.teamMembers).toHaveLength(4)
-      expect(state.teamMembers.map(m => m.role)).toEqual(['owner', 'admin', 'member', 'viewer'])
+      expect(state.teamMembers.map((m) => m.role)).toEqual(['owner', 'admin', 'member', 'viewer'])
     })
   })
 
@@ -605,11 +605,18 @@ describe('useShareStore', () => {
       const { shareSession } = useShareStore.getState()
 
       act(() => {
-        shareSession('session-1', ['user@example.com'], 'view', '🎉 Check this out! <script>alert("hi")</script>')
+        shareSession(
+          'session-1',
+          ['user@example.com'],
+          'view',
+          '🎉 Check this out! <script>alert("hi")</script>'
+        )
       })
 
       const state = useShareStore.getState()
-      expect(state.sharedSessions[0].message).toBe('🎉 Check this out! <script>alert("hi")</script>')
+      expect(state.sharedSessions[0].message).toBe(
+        '🎉 Check this out! <script>alert("hi")</script>'
+      )
     })
 
     it('should handle empty session ids array in createShareLink', () => {

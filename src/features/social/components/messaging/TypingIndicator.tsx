@@ -30,7 +30,7 @@ export function TypingIndicator({ conversationId }: TypingIndicatorProps) {
     <div className="flex items-end gap-2 px-1" role="status" aria-live="polite">
       <span className="sr-only">{srText}</span>
 
-      <div className="rounded-[18px] rounded-bl-[6px] border border-white/[0.08] bg-white/[0.05] px-4 py-3 backdrop-blur-xl shadow-[0_18px_50px_rgba(0,0,0,0.25)]">
+      <div className="rounded-[18px] rounded-bl-[6px] border border-white/[0.08] bg-white/[0.05] px-4 py-3 shadow-[0_18px_50px_rgba(0,0,0,0.25)] backdrop-blur-xl">
         <div className="flex items-center gap-1.5" aria-hidden="true">
           {reduced ? (
             <span className="text-[12px] text-white/35">• • •</span>

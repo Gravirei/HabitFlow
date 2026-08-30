@@ -101,7 +101,11 @@ const DUMMY_CONVERSATIONS: Conversation[] = [
       senderAvatarUrl: DUMMY_USERS.sarah.avatar,
       type: 'nudge',
       text: 'Sent you a nudge!',
-      nudgeCard: { nudgeId: 'nudge-1', message: 'Time to get back on track!', cooldownExpiry: hours(-23) },
+      nudgeCard: {
+        nudgeId: 'nudge-1',
+        message: 'Time to get back on track!',
+        cooldownExpiry: hours(-23),
+      },
       reactions: [],
       deliveryStatus: 'delivered',
       createdAt: mins(45),
@@ -112,7 +116,13 @@ const DUMMY_CONVERSATIONS: Conversation[] = [
     id: 'conv-3',
     type: 'group',
     name: 'Morning Accountability',
-    memberIds: ['current-user', DUMMY_USERS.alex.id, DUMMY_USERS.sarah.id, DUMMY_USERS.mike.id, DUMMY_USERS.emma.id],
+    memberIds: [
+      'current-user',
+      DUMMY_USERS.alex.id,
+      DUMMY_USERS.sarah.id,
+      DUMMY_USERS.mike.id,
+      DUMMY_USERS.emma.id,
+    ],
     memberCount: 5,
     onlineCount: 3,
     createdBy: 'current-user',
@@ -129,8 +139,22 @@ const DUMMY_CONVERSATIONS: Conversation[] = [
       senderAvatarUrl: DUMMY_USERS.mike.avatar,
       type: 'habit_card',
       text: '',
-      habitCard: { habitId: 'h-1', habitName: 'Meditation', habitIcon: 'self_improvement', streakCount: 14, xpEarned: 50, completedAt: hours(1) },
-      reactions: [{ emoji: '🔥', count: 3, userIds: ['current-user', DUMMY_USERS.alex.id, DUMMY_USERS.emma.id], hasCurrentUser: true }],
+      habitCard: {
+        habitId: 'h-1',
+        habitName: 'Meditation',
+        habitIcon: 'self_improvement',
+        streakCount: 14,
+        xpEarned: 50,
+        completedAt: hours(1),
+      },
+      reactions: [
+        {
+          emoji: '🔥',
+          count: 3,
+          userIds: ['current-user', DUMMY_USERS.alex.id, DUMMY_USERS.emma.id],
+          hasCurrentUser: true,
+        },
+      ],
       deliveryStatus: 'read',
       createdAt: hours(1),
       isDeleted: false,
@@ -186,7 +210,14 @@ const DUMMY_CONVERSATIONS: Conversation[] = [
       senderAvatarUrl: '',
       type: 'badge_card',
       text: 'Early Bird',
-      badgeCard: { badgeId: 'b-1', badgeName: 'Early Bird', badgeIcon: 'wb_sunny', badgeRarity: 'rare', badgeDescription: 'Complete a habit before 7am for 7 days', isLevelUp: false },
+      badgeCard: {
+        badgeId: 'b-1',
+        badgeName: 'Early Bird',
+        badgeIcon: 'wb_sunny',
+        badgeRarity: 'rare',
+        badgeDescription: 'Complete a habit before 7am for 7 days',
+        isLevelUp: false,
+      },
       reactions: [{ emoji: '👏', count: 1, userIds: [DUMMY_USERS.emma.id], hasCurrentUser: false }],
       deliveryStatus: 'read',
       createdAt: hours(18),
@@ -213,7 +244,7 @@ const DUMMY_CONVERSATIONS: Conversation[] = [
       senderName: 'Jay Patel',
       senderAvatarUrl: DUMMY_USERS.jay.avatar,
       type: 'text',
-      text: 'Great session today everyone! Let\'s keep the streak going 🎯',
+      text: "Great session today everyone! Let's keep the streak going 🎯",
       reactions: [],
       deliveryStatus: 'read',
       createdAt: hours(26),
@@ -225,106 +256,289 @@ const DUMMY_CONVERSATIONS: Conversation[] = [
 const DUMMY_MESSAGES: Record<string, Message[]> = {
   'conv-1': [
     {
-      id: 'msg-1-1', conversationId: 'conv-1', senderId: 'current-user', senderName: 'You', senderAvatarUrl: '',
-      type: 'text', text: 'Hey Alex! How\'s the new habit plan going?', reactions: [],
-      deliveryStatus: 'read', createdAt: hours(2), isDeleted: false,
+      id: 'msg-1-1',
+      conversationId: 'conv-1',
+      senderId: 'current-user',
+      senderName: 'You',
+      senderAvatarUrl: '',
+      type: 'text',
+      text: "Hey Alex! How's the new habit plan going?",
+      reactions: [],
+      deliveryStatus: 'read',
+      createdAt: hours(2),
+      isDeleted: false,
     },
     {
-      id: 'msg-1-2', conversationId: 'conv-1', senderId: DUMMY_USERS.alex.id, senderName: 'Alex Chen', senderAvatarUrl: DUMMY_USERS.alex.avatar,
-      type: 'text', text: 'Going great! I\'ve been sticking to it for 5 days now.', reactions: [{ emoji: '🔥', count: 1, userIds: ['current-user'], hasCurrentUser: true }],
-      deliveryStatus: 'read', createdAt: hours(2) + '1', isDeleted: false,
+      id: 'msg-1-2',
+      conversationId: 'conv-1',
+      senderId: DUMMY_USERS.alex.id,
+      senderName: 'Alex Chen',
+      senderAvatarUrl: DUMMY_USERS.alex.avatar,
+      type: 'text',
+      text: "Going great! I've been sticking to it for 5 days now.",
+      reactions: [{ emoji: '🔥', count: 1, userIds: ['current-user'], hasCurrentUser: true }],
+      deliveryStatus: 'read',
+      createdAt: hours(2) + '1',
+      isDeleted: false,
     },
     {
-      id: 'msg-1-3', conversationId: 'conv-1', senderId: DUMMY_USERS.alex.id, senderName: 'Alex Chen', senderAvatarUrl: DUMMY_USERS.alex.avatar,
-      type: 'habit_card', text: '',
-      habitCard: { habitId: 'h-2', habitName: 'Read 30 minutes', habitIcon: 'menu_book', streakCount: 5, xpEarned: 35, completedAt: hours(1.5) },
-      reactions: [{ emoji: '👏', count: 1, userIds: ['current-user'], hasCurrentUser: true }, { emoji: '⭐', count: 1, userIds: ['current-user'], hasCurrentUser: true }],
-      deliveryStatus: 'read', createdAt: mins(90), isDeleted: false,
+      id: 'msg-1-3',
+      conversationId: 'conv-1',
+      senderId: DUMMY_USERS.alex.id,
+      senderName: 'Alex Chen',
+      senderAvatarUrl: DUMMY_USERS.alex.avatar,
+      type: 'habit_card',
+      text: '',
+      habitCard: {
+        habitId: 'h-2',
+        habitName: 'Read 30 minutes',
+        habitIcon: 'menu_book',
+        streakCount: 5,
+        xpEarned: 35,
+        completedAt: hours(1.5),
+      },
+      reactions: [
+        { emoji: '👏', count: 1, userIds: ['current-user'], hasCurrentUser: true },
+        { emoji: '⭐', count: 1, userIds: ['current-user'], hasCurrentUser: true },
+      ],
+      deliveryStatus: 'read',
+      createdAt: mins(90),
+      isDeleted: false,
     },
     {
-      id: 'msg-1-4', conversationId: 'conv-1', senderId: 'current-user', senderName: 'You', senderAvatarUrl: '',
-      type: 'text', text: 'That\'s amazing! Keep it up! 🙌',
-      reactions: [], deliveryStatus: 'read', createdAt: mins(30), isDeleted: false,
+      id: 'msg-1-4',
+      conversationId: 'conv-1',
+      senderId: 'current-user',
+      senderName: 'You',
+      senderAvatarUrl: '',
+      type: 'text',
+      text: "That's amazing! Keep it up! 🙌",
+      reactions: [],
+      deliveryStatus: 'read',
+      createdAt: mins(30),
+      isDeleted: false,
     },
     {
-      id: 'msg-1-5', conversationId: 'conv-1', senderId: DUMMY_USERS.alex.id, senderName: 'Alex Chen', senderAvatarUrl: DUMMY_USERS.alex.avatar,
-      type: 'text', text: 'Just finished my morning workout! 💪 Are you keeping up with yours?',
-      reactions: [], deliveryStatus: 'delivered', createdAt: mins(2), isDeleted: false,
+      id: 'msg-1-5',
+      conversationId: 'conv-1',
+      senderId: DUMMY_USERS.alex.id,
+      senderName: 'Alex Chen',
+      senderAvatarUrl: DUMMY_USERS.alex.avatar,
+      type: 'text',
+      text: 'Just finished my morning workout! 💪 Are you keeping up with yours?',
+      reactions: [],
+      deliveryStatus: 'delivered',
+      createdAt: mins(2),
+      isDeleted: false,
     },
   ],
   'conv-2': [
     {
-      id: 'msg-2-1', conversationId: 'conv-2', senderId: 'current-user', senderName: 'You', senderAvatarUrl: '',
-      type: 'text', text: 'Hi Sarah! Want to be accountability partners?',
-      reactions: [], deliveryStatus: 'read', createdAt: hours(5), isDeleted: false,
+      id: 'msg-2-1',
+      conversationId: 'conv-2',
+      senderId: 'current-user',
+      senderName: 'You',
+      senderAvatarUrl: '',
+      type: 'text',
+      text: 'Hi Sarah! Want to be accountability partners?',
+      reactions: [],
+      deliveryStatus: 'read',
+      createdAt: hours(5),
+      isDeleted: false,
     },
     {
-      id: 'msg-2-2', conversationId: 'conv-2', senderId: DUMMY_USERS.sarah.id, senderName: 'Sarah Kim', senderAvatarUrl: DUMMY_USERS.sarah.avatar,
-      type: 'badge_card', text: 'Consistency Champion',
-      badgeCard: { badgeId: 'b-2', badgeName: 'Consistency Champion', badgeIcon: 'emoji_events', badgeRarity: 'epic', badgeDescription: 'Maintain a 30-day streak', isLevelUp: true, levelFrom: 4, levelTo: 5, xpEarned: 200 },
-      reactions: [{ emoji: '🔥', count: 1, userIds: ['current-user'], hasCurrentUser: true }, { emoji: '🙌', count: 1, userIds: ['current-user'], hasCurrentUser: true }],
-      deliveryStatus: 'read', createdAt: hours(3), isDeleted: false,
+      id: 'msg-2-2',
+      conversationId: 'conv-2',
+      senderId: DUMMY_USERS.sarah.id,
+      senderName: 'Sarah Kim',
+      senderAvatarUrl: DUMMY_USERS.sarah.avatar,
+      type: 'badge_card',
+      text: 'Consistency Champion',
+      badgeCard: {
+        badgeId: 'b-2',
+        badgeName: 'Consistency Champion',
+        badgeIcon: 'emoji_events',
+        badgeRarity: 'epic',
+        badgeDescription: 'Maintain a 30-day streak',
+        isLevelUp: true,
+        levelFrom: 4,
+        levelTo: 5,
+        xpEarned: 200,
+      },
+      reactions: [
+        { emoji: '🔥', count: 1, userIds: ['current-user'], hasCurrentUser: true },
+        { emoji: '🙌', count: 1, userIds: ['current-user'], hasCurrentUser: true },
+      ],
+      deliveryStatus: 'read',
+      createdAt: hours(3),
+      isDeleted: false,
     },
     {
-      id: 'msg-2-3', conversationId: 'conv-2', senderId: DUMMY_USERS.sarah.id, senderName: 'Sarah Kim', senderAvatarUrl: DUMMY_USERS.sarah.avatar,
-      type: 'nudge', text: 'Sent you a nudge!',
-      nudgeCard: { nudgeId: 'nudge-1', message: 'Time to get back on track!', cooldownExpiry: hours(-23) },
-      reactions: [], deliveryStatus: 'delivered', createdAt: mins(45), isDeleted: false,
+      id: 'msg-2-3',
+      conversationId: 'conv-2',
+      senderId: DUMMY_USERS.sarah.id,
+      senderName: 'Sarah Kim',
+      senderAvatarUrl: DUMMY_USERS.sarah.avatar,
+      type: 'nudge',
+      text: 'Sent you a nudge!',
+      nudgeCard: {
+        nudgeId: 'nudge-1',
+        message: 'Time to get back on track!',
+        cooldownExpiry: hours(-23),
+      },
+      reactions: [],
+      deliveryStatus: 'delivered',
+      createdAt: mins(45),
+      isDeleted: false,
     },
   ],
   'conv-3': [
     {
-      id: 'msg-3-1', conversationId: 'conv-3', senderId: DUMMY_USERS.emma.id, senderName: 'Emma Davis', senderAvatarUrl: DUMMY_USERS.emma.avatar,
-      type: 'text', text: 'Good morning everyone! Who\'s done their morning routine?',
-      reactions: [], deliveryStatus: 'read', createdAt: hours(3), isDeleted: false,
+      id: 'msg-3-1',
+      conversationId: 'conv-3',
+      senderId: DUMMY_USERS.emma.id,
+      senderName: 'Emma Davis',
+      senderAvatarUrl: DUMMY_USERS.emma.avatar,
+      type: 'text',
+      text: "Good morning everyone! Who's done their morning routine?",
+      reactions: [],
+      deliveryStatus: 'read',
+      createdAt: hours(3),
+      isDeleted: false,
     },
     {
-      id: 'msg-3-2', conversationId: 'conv-3', senderId: 'current-user', senderName: 'You', senderAvatarUrl: '',
-      type: 'text', text: 'Already done! ✅ Meditation + journaling',
-      reactions: [{ emoji: '🔥', count: 2, userIds: [DUMMY_USERS.alex.id, DUMMY_USERS.emma.id], hasCurrentUser: false }],
-      deliveryStatus: 'read', createdAt: hours(2.5), isDeleted: false,
+      id: 'msg-3-2',
+      conversationId: 'conv-3',
+      senderId: 'current-user',
+      senderName: 'You',
+      senderAvatarUrl: '',
+      type: 'text',
+      text: 'Already done! ✅ Meditation + journaling',
+      reactions: [
+        {
+          emoji: '🔥',
+          count: 2,
+          userIds: [DUMMY_USERS.alex.id, DUMMY_USERS.emma.id],
+          hasCurrentUser: false,
+        },
+      ],
+      deliveryStatus: 'read',
+      createdAt: hours(2.5),
+      isDeleted: false,
     },
     {
-      id: 'msg-3-3', conversationId: 'conv-3', senderId: DUMMY_USERS.alex.id, senderName: 'Alex Chen', senderAvatarUrl: DUMMY_USERS.alex.avatar,
-      type: 'text', text: 'Nice! I just finished my yoga session',
-      reactions: [], deliveryStatus: 'read', createdAt: hours(2), isDeleted: false,
+      id: 'msg-3-3',
+      conversationId: 'conv-3',
+      senderId: DUMMY_USERS.alex.id,
+      senderName: 'Alex Chen',
+      senderAvatarUrl: DUMMY_USERS.alex.avatar,
+      type: 'text',
+      text: 'Nice! I just finished my yoga session',
+      reactions: [],
+      deliveryStatus: 'read',
+      createdAt: hours(2),
+      isDeleted: false,
     },
     {
-      id: 'msg-3-4', conversationId: 'conv-3', senderId: DUMMY_USERS.mike.id, senderName: 'Mike Johnson', senderAvatarUrl: DUMMY_USERS.mike.avatar,
-      type: 'habit_card', text: '',
-      habitCard: { habitId: 'h-1', habitName: 'Meditation', habitIcon: 'self_improvement', streakCount: 14, xpEarned: 50, completedAt: hours(1) },
-      reactions: [{ emoji: '🔥', count: 3, userIds: ['current-user', DUMMY_USERS.alex.id, DUMMY_USERS.emma.id], hasCurrentUser: true }],
-      deliveryStatus: 'read', createdAt: hours(1), isDeleted: false,
+      id: 'msg-3-4',
+      conversationId: 'conv-3',
+      senderId: DUMMY_USERS.mike.id,
+      senderName: 'Mike Johnson',
+      senderAvatarUrl: DUMMY_USERS.mike.avatar,
+      type: 'habit_card',
+      text: '',
+      habitCard: {
+        habitId: 'h-1',
+        habitName: 'Meditation',
+        habitIcon: 'self_improvement',
+        streakCount: 14,
+        xpEarned: 50,
+        completedAt: hours(1),
+      },
+      reactions: [
+        {
+          emoji: '🔥',
+          count: 3,
+          userIds: ['current-user', DUMMY_USERS.alex.id, DUMMY_USERS.emma.id],
+          hasCurrentUser: true,
+        },
+      ],
+      deliveryStatus: 'read',
+      createdAt: hours(1),
+      isDeleted: false,
     },
   ],
   'conv-4': [
     {
-      id: 'msg-4-1', conversationId: 'conv-4', senderId: DUMMY_USERS.mike.id, senderName: 'Mike Johnson', senderAvatarUrl: DUMMY_USERS.mike.avatar,
-      type: 'text', text: 'Want to hit the gym together tomorrow?',
-      reactions: [], deliveryStatus: 'read', createdAt: hours(4), isDeleted: false,
+      id: 'msg-4-1',
+      conversationId: 'conv-4',
+      senderId: DUMMY_USERS.mike.id,
+      senderName: 'Mike Johnson',
+      senderAvatarUrl: DUMMY_USERS.mike.avatar,
+      type: 'text',
+      text: 'Want to hit the gym together tomorrow?',
+      reactions: [],
+      deliveryStatus: 'read',
+      createdAt: hours(4),
+      isDeleted: false,
     },
     {
-      id: 'msg-4-2', conversationId: 'conv-4', senderId: 'current-user', senderName: 'You', senderAvatarUrl: '',
-      type: 'text', text: 'See you at the gym tomorrow!',
+      id: 'msg-4-2',
+      conversationId: 'conv-4',
+      senderId: 'current-user',
+      senderName: 'You',
+      senderAvatarUrl: '',
+      type: 'text',
+      text: 'See you at the gym tomorrow!',
       reactions: [{ emoji: '💪', count: 1, userIds: [DUMMY_USERS.mike.id], hasCurrentUser: false }],
-      deliveryStatus: 'read', createdAt: hours(3), isDeleted: false,
+      deliveryStatus: 'read',
+      createdAt: hours(3),
+      isDeleted: false,
     },
   ],
   'conv-5': [
     {
-      id: 'msg-5-1', conversationId: 'conv-5', senderId: 'current-user', senderName: 'You', senderAvatarUrl: '',
-      type: 'badge_card', text: 'Early Bird',
-      badgeCard: { badgeId: 'b-1', badgeName: 'Early Bird', badgeIcon: 'wb_sunny', badgeRarity: 'rare', badgeDescription: 'Complete a habit before 7am for 7 days', isLevelUp: false },
+      id: 'msg-5-1',
+      conversationId: 'conv-5',
+      senderId: 'current-user',
+      senderName: 'You',
+      senderAvatarUrl: '',
+      type: 'badge_card',
+      text: 'Early Bird',
+      badgeCard: {
+        badgeId: 'b-1',
+        badgeName: 'Early Bird',
+        badgeIcon: 'wb_sunny',
+        badgeRarity: 'rare',
+        badgeDescription: 'Complete a habit before 7am for 7 days',
+        isLevelUp: false,
+      },
       reactions: [{ emoji: '👏', count: 1, userIds: [DUMMY_USERS.emma.id], hasCurrentUser: false }],
-      deliveryStatus: 'read', createdAt: hours(18), isDeleted: false,
+      deliveryStatus: 'read',
+      createdAt: hours(18),
+      isDeleted: false,
     },
   ],
   'conv-6': [
     {
-      id: 'msg-6-1', conversationId: 'conv-6', senderId: DUMMY_USERS.jay.id, senderName: 'Jay Patel', senderAvatarUrl: DUMMY_USERS.jay.avatar,
-      type: 'text', text: 'Great session today everyone! Let\'s keep the streak going 🎯',
-      reactions: [{ emoji: '🎯', count: 2, userIds: ['current-user', DUMMY_USERS.sarah.id], hasCurrentUser: true }],
-      deliveryStatus: 'read', createdAt: hours(26), isDeleted: false,
+      id: 'msg-6-1',
+      conversationId: 'conv-6',
+      senderId: DUMMY_USERS.jay.id,
+      senderName: 'Jay Patel',
+      senderAvatarUrl: DUMMY_USERS.jay.avatar,
+      type: 'text',
+      text: "Great session today everyone! Let's keep the streak going 🎯",
+      reactions: [
+        {
+          emoji: '🎯',
+          count: 2,
+          userIds: ['current-user', DUMMY_USERS.sarah.id],
+          hasCurrentUser: true,
+        },
+      ],
+      deliveryStatus: 'read',
+      createdAt: hours(26),
+      isDeleted: false,
     },
   ],
 }
@@ -346,17 +560,17 @@ interface MessagingState {
   conversationFilter: 'all' | 'direct' | 'groups' | 'unread'
 
   // Messages
-  messages: Record<string, Message[]>       // keyed by conversationId
+  messages: Record<string, Message[]> // keyed by conversationId
   totalUnread: number
 
   // Real-time
   typingUsers: Record<string, TypingUser[]> // keyed by conversationId
-  onlineUsers: Record<string, boolean>      // keyed by userId
+  onlineUsers: Record<string, boolean> // keyed by userId
   currentUserId: string | null
 
   // Loading
   isLoadingMessages: boolean
-  hasMoreMessages: Record<string, boolean>  // keyed by conversationId
+  hasMoreMessages: Record<string, boolean> // keyed by conversationId
 
   // UI
   shareTrayOpen: boolean
@@ -437,7 +651,6 @@ export const useMessagingStore = create<MessagingState>()(
       hasMoreMessages: {},
       shareTrayOpen: false,
 
-
       // ─── Conversation Actions ──────────────────────────────────────────
 
       loadConversations: async () => {
@@ -452,17 +665,12 @@ export const useMessagingStore = create<MessagingState>()(
 
         // Check if a direct conversation with this friendId already exists
         const existing = get().conversations.find(
-          (c) =>
-            c.type === 'direct' &&
-            c.memberIds.includes(friendId) &&
-            c.memberIds.includes(myId)
+          (c) => c.type === 'direct' && c.memberIds.includes(friendId) && c.memberIds.includes(myId)
         )
         if (existing) return existing.id
 
         // Look up friend from socialStore for display name
-        const friend = useSocialStore
-          .getState()
-          .friends.find((f) => f.userId === friendId)
+        const friend = useSocialStore.getState().friends.find((f) => f.userId === friendId)
 
         const newId = generateId()
         const now = new Date().toISOString()
@@ -495,10 +703,7 @@ export const useMessagingStore = create<MessagingState>()(
         const myId = get().currentUserId ?? 'current-user'
 
         // Enforce max members
-        const cappedMemberIds = memberIds.slice(
-          0,
-          MESSAGING_LIMITS.MAX_GROUP_MEMBERS
-        )
+        const cappedMemberIds = memberIds.slice(0, MESSAGING_LIMITS.MAX_GROUP_MEMBERS)
 
         const newId = generateId()
         const now = new Date().toISOString()
@@ -567,9 +772,7 @@ export const useMessagingStore = create<MessagingState>()(
             hasMoreMessages: remainingMore,
             typingUsers: remainingTyping,
             activeConversationId:
-              state.activeConversationId === id
-                ? null
-                : state.activeConversationId,
+              state.activeConversationId === id ? null : state.activeConversationId,
           }
         })
         get().recomputeUnread()
@@ -620,8 +823,7 @@ export const useMessagingStore = create<MessagingState>()(
       },
 
       loadMoreMessages: async (conversationId) => {
-        if (!get().hasMoreMessages[conversationId] || get().isLoadingMessages)
-          return
+        if (!get().hasMoreMessages[conversationId] || get().isLoadingMessages) return
         // TODO: Phase 3 — wire to Supabase pagination
       },
 
@@ -654,15 +856,10 @@ export const useMessagingStore = create<MessagingState>()(
         set((state) => ({
           messages: {
             ...state.messages,
-            [conversationId]: [
-              ...(state.messages[conversationId] ?? []),
-              message,
-            ],
+            [conversationId]: [...(state.messages[conversationId] ?? []), message],
           },
           conversations: state.conversations.map((c) =>
-            c.id === conversationId
-              ? { ...c, lastMessage: message, updatedAt: now }
-              : c
+            c.id === conversationId ? { ...c, lastMessage: message, updatedAt: now } : c
           ),
         }))
 
@@ -671,11 +868,8 @@ export const useMessagingStore = create<MessagingState>()(
           set((state) => ({
             messages: {
               ...state.messages,
-              [conversationId]: (state.messages[conversationId] ?? []).map(
-                (m) =>
-                  m.id === messageId
-                    ? { ...m, deliveryStatus: 'sent' as DeliveryStatus }
-                    : m
+              [conversationId]: (state.messages[conversationId] ?? []).map((m) =>
+                m.id === messageId ? { ...m, deliveryStatus: 'sent' as DeliveryStatus } : m
               ),
             },
           }))
@@ -721,15 +915,10 @@ export const useMessagingStore = create<MessagingState>()(
         set((state) => ({
           messages: {
             ...state.messages,
-            [conversationId]: [
-              ...(state.messages[conversationId] ?? []),
-              message,
-            ],
+            [conversationId]: [...(state.messages[conversationId] ?? []), message],
           },
           conversations: state.conversations.map((c) =>
-            c.id === conversationId
-              ? { ...c, lastMessage: message, updatedAt: now }
-              : c
+            c.id === conversationId ? { ...c, lastMessage: message, updatedAt: now } : c
           ),
         }))
 
@@ -738,11 +927,8 @@ export const useMessagingStore = create<MessagingState>()(
           set((state) => ({
             messages: {
               ...state.messages,
-              [conversationId]: (state.messages[conversationId] ?? []).map(
-                (m) =>
-                  m.id === messageId
-                    ? { ...m, deliveryStatus: 'sent' as DeliveryStatus }
-                    : m
+              [conversationId]: (state.messages[conversationId] ?? []).map((m) =>
+                m.id === messageId ? { ...m, deliveryStatus: 'sent' as DeliveryStatus } : m
               ),
             },
           }))
@@ -790,15 +976,10 @@ export const useMessagingStore = create<MessagingState>()(
         set((state) => ({
           messages: {
             ...state.messages,
-            [conversationId]: [
-              ...(state.messages[conversationId] ?? []),
-              message,
-            ],
+            [conversationId]: [...(state.messages[conversationId] ?? []), message],
           },
           conversations: state.conversations.map((c) =>
-            c.id === conversationId
-              ? { ...c, lastMessage: message, updatedAt: now }
-              : c
+            c.id === conversationId ? { ...c, lastMessage: message, updatedAt: now } : c
           ),
         }))
 
@@ -807,11 +988,8 @@ export const useMessagingStore = create<MessagingState>()(
           set((state) => ({
             messages: {
               ...state.messages,
-              [conversationId]: (state.messages[conversationId] ?? []).map(
-                (m) =>
-                  m.id === messageId
-                    ? { ...m, deliveryStatus: 'sent' as DeliveryStatus }
-                    : m
+              [conversationId]: (state.messages[conversationId] ?? []).map((m) =>
+                m.id === messageId ? { ...m, deliveryStatus: 'sent' as DeliveryStatus } : m
               ),
             },
           }))
@@ -837,9 +1015,7 @@ export const useMessagingStore = create<MessagingState>()(
         const nudgeCard: NudgeCardPayload = {
           nudgeId: generateId(),
           message: 'Time to get back on track!',
-          cooldownExpiry: new Date(
-            Date.now() + 24 * 60 * 60 * 1000
-          ).toISOString(),
+          cooldownExpiry: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
         }
 
         const message: Message = {
@@ -860,15 +1036,10 @@ export const useMessagingStore = create<MessagingState>()(
         set((state) => ({
           messages: {
             ...state.messages,
-            [conversationId]: [
-              ...(state.messages[conversationId] ?? []),
-              message,
-            ],
+            [conversationId]: [...(state.messages[conversationId] ?? []), message],
           },
           conversations: state.conversations.map((c) =>
-            c.id === conversationId
-              ? { ...c, lastMessage: message, updatedAt: now }
-              : c
+            c.id === conversationId ? { ...c, lastMessage: message, updatedAt: now } : c
           ),
         }))
 
@@ -877,11 +1048,8 @@ export const useMessagingStore = create<MessagingState>()(
           set((state) => ({
             messages: {
               ...state.messages,
-              [conversationId]: (state.messages[conversationId] ?? []).map(
-                (m) =>
-                  m.id === messageId
-                    ? { ...m, deliveryStatus: 'sent' as DeliveryStatus }
-                    : m
+              [conversationId]: (state.messages[conversationId] ?? []).map((m) =>
+                m.id === messageId ? { ...m, deliveryStatus: 'sent' as DeliveryStatus } : m
               ),
             },
           }))
@@ -904,13 +1072,11 @@ export const useMessagingStore = create<MessagingState>()(
         // Soft-delete: mark isDeleted=true so MessageBubble can show a placeholder.
         // Hard removal would break conversation history and reply threading.
         set((state) => {
-          const updatedMessages = (state.messages[conversationId] ?? []).map(
-            (m) => m.id === messageId ? { ...m, isDeleted: true } : m
+          const updatedMessages = (state.messages[conversationId] ?? []).map((m) =>
+            m.id === messageId ? { ...m, isDeleted: true } : m
           )
           // Update lastMessage only if the deleted message was the last one
-          const lastVisible = [...updatedMessages]
-            .reverse()
-            .find((m) => !m.isDeleted)
+          const lastVisible = [...updatedMessages].reverse().find((m) => !m.isDeleted)
 
           return {
             messages: {
@@ -918,9 +1084,7 @@ export const useMessagingStore = create<MessagingState>()(
               [conversationId]: updatedMessages,
             },
             conversations: state.conversations.map((c) =>
-              c.id === conversationId
-                ? { ...c, lastMessage: lastVisible }
-                : c
+              c.id === conversationId ? { ...c, lastMessage: lastVisible } : c
             ),
           }
         })
@@ -953,15 +1117,11 @@ export const useMessagingStore = create<MessagingState>()(
           const newMessages = { ...state.messages }
 
           for (const convId of Object.keys(newMessages)) {
-            const msgIndex = newMessages[convId].findIndex(
-              (m) => m.id === messageId
-            )
+            const msgIndex = newMessages[convId].findIndex((m) => m.id === messageId)
             if (msgIndex === -1) continue
 
             const msg = newMessages[convId][msgIndex]
-            const existingReaction = msg.reactions.find(
-              (r) => r.emoji === emoji
-            )
+            const existingReaction = msg.reactions.find((r) => r.emoji === emoji)
 
             let updatedReactions: MessageReaction[]
 
@@ -1010,15 +1170,11 @@ export const useMessagingStore = create<MessagingState>()(
           const newMessages = { ...state.messages }
 
           for (const convId of Object.keys(newMessages)) {
-            const msgIndex = newMessages[convId].findIndex(
-              (m) => m.id === messageId
-            )
+            const msgIndex = newMessages[convId].findIndex((m) => m.id === messageId)
             if (msgIndex === -1) continue
 
             const msg = newMessages[convId][msgIndex]
-            const existingReaction = msg.reactions.find(
-              (r) => r.emoji === emoji
-            )
+            const existingReaction = msg.reactions.find((r) => r.emoji === emoji)
             if (!existingReaction) return state
 
             let updatedReactions: MessageReaction[]
@@ -1184,7 +1340,7 @@ export const useMessagingStore = create<MessagingState>()(
           const presence = presenceStates.find((ps) => ps.userId === friend.userId)
           if (!presence) return friend
 
-          const newStatus = presence.isOnline ? 'active' as const : 'away' as const
+          const newStatus = presence.isOnline ? ('active' as const) : ('away' as const)
           if (friend.status === newStatus) return friend
 
           needsUpdate = true
@@ -1201,8 +1357,7 @@ export const useMessagingStore = create<MessagingState>()(
       startRealtimeForConversation: (conversationId) => {
         rtSubscribe(conversationId, {
           onMessage: (msg) => get().onMessageReceived(conversationId, msg),
-          onStatusUpdate: (msgId, status) =>
-            get().onStatusUpdate(conversationId, msgId, status),
+          onStatusUpdate: (msgId, status) => get().onStatusUpdate(conversationId, msgId, status),
         })
         subscribeToTyping(conversationId, (user, isTyping) =>
           get().onTypingUpdate(conversationId, user, isTyping)
@@ -1245,9 +1400,7 @@ export const useMessagingStore = create<MessagingState>()(
       updateGroupName: async (conversationId, name) => {
         set((state) => ({
           conversations: state.conversations.map((c) =>
-            c.id === conversationId && c.type === 'group'
-              ? { ...c, name }
-              : c
+            c.id === conversationId && c.type === 'group' ? { ...c, name } : c
           ),
         }))
       },
@@ -1259,8 +1412,7 @@ export const useMessagingStore = create<MessagingState>()(
 
             const existingIds = new Set(c.memberIds)
             const newIds = userIds.filter((id) => !existingIds.has(id))
-            const availableSlots =
-              MESSAGING_LIMITS.MAX_GROUP_MEMBERS - c.memberIds.length
+            const availableSlots = MESSAGING_LIMITS.MAX_GROUP_MEMBERS - c.memberIds.length
             const idsToAdd = newIds.slice(0, Math.max(0, availableSlots))
 
             if (idsToAdd.length === 0) return c
@@ -1291,24 +1443,17 @@ export const useMessagingStore = create<MessagingState>()(
 
       leaveGroup: async (conversationId) => {
         set((state) => {
-          const { [conversationId]: _removedMessages, ...remainingMessages } =
-            state.messages
-          const { [conversationId]: _removedMore, ...remainingMore } =
-            state.hasMoreMessages
-          const { [conversationId]: _removedTyping, ...remainingTyping } =
-            state.typingUsers
+          const { [conversationId]: _removedMessages, ...remainingMessages } = state.messages
+          const { [conversationId]: _removedMore, ...remainingMore } = state.hasMoreMessages
+          const { [conversationId]: _removedTyping, ...remainingTyping } = state.typingUsers
 
           return {
-            conversations: state.conversations.filter(
-              (c) => c.id !== conversationId
-            ),
+            conversations: state.conversations.filter((c) => c.id !== conversationId),
             messages: remainingMessages,
             hasMoreMessages: remainingMore,
             typingUsers: remainingTyping,
             activeConversationId:
-              state.activeConversationId === conversationId
-                ? null
-                : state.activeConversationId,
+              state.activeConversationId === conversationId ? null : state.activeConversationId,
           }
         })
         get().recomputeUnread()
@@ -1357,9 +1502,8 @@ export const useMessagingStore = create<MessagingState>()(
         const cappedMessages: typeof state.messages = {}
         for (const convId of Object.keys(state.messages)) {
           const msgs = state.messages[convId]
-          cappedMessages[convId] = msgs.length > MAX_PERSISTED_MESSAGES
-            ? msgs.slice(-MAX_PERSISTED_MESSAGES)
-            : msgs
+          cappedMessages[convId] =
+            msgs.length > MAX_PERSISTED_MESSAGES ? msgs.slice(-MAX_PERSISTED_MESSAGES) : msgs
         }
 
         return {

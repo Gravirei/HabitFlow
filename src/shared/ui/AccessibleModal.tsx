@@ -35,7 +35,7 @@ export const AccessibleModal: React.FC<AccessibleModalProps> = ({
   const prefersReducedMotion = useReducedMotion()
   const titleId = useId()
   const descId = useId()
-  
+
   // Focus trap and keyboard handling
   const containerRef = useFocusTrap<HTMLDivElement>({
     isActive: isOpen,
@@ -59,7 +59,7 @@ export const AccessibleModal: React.FC<AccessibleModalProps> = ({
     <>
       {/* Backdrop */}
       <div
-        className={`fixed inset-0 bg-black/80 backdrop-blur-xl z-50 ${!prefersReducedMotion && 'animate-in fade-in duration-300'}`}
+        className={`fixed inset-0 z-50 bg-black/80 backdrop-blur-xl ${!prefersReducedMotion && 'animate-in fade-in duration-300'}`}
         onClick={(e) => {
           e.stopPropagation()
           if (closeOnBackdropClick) {
@@ -70,8 +70,8 @@ export const AccessibleModal: React.FC<AccessibleModalProps> = ({
       />
 
       {/* Modal Container */}
-      <div 
-        className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-8 pointer-events-none"
+      <div
+        className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-8"
         role="presentation"
       >
         {/* Modal Dialog */}
@@ -81,7 +81,7 @@ export const AccessibleModal: React.FC<AccessibleModalProps> = ({
           aria-modal="true"
           aria-labelledby={titleId}
           aria-describedby={description ? descId : undefined}
-          className={`relative w-full ${maxWidth || sizeClasses[size]} bg-gradient-to-br from-gray-900 via-black to-gray-900 rounded-3xl shadow-2xl border border-white/10 pointer-events-auto ${!prefersReducedMotion && 'animate-in zoom-in-95 fade-in duration-300'} ${className}`}
+          className={`relative w-full ${maxWidth || sizeClasses[size]} pointer-events-auto rounded-3xl border border-white/10 bg-gradient-to-br from-gray-900 via-black to-gray-900 shadow-2xl ${!prefersReducedMotion && 'animate-in zoom-in-95 fade-in duration-300'} ${className}`}
           onClick={(e) => e.stopPropagation()}
         >
           {/* Visually Hidden Title (always present for screen readers) */}
@@ -107,7 +107,7 @@ export const AccessibleModal: React.FC<AccessibleModalProps> = ({
 /**
  * Screen Reader Only utility class
  * Add this to your global CSS if not already present:
- * 
+ *
  * .sr-only {
  *   position: absolute;
  *   width: 1px;

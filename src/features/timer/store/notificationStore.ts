@@ -5,40 +5,43 @@
 
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { NotificationSettings, NotificationHistory } from '@/features/timer/components/premium-history/notifications/types'
+import type {
+  NotificationSettings,
+  NotificationHistory,
+} from '@/features/timer/components/premium-history/notifications/types'
 
 const DEFAULT_SETTINGS: NotificationSettings = {
   enabled: false,
-  
+
   sessionReminders: {
     enabled: false,
     times: ['09:00', '14:00', '20:00'],
     message: 'Time to focus! Start a timer session.',
   },
-  
+
   goalProgress: {
     enabled: false,
     frequency: 'daily',
     time: '20:00',
   },
-  
+
   streakReminder: {
     enabled: false,
     time: '21:00',
     message: 'Keep your streak alive! Use the timer today.',
   },
-  
+
   breakReminder: {
     enabled: false,
     afterMinutes: 60,
-    message: 'Take a break! You\'ve been working for a while.',
+    message: "Take a break! You've been working for a while.",
   },
-  
+
   dailySummary: {
     enabled: false,
     time: '22:00',
   },
-  
+
   browserNotifications: {
     enabled: false,
     sound: true,
@@ -55,21 +58,21 @@ interface NotificationState {
   history: NotificationHistory[]
   permissionGranted: boolean
   quietHours: QuietHours
-  
+
   updateSettings: (settings: Partial<NotificationSettings>) => void
   resetSettings: () => void
-  
+
   setPermissionGranted: (granted: boolean) => void
-  
+
   addToHistory: (entry: NotificationHistory) => void
   clearHistory: () => void
-  
+
   getSettings: () => NotificationSettings
-  
+
   // Session reminders
   enableSessionReminders: () => void
   disableSessionReminders: () => void
-  
+
   // Quiet hours
   setQuietHours: (hours: QuietHours) => void
   isQuietHours: (hour: number) => boolean
@@ -176,12 +179,12 @@ export const useNotificationStore = create<NotificationState>()(
         const { quietHours } = get()
         const startHour = parseInt(quietHours.start.split(':')[0], 10)
         const endHour = parseInt(quietHours.end.split(':')[0], 10)
-        
+
         // Handle overnight quiet hours (e.g., 22:00 to 08:00)
         if (startHour > endHour) {
           return hour >= startHour || hour < endHour
         }
-        
+
         return hour >= startHour && hour < endHour
       },
     }),

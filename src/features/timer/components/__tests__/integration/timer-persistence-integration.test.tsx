@@ -1,7 +1,7 @@
 // @ts-nocheck
 /**
  * Timer Persistence Integration Tests
- * 
+ *
  * End-to-end tests for timer persistence functionality across all modes
  */
 
@@ -19,9 +19,9 @@ vi.mock('../../hooks/useTimerSettings', () => ({
       soundEnabled: false,
       vibrationEnabled: false,
       notificationsEnabled: false,
-      keyboardShortcutsEnabled: false
-    }
-  })
+      keyboardShortcutsEnabled: false,
+    },
+  }),
 }))
 
 describe('Timer Persistence Integration', () => {
@@ -30,7 +30,7 @@ describe('Timer Persistence Integration', () => {
   beforeEach(() => {
     // Mock localStorage
     mockLocalStorage = {}
-    
+
     // Create a complete localStorage mock
     const localStorageMock = {
       getItem: vi.fn((key: string) => mockLocalStorage[key] || null),
@@ -44,9 +44,9 @@ describe('Timer Persistence Integration', () => {
         mockLocalStorage = {}
       }),
       length: 0,
-      key: vi.fn(() => null)
+      key: vi.fn(() => null),
     }
-    
+
     // Use vi.stubGlobal for proper global mocking in vitest
     vi.stubGlobal('localStorage', localStorageMock)
 
@@ -67,7 +67,7 @@ describe('Timer Persistence Integration', () => {
   describe('Countdown Timer Persistence', () => {
     it('should persist and restore running countdown timer', async () => {
       // Step 1: Start a timer
-      const { result: timer1, unmount: unmount1 } = renderHook(() => 
+      const { result: timer1, unmount: unmount1 } = renderHook(() =>
         useCountdown({ onSessionComplete: vi.fn(), onTimerComplete: vi.fn() })
       )
 
@@ -97,7 +97,7 @@ describe('Timer Persistence Integration', () => {
         totalDuration: timer1.current.totalDuration,
         pausedElapsed: timer1.current.pausedElapsed,
         savedAt: Date.now(),
-        version: 1
+        version: 1,
       })
 
       // Verify state was saved
@@ -109,7 +109,7 @@ describe('Timer Persistence Integration', () => {
       unmount1()
 
       // Step 2: Simulate page refresh - create new hook instance
-      const { result: timer2 } = renderHook(() => 
+      const { result: timer2 } = renderHook(() =>
         useCountdown({ onSessionComplete: vi.fn(), onTimerComplete: vi.fn() })
       )
 
@@ -130,7 +130,7 @@ describe('Timer Persistence Integration', () => {
     })
 
     it('should persist paused countdown timer', () => {
-      const { result, unmount } = renderHook(() => 
+      const { result, unmount } = renderHook(() =>
         useCountdown({ onSessionComplete: vi.fn(), onTimerComplete: vi.fn() })
       )
 
@@ -159,7 +159,7 @@ describe('Timer Persistence Integration', () => {
         totalDuration: result.current.totalDuration,
         pausedElapsed: result.current.pausedElapsed,
         savedAt: Date.now(),
-        version: 1
+        version: 1,
       })
 
       // Verify saved state
@@ -170,7 +170,7 @@ describe('Timer Persistence Integration', () => {
       unmount()
 
       // Restore
-      const { result: restored } = renderHook(() => 
+      const { result: restored } = renderHook(() =>
         useCountdown({ onSessionComplete: vi.fn(), onTimerComplete: vi.fn() })
       )
 
@@ -185,7 +185,7 @@ describe('Timer Persistence Integration', () => {
     })
 
     it('should not restore completed countdown timer', () => {
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         useCountdown({ onSessionComplete: vi.fn(), onTimerComplete: vi.fn() })
       )
 
@@ -235,7 +235,7 @@ describe('Timer Persistence Integration', () => {
         pausedElapsed: timer1.current.pausedElapsed,
         laps: timer1.current.laps,
         savedAt: Date.now(),
-        version: 1
+        version: 1,
       })
 
       // Verify state was saved
@@ -286,7 +286,7 @@ describe('Timer Persistence Integration', () => {
         pausedElapsed: result.current.pausedElapsed,
         laps: result.current.laps,
         savedAt: Date.now(),
-        version: 1
+        version: 1,
       })
 
       // Verify and unmount
@@ -310,7 +310,7 @@ describe('Timer Persistence Integration', () => {
 
   describe('Intervals Timer Persistence', () => {
     it('should persist and restore intervals timer', () => {
-      const { result: timer1, unmount } = renderHook(() => 
+      const { result: timer1, unmount } = renderHook(() =>
         useIntervals({ onSessionComplete: vi.fn(), onTimerComplete: vi.fn() })
       )
 
@@ -345,7 +345,7 @@ describe('Timer Persistence Integration', () => {
         breakDuration: timer1.current.breakMinutes * 60000,
         pausedElapsed: timer1.current.pausedElapsed,
         savedAt: Date.now(),
-        version: 1
+        version: 1,
       })
 
       // Verify state was saved
@@ -356,7 +356,7 @@ describe('Timer Persistence Integration', () => {
       unmount()
 
       // Restore
-      const { result: timer2 } = renderHook(() => 
+      const { result: timer2 } = renderHook(() =>
         useIntervals({ onSessionComplete: vi.fn(), onTimerComplete: vi.fn() })
       )
 
@@ -372,7 +372,7 @@ describe('Timer Persistence Integration', () => {
     })
 
     it('should persist interval progress correctly', () => {
-      const { result, unmount } = renderHook(() => 
+      const { result, unmount } = renderHook(() =>
         useIntervals({ onSessionComplete: vi.fn(), onTimerComplete: vi.fn() })
       )
 
@@ -389,7 +389,7 @@ describe('Timer Persistence Integration', () => {
 
       // Should be on break now or still on work depending on timing
       // Just verify we can save state at this point
-      
+
       // Manually save state
       timerPersistence.saveState({
         mode: 'Intervals',
@@ -403,17 +403,17 @@ describe('Timer Persistence Integration', () => {
         breakDuration: result.current.breakMinutes * 60000,
         pausedElapsed: result.current.pausedElapsed,
         savedAt: Date.now(),
-        version: 1
+        version: 1,
       })
 
       const savedState = timerPersistence.loadState()
       expect(savedState).toBeTruthy()
-      
+
       // Store current interval before unmount for verification
       // const currentIntervalBeforeUnmount = result.current.currentInterval
       unmount()
 
-      const { result: restored } = renderHook(() => 
+      const { result: restored } = renderHook(() =>
         useIntervals({ onSessionComplete: vi.fn(), onTimerComplete: vi.fn() })
       )
 
@@ -436,14 +436,14 @@ describe('Timer Persistence Integration', () => {
       // Retrieve using the getActiveTimer method (which uses mocked getItem)
       const activeTimer = timerPersistence.getActiveTimer()
       expect(activeTimer).toBe('Countdown')
-      
+
       // Verify localStorage.setItem was called with correct args
       expect(localStorage.setItem).toHaveBeenCalledWith('flowmodoro_active_timer', 'Countdown')
     })
 
     it('should clear route when clearing state', () => {
       timerPersistence.saveActiveTimer('Stopwatch')
-      
+
       // Verify it was saved
       expect(timerPersistence.getActiveTimer()).toBe('Stopwatch')
 
@@ -458,7 +458,7 @@ describe('Timer Persistence Integration', () => {
 
   describe('Time Calculation Accuracy', () => {
     it('should accurately calculate time for countdown after delay', () => {
-      const { result, unmount } = renderHook(() => 
+      const { result, unmount } = renderHook(() =>
         useCountdown({ onSessionComplete: vi.fn(), onTimerComplete: vi.fn() })
       )
 
@@ -486,7 +486,7 @@ describe('Timer Persistence Integration', () => {
         totalDuration: result.current.totalDuration,
         pausedElapsed: result.current.pausedElapsed,
         savedAt: Date.now(),
-        version: 1
+        version: 1,
       })
 
       // Get saved state
@@ -500,7 +500,7 @@ describe('Timer Persistence Integration', () => {
       })
 
       // Restore
-      const { result: restored } = renderHook(() => 
+      const { result: restored } = renderHook(() =>
         useCountdown({ onSessionComplete: vi.fn(), onTimerComplete: vi.fn() })
       )
 
@@ -520,10 +520,10 @@ describe('Timer Persistence Integration', () => {
   describe('Multiple Timer Mode Independence', () => {
     it('should not mix states between different timer modes', () => {
       // Save Countdown state
-      const { result, unmount: unmount1 } = renderHook(() => 
+      const { result, unmount: unmount1 } = renderHook(() =>
         useCountdown({ onSessionComplete: vi.fn(), onTimerComplete: vi.fn() })
       )
-      
+
       // Start a timer and save state
       act(() => {
         result.current.setSelectedMinutes(5)
@@ -538,7 +538,7 @@ describe('Timer Persistence Integration', () => {
         totalDuration: result.current.totalDuration,
         pausedElapsed: result.current.pausedElapsed,
         savedAt: Date.now(),
-        version: 1
+        version: 1,
       })
 
       timerPersistence.saveActiveTimer('Countdown')
@@ -550,7 +550,7 @@ describe('Timer Persistence Integration', () => {
 
       // Stopwatch shouldn't be affected
       const { result: stopwatch } = renderHook(() => useStopwatch())
-      
+
       // Should start fresh, not restore Countdown state
       expect(stopwatch.current.isActive).toBe(false)
       expect(stopwatch.current.timeLeft).toBe(0)
@@ -560,7 +560,7 @@ describe('Timer Persistence Integration', () => {
   describe('Edge Cases', () => {
     it('should handle localStorage quota exceeded', () => {
       const consoleErrorSpy = vi.spyOn(console, 'error')
-      
+
       // Override the localStorage mock to throw on setItem
       const originalSetItem = localStorage.setItem
       localStorage.setItem = vi.fn(() => {
@@ -576,19 +576,19 @@ describe('Timer Persistence Integration', () => {
         totalDuration: 300000,
         pausedElapsed: 0,
         savedAt: Date.now(),
-        version: 1
+        version: 1,
       })
 
       // Should return false and log error
       expect(result).toBe(false)
       expect(consoleErrorSpy).toHaveBeenCalled()
-      
+
       // Restore the mock
       localStorage.setItem = originalSetItem
     })
 
     it('should handle rapid save/load cycles', () => {
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         useCountdown({ onSessionComplete: vi.fn(), onTimerComplete: vi.fn() })
       )
 
@@ -608,7 +608,7 @@ describe('Timer Persistence Integration', () => {
           totalDuration: result.current.totalDuration,
           pausedElapsed: result.current.pausedElapsed,
           savedAt: Date.now(),
-          version: 1
+          version: 1,
         })
 
         // Load state

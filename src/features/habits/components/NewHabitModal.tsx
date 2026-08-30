@@ -106,7 +106,7 @@ export function NewHabitModal() {
             role="dialog"
             aria-modal="true"
             aria-label="Create new habit"
-            className="relative z-10 flex w-full flex-col items-center transform-gpu will-change-transform"
+            className="relative z-10 flex w-full transform-gpu flex-col items-center will-change-transform"
             custom={reducedMotion}
             initial="enter"
             animate="center"
@@ -156,7 +156,7 @@ export function NewHabitModal() {
                     <button
                       type="button"
                       onClick={() => setConfirmingDiscard(false)}
-                      className="mt-5 w-full cursor-pointer rounded-full bg-gradient-to-r from-violet-500 to-purple-600 py-3 text-sm font-bold text-white shadow-lg shadow-violet-500/30 transition-all duration-200 hover:from-violet-600 hover:to-purple-700 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-violet-500"
+                      className="mt-5 w-full cursor-pointer rounded-full bg-gradient-to-r from-violet-500 to-purple-600 py-3 text-sm font-bold text-white shadow-lg shadow-violet-500/30 transition-all duration-200 hover:from-violet-600 hover:to-purple-700 focus-visible:ring-2 focus-visible:ring-violet-500 active:scale-[0.98]"
                     >
                       Keep editing
                     </button>
