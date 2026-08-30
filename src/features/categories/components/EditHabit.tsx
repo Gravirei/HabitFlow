@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import clsx from 'clsx'
@@ -71,7 +70,7 @@ export function EditHabit({ isOpen, onClose, habitId }: EditHabitProps) {
     setIconColorIndex(habit.iconColor ?? 0)
     setFrequency(habit.frequency)
     setGoal(habit.goal.toString())
-    setGoalPeriod(habit.goalPeriod)
+    setGoalPeriod(habit.goalPeriod as GoalPeriodType)
     setShowIconPicker(false)
     setWeeklyTimesPerWeek(habit.weeklyTimesPerWeek?.toString() || '')
     setWeeklyTimesSet(!!habit.weeklyTimesPerWeek)

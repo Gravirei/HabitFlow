@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import toast from 'react-hot-toast'
@@ -7,7 +6,7 @@ import { useIntegrationStore } from '../store/integrationStore'
 
 export function NotionSettings() {
   const connection = useIntegrationStore((s) => s.connections['notion'])
-  const { connect, disconnect, updateSettings, updateLastSynced, setStatus } = useIntegrationStore()
+  const { updateSettings, updateLastSynced } = useIntegrationStore()
 
   const [databases, setDatabases] = useState<Array<{ id: string; title: string }>>([])
   const [selectedDatabase, setSelectedDatabase] = useState<string>(
@@ -72,7 +71,7 @@ export function NotionSettings() {
 
     setIsExporting(true)
     try {
-      const habits = [] // TODO: Get habits from habit store
+      const habits: Parameters<typeof notionService.exportHabits>[2] = [] // TODO: Get habits from habit store
       const result = await notionService.exportHabits(
         connection.accessToken,
         selectedDatabase,
@@ -114,7 +113,7 @@ export function NotionSettings() {
     notionService.initiateAuth()
   }
 
-  const formatLastSynced = (timestamp?: string) => {
+  const formatLastSynced = (timestamp?: string | null) => {
     if (!timestamp) return 'Never'
     const date = new Date(timestamp)
     const now = new Date()
@@ -219,7 +218,7 @@ export function NotionSettings() {
                   <div>
                     <p className="text-sm font-semibold text-slate-300">Connected to Notion</p>
                     <p className="text-xs text-slate-500">
-                      Workspace: {notionIntegration?.workspaceId}
+                      Workspace: {connection.settings?.workspaceId as string}
                     </p>
                   </div>
                 </div>
@@ -229,7 +228,7 @@ export function NotionSettings() {
               </div>
               <p className="flex items-center gap-2 text-xs text-slate-400">
                 <span className="material-symbols-outlined text-sm">schedule</span>
-                Last synced: {formatLastSynced(notionIntegration?.lastSynced)}
+                Last synced: {formatLastSynced(connection.lastSyncedAt)}
               </p>
             </motion.div>
 

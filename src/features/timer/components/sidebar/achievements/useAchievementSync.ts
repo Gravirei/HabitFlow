@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * useAchievementSync Hook
  * Syncs achievements with timer history data in real-time
@@ -26,7 +25,7 @@ export function useAchievementSync() {
   const [rawCountdownHistory] = useLocalStorage<TimerHistoryRecord[]>(STORAGE_KEYS.countdown, [])
   const [rawIntervalsHistory] = useLocalStorage<TimerHistoryRecord[]>(STORAGE_KEYS.intervals, [])
 
-  const { achievements, updateAchievements, initializeAchievements, unlockAchievement } =
+  const { updateAchievements, initializeAchievements, unlockAchievement } =
     useAchievementsStore()
   const [newlyUnlocked, setNewlyUnlocked] = useState<Achievement[]>([])
 
