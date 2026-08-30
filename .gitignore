@@ -33,6 +33,9 @@ TIMER_MD
 .claude
 .codex
 
+# Husky internals (the hooks themselves in .husky/ are committed)
+.husky/_
+
 
 # Testing
 coverage

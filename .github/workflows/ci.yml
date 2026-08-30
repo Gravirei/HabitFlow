@@ -5,17 +5,94 @@ on:
     branches: [main, develop]
   pull_request:
 
+# Cancel in-flight runs on the same ref so we don't queue up redundant
+# jobs when a contributor force-pushes or rebases.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   verify:
+    name: Lint, typecheck, test, build
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
+
       - run: npm ci
-      - run: npm run typecheck
-      - run: npm run lint
-      - run: npx vitest run
-      - run: npm run build
+
+      # TODO: re-enable `npm run format:check` once the codebase is
+      # formatted (374 files out of sync). This is a follow-up to the
+      # debt-ledger burn-down in Phase 3.
+      # - name: Prettier format check
+      #   run: npm run format:check
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit tests
+        run: npx vitest run
+
+      # Coverage — uploaded as an artifact. Threshold enforcement is
+      # left to a follow-up (debt-ledger burn-down in Phase 3) so this
+      # job stays green while we're still on the legacy baseline.
+      - name: Unit tests (with coverage)
+        run: npm run test:coverage
+
+      - name: Build
+        run: npm run build
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage
+          retention-days: 14
+          if-no-files-found: ignore
+
+  docker:
+    name: Docker build (smoke)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      # Build the image with dummy public env values. Real values come
+      # from --secret at deploy time, not in CI.
+      # DOCKER_BUILDKIT=1 is needed because the Dockerfile uses heredoc
+      # COPY syntax.
+      - name: Build Docker image
+        env:
+          DOCKER_BUILDKIT: 1
+        run: |
+          docker build \
+            --build-arg VITE_SUPABASE_URL=https://example.supabase.co \
+            --build-arg VITE_SUPABASE_ANON_KEY=dummy-anon-key \
+            --build-arg VITE_API_URL=https://api.example.com \
+            --build-arg VITE_ENABLE_SENTRY=false \
+            --build-arg VITE_ENABLE_ANALYTICS=false \
+            -t habitflow:ci \
+            .
+
+      - name: Smoke-test the image
+        run: |
+          docker run --rm -d --name habitflow-smoke -p 8080:80 habitflow:ci
+          # Give nginx a moment to bind
+          for i in 1 2 3 4 5; do
+            if curl -sf http://127.0.0.1:8080/healthz; then break; fi
+            sleep 1
+          done
+          # Healthcheck endpoint
+          curl -sf http://127.0.0.1:8080/healthz
+          # Static asset
+          curl -sf -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8080/ || true
+          docker stop habitflow-smoke

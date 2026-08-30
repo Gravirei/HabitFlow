@@ -1,6 +1,6 @@
 /**
- * NewHabit Form Integration Tests
- * Tests for the new habit creation form with validation
+ * NewHabit Wizard Integration Tests
+ * Tests for the step-by-step habit creation flow with validation
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
@@ -67,8 +67,7 @@ const localStorageMock = (() => {
       return Object.keys(store).length
     },
     key: (index: number) => {
-      const keys = Object.keys(store)
-      return keys[index] || null
+      return Object.keys(store)[index] || null
     }
   }
 })()
@@ -79,7 +78,17 @@ Object.defineProperty(global, 'localStorage', {
   configurable: true
 })
 
-describe('NewHabit Form', () => {
+const NAME_PLACEHOLDER = 'Name your habit…'
+
+// Marker text per wizard step, used to wait for step transitions
+const STEP_MARKERS = [
+  /what do you want to achieve/i,
+  /how often will you do it/i,
+  /set a gentle goal/i,
+  /stay on track/i,
+] as const
+
+describe('NewHabit Wizard', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     localStorageMock.clear()
@@ -95,53 +104,88 @@ describe('NewHabit Form', () => {
     )
   }
 
-  describe('Form Rendering', () => {
-    it('should render the form with all fields', () => {
-      renderForm()
+  /** Renders the form and walks to the given step (0-indexed), filling the required name along the way. */
+  const goToStep = async (targetStep: number, name = 'Test Habit') => {
+    const user = userEvent.setup()
+    renderForm()
 
-      expect(screen.getByPlaceholderText('e.g., Drink Water')).toBeInTheDocument()
-      expect(screen.getByPlaceholderText('Add more details here')).toBeInTheDocument()
-      expect(screen.getByText('daily')).toBeInTheDocument()
-      expect(screen.getByText('weekly')).toBeInTheDocument()
-      expect(screen.getByText('monthly')).toBeInTheDocument()
-      expect(screen.getByRole('button', { name: /save habit/i })).toBeInTheDocument()
+    if (targetStep === 0) return user
+
+    await user.type(screen.getByPlaceholderText(NAME_PLACEHOLDER), name)
+
+    for (let s = 1; s <= targetStep; s++) {
+      fireEvent.click(screen.getByRole('button', { name: /continue/i }))
+      await screen.findByText(STEP_MARKERS[s])
+    }
+    return user
+  }
+
+  describe('Form Rendering', () => {
+    it('should render each step with its fields', async () => {
+      const user = await goToStep(0)
+
+      // Step 1: name + description
+      expect(screen.getByPlaceholderText(NAME_PLACEHOLDER)).toBeInTheDocument()
+      expect(screen.getByPlaceholderText(/Add details/)).toBeInTheDocument()
+      await user.type(screen.getByPlaceholderText(NAME_PLACEHOLDER), 'Test Habit')
+
+      // Step 2: frequency options
+      fireEvent.click(screen.getByRole('button', { name: /continue/i }))
+      expect(await screen.findByText(/how often will you do it/i)).toBeInTheDocument()
+      expect(screen.getByText('Daily')).toBeInTheDocument()
+      expect(screen.getByText('Weekly')).toBeInTheDocument()
+      expect(screen.getByText('Monthly')).toBeInTheDocument()
+
+      // Step 3: goal stepper
+      fireEvent.click(screen.getByRole('button', { name: /continue/i }))
+      expect(await screen.findByText(/set a gentle goal/i)).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /decrease goal/i })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /increase goal/i })).toBeInTheDocument()
+
+      // Step 4: reminder + create button
+      fireEvent.click(screen.getByRole('button', { name: /continue/i }))
+      expect(await screen.findByText(/stay on track/i)).toBeInTheDocument()
+      expect(screen.getByRole('checkbox')).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /create habit/i })).toBeInTheDocument()
+
+      expect(user).toBeDefined()
     })
 
-    it('should have default values', () => {
-      renderForm()
+    it('should have default values', async () => {
+      const user = await goToStep(0)
 
-      const nameInput = screen.getByPlaceholderText('e.g., Drink Water') as HTMLInputElement
+      const nameInput = screen.getByPlaceholderText(NAME_PLACEHOLDER) as HTMLInputElement
       expect(nameInput.value).toBe('')
 
-      const weeklyRadio = screen.getByDisplayValue('weekly') as HTMLInputElement
+      // Walk to frequency step to inspect the default selection
+      await user.type(nameInput, 'Test Habit')
+      fireEvent.click(screen.getByRole('button', { name: /continue/i }))
+
+      const weeklyRadio = await screen.findByDisplayValue('weekly') as HTMLInputElement
       expect(weeklyRadio).toBeChecked()
     })
   })
 
   describe('Form Validation', () => {
-    it('should show error when submitting with empty name', async () => {
-      renderForm()
+    it('should stay on step 1 when submitting with empty name', async () => {
+      const user = await goToStep(0)
+      expect(user).toBeDefined()
 
-      const saveButton = screen.getByRole('button', { name: /save habit/i })
-      fireEvent.click(saveButton)
+      fireEvent.click(screen.getByRole('button', { name: /continue/i }))
 
       await waitFor(() => {
         expect(toast.error).toHaveBeenCalledWith('Please enter a habit name')
       })
 
+      // Still on the first step
+      expect(screen.getByPlaceholderText(NAME_PLACEHOLDER)).toBeInTheDocument()
       expect(mockNavigate).not.toHaveBeenCalled()
     })
 
     it('should show validation error for empty name field', async () => {
-      const user = userEvent.setup()
-      renderForm()
+      await goToStep(0)
 
-      const nameInput = screen.getByPlaceholderText('e.g., Drink Water')
-      const saveButton = screen.getByRole('button', { name: /save habit/i })
-
-      await user.click(nameInput)
-      await user.tab() // Blur the field
-      fireEvent.click(saveButton)
+      fireEvent.click(screen.getByRole('button', { name: /continue/i }))
 
       await waitFor(() => {
         expect(screen.getByText(/habit name is required/i)).toBeInTheDocument()
@@ -149,47 +193,37 @@ describe('NewHabit Form', () => {
     })
 
     it('should show error for whitespace-only name', async () => {
-      const user = userEvent.setup()
-      renderForm()
+      const user = await goToStep(0)
 
-      const nameInput = screen.getByPlaceholderText('e.g., Drink Water')
+      const nameInput = screen.getByPlaceholderText(NAME_PLACEHOLDER)
+      await user.clear(nameInput)
       await user.type(nameInput, '   ')
 
-      // Wait for any validation to complete after typing
-      await waitFor(() => {
-        expect(nameInput).toHaveValue('   ')
-      })
-
-      const saveButton = screen.getByRole('button', { name: /save habit/i })
-      fireEvent.click(saveButton)
+      fireEvent.click(screen.getByRole('button', { name: /continue/i }))
 
       await waitFor(() => {
         expect(screen.getByText(/cannot be only spaces/i)).toBeInTheDocument()
       })
     })
 
-    it('should show error for name longer than 100 characters', async () => {
-      const user = userEvent.setup()
-      renderForm()
+    it('should cap name input at 100 characters', async () => {
+      const user = await goToStep(0)
 
       const longName = 'a'.repeat(101)
-      const nameInput = screen.getByPlaceholderText('e.g., Drink Water')
+      const nameInput = screen.getByPlaceholderText(NAME_PLACEHOLDER) as HTMLInputElement
       await user.type(nameInput, longName)
 
-      // Wait for validation error to appear
-      await waitFor(() => {
-        expect(screen.getByText(/less than 100 characters/i)).toBeInTheDocument()
-      }, { timeout: 3000 })
-    })
+      // The input enforces maxLength=100, so the browser truncates instead of
+      // letting the zod schema reject an over-length value.
+      expect(nameInput.value.length).toBe(100)
+    }, 10000)
 
     it('should show error for description longer than 500 characters', async () => {
-      const user = userEvent.setup()
-      renderForm()
+      const user = await goToStep(0)
 
       const longDescription = 'a'.repeat(501)
-      const descriptionInput = screen.getByPlaceholderText('Add more details here')
-      
-      // Type more efficiently to avoid timeout - paste instead of typing each character
+      const descriptionInput = screen.getByPlaceholderText(/Add details/)
+
       await user.click(descriptionInput)
       await user.paste(longDescription)
 
@@ -197,23 +231,18 @@ describe('NewHabit Form', () => {
       await waitFor(() => {
         expect(screen.getByText(/less than 500 characters/i)).toBeInTheDocument()
       }, { timeout: 3000 })
-    }, 10000) // Increase timeout for slow typing operations
+    })
   })
 
   describe('Form Submission', () => {
     it('should include categoryId when provided via query param', async () => {
-      const user = userEvent.setup()
       ;(router.useSearchParams as any).mockReturnValue([
         new URLSearchParams('categoryId=fitness'),
       ])
 
-      renderForm()
+      await goToStep(3)
 
-      const nameInput = screen.getByPlaceholderText('e.g., Drink Water')
-      await user.type(nameInput, 'Test Habit')
-
-      const saveButton = screen.getByRole('button', { name: /save habit/i })
-      fireEvent.click(saveButton)
+      fireEvent.click(screen.getByRole('button', { name: /create habit/i }))
 
       await waitFor(() => {
         expect(addHabitMock).toHaveBeenCalledTimes(1)
@@ -227,33 +256,30 @@ describe('NewHabit Form', () => {
     })
 
     it('should submit valid form successfully', async () => {
-      const user = userEvent.setup()
-      renderForm()
+      await goToStep(3)
 
-      const nameInput = screen.getByPlaceholderText('e.g., Drink Water')
-      await user.type(nameInput, 'Morning Meditation')
-
-      const saveButton = screen.getByRole('button', { name: /save habit/i })
-      fireEvent.click(saveButton)
+      fireEvent.click(screen.getByRole('button', { name: /create habit/i }))
 
       await waitFor(() => {
-        expect(toast.success).toHaveBeenCalledWith('🎉 Habit created successfully!')
+        expect(toast.success).toHaveBeenCalledWith('Habit created successfully!')
         expect(mockNavigate).toHaveBeenCalledWith('/today')
       })
     })
 
     it('should submit form with description', async () => {
-      const user = userEvent.setup()
-      renderForm()
+      const user = await goToStep(0)
 
-      const nameInput = screen.getByPlaceholderText('e.g., Drink Water')
-      await user.type(nameInput, 'Morning Meditation')
-
-      const descriptionInput = screen.getByPlaceholderText('Add more details here')
+      await user.type(screen.getByPlaceholderText(NAME_PLACEHOLDER), 'Morning Meditation')
+      const descriptionInput = screen.getByPlaceholderText(/Add details/)
       await user.type(descriptionInput, 'Meditate for 10 minutes each morning')
 
-      const saveButton = screen.getByRole('button', { name: /save habit/i })
-      fireEvent.click(saveButton)
+      // Walk to the last step and create the habit
+      for (let s = 1; s <= 3; s++) {
+        fireEvent.click(screen.getByRole('button', { name: /continue/i }))
+        await screen.findByText(STEP_MARKERS[s])
+      }
+
+      fireEvent.click(screen.getByRole('button', { name: /create habit/i }))
 
       await waitFor(() => {
         expect(toast.success).toHaveBeenCalled()
@@ -262,23 +288,19 @@ describe('NewHabit Form', () => {
     })
 
     it('should show loading state during submission', async () => {
-      const user = userEvent.setup()
-      renderForm()
+      await goToStep(3)
 
-      const nameInput = screen.getByPlaceholderText('e.g., Drink Water')
-      await user.type(nameInput, 'Test Habit')
+      const createButton = screen.getByRole('button', { name: /create habit/i })
+      fireEvent.click(createButton)
 
-      const saveButton = screen.getByRole('button', { name: /save habit/i })
-      fireEvent.click(saveButton)
-
-      // Button should show "Saving..." briefly
+      // Button should show "Saving…" briefly
       expect(screen.queryByText(/saving/i)).toBeInTheDocument()
     })
   })
 
   describe('Frequency Selection', () => {
     it('should change frequency when clicking radio buttons', async () => {
-      renderForm()
+      await goToStep(1)
 
       const dailyRadio = screen.getByDisplayValue('daily') as HTMLInputElement
       fireEvent.click(dailyRadio)
@@ -287,22 +309,24 @@ describe('NewHabit Form', () => {
     })
 
     it('should update goal display based on frequency', async () => {
-      renderForm()
+      await goToStep(2)
 
       // Default is weekly
       expect(screen.getByText(/per week/i)).toBeInTheDocument()
 
-      // Change to daily
-      const dailyRadio = screen.getByDisplayValue('daily')
-      fireEvent.click(dailyRadio)
+      // Go back, pick daily, come forward again
+      fireEvent.click(screen.getByRole('button', { name: /back/i }))
+      fireEvent.click(screen.getByDisplayValue('daily'))
+      fireEvent.click(screen.getByRole('button', { name: /continue/i }))
 
       await waitFor(() => {
         expect(screen.getByText(/per day/i)).toBeInTheDocument()
       })
 
-      // Change to monthly
-      const monthlyRadio = screen.getByDisplayValue('monthly')
-      fireEvent.click(monthlyRadio)
+      // Switch to monthly
+      fireEvent.click(screen.getByRole('button', { name: /back/i }))
+      fireEvent.click(screen.getByDisplayValue('monthly'))
+      fireEvent.click(screen.getByRole('button', { name: /continue/i }))
 
       await waitFor(() => {
         expect(screen.getByText(/per month/i)).toBeInTheDocument()
@@ -311,68 +335,66 @@ describe('NewHabit Form', () => {
   })
 
   describe('Goal Controls', () => {
-    it('should increment goal when clicking + button', () => {
-      renderForm()
+    const getSummaryText = () => {
+      const value = screen.getByTestId('goal-value').textContent ?? ''
+      const unit = screen.getByTestId('goal-unit').textContent ?? ''
+      return `${value}${unit}`.replace(/\s+/g, ' ')
+    }
 
-      const incrementButton = screen.getAllByRole('button').find(
-        btn => btn.querySelector('.material-symbols-outlined')?.textContent === 'add'
-      )
+    it('should increment goal when clicking + button', async () => {
+      await goToStep(2)
 
-      expect(screen.getByText(/3 times/i)).toBeInTheDocument()
+      const incrementButton = screen.getByRole('button', { name: /increase goal/i })
 
-      fireEvent.click(incrementButton!)
+      expect(getSummaryText()).toMatch(/3\s*times/i)
 
-      expect(screen.getByText(/4 times/i)).toBeInTheDocument()
+      fireEvent.click(incrementButton)
+
+      expect(getSummaryText()).toMatch(/4\s*times/i)
     })
 
-    it('should decrement goal when clicking - button', () => {
-      renderForm()
+    it('should decrement goal when clicking - button', async () => {
+      await goToStep(2)
 
-      const decrementButton = screen.getAllByRole('button').find(
-        btn => btn.querySelector('.material-symbols-outlined')?.textContent === 'remove'
-      )
+      const decrementButton = screen.getByRole('button', { name: /decrease goal/i })
 
-      expect(screen.getByText(/3 times/i)).toBeInTheDocument()
+      expect(getSummaryText()).toMatch(/3\s*times/i)
 
-      fireEvent.click(decrementButton!)
+      fireEvent.click(decrementButton)
 
-      expect(screen.getByText(/2 times/i)).toBeInTheDocument()
+      expect(getSummaryText()).toMatch(/2\s*times/i)
     })
 
-    it('should not allow goal below 1', () => {
-      renderForm()
+    it('should not allow goal below 1', async () => {
+      await goToStep(2)
 
-      const decrementButton = screen.getAllByRole('button').find(
-        btn => btn.querySelector('.material-symbols-outlined')?.textContent === 'remove'
-      )
+      const decrementButton = screen.getByRole('button', { name: /decrease goal/i })
 
       // Click 3 times to try to get to 0
-      fireEvent.click(decrementButton!)
-      fireEvent.click(decrementButton!)
-      fireEvent.click(decrementButton!)
+      fireEvent.click(decrementButton)
+      fireEvent.click(decrementButton)
+      fireEvent.click(decrementButton)
 
-      expect(screen.getByText(/1 time per/i)).toBeInTheDocument()
+      expect(getSummaryText()).toMatch(/1\s*time\s*per/i)
     })
 
-    it('should not allow goal above 100', () => {
-      renderForm()
+    it('should not allow goal above 100', async () => {
+      await goToStep(2)
 
-      const incrementButton = screen.getAllByRole('button').find(
-        btn => btn.querySelector('.material-symbols-outlined')?.textContent === 'add'
-      )
+      const incrementButton = screen.getByRole('button', { name: /increase goal/i })
 
       // Click 98 times to try to exceed 100
       for (let i = 0; i < 98; i++) {
-        fireEvent.click(incrementButton!)
+        fireEvent.click(incrementButton)
       }
 
-      expect(screen.getByText(/100 times/i)).toBeInTheDocument()
+      expect(getSummaryText()).toMatch(/100\s*times/i)
     })
   })
 
   describe('Reminder Toggle', () => {
-    it('should toggle reminder on/off', () => {
-      renderForm()
+    it('should toggle reminder on/off', async () => {
+      await goToStep(3)
 
       const reminderToggle = screen.getByRole('checkbox') as HTMLInputElement
       expect(reminderToggle).toBeChecked() // Default is true
@@ -384,40 +406,53 @@ describe('NewHabit Form', () => {
       expect(reminderToggle).toBeChecked()
     })
 
-    it('should show time picker when reminder is enabled', () => {
-      renderForm()
+    it('should show time picker when reminder is enabled', async () => {
+      await goToStep(3)
 
-      expect(screen.getByText('Reminder Time')).toBeInTheDocument()
+      expect(screen.getByText('Remind me at')).toBeInTheDocument()
       expect(screen.getByDisplayValue(/\d{2}:\d{2}/)).toBeInTheDocument()
     })
 
-    it('should hide time picker when reminder is disabled', () => {
-      renderForm()
+    it('should hide time picker when reminder is disabled', async () => {
+      await goToStep(3)
 
       const reminderToggle = screen.getByRole('checkbox')
       fireEvent.click(reminderToggle)
 
-      expect(screen.queryByText('Reminder Time')).not.toBeInTheDocument()
+      expect(screen.queryByText('Remind me at')).not.toBeInTheDocument()
     })
   })
 
   describe('Navigation', () => {
-    it('should navigate back when clicking close button', () => {
-      renderForm()
+    it('should navigate back when clicking close button', async () => {
+      await goToStep(0)
 
       const closeButton = screen.getByRole('button', { name: /close/i })
       fireEvent.click(closeButton)
 
       expect(mockNavigate).toHaveBeenCalledWith('/today')
     })
+
+    it('should go back to the previous step when clicking Back', async () => {
+      await goToStep(1)
+
+      fireEvent.click(screen.getByRole('button', { name: /back/i }))
+
+      expect(await screen.findByText(STEP_MARKERS[0])).toBeInTheDocument()
+    })
+
+    it('should not show Back on the first step', async () => {
+      await goToStep(0)
+
+      expect(screen.queryByRole('button', { name: /back/i })).not.toBeInTheDocument()
+    })
   })
 
   describe('Error Display', () => {
     it('should show error icon with error messages', async () => {
-      renderForm()
+      await goToStep(0)
 
-      const saveButton = screen.getByRole('button', { name: /save habit/i })
-      fireEvent.click(saveButton)
+      fireEvent.click(screen.getByRole('button', { name: /continue/i }))
 
       await waitFor(() => {
         const errorIcon = screen.getByText('error')
@@ -427,13 +462,12 @@ describe('NewHabit Form', () => {
     })
 
     it('should apply error styling to invalid fields', async () => {
-      renderForm()
+      await goToStep(0)
 
-      const saveButton = screen.getByRole('button', { name: /save habit/i })
-      fireEvent.click(saveButton)
+      fireEvent.click(screen.getByRole('button', { name: /continue/i }))
 
       await waitFor(() => {
-        const nameInput = screen.getByPlaceholderText('e.g., Drink Water')
+        const nameInput = screen.getByPlaceholderText(NAME_PLACEHOLDER)
         expect(nameInput).toHaveClass('border-red-500')
       })
     })

@@ -6,6 +6,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import { useCategoryStore } from '@/store/useCategoryStore'
+import type { Category } from '@/types/category'
 import { DEFAULT_CATEGORIES } from '@/constants/defaultCategories'
 
 const cloneDefaults = () => DEFAULT_CATEGORIES.map((c) => ({ ...c, stats: { ...c.stats } }))
@@ -32,6 +33,7 @@ describe('useCategoryStore (CRUD semantics)', () => {
       getPinnedCategories: state.getPinnedCategories,
       getAllCategories: state.getAllCategories,
       addCategory: state.addCategory,
+      ensureGeneralCategory: state.ensureGeneralCategory,
       updateCategory: state.updateCategory,
       deleteCategory: state.deleteCategory,
       reorderCategories: state.reorderCategories,
@@ -196,5 +198,49 @@ describe('useCategoryStore (CRUD semantics)', () => {
         })
       })
     }).toThrow(/already exists/i)
+  })
+})
+
+describe('useCategoryStore (ensureGeneralCategory)', () => {
+  beforeEach(async () => {
+    localStorage.clear()
+    const state = useCategoryStore.getState()
+    useCategoryStore.setState({
+      categories: cloneDefaults(),
+      ensureGeneralCategory: state.ensureGeneralCategory,
+    })
+    await useCategoryStore.persist?.rehydrate?.()
+  })
+
+  it('creates the General category lazily with the fixed id', () => {
+    expect(
+      useCategoryStore.getState().categories.some((c) => c.id === 'general')
+    ).toBe(false)
+
+    let created!: Category
+    act(() => {
+      created = useCategoryStore.getState().ensureGeneralCategory()
+    })
+
+    expect(created.id).toBe('general')
+    expect(created.name).toBe('General')
+    expect(
+      useCategoryStore.getState().categories.some((c) => c.id === 'general')
+    ).toBe(true)
+  })
+
+  it('reuses the existing General category on subsequent calls', () => {
+    act(() => {
+      useCategoryStore.getState().ensureGeneralCategory()
+    })
+    const countAfterFirst = useCategoryStore.getState().categories.length
+
+    let second!: Category
+    act(() => {
+      second = useCategoryStore.getState().ensureGeneralCategory()
+    })
+
+    expect(second.id).toBe('general')
+    expect(useCategoryStore.getState().categories.length).toBe(countAfterFirst)
   })
 })

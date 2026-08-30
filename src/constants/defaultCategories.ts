@@ -9,6 +9,25 @@ const ZERO_STATS = {
   completionRate: 0,
 } as const
 
+/**
+ * Built-in catch-all category for habits created without picking one
+ * (Today FAB, bottom-nav +, Habits page). Unlike the defaults below it is
+ * NOT seeded into the store — it is created lazily on first use and only
+ * shows on the Categories page while it actually holds habits.
+ */
+export const GENERAL_CATEGORY_ID = 'general'
+
+export const GENERAL_CATEGORY: Category = {
+  id: GENERAL_CATEGORY_ID,
+  name: 'General',
+  icon: 'widgets',
+  color: 'slate',
+  isPinned: false,
+  order: 0, // replaced with max + 1 when lazily created
+  createdAt: DEFAULT_CREATED_AT,
+  stats: { ...ZERO_STATS },
+}
+
 export const DEFAULT_CATEGORIES: Category[] = [
   {
     id: 'morning-routine',

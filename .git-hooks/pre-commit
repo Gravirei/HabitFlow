@@ -22,7 +22,7 @@ if git diff --cached --name-only | grep -E '^\.env$|^\.env\.local$'; then
 fi
 
 # Check for hardcoded secrets in staged files
-if git diff --cached | grep -iE '(password|secret|api[_-]?key|token|private[_-]?key).*=.*["\'][^"\']{20,}'; then
+if git diff --cached | grep -iE "(password|secret|api[_-]?key|token|private[_-]?key).*=.*[\"'][^\"']{20,}"; then
   echo ""
   echo "⚠️  WARNING: Possible hardcoded credentials detected!"
   echo ""
@@ -32,11 +32,12 @@ if git diff --cached | grep -iE '(password|secret|api[_-]?key|token|private[_-]?
   echo "If these are real credentials, DO NOT commit them."
   echo "Use environment variables instead."
   echo ""
-  read -p "Continue anyway? (y/N) " -n 1 -r
-  echo
-  if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-    exit 1
-  fi
+  printf "Continue anyway? (y/N) "
+  read -r REPLY
+  case "$REPLY" in
+    [Yy]|[Yy][Ee][Ss]) ;;
+    *) exit 1 ;;
+  esac
 fi
 
 echo "✅ Pre-commit checks passed!"
