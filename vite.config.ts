@@ -44,14 +44,21 @@ export default defineConfig({
         'src/test/**',
         'src/**/index.ts',
       ],
-      // Thresholds are deferred to Phase 6. The plan (R6) targeted 50%
-      // start / 70% goal on the typed core (lib, store, schemas, utils),
-      // but the current baseline (~23% lib, ~34% store/utils) and the
-      // pre-existing test failures (3 files / 5 tests per AGENTS.md known
-      // red baseline) mean vitest 4 suppresses the threshold check
-      // entirely. The report is still emitted as a CI artifact so the
-      // numbers are visible; the actual gate lands once the test
-      // infrastructure is fixed.
+      // Per-layer coverage thresholds. Floor at the actual measured
+      // baseline (with a small headroom buffer) so the gate is a
+      // regression-detector, not a target. The plan (R6) targets 70%
+      // on the typed core as the long-term goal; ramp in a follow-up
+      // as the features burn-down (PRs 3-5) adds test coverage.
+      //
+      // Baseline measured on feat/phase-2-env-errors-runtime after the
+      // 3 broken test files were fixed (Categories.templates timeout,
+      // axe-audit concurrency, perf benchmark threshold). See PR #9.
+      thresholds: {
+        'src/lib/**':     { lines: 30, branches: 20, functions: 35, statements: 30 },
+        'src/store/**':   { lines: 30, branches: 20, functions: 30, statements: 30 },
+        'src/schemas/**': { lines: 90, branches: 90, functions: 90, statements: 90 },
+        'src/utils/**':   { lines: 30, branches: 20, functions: 30, statements: 30 },
+      },
     },
   },
 })

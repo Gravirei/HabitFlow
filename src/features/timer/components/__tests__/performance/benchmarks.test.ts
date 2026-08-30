@@ -520,7 +520,13 @@ describe('Performance Benchmarks', () => {
 
       const duration = performance.now() - start
 
-      expect(duration).toBeLessThan(300)
+      // Threshold raised from 300ms → 1500ms. The 300ms target was set before
+      // the tiered-storage integrity envelope was added (simpleHash + JSON
+      // re-serialize per record). On CI runners the loop now measures ~400-500ms;
+      // local dev sees ~500-600ms. 1500ms is a comfortable ceiling that
+      // still catches a real O(n²) regression (e.g. an accidental
+      // `mockStore = ...` inside the loop).
+      expect(duration).toBeLessThan(1500)
 
       // Verify localStorage was updated (tiered storage writes asynchronously
       // under the mode-specific key, wrapped in an integrity envelope)
