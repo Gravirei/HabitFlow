@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import toast from 'react-hot-toast'
@@ -16,7 +15,7 @@ export function SlackSettings() {
   const [testMessageLoading, setTestMessageLoading] = useState(false)
   const [showAdvanced, setShowAdvanced] = useState(false)
 
-  const settings = (connection.settings || {}) as SlackSettingsType
+  const settings = (connection.settings || {}) as unknown as SlackSettingsType
 
   // Fetch channels when connected
   useEffect(() => {

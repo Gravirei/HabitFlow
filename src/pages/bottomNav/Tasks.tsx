@@ -902,7 +902,6 @@ export function Tasks() {
                 tasks={filteredTasks}
                 onTaskClick={setEditingTask}
                 onTaskStatusChange={handleTaskStatusChange}
-                onDeleteTask={deleteTask}
               />
             )}
           </>

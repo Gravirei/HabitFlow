@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { motion, AnimatePresence } from 'framer-motion'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { cn } from '@/utils/cn'
@@ -51,7 +50,6 @@ export function HabitCard({
   onBodyClick,
   onLongPress,
   onNotesClick,
-  enableLayoutAnimation,
 }: HabitCardProps) {
   const iconGradient = getIconGradient(habit.iconColor ?? 0)
   const glowColor = getGlowColor(habit.iconColor ?? 0)

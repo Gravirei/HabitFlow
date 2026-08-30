@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useNavigate } from 'react-router-dom'
 import { useHabitStore } from '@/store/useHabitStore'
 import { useHabitTaskStore } from '@/store/useHabitTaskStore'
@@ -187,11 +186,9 @@ function EmptyState({ icon, message }: { icon: string; message: string }) {
 // ─── Habit Context Menu Items (shared between mobile & desktop) ───────────────
 function HabitContextMenuItems({
   habit,
-  onClose,
   onAction,
 }: {
   habit: any
-  onClose: () => void
   onAction: (action: string, habit: any) => void
 }) {
   return (
@@ -312,9 +309,6 @@ export function Today() {
 
   // HabitTasksModal state
   const [selectedHabitId, setSelectedHabitId] = useState<string | null>(null)
-  const [selectedHabitName, setSelectedHabitName] = useState('')
-  const [selectedHabitIcon, setSelectedHabitIcon] = useState('checklist')
-  const [selectedHabitIconColor, setSelectedHabitIconColor] = useState(0)
 
   // Long-press bottom sheet
   const [longPressHabit, setLongPressHabit] = useState<any | null>(null)
@@ -350,9 +344,6 @@ export function Today() {
     if (taskCount > 0) {
       // Open task completion modal
       setSelectedHabitId(habit.id)
-      setSelectedHabitName(habit.name)
-      setSelectedHabitIcon(habit.icon)
-      setSelectedHabitIconColor(habit.iconColor ?? 0)
     }
     // If no tasks, do nothing (only completion checkbox toggles)
   }
@@ -860,9 +851,6 @@ export function Today() {
           isOpen={!!selectedHabitId}
           onClose={() => {
             setSelectedHabitId(null)
-            setSelectedHabitName('')
-            setSelectedHabitIcon('checklist')
-            setSelectedHabitIconColor(0)
           }}
           habitId={selectedHabitId}
           habitName={habits.find((h) => h.id === selectedHabitId)?.name || 'Habit Tasks'}
@@ -928,11 +916,7 @@ export function Today() {
                 <div className="h-1 w-10 rounded-full bg-slate-700" />
               </div>
               <HabitSheetHeader habit={longPressHabit} />
-              <HabitContextMenuItems
-                habit={longPressHabit}
-                onClose={() => setLongPressHabit(null)}
-                onAction={handleBottomSheetAction}
-              />
+              <HabitContextMenuItems habit={longPressHabit} onAction={handleBottomSheetAction} />
               <div className="h-6" />
             </motion.div>
 
@@ -957,11 +941,7 @@ export function Today() {
                   </span>
                 </button>
                 <HabitSheetHeader habit={longPressHabit} />
-                <HabitContextMenuItems
-                  habit={longPressHabit}
-                  onClose={() => setLongPressHabit(null)}
-                  onAction={handleBottomSheetAction}
-                />
+                <HabitContextMenuItems habit={longPressHabit} onAction={handleBottomSheetAction} />
               </motion.div>
             </div>
           </AnimatePresence>,
