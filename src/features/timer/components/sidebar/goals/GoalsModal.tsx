@@ -139,14 +139,11 @@ export function GoalsModal({ isOpen, onClose }: GoalsModalProps) {
               <button
                 key={f}
                 onClick={() => setFilter(f)}
-                className={`
-                  rounded-xl px-4 py-2 text-sm font-bold capitalize transition-all
-                  ${
-                    filter === f
-                      ? 'border border-cyan-400/30 bg-gradient-to-r from-cyan-500/20 to-cyan-600/20 text-cyan-300'
-                      : 'border border-transparent text-white/60 hover:border-white/10 hover:bg-white/5 hover:text-white/80'
-                  }
-                `}
+                className={`rounded-xl px-4 py-2 text-sm font-bold capitalize transition-all ${
+                  filter === f
+                    ? 'border border-cyan-400/30 bg-gradient-to-r from-cyan-500/20 to-cyan-600/20 text-cyan-300'
+                    : 'border border-transparent text-white/60 hover:border-white/10 hover:bg-white/5 hover:text-white/80'
+                } `}
               >
                 {f}
               </button>

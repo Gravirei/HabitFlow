@@ -163,14 +163,11 @@ export function GoalsDashboard() {
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`
-                flex-1 rounded-xl px-5 py-2.5 text-sm font-bold capitalize transition-all
-                ${
-                  filter === f
-                    ? 'border border-pink-400/30 bg-gradient-to-r from-pink-500/20 to-violet-600/20 text-pink-300'
-                    : 'border border-transparent text-white/60 hover:border-white/10 hover:bg-white/5 hover:text-white/80'
-                }
-              `}
+              className={`flex-1 rounded-xl px-5 py-2.5 text-sm font-bold capitalize transition-all ${
+                filter === f
+                  ? 'border border-pink-400/30 bg-gradient-to-r from-pink-500/20 to-violet-600/20 text-pink-300'
+                  : 'border border-transparent text-white/60 hover:border-white/10 hover:bg-white/5 hover:text-white/80'
+              } `}
             >
               {f}
             </button>

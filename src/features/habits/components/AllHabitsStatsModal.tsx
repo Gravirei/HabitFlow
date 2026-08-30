@@ -627,9 +627,7 @@ export function AllHabitsStatsModal({ isOpen, onClose }: AllHabitsStatsModalProp
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 30, scale: 0.97 }}
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="relative z-10 flex w-full flex-col overflow-hidden rounded-3xl bg-slate-50 shadow-2xl dark:bg-slate-900
-                       sm:max-w-xl
-                       md:max-w-2xl"
+            className="relative z-10 flex w-full flex-col overflow-hidden rounded-3xl bg-slate-50 shadow-2xl dark:bg-slate-900 sm:max-w-xl md:max-w-2xl"
             style={{
               height: 'min(76svh, 680px)',
               maxHeight: '680px',

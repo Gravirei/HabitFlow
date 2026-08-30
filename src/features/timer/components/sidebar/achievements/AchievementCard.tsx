@@ -31,14 +31,11 @@ export function AchievementCard({ achievement, index = 0 }: AchievementCardProps
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05 }}
-      className={`
-        relative overflow-hidden rounded-2xl transition-all
-        ${
-          isLocked
-            ? 'border-2 border-slate-200 bg-slate-100 dark:border-white/5 dark:bg-slate-800/50'
-            : `bg-gradient-to-br ${getRarityColor(rarity)} shadow-lg ${getRarityGlow(rarity)}`
-        }
-      `}
+      className={`relative overflow-hidden rounded-2xl transition-all ${
+        isLocked
+          ? 'border-2 border-slate-200 bg-slate-100 dark:border-white/5 dark:bg-slate-800/50'
+          : `bg-gradient-to-br ${getRarityColor(rarity)} shadow-lg ${getRarityGlow(rarity)}`
+      } `}
     >
       {/* Locked Overlay */}
       {isLocked && (
@@ -50,16 +47,10 @@ export function AchievementCard({ achievement, index = 0 }: AchievementCardProps
         <div className="mb-3 flex items-start gap-3">
           {/* Icon */}
           <div
-            className={`
-              flex size-12 flex-shrink-0 items-center justify-center rounded-xl
-              ${isLocked ? 'bg-slate-200 dark:bg-slate-700' : 'bg-white/20 backdrop-blur-sm'}
-            `}
+            className={`flex size-12 flex-shrink-0 items-center justify-center rounded-xl ${isLocked ? 'bg-slate-200 dark:bg-slate-700' : 'bg-white/20 backdrop-blur-sm'} `}
           >
             <span
-              className={`
-                material-symbols-outlined text-[28px]
-                ${isLocked ? 'text-slate-400 dark:text-slate-500' : 'text-white'}
-              `}
+              className={`material-symbols-outlined text-[28px] ${isLocked ? 'text-slate-400 dark:text-slate-500' : 'text-white'} `}
             >
               {isLocked ? 'lock' : icon}
             </span>
@@ -69,34 +60,25 @@ export function AchievementCard({ achievement, index = 0 }: AchievementCardProps
           <div className="min-w-0 flex-1">
             <div className="mb-1 flex items-start justify-between gap-2">
               <h3
-                className={`
-                  text-base font-bold leading-tight
-                  ${isLocked ? 'text-slate-700 dark:text-slate-300' : 'text-white'}
-                `}
+                className={`text-base font-bold leading-tight ${isLocked ? 'text-slate-700 dark:text-slate-300' : 'text-white'} `}
               >
                 {name}
               </h3>
 
               {/* Rarity Badge */}
               <span
-                className={`
-                  flex-shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider
-                  ${
-                    isLocked
-                      ? 'bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-400'
-                      : 'bg-white/20 text-white'
-                  }
-                `}
+                className={`flex-shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                  isLocked
+                    ? 'bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-400'
+                    : 'bg-white/20 text-white'
+                } `}
               >
                 {getRarityLabel(rarity)}
               </span>
             </div>
 
             <p
-              className={`
-                text-xs leading-relaxed
-                ${isLocked ? 'text-slate-600 dark:text-slate-400' : 'text-white/90'}
-              `}
+              className={`text-xs leading-relaxed ${isLocked ? 'text-slate-600 dark:text-slate-400' : 'text-white/90'} `}
             >
               {description}
             </p>
@@ -141,10 +123,7 @@ export function AchievementCard({ achievement, index = 0 }: AchievementCardProps
         {/* Category Badge (Bottom Left Corner) */}
         <div className="absolute bottom-2 left-2">
           <div
-            className={`
-              rounded-md px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white
-              ${getCategoryColor(category)}
-            `}
+            className={`rounded-md px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white ${getCategoryColor(category)} `}
           >
             {category}
           </div>

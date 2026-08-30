@@ -113,11 +113,7 @@ export function AchievementUnlockModal({
                 className="mb-4 inline-block"
               >
                 <div
-                  className={`
-                    size-24 rounded-full bg-gradient-to-br ${getRarityColor(rarity)} 
-                    shadow-2xl ${getRarityColor(rarity).includes('orange') ? 'shadow-orange-500/50' : 'shadow-primary/50'}
-                    flex items-center justify-center
-                  `}
+                  className={`size-24 rounded-full bg-gradient-to-br ${getRarityColor(rarity)} shadow-2xl ${getRarityColor(rarity).includes('orange') ? 'shadow-orange-500/50' : 'shadow-primary/50'} flex items-center justify-center`}
                 >
                   <span className="material-symbols-outlined text-[48px] text-white">{icon}</span>
                 </div>

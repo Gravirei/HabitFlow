@@ -76,18 +76,15 @@ export function GoalCard({ goal, onEdit, onDelete, onPause, onResume }: GoalCard
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.95 }}
-      className={`
-        group relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-slate-800/50 to-slate-900/50 p-5 backdrop-blur-xl transition-all hover:border-cyan-400/30
-        ${
-          goal.status === 'completed'
-            ? 'hover:border-green-400/40'
-            : goal.status === 'paused'
-              ? 'opacity-70 hover:opacity-100'
-              : isExpired
-                ? 'hover:border-red-400/40'
-                : ''
-        }
-      `}
+      className={`group relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-slate-800/50 to-slate-900/50 p-5 backdrop-blur-xl transition-all hover:border-cyan-400/30 ${
+        goal.status === 'completed'
+          ? 'hover:border-green-400/40'
+          : goal.status === 'paused'
+            ? 'opacity-70 hover:opacity-100'
+            : isExpired
+              ? 'hover:border-red-400/40'
+              : ''
+      } `}
     >
       {/* Animated background glow */}
       <div className="absolute -right-20 -top-20 h-56 w-56 rounded-full bg-cyan-500/5 opacity-0 blur-3xl transition-all duration-700 group-hover:opacity-100" />

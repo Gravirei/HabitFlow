@@ -33,23 +33,13 @@ export const ToggleSwitch: React.FC<ToggleSwitchProps> = React.memo(
         <button
           onClick={onChange}
           disabled={disabled}
-          className={`
-          relative inline-flex h-7 w-12 items-center rounded-full transition-all duration-300
-          ${enabled ? 'bg-gradient-to-r from-green-500 to-emerald-500' : 'bg-gray-600'}
-          ${!disabled && 'hover:scale-105'}
-          ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}
-          focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-900
-        `}
+          className={`relative inline-flex h-7 w-12 items-center rounded-full transition-all duration-300 ${enabled ? 'bg-gradient-to-r from-green-500 to-emerald-500' : 'bg-gray-600'} ${!disabled && 'hover:scale-105'} ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'} focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-900`}
           role="switch"
           aria-checked={enabled}
           aria-label={label}
         >
           <span
-            className={`
-            inline-block h-6 w-6 transform rounded-full bg-white shadow-lg transition-all duration-300
-            ${enabled ? 'translate-x-6' : 'translate-x-1'}
-            ${enabled ? 'shadow-green-400/50' : 'shadow-gray-700'}
-          `}
+            className={`inline-block h-6 w-6 transform rounded-full bg-white shadow-lg transition-all duration-300 ${enabled ? 'translate-x-6' : 'translate-x-1'} ${enabled ? 'shadow-green-400/50' : 'shadow-gray-700'} `}
           />
         </button>
       </div>

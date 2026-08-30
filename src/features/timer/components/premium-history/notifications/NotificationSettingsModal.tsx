@@ -145,21 +145,13 @@ export function NotificationSettingsModal({ isOpen, onClose }: NotificationSetti
                   onClick={() =>
                     setLocalSettings({ ...localSettings, enabled: !localSettings.enabled })
                   }
-                  className={`
-                    relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-300
-                    ${localSettings.enabled ? 'bg-blue-500' : 'bg-slate-300 dark:bg-slate-600'}
-                    cursor-pointer hover:scale-105
-                    focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-                  `}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-300 ${localSettings.enabled ? 'bg-blue-500' : 'bg-slate-300 dark:bg-slate-600'} cursor-pointer hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2`}
                   role="switch"
                   aria-checked={localSettings.enabled}
                   aria-label="Enable Notifications"
                 >
                   <span
-                    className={`
-                      inline-block h-5 w-5 transform rounded-full bg-white shadow-lg transition-all duration-300
-                      ${localSettings.enabled ? 'translate-x-6' : 'translate-x-1'}
-                    `}
+                    className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-lg transition-all duration-300 ${localSettings.enabled ? 'translate-x-6' : 'translate-x-1'} `}
                   />
                 </button>
               </div>
@@ -185,21 +177,13 @@ export function NotificationSettingsModal({ isOpen, onClose }: NotificationSetti
                         },
                       })
                     }
-                    className={`
-                      relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-300
-                      ${localSettings.sessionReminders.enabled ? 'bg-blue-500' : 'bg-slate-300 dark:bg-slate-600'}
-                      cursor-pointer hover:scale-105
-                      focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-                    `}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-300 ${localSettings.sessionReminders.enabled ? 'bg-blue-500' : 'bg-slate-300 dark:bg-slate-600'} cursor-pointer hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2`}
                     role="switch"
                     aria-checked={localSettings.sessionReminders.enabled}
                     aria-label="Session Reminders"
                   >
                     <span
-                      className={`
-                        inline-block h-5 w-5 transform rounded-full bg-white shadow-lg transition-all duration-300
-                        ${localSettings.sessionReminders.enabled ? 'translate-x-6' : 'translate-x-1'}
-                      `}
+                      className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-lg transition-all duration-300 ${localSettings.sessionReminders.enabled ? 'translate-x-6' : 'translate-x-1'} `}
                     />
                   </button>
                 </div>
@@ -250,21 +234,13 @@ export function NotificationSettingsModal({ isOpen, onClose }: NotificationSetti
                         },
                       })
                     }
-                    className={`
-                      relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-300
-                      ${localSettings.streakReminder.enabled ? 'bg-blue-500' : 'bg-slate-300 dark:bg-slate-600'}
-                      cursor-pointer hover:scale-105
-                      focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-                    `}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-300 ${localSettings.streakReminder.enabled ? 'bg-blue-500' : 'bg-slate-300 dark:bg-slate-600'} cursor-pointer hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2`}
                     role="switch"
                     aria-checked={localSettings.streakReminder.enabled}
                     aria-label="Streak Reminder"
                   >
                     <span
-                      className={`
-                        inline-block h-5 w-5 transform rounded-full bg-white shadow-lg transition-all duration-300
-                        ${localSettings.streakReminder.enabled ? 'translate-x-6' : 'translate-x-1'}
-                      `}
+                      className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-lg transition-all duration-300 ${localSettings.streakReminder.enabled ? 'translate-x-6' : 'translate-x-1'} `}
                     />
                   </button>
                 </div>
@@ -307,21 +283,13 @@ export function NotificationSettingsModal({ isOpen, onClose }: NotificationSetti
                         },
                       })
                     }
-                    className={`
-                      relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-300
-                      ${localSettings.dailySummary.enabled ? 'bg-blue-500' : 'bg-slate-300 dark:bg-slate-600'}
-                      cursor-pointer hover:scale-105
-                      focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-                    `}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-300 ${localSettings.dailySummary.enabled ? 'bg-blue-500' : 'bg-slate-300 dark:bg-slate-600'} cursor-pointer hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2`}
                     role="switch"
                     aria-checked={localSettings.dailySummary.enabled}
                     aria-label="Daily Summary"
                   >
                     <span
-                      className={`
-                        inline-block h-5 w-5 transform rounded-full bg-white shadow-lg transition-all duration-300
-                        ${localSettings.dailySummary.enabled ? 'translate-x-6' : 'translate-x-1'}
-                      `}
+                      className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-lg transition-all duration-300 ${localSettings.dailySummary.enabled ? 'translate-x-6' : 'translate-x-1'} `}
                     />
                   </button>
                 </div>
@@ -365,21 +333,13 @@ export function NotificationSettingsModal({ isOpen, onClose }: NotificationSetti
                       },
                     })
                   }
-                  className={`
-                    relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-300
-                    ${localSettings.browserNotifications.sound ? 'bg-blue-500' : 'bg-slate-300 dark:bg-slate-600'}
-                    cursor-pointer hover:scale-105
-                    focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-                  `}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-300 ${localSettings.browserNotifications.sound ? 'bg-blue-500' : 'bg-slate-300 dark:bg-slate-600'} cursor-pointer hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2`}
                   role="switch"
                   aria-checked={localSettings.browserNotifications.sound}
                   aria-label="Notification Sound"
                 >
                   <span
-                    className={`
-                      inline-block h-5 w-5 transform rounded-full bg-white shadow-lg transition-all duration-300
-                      ${localSettings.browserNotifications.sound ? 'translate-x-6' : 'translate-x-1'}
-                    `}
+                    className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-lg transition-all duration-300 ${localSettings.browserNotifications.sound ? 'translate-x-6' : 'translate-x-1'} `}
                   />
                 </button>
               </div>

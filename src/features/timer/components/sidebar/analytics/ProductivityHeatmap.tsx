@@ -141,16 +141,11 @@ export function ProductivityHeatmap({ data, daysToShow = 30 }: ProductivityHeatm
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ delay: index * 0.01 }}
                   onClick={() => setSelectedDay(dayData)}
-                  className={`
-                    group/btn relative aspect-square rounded-xl border transition-all duration-300
-                    ${getColorIntensity(dayData.value)}
-                    ${
-                      isSelected
-                        ? 'scale-105 border-violet-400 shadow-lg shadow-violet-500/20 ring-2 ring-violet-400/50'
-                        : 'border-white/10 hover:scale-105 hover:border-white/30'
-                    }
-                    ${isToday && !isSelected ? 'ring-1 ring-white/50' : ''}
-                  `}
+                  className={`group/btn relative aspect-square rounded-xl border transition-all duration-300 ${getColorIntensity(dayData.value)} ${
+                    isSelected
+                      ? 'scale-105 border-violet-400 shadow-lg shadow-violet-500/20 ring-2 ring-violet-400/50'
+                      : 'border-white/10 hover:scale-105 hover:border-white/30'
+                  } ${isToday && !isSelected ? 'ring-1 ring-white/50' : ''} `}
                 >
                   {/* Day Number */}
                   <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-white/80 transition-colors group-hover/btn:text-white">

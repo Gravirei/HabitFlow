@@ -71,14 +71,11 @@ export const SoundSettings: React.FC = () => {
                 <button
                   key={type.value}
                   onClick={() => handleSoundTypeChange(type.value)}
-                  className={`
-                    flex items-center gap-2 rounded-xl p-3 text-sm font-medium transition-all
-                    ${
-                      settings.soundType === type.value
-                        ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg'
-                        : 'bg-white/5 text-gray-300 hover:bg-white/10'
-                    }
-                  `}
+                  className={`flex items-center gap-2 rounded-xl p-3 text-sm font-medium transition-all ${
+                    settings.soundType === type.value
+                      ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg'
+                      : 'bg-white/5 text-gray-300 hover:bg-white/10'
+                  } `}
                 >
                   <span className="text-lg">{type.preview}</span>
                   <span>{type.label}</span>

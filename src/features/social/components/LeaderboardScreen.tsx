@@ -149,15 +149,11 @@ function LeaderboardRow({
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: 0.3 + index * 0.035, ease: 'easeOut' }}
       onClick={() => onRowClick(entry)}
-      className={`
-        flex cursor-pointer items-center gap-3 rounded-2xl px-3.5 py-3
-        transition-all duration-200 ease-out
-        ${
-          entry.isCurrentUser
-            ? 'border border-primary/20 bg-primary/[0.08] shadow-sm shadow-primary/5'
-            : 'border border-transparent bg-white/[0.02] hover:bg-white/[0.04]'
-        }
-      `}
+      className={`flex cursor-pointer items-center gap-3 rounded-2xl px-3.5 py-3 transition-all duration-200 ease-out ${
+        entry.isCurrentUser
+          ? 'border border-primary/20 bg-primary/[0.08] shadow-sm shadow-primary/5'
+          : 'border border-transparent bg-white/[0.02] hover:bg-white/[0.04]'
+      } `}
     >
       {/* Rank */}
       <div className="flex size-8 flex-shrink-0 items-center justify-center">
@@ -333,15 +329,11 @@ export function LeaderboardScreen() {
           <button
             key={p.id}
             onClick={() => setLeaderboardPeriod(p.id)}
-            className={`
-              flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg py-2.5 text-[13px] font-semibold
-              transition-all duration-200 ease-out
-              ${
-                leaderboardPeriod === p.id
-                  ? 'bg-primary text-primary-content shadow-lg shadow-primary/25'
-                  : 'text-slate-400 hover:bg-white/[0.03] hover:text-white'
-              }
-            `}
+            className={`flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg py-2.5 text-[13px] font-semibold transition-all duration-200 ease-out ${
+              leaderboardPeriod === p.id
+                ? 'bg-primary text-primary-content shadow-lg shadow-primary/25'
+                : 'text-slate-400 hover:bg-white/[0.03] hover:text-white'
+            } `}
           >
             <span className="material-symbols-outlined text-sm">{p.icon}</span>
             {p.label}

@@ -276,14 +276,11 @@ export function AdvancedFiltersModal({
                       whileHover={{ scale: 1.05, y: -2 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => handlePresetClick(preset)}
-                      className={`
-                        relative overflow-hidden rounded-2xl px-4 py-2.5 text-sm font-bold transition-all
-                        ${
-                          isActive
-                            ? 'bg-gradient-to-br from-primary to-purple-600 text-white shadow-lg shadow-primary/30'
-                            : 'border border-slate-200/50 bg-gradient-to-br from-white to-slate-50 text-slate-600 hover:from-primary/10 hover:to-purple-500/10 dark:border-white/5 dark:from-[#2A2A31] dark:to-[#202026] dark:text-slate-400 dark:hover:from-primary/20 dark:hover:to-purple-600/20'
-                        }
-                      `}
+                      className={`relative overflow-hidden rounded-2xl px-4 py-2.5 text-sm font-bold transition-all ${
+                        isActive
+                          ? 'bg-gradient-to-br from-primary to-purple-600 text-white shadow-lg shadow-primary/30'
+                          : 'border border-slate-200/50 bg-gradient-to-br from-white to-slate-50 text-slate-600 hover:from-primary/10 hover:to-purple-500/10 dark:border-white/5 dark:from-[#2A2A31] dark:to-[#202026] dark:text-slate-400 dark:hover:from-primary/20 dark:hover:to-purple-600/20'
+                      } `}
                     >
                       {isActive && (
                         <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-white/0 via-white/10 to-white/0 transition-transform duration-1000 group-hover:translate-x-full" />
