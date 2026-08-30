@@ -41,7 +41,7 @@ export function generateInsightMessages(insights: AIInsights): AIInsights {
  * Generate productivity score message
  */
 function generateScoreMessage(score: ProductivityScore): ProductivityScore {
-  let message = ''
+  let message: string
 
   if (score.overall >= 90) {
     message = `Outstanding! You're in the top tier with a ${score.grade} productivity grade. Keep up the excellent work! 🌟`
@@ -160,7 +160,7 @@ function generateConsistencyMessage(insight: ConsistencyInsight): ConsistencyIns
   const { score, metrics, trend } = insight
   const { activeDays, totalDays, currentStreak, longestStreak } = metrics
 
-  let message = ''
+  let message: string
 
   if (score >= 80) {
     message = `Exceptional consistency! 🌟 `
@@ -200,7 +200,7 @@ function generateTrendMessage(insight: ProductivityTrendInsight): ProductivityTr
   const { change, trend } = insight
   const avgChange = Math.round((change.sessions + change.duration) / 2)
 
-  let message = ''
+  let message: string
 
   if (trend === 'up') {
     message = `📈 You're on fire! Productivity up ${Math.abs(avgChange)}% compared to last week. `
@@ -253,11 +253,12 @@ function generateWeeklySummaryMessage(summary: WeeklySummary): WeeklySummary {
  */
 export function generateRecommendations(insights: AIInsights): Recommendation[] {
   const recommendations: Recommendation[] = []
-  let id = 1
+  let id = 0
 
   // Check data quality first
   if (insights.dataQuality === 'insufficient') {
     recommendations.push({
+      // eslint-disable-next-line no-useless-assignment -- post-increment reads the previous value
       id: `rec-${id++}`,
       category: 'general',
       priority: 'high',
@@ -404,6 +405,7 @@ export function generateRecommendations(insights: AIInsights): Recommendation[] 
   // General encouragement
   if (consistency.score >= 70 && insights.productivityScore.overall >= 75) {
     recommendations.push({
+      // eslint-disable-next-line no-useless-assignment -- post-increment reads the previous value
       id: `rec-${id++}`,
       category: 'general',
       priority: 'low',

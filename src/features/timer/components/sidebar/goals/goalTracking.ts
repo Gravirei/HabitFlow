@@ -99,7 +99,7 @@ export function getGoalProgressDetails(goal: Goal): GoalProgress {
   const end = new Date(goal.endDate)
   const daysLeft = Math.max(differenceInDays(end, now), 0)
 
-  let timeLeft = ''
+  let timeLeft: string
   if (daysLeft === 0) {
     timeLeft = 'Today'
   } else if (daysLeft === 1) {
