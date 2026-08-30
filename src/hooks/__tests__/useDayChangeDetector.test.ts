@@ -1,16 +1,11 @@
-// @ts-nocheck
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { renderHook } from '@testing-library/react'
 import { act } from 'react'
 import { useDayChangeDetector } from '@/hooks/useDayChangeDetector'
 
 describe('useDayChangeDetector', () => {
-  let originalDateNow: typeof Date.now
-  let dateNowSpy: ReturnType<typeof vi.spyOn>
-
   beforeEach(() => {
     vi.useFakeTimers()
-    originalDateNow = Date.now
     // Default: 2026-03-01 12:00:00 UTC
     vi.setSystemTime(new Date('2026-03-01T12:00:00Z'))
   })

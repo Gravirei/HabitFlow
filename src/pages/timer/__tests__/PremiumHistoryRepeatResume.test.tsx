@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * PremiumHistory Repeat/Resume Integration Tests
  *
@@ -108,8 +107,8 @@ describe('PremiumHistory Repeat/Resume Functionality', () => {
       const countdownSession: CountdownSession = {
         id: 'session-1',
         mode: 'Countdown',
-        startTime: Date.now() - 1500000,
-        endTime: Date.now(),
+        timestamp: Date.now() - 1500000,
+
         duration: 1500, // 25 minutes completed
         targetDuration: 1800, // 30 minutes target
         completed: true,
@@ -130,17 +129,15 @@ describe('PremiumHistory Repeat/Resume Functionality', () => {
       const intervalsSession: IntervalsSession = {
         id: 'session-2',
         mode: 'Intervals',
-        startTime: Date.now() - 3600000,
-        endTime: Date.now(),
+        timestamp: Date.now() - 3600000,
+
         duration: 3000,
         workDuration: 1500, // 25 minutes
         breakDuration: 300, // 5 minutes
         intervalCount: 4,
         targetLoopCount: 4,
         sessionName: 'Deep Work Session',
-        completedIntervals: 4,
-        totalWorkTime: 6000,
-        totalBreakTime: 1200,
+        completedLoops: 4,
       }
 
       handleRepeatClick(intervalsSession)
@@ -159,8 +156,8 @@ describe('PremiumHistory Repeat/Resume Functionality', () => {
       const stopwatchSession: StopwatchSession = {
         id: 'session-3',
         mode: 'Stopwatch',
-        startTime: Date.now() - 600000,
-        endTime: Date.now(),
+        timestamp: Date.now() - 600000,
+
         duration: 600,
         laps: [],
       }
@@ -176,8 +173,8 @@ describe('PremiumHistory Repeat/Resume Functionality', () => {
       const longCountdownSession: CountdownSession = {
         id: 'session-4',
         mode: 'Countdown',
-        startTime: Date.now() - 7200000,
-        endTime: Date.now(),
+        timestamp: Date.now() - 7200000,
+
         duration: 7200, // 2 hours completed
         targetDuration: 7320, // 2 hours and 2 minutes target
         completed: true,
@@ -236,7 +233,7 @@ describe('PremiumHistory Repeat/Resume Functionality', () => {
       const incompleteSession: CountdownSession = {
         id: 'session-5',
         mode: 'Countdown',
-        startTime: Date.now() - 600000,
+        timestamp: Date.now() - 600000,
         duration: 600, // 10 minutes elapsed
         targetDuration: 1800, // 30 minutes target
         completed: false,
@@ -259,7 +256,7 @@ describe('PremiumHistory Repeat/Resume Functionality', () => {
       const incompleteSession: CountdownSession = {
         id: 'session-6',
         mode: 'Countdown',
-        startTime: Date.now() - 1800000,
+        timestamp: Date.now() - 1800000,
         duration: 1800, // 30 minutes elapsed
         targetDuration: 7200, // 2 hours target
         completed: false,
@@ -281,7 +278,7 @@ describe('PremiumHistory Repeat/Resume Functionality', () => {
       const incompleteSession: CountdownSession = {
         id: 'session-7',
         mode: 'Countdown',
-        startTime: Date.now() - 125000,
+        timestamp: Date.now() - 125000,
         duration: 125, // 2m 5s elapsed
         targetDuration: 300, // 5 minutes target
         completed: false,
@@ -303,8 +300,8 @@ describe('PremiumHistory Repeat/Resume Functionality', () => {
       const completedSession: CountdownSession = {
         id: 'session-8',
         mode: 'Countdown',
-        startTime: Date.now() - 1800000,
-        endTime: Date.now(),
+        timestamp: Date.now() - 1800000,
+
         duration: 1800,
         targetDuration: 1800,
         completed: true,
@@ -320,14 +317,12 @@ describe('PremiumHistory Repeat/Resume Functionality', () => {
       const intervalsSession: IntervalsSession = {
         id: 'session-9',
         mode: 'Intervals',
-        startTime: Date.now() - 1800000,
+        timestamp: Date.now() - 1800000,
         duration: 1800,
         workDuration: 1500,
         breakDuration: 300,
         intervalCount: 2,
-        completedIntervals: 2,
-        totalWorkTime: 3000,
-        totalBreakTime: 600,
+        completedLoops: 2,
       }
 
       const result = handleResumeClick(intervalsSession)
@@ -339,7 +334,7 @@ describe('PremiumHistory Repeat/Resume Functionality', () => {
       const stopwatchSession: StopwatchSession = {
         id: 'session-10',
         mode: 'Stopwatch',
-        startTime: Date.now() - 600000,
+        timestamp: Date.now() - 600000,
         duration: 600,
         laps: [],
       }
@@ -353,7 +348,7 @@ describe('PremiumHistory Repeat/Resume Functionality', () => {
       const noRemainingSession: CountdownSession = {
         id: 'session-11',
         mode: 'Countdown',
-        startTime: Date.now() - 1800000,
+        timestamp: Date.now() - 1800000,
         duration: 1800, // Same as target
         targetDuration: 1800,
         completed: false, // Marked incomplete but no time left
@@ -444,7 +439,7 @@ describe('PremiumHistory Repeat/Resume Functionality', () => {
       const session: CountdownSession = {
         id: 'edge-1',
         mode: 'Countdown',
-        startTime: Date.now(),
+        timestamp: Date.now(),
         duration: 0,
         targetDuration: 0,
         completed: true,
@@ -462,7 +457,7 @@ describe('PremiumHistory Repeat/Resume Functionality', () => {
       const session: CountdownSession = {
         id: 'edge-2',
         mode: 'Countdown',
-        startTime: Date.now() - 900000,
+        timestamp: Date.now() - 900000,
         duration: 900, // 15 minutes
         completed: true,
         // targetDuration is undefined
@@ -479,7 +474,7 @@ describe('PremiumHistory Repeat/Resume Functionality', () => {
       const session: CountdownSession = {
         id: 'edge-3',
         mode: 'Countdown',
-        startTime: Date.now(),
+        timestamp: Date.now(),
         duration: 356400, // 99 hours
         targetDuration: 356400,
         completed: true,
@@ -497,7 +492,7 @@ describe('PremiumHistory Repeat/Resume Functionality', () => {
       const session: CountdownSession = {
         id: 'edge-4',
         mode: 'Countdown',
-        startTime: Date.now(),
+        timestamp: Date.now(),
         duration: 90.5, // 1 minute 30.5 seconds
         targetDuration: 90.5,
         completed: true,
@@ -517,12 +512,10 @@ describe('PremiumHistory Repeat/Resume Functionality', () => {
       const session: IntervalsSession = {
         id: 'edge-5',
         mode: 'Intervals',
-        startTime: Date.now(),
+        timestamp: Date.now(),
         duration: 1800,
         intervalCount: 4,
-        completedIntervals: 4,
-        totalWorkTime: 6000,
-        totalBreakTime: 1200,
+        completedLoops: 4,
         // workDuration and breakDuration are undefined
       }
 
@@ -538,13 +531,11 @@ describe('PremiumHistory Repeat/Resume Functionality', () => {
       const session: IntervalsSession = {
         id: 'edge-6',
         mode: 'Intervals',
-        startTime: Date.now(),
+        timestamp: Date.now(),
         duration: 1800,
         workDuration: 1500,
         breakDuration: 300,
-        completedIntervals: 2,
-        totalWorkTime: 3000,
-        totalBreakTime: 600,
+        completedLoops: 2,
         // targetLoopCount and intervalCount are undefined
       }
 
@@ -559,14 +550,12 @@ describe('PremiumHistory Repeat/Resume Functionality', () => {
       const session: IntervalsSession = {
         id: 'edge-7',
         mode: 'Intervals',
-        startTime: Date.now(),
+        timestamp: Date.now(),
         duration: 1800,
         workDuration: 1500,
         breakDuration: 300,
         intervalCount: 4,
-        completedIntervals: 4,
-        totalWorkTime: 6000,
-        totalBreakTime: 1200,
+        completedLoops: 4,
         // sessionName is undefined
       }
 
@@ -580,14 +569,12 @@ describe('PremiumHistory Repeat/Resume Functionality', () => {
       const session: IntervalsSession = {
         id: 'edge-8',
         mode: 'Intervals',
-        startTime: Date.now(),
+        timestamp: Date.now(),
         duration: 1800,
         workDuration: 1500,
         breakDuration: 300,
         intervalCount: 4,
-        completedIntervals: 4,
-        totalWorkTime: 6000,
-        totalBreakTime: 1200,
+        completedLoops: 4,
         sessionName: '',
       }
 
@@ -601,14 +588,12 @@ describe('PremiumHistory Repeat/Resume Functionality', () => {
       const session: IntervalsSession = {
         id: 'edge-9',
         mode: 'Intervals',
-        startTime: Date.now(),
+        timestamp: Date.now(),
         duration: 1800,
         workDuration: 1500,
         breakDuration: 300,
         intervalCount: 4,
-        completedIntervals: 4,
-        totalWorkTime: 6000,
-        totalBreakTime: 1200,
+        completedLoops: 4,
         sessionName: '🔥 Work & "Focus" <session>',
       }
 
@@ -661,7 +646,7 @@ describe('PremiumHistory Repeat/Resume Functionality', () => {
       const session: CountdownSession = {
         id: 'resume-edge-1',
         mode: 'Countdown',
-        startTime: Date.now(),
+        timestamp: Date.now(),
         duration: 299, // 4:59 elapsed
         targetDuration: 300, // 5 minutes
         completed: false,
@@ -680,7 +665,7 @@ describe('PremiumHistory Repeat/Resume Functionality', () => {
       const session: CountdownSession = {
         id: 'resume-edge-2',
         mode: 'Countdown',
-        startTime: Date.now(),
+        timestamp: Date.now(),
         duration: 300,
         targetDuration: 300,
         completed: false,
@@ -695,7 +680,7 @@ describe('PremiumHistory Repeat/Resume Functionality', () => {
       const session: CountdownSession = {
         id: 'resume-edge-3',
         mode: 'Countdown',
-        startTime: Date.now(),
+        timestamp: Date.now(),
         duration: 350, // Over the target
         targetDuration: 300,
         completed: false,
@@ -710,7 +695,7 @@ describe('PremiumHistory Repeat/Resume Functionality', () => {
       const session: CountdownSession = {
         id: 'resume-edge-4',
         mode: 'Countdown',
-        startTime: Date.now(),
+        timestamp: Date.now(),
         targetDuration: 300,
         completed: false,
       } as CountdownSession // duration is undefined
@@ -727,7 +712,7 @@ describe('PremiumHistory Repeat/Resume Functionality', () => {
       const session: CountdownSession = {
         id: 'resume-edge-5',
         mode: 'Countdown',
-        startTime: Date.now(),
+        timestamp: Date.now(),
         duration: 100,
         completed: false,
       } as CountdownSession // targetDuration is undefined (treats as 0)
@@ -742,7 +727,7 @@ describe('PremiumHistory Repeat/Resume Functionality', () => {
       const session: CountdownSession = {
         id: 'resume-edge-6',
         mode: 'Countdown',
-        startTime: Date.now(),
+        timestamp: Date.now(),
         duration: 100,
         targetDuration: 300,
       } as CountdownSession // completed is undefined
@@ -757,7 +742,7 @@ describe('PremiumHistory Repeat/Resume Functionality', () => {
       const session = {
         id: 'resume-edge-7',
         mode: 'Countdown',
-        startTime: Date.now(),
+        timestamp: Date.now(),
         duration: 100,
         targetDuration: 300,
         completed: null,
@@ -773,7 +758,7 @@ describe('PremiumHistory Repeat/Resume Functionality', () => {
       const session: CountdownSession = {
         id: 'resume-edge-8',
         mode: 'Countdown',
-        startTime: Date.now(),
+        timestamp: Date.now(),
         duration: 60, // 1 minute elapsed
         targetDuration: 86400, // 24 hours target
         completed: false,
@@ -793,7 +778,7 @@ describe('PremiumHistory Repeat/Resume Functionality', () => {
       const session: CountdownSession = {
         id: 'resume-edge-9',
         mode: 'Countdown',
-        startTime: Date.now(),
+        timestamp: Date.now(),
         duration: 60.7, // 60.7 seconds elapsed
         targetDuration: 120, // 2 minutes target
         completed: false,
@@ -814,13 +799,6 @@ describe('PremiumHistory Repeat/Resume Functionality', () => {
 
   describe('Edge Cases - Session Types', () => {
     it('should handle session with minimal required fields', () => {
-      const minimalCountdown: CountdownSession = {
-        id: 'minimal-1',
-        mode: 'Countdown',
-        startTime: Date.now(),
-        duration: 60,
-      }
-
       // Should not throw when processing
       expect(() => {
         timerPersistence.saveRepeatSession({
@@ -834,16 +812,6 @@ describe('PremiumHistory Repeat/Resume Functionality', () => {
     })
 
     it('should handle session with all optional fields populated', () => {
-      const fullSession: CountdownSession = {
-        id: 'full-1',
-        mode: 'Countdown',
-        startTime: Date.now() - 3600000,
-        endTime: Date.now(),
-        duration: 3600,
-        targetDuration: 3600,
-        completed: true,
-      }
-
       timerPersistence.saveRepeatSession({
         mode: 'Countdown',
         hours: 1,
@@ -857,19 +825,6 @@ describe('PremiumHistory Repeat/Resume Functionality', () => {
     })
 
     it('should handle intervals session with zero work/break time', () => {
-      const zeroSession: IntervalsSession = {
-        id: 'zero-1',
-        mode: 'Intervals',
-        startTime: Date.now(),
-        duration: 0,
-        workDuration: 0,
-        breakDuration: 0,
-        intervalCount: 0,
-        completedIntervals: 0,
-        totalWorkTime: 0,
-        totalBreakTime: 0,
-      }
-
       timerPersistence.saveRepeatSession({
         mode: 'Intervals',
         workMinutes: 0,
@@ -884,23 +839,6 @@ describe('PremiumHistory Repeat/Resume Functionality', () => {
     })
 
     it('should handle stopwatch session with many laps', () => {
-      const laps = Array.from({ length: 100 }, (_, i) => ({
-        id: `lap-${i}`,
-        time: i * 1000,
-        timestamp: Date.now() + i * 1000,
-      }))
-
-      const manyLapsSession: StopwatchSession = {
-        id: 'laps-1',
-        mode: 'Stopwatch',
-        startTime: Date.now() - 100000,
-        duration: 100000,
-        laps,
-        bestLap: 500,
-        worstLap: 2000,
-        averageLap: 1000,
-      }
-
       // Stopwatch doesn't save repeat config, just navigates
       mockNavigate('/timer')
       expect(mockNavigate).toHaveBeenCalledWith('/timer')

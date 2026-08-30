@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import toast from 'react-hot-toast'
@@ -23,7 +22,7 @@ interface CurrentTrack {
 
 export function SpotifySettings() {
   const connection = useIntegrationStore((s) => s.connections['spotify'])
-  const { updateSettings, disconnect: disconnectIntegration } = useIntegrationStore()
+  const { updateSettings } = useIntegrationStore()
 
   const [isConnected, setIsConnected] = useState(
     connection.status === 'connected' && !!connection.accessToken
