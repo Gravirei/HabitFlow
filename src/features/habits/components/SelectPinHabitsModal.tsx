@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useEffect } from 'react'
 import { useHabitStore } from '@/store/useHabitStore'
@@ -168,6 +167,7 @@ export function SelectPinHabitsModal({ isOpen, onClose, habits }: SelectPinHabit
 
                       {/* Toggle Switch */}
                       <ToggleSwitch
+                        label={habit.name}
                         enabled={pendingChanges[habit.id] || false}
                         onChange={() => handleToggle(habit.id)}
                       />

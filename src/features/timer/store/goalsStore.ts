@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Goals Store
  * State management for goal tracking
@@ -6,12 +5,7 @@
 
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type {
-  Goal,
-  GoalType,
-  GoalPeriod,
-  TimerMode,
-} from '@/features/timer/components/sidebar/goals/types'
+import type { Goal } from '@/features/timer/components/sidebar/goals/types'
 
 interface GoalsState {
   goals: Goal[]

@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Tests for useReducedMotion hook
  */
@@ -64,7 +63,9 @@ describe('useReducedMotion', () => {
 
     // Simulate preference change
     if (changeHandler) {
-      changeHandler({ matches: true } as MediaQueryListEvent)
+      ;(changeHandler as (event: MediaQueryListEvent) => void)({
+        matches: true,
+      } as MediaQueryListEvent)
     }
 
     rerender()
@@ -117,8 +118,7 @@ describe('useReducedMotion', () => {
   it('should return false as default when matchMedia is not available', () => {
     // Mock matchMedia as undefined (very old browser)
     const originalMatchMedia = window.matchMedia
-    // @ts-ignore
-    window.matchMedia = undefined
+    ;(window as unknown as { matchMedia: undefined }).matchMedia = undefined
 
     const { result } = renderHook(() => useReducedMotion())
 
