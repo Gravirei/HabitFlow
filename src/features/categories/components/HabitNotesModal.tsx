@@ -1,9 +1,7 @@
-// @ts-nocheck
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
 import { useHabitStore } from '@/store/useHabitStore'
-import type { Habit, HabitNote } from '@/types/habit'
-import clsx from 'clsx'
+import type { HabitNote } from '@/types/habit'
 import toast from 'react-hot-toast'
 import { ConfirmDialog } from '@/shared/ui/ConfirmDialog'
 
@@ -45,17 +43,6 @@ export function HabitNotesModal({ isOpen, onClose, habitId, habitName }: HabitNo
       setNoteToDelete(null)
       toast.success('Note deleted!')
     }
-  }
-
-  const formatDate = (isoString: string) => {
-    const date = new Date(isoString)
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
-    })
   }
 
   return (

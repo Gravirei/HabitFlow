@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * MessageInputBar — modern input area with share tray and send affordances
  * Inspired by habitflow-messaging-v2.html input zone.
@@ -105,7 +104,7 @@ export function MessageInputBar({
             <button
               type="button"
               onClick={() => {
-                const unlockedBadges = badges.filter((b) => b.unlockedAt)
+                const unlockedBadges = badges.filter((b) => b.unlocked)
                 const badgeToShare = unlockedBadges[0] ?? badges[0]
                 if (badgeToShare) onShareBadge(badgeToShare.id)
               }}

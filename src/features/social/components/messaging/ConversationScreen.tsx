@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * ConversationScreen — Full message thread view
  * Redesigned for a premium, modern messaging experience with
@@ -51,6 +50,11 @@ interface GroupedMessage {
   isLastInGroup: boolean
   showDateSeparator: boolean
   dateSeparatorLabel: string
+}
+
+interface ConversationScreenProps {
+  conversationId: string
+  onBack?: () => void
 }
 
 function groupMessages(messages: Message[]): GroupedMessage[] {

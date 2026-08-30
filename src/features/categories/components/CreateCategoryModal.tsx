@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import clsx from 'clsx'
@@ -293,14 +292,14 @@ export function CreateCategoryModal({ isOpen, onClose, onCreated }: CreateCatego
                 <div>
                   <GradientPicker
                     value={gradient}
-                    onChange={setGradient}
+                    onChange={(v) => setGradient(v ?? '')}
                     label="Gradient (optional)"
                   />
                 </div>
 
                 {/* Image (Optional) */}
                 <div>
-                  <ImagePicker value={imagePath} onChange={setImagePath} label="Image (optional)" />
+                  <ImagePicker value={imagePath} onChange={(v) => setImagePath(v ?? '')} label="Image (optional)" />
                 </div>
 
                 {/* Height */}
