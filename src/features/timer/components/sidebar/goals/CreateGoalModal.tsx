@@ -1,10 +1,9 @@
-// @ts-nocheck
 /**
  * Create Goal Modal
  * Modal for creating new goals
  */
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { addDays, addWeeks, addMonths } from 'date-fns'
@@ -370,7 +369,7 @@ export function CreateGoalModal({ isOpen, onClose, onCreateGoal }: CreateGoalMod
                         </label>
                       </div>
                       <div className="grid grid-cols-3 gap-3">
-                        {modes.map((m, index) => (
+                        {modes.map((m) => (
                           <motion.button
                             key={m}
                             initial={{ opacity: 0, scale: 0.9 }}
