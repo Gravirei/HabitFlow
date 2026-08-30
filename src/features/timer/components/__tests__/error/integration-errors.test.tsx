@@ -10,7 +10,7 @@ declare const process: NodeJS.Process
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { TimerContainer } from '../../TimerContainer'
@@ -123,9 +123,19 @@ describe('Integration Error Tests', () => {
   })
 
   describe('User Interaction Errors', () => {
-    it('should handle rapid button clicks', async () => {
-      const user = userEvent.setup({ delay: null })
-
+    // Uses fireEvent rather than userEvent.click because user-event
+    // v14.6.1's internal `wait()` schedules `setTimeout(0)` resolves
+    // between each interaction step, and this suite runs under
+    // `vi.useFakeTimers()` which starves those resolves. With @testing-
+    // library/react v16 the interaction surface is larger (focus/blur,
+    // pointer events), so each `user.click()` schedules more waits
+    // than ever and the loop never completes within vitest's 15s
+    // timeout. The buttons are also framer-motion <motion.button>
+    // elements that re-render constantly, compounding the wait load.
+    // fireEvent dispatches the click event synchronously without any
+    // inter-step waits, which matches the test's intent (verify rapid
+    // clicks don't trigger the error boundary).
+    it('should handle rapid button clicks', () => {
       renderWithRouter(
         <TimerErrorBoundary>
           <TimerContainer />
@@ -134,14 +144,14 @@ describe('Integration Error Tests', () => {
 
       // Switch to countdown mode (tabs have role="tab", not "button")
       const countdownTab = screen.getByRole('tab', { name: /countdown/i })
-      await user.click(countdownTab)
+      fireEvent.click(countdownTab)
 
       // Get start button
       const startButton = screen.getByRole('button', { name: /start/i })
 
       // Rapid clicks
       for (let i = 0; i < 10; i++) {
-        await user.click(startButton)
+        fireEvent.click(startButton)
       }
 
       // Should handle gracefully
@@ -425,9 +435,10 @@ describe('Integration Error Tests', () => {
       expect(screen.queryByText(/something went wrong/i)).not.toBeInTheDocument()
     }, 10000)
 
-    it('should handle rapid keyboard inputs', async () => {
-      const user = userEvent.setup({ delay: null })
-
+    // Same rationale as the rapid-click test above: userEvent.keyboard
+    // schedules `setTimeout(0)` resolves between each keystroke that
+    // never fire under `vi.useFakeTimers()`.
+    it('should handle rapid keyboard inputs', () => {
       renderWithRouter(
         <TimerErrorBoundary>
           <TimerContainer />
@@ -436,7 +447,7 @@ describe('Integration Error Tests', () => {
 
       // Rapid keyboard inputs
       for (let i = 0; i < 20; i++) {
-        await user.keyboard('{Space}')
+        fireEvent.keyDown(document.body, { key: ' ' })
       }
 
       // Should handle without errors

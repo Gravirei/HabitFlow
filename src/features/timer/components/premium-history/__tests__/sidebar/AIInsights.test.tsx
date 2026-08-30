@@ -278,9 +278,7 @@ describe.skip('AI Insights Feature', () => {
       const largeSessions = Array.from({ length: 15 }, (_, i) => ({
         id: `session-${i}`,
         mode: ['Stopwatch', 'Countdown', 'Intervals'][i % 3] as
-          | 'Stopwatch'
-          | 'Countdown'
-          | 'Intervals',
+          'Stopwatch' | 'Countdown' | 'Intervals',
         duration: 1500,
         startTime: new Date(Date.now() - i * 3600000),
         endTime: new Date(Date.now() - i * 3600000 + 1500000),
