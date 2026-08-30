@@ -84,15 +84,11 @@ export const VibrationSettings: React.FC = () => {
                   key={pattern.value}
                   onClick={() => handlePatternChange(pattern.value)}
                   disabled={!isVibrationSupported}
-                  className={`
-                    flex w-full items-center justify-between rounded-xl p-4 text-left transition-all
-                    ${
-                      settings.vibrationPattern === pattern.value
-                        ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white'
-                        : 'bg-white/5 text-gray-300 hover:bg-white/10'
-                    }
-                    ${!isVibrationSupported ? 'cursor-not-allowed opacity-50' : ''}
-                  `}
+                  className={`flex w-full items-center justify-between rounded-xl p-4 text-left transition-all ${
+                    settings.vibrationPattern === pattern.value
+                      ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white'
+                      : 'bg-white/5 text-gray-300 hover:bg-white/10'
+                  } ${!isVibrationSupported ? 'cursor-not-allowed opacity-50' : ''} `}
                 >
                   <div>
                     <p className="text-sm font-semibold">{pattern.label}</p>
@@ -114,14 +110,11 @@ export const VibrationSettings: React.FC = () => {
           <button
             onClick={handlePreviewClick}
             disabled={!isVibrationSupported}
-            className={`
-              flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 font-semibold transition-all
-              ${
-                isVibrationSupported
-                  ? 'border border-blue-500/30 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 text-white hover:from-blue-500/30 hover:to-cyan-500/30 active:scale-95'
-                  : 'cursor-not-allowed border border-white/10 bg-white/5 text-gray-500 opacity-50'
-              }
-            `}
+            className={`flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 font-semibold transition-all ${
+              isVibrationSupported
+                ? 'border border-blue-500/30 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 text-white hover:from-blue-500/30 hover:to-cyan-500/30 active:scale-95'
+                : 'cursor-not-allowed border border-white/10 bg-white/5 text-gray-500 opacity-50'
+            } `}
           >
             <span className="material-symbols-outlined text-xl">vibration</span>
             {isVibrationSupported ? 'Test Vibration' : 'Vibration Not Available'}

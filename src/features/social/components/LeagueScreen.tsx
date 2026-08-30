@@ -139,12 +139,7 @@ function MemberRow({
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.02, ease: 'easeOut' }}
       onClick={() => onRowClick(member)}
-      className={`
-        flex cursor-pointer items-center gap-2.5 rounded-xl border-l-2 px-3 py-2
-        transition-all duration-200
-        ${zoneBorder} ${zoneBg}
-        ${member.isCurrentUser ? 'border-l-primary/60 bg-primary/[0.07]' : 'hover:bg-white/[0.02]'}
-      `}
+      className={`flex cursor-pointer items-center gap-2.5 rounded-xl border-l-2 px-3 py-2 transition-all duration-200 ${zoneBorder} ${zoneBg} ${member.isCurrentUser ? 'border-l-primary/60 bg-primary/[0.07]' : 'hover:bg-white/[0.02]'} `}
     >
       {/* Rank */}
       <div className="flex size-7 flex-shrink-0 items-center justify-center">

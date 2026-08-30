@@ -240,18 +240,13 @@ export function DateRangePickerModal({
                     handleDateClick(day)
                   }}
                   disabled={!isCurrentMonth}
-                  className={`
-                    relative z-10 flex aspect-square w-full items-center justify-center text-sm font-medium transition-all
-                    ${!isCurrentMonth ? 'pointer-events-none text-slate-300 opacity-0 dark:text-slate-700' : ''}
-                    ${
-                      isRangeStartOrEnd
-                        ? 'bg-gradient-to-br from-primary to-purple-600 text-white shadow-md'
-                        : inRange
-                          ? 'font-semibold text-primary'
-                          : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/10'
-                    }
-                    ${isToday(day) && !isRangeStartOrEnd ? 'ring-2 ring-primary/50 dark:ring-primary/40' : ''}
-                  `}
+                  className={`relative z-10 flex aspect-square w-full items-center justify-center text-sm font-medium transition-all ${!isCurrentMonth ? 'pointer-events-none text-slate-300 opacity-0 dark:text-slate-700' : ''} ${
+                    isRangeStartOrEnd
+                      ? 'bg-gradient-to-br from-primary to-purple-600 text-white shadow-md'
+                      : inRange
+                        ? 'font-semibold text-primary'
+                        : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/10'
+                  } ${isToday(day) && !isRangeStartOrEnd ? 'ring-2 ring-primary/50 dark:ring-primary/40' : ''} `}
                 >
                   {format(day, 'd')}
                 </button>
@@ -321,14 +316,11 @@ export function DateRangePickerModal({
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => handleQuickRange(range.id)}
-                    className={`
-                      rounded-xl px-4 py-3 text-xs font-semibold transition-all
-                      ${
-                        selectedQuickRange === range.id
-                          ? 'bg-gradient-to-br from-primary to-purple-600 text-white shadow-lg shadow-primary/30'
-                          : 'border border-slate-200/50 bg-slate-50 text-slate-600 hover:bg-slate-100 dark:border-white/5 dark:bg-white/5 dark:text-slate-400 dark:hover:bg-white/10'
-                      }
-                    `}
+                    className={`rounded-xl px-4 py-3 text-xs font-semibold transition-all ${
+                      selectedQuickRange === range.id
+                        ? 'bg-gradient-to-br from-primary to-purple-600 text-white shadow-lg shadow-primary/30'
+                        : 'border border-slate-200/50 bg-slate-50 text-slate-600 hover:bg-slate-100 dark:border-white/5 dark:bg-white/5 dark:text-slate-400 dark:hover:bg-white/10'
+                    } `}
                   >
                     {range.label}
                   </motion.button>

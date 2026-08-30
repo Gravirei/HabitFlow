@@ -285,14 +285,11 @@ export function CreateGoalModal({ isOpen, onClose, onCreateGoal }: CreateGoalMod
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.6 + index * 0.05 }}
                         onClick={() => setGoalType(type.id)}
-                        className={`
-                          group relative overflow-hidden rounded-2xl border-2 p-4 text-left transition-all
-                          ${
-                            goalType === type.id
-                              ? 'border-pink-400/60 bg-gradient-to-r from-pink-500/10 to-violet-500/10 shadow-lg shadow-pink-500/10'
-                              : 'border-white/10 bg-white/5 hover:border-pink-400/30'
-                          }
-                        `}
+                        className={`group relative overflow-hidden rounded-2xl border-2 p-4 text-left transition-all ${
+                          goalType === type.id
+                            ? 'border-pink-400/60 bg-gradient-to-r from-pink-500/10 to-violet-500/10 shadow-lg shadow-pink-500/10'
+                            : 'border-white/10 bg-white/5 hover:border-pink-400/30'
+                        } `}
                       >
                         <div className="absolute inset-0 bg-gradient-to-br from-pink-500/5 via-transparent to-violet-500/5 opacity-0 transition-opacity group-hover:opacity-100" />
 
@@ -343,14 +340,11 @@ export function CreateGoalModal({ isOpen, onClose, onCreateGoal }: CreateGoalMod
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: 0.8 + index * 0.05 }}
                         onClick={() => setPeriod(p.id)}
-                        className={`
-                          flex items-center justify-center gap-2 rounded-2xl border-2 px-5 py-3 text-sm font-bold transition-all
-                          ${
-                            period === p.id
-                              ? 'border-violet-400/60 bg-violet-500/10 text-violet-300 shadow-lg shadow-violet-500/10'
-                              : 'border-white/10 text-white/70 hover:border-violet-400/30 hover:bg-white/5'
-                          }
-                        `}
+                        className={`flex items-center justify-center gap-2 rounded-2xl border-2 px-5 py-3 text-sm font-bold transition-all ${
+                          period === p.id
+                            ? 'border-violet-400/60 bg-violet-500/10 text-violet-300 shadow-lg shadow-violet-500/10'
+                            : 'border-white/10 text-white/70 hover:border-violet-400/30 hover:bg-white/5'
+                        } `}
                       >
                         <span className="material-symbols-outlined text-[18px]">{p.icon}</span>
                         {p.name}
@@ -383,14 +377,11 @@ export function CreateGoalModal({ isOpen, onClose, onCreateGoal }: CreateGoalMod
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ delay: 0.1 }}
                             onClick={() => setMode(m)}
-                            className={`
-                              rounded-2xl border-2 px-5 py-3 text-sm font-bold transition-all
-                              ${
-                                mode === m
-                                  ? 'border-purple-400/60 bg-purple-500/10 text-purple-300'
-                                  : 'border-white/10 text-white/70 hover:border-purple-400/30 hover:bg-white/5'
-                              }
-                            `}
+                            className={`rounded-2xl border-2 px-5 py-3 text-sm font-bold transition-all ${
+                              mode === m
+                                ? 'border-purple-400/60 bg-purple-500/10 text-purple-300'
+                                : 'border-white/10 text-white/70 hover:border-purple-400/30 hover:bg-white/5'
+                            } `}
                           >
                             {m}
                           </motion.button>

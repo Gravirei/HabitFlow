@@ -34,10 +34,7 @@ export function AchievementToast({ achievement, onClose }: AchievementToastProps
         onClick={onClose}
       >
         <div
-          className={`
-            relative cursor-pointer overflow-hidden rounded-2xl bg-gradient-to-br
-            shadow-2xl ${getRarityColor(rarity)}
-          `}
+          className={`relative cursor-pointer overflow-hidden rounded-2xl bg-gradient-to-br shadow-2xl ${getRarityColor(rarity)} `}
         >
           {/* Shine Animation */}
           <motion.div

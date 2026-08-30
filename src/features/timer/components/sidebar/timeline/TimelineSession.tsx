@@ -30,11 +30,7 @@ export function TimelineSessionBlock({ session, left, width, onClick }: Timeline
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
       onClick={() => onClick?.(session)}
-      className={`
-        absolute top-0 h-full cursor-pointer rounded transition-all
-        ${color} hover:shadow-lg
-        ${isSmall ? 'min-w-[4px]' : ''}
-      `}
+      className={`absolute top-0 h-full cursor-pointer rounded transition-all ${color} hover:shadow-lg ${isSmall ? 'min-w-[4px]' : ''} `}
       style={{
         left: `${left}%`,
         width: `${width}%`,

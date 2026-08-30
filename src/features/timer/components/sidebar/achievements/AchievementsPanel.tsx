@@ -113,14 +113,11 @@ export function AchievementsPanel({ achievements }: AchievementsPanelProps) {
             <button
               key={btn.id}
               onClick={() => setFilter(btn.id)}
-              className={`
-                flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-all
-                ${
-                  filter === btn.id
-                    ? 'bg-primary text-white shadow-lg shadow-primary/30'
-                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
-                }
-              `}
+              className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-all ${
+                filter === btn.id
+                  ? 'bg-primary text-white shadow-lg shadow-primary/30'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
+              } `}
             >
               <span className="material-symbols-outlined text-[18px]">{btn.icon}</span>
               {btn.label}
@@ -139,14 +136,11 @@ export function AchievementsPanel({ achievements }: AchievementsPanelProps) {
             <button
               key={btn.id}
               onClick={() => setFilter(btn.id)}
-              className={`
-                rounded-xl px-4 py-2 text-sm font-medium transition-all
-                ${
-                  filter === btn.id
-                    ? `bg-${btn.color}-500 text-white shadow-lg shadow-${btn.color}-500/30`
-                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
-                }
-              `}
+              className={`rounded-xl px-4 py-2 text-sm font-medium transition-all ${
+                filter === btn.id
+                  ? `bg-${btn.color}-500 text-white shadow-lg shadow-${btn.color}-500/30`
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
+              } `}
             >
               {btn.label}
             </button>
@@ -164,14 +158,11 @@ export function AchievementsPanel({ achievements }: AchievementsPanelProps) {
             <button
               key={btn.id}
               onClick={() => setCategoryFilter(btn.id)}
-              className={`
-                flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-all
-                ${
-                  categoryFilter === btn.id
-                    ? 'bg-primary text-white shadow-lg shadow-primary/30'
-                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
-                }
-              `}
+              className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-all ${
+                categoryFilter === btn.id
+                  ? 'bg-primary text-white shadow-lg shadow-primary/30'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
+              } `}
             >
               <span className="material-symbols-outlined text-[18px]">{btn.icon}</span>
               {btn.label}

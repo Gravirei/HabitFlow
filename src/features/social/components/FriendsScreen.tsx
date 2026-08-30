@@ -489,15 +489,11 @@ export function FriendsScreen({ onNavigateToMessages }: FriendsScreenProps) {
           <button
             key={f.id}
             onClick={() => setFilter(f.id)}
-            className={`
-              flex cursor-pointer items-center gap-1.5 rounded-xl px-3 py-2 text-[11px] font-semibold
-              transition-all duration-200 ease-out
-              ${
-                filter === f.id
-                  ? 'bg-primary text-primary-content shadow-md shadow-primary/25'
-                  : 'border border-white/[0.04] bg-white/[0.03] text-slate-400 hover:bg-white/[0.06] hover:text-white'
-              }
-            `}
+            className={`flex cursor-pointer items-center gap-1.5 rounded-xl px-3 py-2 text-[11px] font-semibold transition-all duration-200 ease-out ${
+              filter === f.id
+                ? 'bg-primary text-primary-content shadow-md shadow-primary/25'
+                : 'border border-white/[0.04] bg-white/[0.03] text-slate-400 hover:bg-white/[0.06] hover:text-white'
+            } `}
           >
             <span
               className="material-symbols-outlined text-[13px]"

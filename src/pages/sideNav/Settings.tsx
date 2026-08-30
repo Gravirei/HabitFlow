@@ -319,7 +319,7 @@ export function Settings() {
             <SectionHeading>Profile</SectionHeading>
             <button
               onClick={() => navigate('/profile')}
-              className="group flex w-full cursor-pointer items-center gap-4 rounded-2xl border border-slate-800 bg-slate-900/60 p-4 transition-all duration-200 hover:border-primary/20 hover:shadow-md sm:p-5 "
+              className="group flex w-full cursor-pointer items-center gap-4 rounded-2xl border border-slate-800 bg-slate-900/60 p-4 transition-all duration-200 hover:border-primary/20 hover:shadow-md sm:p-5"
             >
               <div className="relative shrink-0">
                 <div className="shadow-glow/20 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary-focus">

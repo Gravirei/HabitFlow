@@ -38,14 +38,11 @@ export function TimelineControls({
           <button
             key={mode.id}
             onClick={() => onViewModeChange(mode.id)}
-            className={`
-              flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all
-              ${
-                viewMode === mode.id
-                  ? 'bg-white text-primary shadow-sm dark:bg-slate-700'
-                  : 'text-slate-600 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
-              }
-            `}
+            className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${
+              viewMode === mode.id
+                ? 'bg-white text-primary shadow-sm dark:bg-slate-700'
+                : 'text-slate-600 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
+            } `}
           >
             <span className="material-symbols-outlined text-[18px]">{mode.icon}</span>
             {mode.label}

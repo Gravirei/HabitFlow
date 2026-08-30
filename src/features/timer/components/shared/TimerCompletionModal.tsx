@@ -114,15 +114,7 @@ export const TimerCompletionModal: React.FC<TimerCompletionModalProps> = ({
           aria-modal="true"
           aria-labelledby="completion-title"
           aria-describedby="completion-desc"
-          className={`
-            pointer-events-auto relative w-full max-w-lg
-            overflow-hidden rounded-3xl border
-            border-white/20 bg-gradient-to-b
-            from-white/[0.08] to-white/[0.03]
-            shadow-2xl shadow-primary/10
-            backdrop-blur-2xl
-            ${animationPhase >= 1 ? 'animate-in zoom-in-95 fade-in duration-500' : 'opacity-0'}
-          `}
+          className={`pointer-events-auto relative w-full max-w-lg overflow-hidden rounded-3xl border border-white/20 bg-gradient-to-b from-white/[0.08] to-white/[0.03] shadow-2xl shadow-primary/10 backdrop-blur-2xl ${animationPhase >= 1 ? 'animate-in zoom-in-95 fade-in duration-500' : 'opacity-0'} `}
           onClick={(e) => e.stopPropagation()}
         >
           {/* Gradient overlay */}
@@ -136,10 +128,7 @@ export const TimerCompletionModal: React.FC<TimerCompletionModalProps> = ({
           <div className="relative p-8 pt-12">
             {/* Success Icon */}
             <div
-              className={`
-                mb-8 flex transform justify-center
-                ${animationPhase >= 2 ? 'animate-in slide-in-from-top-5 fade-in duration-500' : 'opacity-0'}
-              `}
+              className={`mb-8 flex transform justify-center ${animationPhase >= 2 ? 'animate-in slide-in-from-top-5 fade-in duration-500' : 'opacity-0'} `}
             >
               <div className="relative">
                 {/* Outer ring */}
@@ -172,10 +161,7 @@ export const TimerCompletionModal: React.FC<TimerCompletionModalProps> = ({
 
             {/* Congratulations text */}
             <div
-              className={`
-                mb-8 transform text-center
-                ${animationPhase >= 3 ? 'animate-in slide-in-from-bottom-4 fade-in duration-700' : 'opacity-0'}
-              `}
+              className={`mb-8 transform text-center ${animationPhase >= 3 ? 'animate-in slide-in-from-bottom-4 fade-in duration-700' : 'opacity-0'} `}
             >
               <h2 className="mb-3 bg-gradient-to-r from-white via-white to-white/80 bg-clip-text text-4xl font-bold text-transparent md:text-5xl">
                 {message.title}
@@ -262,10 +248,7 @@ export const TimerCompletionModal: React.FC<TimerCompletionModalProps> = ({
 
             {/* Achievement badge */}
             <div
-              className={`
-                mx-auto mb-8 max-w-xs transform
-                ${animationPhase >= 3 ? 'animate-in zoom-in-90 fade-in delay-200 duration-700' : 'opacity-0'}
-              `}
+              className={`mx-auto mb-8 max-w-xs transform ${animationPhase >= 3 ? 'animate-in zoom-in-90 fade-in delay-200 duration-700' : 'opacity-0'} `}
             >
               <div className="relative">
                 <div className="rounded-2xl border border-primary/30 bg-gradient-to-r from-primary/20 to-green-400/20 p-4 backdrop-blur-sm">
@@ -296,20 +279,14 @@ export const TimerCompletionModal: React.FC<TimerCompletionModalProps> = ({
 
             {/* Motivational message */}
             <div
-              className={`
-                mb-8 transform text-center
-                ${animationPhase >= 3 ? 'animate-in fade-in delay-300 duration-700' : 'opacity-0'}
-              `}
+              className={`mb-8 transform text-center ${animationPhase >= 3 ? 'animate-in fade-in delay-300 duration-700' : 'opacity-0'} `}
             >
               <p className="text-sm italic text-white/60">"{motivationalQuote}"</p>
             </div>
 
             {/* Confirm button */}
             <div
-              className={`
-                transform
-                ${animationPhase >= 3 ? 'animate-in slide-in-from-bottom-6 fade-in delay-400 duration-500' : 'opacity-0'}
-              `}
+              className={`transform ${animationPhase >= 3 ? 'animate-in slide-in-from-bottom-6 fade-in delay-400 duration-500' : 'opacity-0'} `}
             >
               <button
                 onClick={onConfirm}
