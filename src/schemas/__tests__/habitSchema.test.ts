@@ -307,6 +307,45 @@ describe('habitSchema', () => {
         expect(result.error.issues[0].message).toContain('whole number')
       }
     })
+
+    it('should reject missing goal (undefined)', () => {
+      // Exercises the `issue.input === undefined` branch of the schema's
+      // `error:` callback introduced in the zod 3→4 migration (see
+      // `habitSchema.ts:36`).
+      const invalidData = {
+        name: 'Test Habit',
+        description: '',
+        frequency: 'daily' as const,
+        // goal intentionally omitted
+        reminderEnabled: false,
+        reminderTime: '',
+      }
+
+      const result = habitSchema.safeParse(invalidData)
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues[0].message).toContain('Goal is required')
+      }
+    })
+
+    it('should reject non-number goal (e.g. string)', () => {
+      // Exercises the `issue.input !== undefined` branch of the schema's
+      // `error:` callback (input was provided, but had the wrong type).
+      const invalidData = {
+        name: 'Test Habit',
+        description: '',
+        frequency: 'daily' as const,
+        goal: '5' as unknown as number,
+        reminderEnabled: false,
+        reminderTime: '',
+      }
+
+      const result = habitSchema.safeParse(invalidData)
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues[0].message).toContain('Goal must be a number')
+      }
+    })
   })
 
   describe('reminder validation', () => {

@@ -24,13 +24,16 @@ export const habitSchema = z.object({
     .or(z.literal('')),
 
   frequency: z.enum(['daily', 'weekly', 'monthly'], {
-    errorMap: () => ({ message: 'Please select a valid frequency' }),
+    // zod 4 renamed `errorMap` → `error`; signature now takes the issue
+    // object and returns either a string or a partial issue.
+    error: () => 'Please select a valid frequency',
   }),
 
   goal: z
     .number({
-      required_error: 'Goal is required',
-      invalid_type_error: 'Goal must be a number',
+      // zod 4 unified `required_error` and `invalid_type_error` into a
+      // single `error` that takes a function returning a string.
+      error: (issue) => (issue.input === undefined ? 'Goal is required' : 'Goal must be a number'),
     })
     .int('Goal must be a whole number')
     .min(1, 'Goal must be at least 1')
@@ -52,7 +55,8 @@ export function validateHabitName(name: string): { valid: boolean; error?: strin
   const result = z.string().min(1).max(100).trim().safeParse(name)
 
   if (!result.success) {
-    return { valid: false, error: result.error.errors[0].message }
+    // zod 4 renamed `.errors` → `.issues`
+    return { valid: false, error: result.error.issues[0].message }
   }
 
   if (name.trim().length === 0) {
@@ -67,7 +71,7 @@ export function validateGoal(goal: number): { valid: boolean; error?: string } {
   const result = z.number().int().min(1).max(100).safeParse(goal)
 
   if (!result.success) {
-    return { valid: false, error: result.error.errors[0].message }
+    return { valid: false, error: result.error.issues[0].message }
   }
 
   return { valid: true }
