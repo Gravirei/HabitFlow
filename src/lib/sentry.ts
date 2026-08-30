@@ -11,6 +11,17 @@ import { env } from './env'
 import { isAppError } from './errors'
 
 /**
+ * Stable per-page-load id used to correlate breadcrumbs, log lines, and
+ * Sentry events from the same session. Generated once at module load.
+ * Exposed via `setRequestIdTag()` on Sentry init so it shows up in the
+ * "Tags" tab and is searchable.
+ */
+export const REQUEST_ID =
+  typeof crypto !== 'undefined' && 'randomUUID' in crypto
+    ? crypto.randomUUID()
+    : `req-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
+
+/**
  * Initialize Sentry for error tracking and performance monitoring
  *
  * Call this once at application startup in main.tsx
@@ -138,6 +149,18 @@ export function initSentry() {
   if (import.meta.env.DEV) {
     console.log('[Sentry] Initialized successfully')
   }
+
+  // Tag every event in this session with the request id and release.
+  // `release` is also passed to Sentry.init({ release }) above, but tagging
+  // it makes it searchable in the UI for non-error breadcrumbs.
+  Sentry.setTag('request_id', REQUEST_ID)
+  Sentry.setTag('release', env.APP_VERSION || 'unknown')
+  Sentry.setTag('app_version', env.APP_VERSION || 'unknown')
+}
+
+/** Current page-load request id. Useful in logs and breadcrumbs. */
+export function getRequestId(): string {
+  return REQUEST_ID
 }
 
 /**
