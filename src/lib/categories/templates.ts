@@ -32,8 +32,7 @@ const findExistingCategoryByName = (categories: Category[], name: string) => {
 const generateCategoryId = (): CategoryId => `${Date.now()}-${Math.random().toString(16).slice(2)}`
 
 type UniqueHabitNameResult =
-  | { name: string; renamed: boolean }
-  | { name: string; renamed: boolean; skip: true }
+  { name: string; renamed: boolean } | { name: string; renamed: boolean; skip: true }
 
 const ensureUniqueHabitName = (
   existingNames: Set<string>,

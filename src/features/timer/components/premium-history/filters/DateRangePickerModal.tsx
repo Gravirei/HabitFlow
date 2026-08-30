@@ -31,13 +31,7 @@ interface DateRangePickerModalProps {
 }
 
 type QuickRange =
-  | 'today'
-  | 'yesterday'
-  | 'last7days'
-  | 'last30days'
-  | 'thisMonth'
-  | 'lastMonth'
-  | 'custom'
+  'today' | 'yesterday' | 'last7days' | 'last30days' | 'thisMonth' | 'lastMonth' | 'custom'
 
 export function DateRangePickerModal({
   isOpen,
