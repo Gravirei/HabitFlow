@@ -57,7 +57,7 @@
     "recharts": "^3.6.0",
     "tailwind-merge": "^3.4.0",
     "zod": "^3.22.4",
-    "zustand": "^4.4.7"
+    "zustand": "^5.0.15"
   },
   "overrides": {
     "minimatch": "^10.2.2"
