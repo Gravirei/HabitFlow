@@ -266,7 +266,7 @@ describe('TimerErrorBoundary', () => {
 
     it('should reset error boundary state on reset', async () => {
       const user = userEvent.setup()
-      let shouldThrow = true
+      const shouldThrow = true
 
       render(
         <TimerErrorBoundary>
@@ -277,7 +277,6 @@ describe('TimerErrorBoundary', () => {
       expect(screen.getByText('Something Went Wrong')).toBeInTheDocument()
 
       const resetButton = screen.getByRole('button', { name: /reset timer/i })
-      shouldThrow = false
 
       await user.click(resetButton)
 

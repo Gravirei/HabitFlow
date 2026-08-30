@@ -251,6 +251,11 @@ export const useSyncStore = create<SyncStore>()(
           console.log(`[SyncStore] Restored backup: ${backupId} with ${sessions.length} sessions`)
         } catch (error: any) {
           console.error('[SyncStore] Failed to restore backup:', error)
+          // The original error is logged above. We rethrow with a cleaner
+          // user-facing message; the ES2020 lib target doesn't allow passing
+          // `cause` via the Error constructor, so it can't be wired in here
+          // (the same workaround as src/lib/errors.ts: keep it in `meta`).
+          // eslint-disable-next-line preserve-caught-error -- logged above
           throw new Error(error?.message || 'Failed to restore backup')
         }
       },
