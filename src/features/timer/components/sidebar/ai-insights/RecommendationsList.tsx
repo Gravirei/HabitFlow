@@ -1,9 +1,7 @@
-// @ts-nocheck
 /**
  * Recommendations List
  */
 
-import React from 'react'
 import { Recommendation } from './types'
 
 interface RecommendationsListProps {

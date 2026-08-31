@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Task } from '@/types/task'
 import { cn } from '@/utils/cn'
 
@@ -12,8 +11,6 @@ interface NotionKanbanProps {
 export function NotionKanban({
   tasks,
   onTaskClick,
-  onTaskStatusChange,
-  onDeleteTask,
 }: NotionKanbanProps) {
   const todoTasks = tasks.filter((t) => t.status === 'todo' && !t.completed)
   const inProgressTasks = tasks.filter((t) => t.status === 'in_progress')

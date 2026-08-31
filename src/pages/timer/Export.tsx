@@ -1,10 +1,9 @@
-// @ts-nocheck
 /**
  * Export Data Page
  * Export timer data in various formats
  */
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ExportModal } from '@/features/timer/components/sidebar/export'
 

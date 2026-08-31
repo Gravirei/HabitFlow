@@ -1,10 +1,8 @@
-// @ts-nocheck
 /**
  * Premium History Header Component
  * Sticky header with back button and title
  */
 
-import React from 'react'
 import { useNavigate } from 'react-router-dom'
 
 interface PremiumHistoryHeaderProps {

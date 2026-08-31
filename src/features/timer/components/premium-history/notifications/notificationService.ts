@@ -1,11 +1,9 @@
-// @ts-nocheck
 /**
  * Notification Service
  * Handles browser notifications and permission management
  */
 
 import { useNotificationStore } from '@/features/timer/store/notificationStore'
-import type { NotificationType } from './types'
 
 /**
  * Request browser notification permission

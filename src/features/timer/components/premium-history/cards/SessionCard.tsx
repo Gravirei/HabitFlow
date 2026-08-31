@@ -1,10 +1,8 @@
-// @ts-nocheck
 /**
  * Session Card Component
  * Smart wrapper that renders the appropriate card type based on timer mode
  */
 
-import React from 'react'
 import { StopwatchCard } from './StopwatchCard'
 import { CountdownCard } from './CountdownCard'
 import { IntervalsCard } from './IntervalsCard'
@@ -30,8 +28,6 @@ export function SessionCard({
   onRepeatClick,
   onResumeClick,
 }: SessionCardProps) {
-  const mode = session.mode
-
   // Use type guards for proper type narrowing
   if (isStopwatchSession(session)) {
     return (

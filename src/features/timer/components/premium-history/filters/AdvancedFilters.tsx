@@ -1,10 +1,9 @@
-// @ts-nocheck
 /**
  * Advanced Filters Component
  * Button to open duration filters modal
  */
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { AdvancedFiltersModal } from './AdvancedFiltersModal'
 
 interface AdvancedFiltersProps {

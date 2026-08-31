@@ -1,11 +1,10 @@
-// @ts-nocheck
 /**
  * Archive Modal
  * View and manage archived timer sessions
  * Redesigned to match Custom Tags modal theme
  */
 
-import React, { useState, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useArchiveStore } from '@/features/timer/store/archiveStore'
 import { convertFromArchivedSession } from './archiveUtils'
