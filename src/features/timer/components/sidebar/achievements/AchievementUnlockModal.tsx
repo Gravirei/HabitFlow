@@ -1,10 +1,9 @@
-// @ts-nocheck
 /**
  * Achievement Unlock Modal
  * Celebration modal when an achievement is unlocked
  */
 
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import type { Achievement } from './types'

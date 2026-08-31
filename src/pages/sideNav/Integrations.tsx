@@ -1,4 +1,3 @@
-// @ts-nocheck
 'use client'
 
 import { useState } from 'react'
@@ -124,7 +123,7 @@ export function Integrations() {
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.3, ease: 'easeOut' },
+      transition: { duration: 0.3, ease: 'easeOut' as const },
     },
   }
 
@@ -133,7 +132,7 @@ export function Integrations() {
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.3, ease: 'easeOut' },
+      transition: { duration: 0.3, ease: 'easeOut' as const },
     },
     exit: {
       opacity: 0,
@@ -141,6 +140,7 @@ export function Integrations() {
       transition: { duration: 0.2 },
     },
   }
+  void settingsPanelVariants
 
   return (
     <div className="min-h-screen bg-white dark:bg-slate-950">

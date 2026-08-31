@@ -1,10 +1,8 @@
-// @ts-nocheck
 /**
  * Session Details Modal Component
  * Shows detailed information about a timer session
  */
 
-import React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import type { TimerSession } from '../types/session.types'
 

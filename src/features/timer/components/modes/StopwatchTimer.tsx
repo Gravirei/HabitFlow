@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * StopwatchTimer Component
  * Stopwatch mode with lap functionality
@@ -15,7 +14,7 @@ import { ResumeTimerModal } from '../shared/ResumeTimerModal'
 import { TimerAnnouncer } from '../shared/TimerAnnouncer'
 import { TIMER_CLASSES, formatTime } from '@/features/timer/constants/timer.constants'
 import { useTimerFocus } from '@/features/timer/hooks/useTimerFocus'
-import { timerPersistence, type StopwatchTimerState } from '@/features/timer/utils/timerPersistence'
+import { timerPersistence, type StopwatchTimerState, type SavedTimerState } from '@/features/timer/utils/timerPersistence'
 import { useImmediateSave } from '@/hooks/useDebounce'
 
 const STORAGE_KEY = 'timer-stopwatch-history'
@@ -47,8 +46,8 @@ export const StopwatchTimer: React.FC = () => {
   const { focusTimer, unfocusTimer } = useTimerFocus()
 
   // Create debounced save function (1 second delay)
-  const saveStateCallback = useCallback((state: StopwatchTimerState) => {
-    timerPersistence.saveState(state as any)
+  const saveStateCallback = useCallback((state: SavedTimerState) => {
+    timerPersistence.saveState(state)
   }, [])
 
   const { debouncedSave, immediateSave, flush } = useImmediateSave(
@@ -57,8 +56,8 @@ export const StopwatchTimer: React.FC = () => {
   )
 
   // Timer persistence
-  const handleResumeTimer = (state: StopwatchTimerState) => {
-    restoreTimer(state)
+  const handleResumeTimer = (state: SavedTimerState) => {
+    restoreTimer(state as StopwatchTimerState)
     focusTimer('Stopwatch')
   }
 
