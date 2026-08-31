@@ -59,7 +59,7 @@ export const useTimerSound = () => {
     settings.soundType,
     settings.soundVolume,
     settings.vibrationEnabled,
-    settings.vibrationPattern
+    settings.vibrationPattern,
   ])
 
   /**
@@ -67,45 +67,46 @@ export const useTimerSound = () => {
    * @param soundType - Optional sound type override
    * @param volume - Optional volume override
    */
-  const playPreviewSound = useCallback((
-    soundType?: SoundType,
-    volume?: number
-  ) => {
-    try {
-      soundManager.playSound(
-        soundType || settings.soundType,
-        volume !== undefined ? volume : settings.soundVolume
-      )
-    } catch (error) {
-      logError(
-        error,
-        'Failed to play preview sound',
-        { soundType: soundType || settings.soundType, volume: volume ?? settings.soundVolume },
-        ErrorCategory.SOUND,
-        ErrorSeverity.LOW
-      )
-    }
-  }, [settings.soundType, settings.soundVolume])
+  const playPreviewSound = useCallback(
+    (soundType?: SoundType, volume?: number) => {
+      try {
+        soundManager.playSound(
+          soundType || settings.soundType,
+          volume !== undefined ? volume : settings.soundVolume
+        )
+      } catch (error) {
+        logError(
+          error,
+          'Failed to play preview sound',
+          { soundType: soundType || settings.soundType, volume: volume ?? settings.soundVolume },
+          ErrorCategory.SOUND,
+          ErrorSeverity.LOW
+        )
+      }
+    },
+    [settings.soundType, settings.soundVolume]
+  )
 
   /**
    * Play a preview vibration (for testing in settings UI)
    * @param pattern - Optional pattern override
    */
-  const playPreviewVibration = useCallback((
-    pattern?: VibrationPattern
-  ) => {
-    try {
-      vibrationManager.vibrate(pattern || settings.vibrationPattern)
-    } catch (error) {
-      logError(
-        error,
-        'Failed to trigger preview vibration',
-        { pattern: pattern || settings.vibrationPattern },
-        ErrorCategory.VIBRATION,
-        ErrorSeverity.LOW
-      )
-    }
-  }, [settings.vibrationPattern])
+  const playPreviewVibration = useCallback(
+    (pattern?: VibrationPattern) => {
+      try {
+        vibrationManager.vibrate(pattern || settings.vibrationPattern)
+      } catch (error) {
+        logError(
+          error,
+          'Failed to trigger preview vibration',
+          { pattern: pattern || settings.vibrationPattern },
+          ErrorCategory.VIBRATION,
+          ErrorSeverity.LOW
+        )
+      }
+    },
+    [settings.vibrationPattern]
+  )
 
   /**
    * Stop any ongoing vibration
@@ -130,6 +131,6 @@ export const useTimerSound = () => {
     playPreviewSound,
     playPreviewVibration,
     stopVibration,
-    isVibrationSupported: vibrationManager.isSupported()
+    isVibrationSupported: vibrationManager.isSupported(),
   }
 }

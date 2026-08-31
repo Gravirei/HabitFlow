@@ -24,19 +24,19 @@ export function useDebounce<T>(value: T, delay: number = 500): T {
 
 /**
  * useDebounceCallback Hook
- * 
+ *
  * Creates a debounced version of a callback function that delays execution
  * until after a specified delay has elapsed since the last invocation.
- * 
+ *
  * Perfect for throttling expensive operations like localStorage writes.
- * 
+ *
  * @example
  * ```tsx
  * const debouncedSave = useDebounceCallback(
  *   (data) => localStorage.setItem('key', data),
  *   1000 // Wait 1 second after last call
  * )
- * 
+ *
  * // Call multiple times - only executes once after 1 second of inactivity
  * debouncedSave('value1')
  * debouncedSave('value2')
@@ -82,24 +82,24 @@ export function useDebounceCallback<T extends (...args: any[]) => any>(
 
 /**
  * useImmediateSave Hook
- * 
+ *
  * Provides both debounced and immediate save functions.
  * Useful for scenarios where you want to debounce most saves
  * but immediately save on certain events (pause, kill, etc.)
- * 
+ *
  * @example
  * ```tsx
  * const { debouncedSave, immediateSave, flush } = useImmediateSave(
  *   (data) => localStorage.setItem('key', data),
  *   1000
  * )
- * 
+ *
  * // During timer: debounced save (every 1 second max)
  * debouncedSave(state)
- * 
+ *
  * // On pause: save immediately
  * immediateSave(state)
- * 
+ *
  * // On unmount: flush any pending saves
  * flush()
  * ```
@@ -180,6 +180,6 @@ export function useImmediateSave<T extends (...args: any[]) => any>(
   return {
     debouncedSave,
     immediateSave,
-    flush
+    flush,
   }
 }

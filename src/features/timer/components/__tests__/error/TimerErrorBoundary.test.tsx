@@ -59,11 +59,11 @@ describe('TimerErrorBoundary', () => {
       removeItem: vi.fn(),
       clear: vi.fn(),
       length: 0,
-      key: vi.fn()
+      key: vi.fn(),
     }
     Object.defineProperty(window, 'localStorage', {
       value: localStorageMock,
-      writable: true
+      writable: true,
     })
   })
 
@@ -100,7 +100,7 @@ describe('TimerErrorBoundary', () => {
 
     it('should display custom error messages', () => {
       const customError = new Error('Custom error message')
-      
+
       render(
         <TimerErrorBoundary>
           <ThrowError shouldThrow={true} error={customError} />
@@ -150,7 +150,7 @@ describe('TimerErrorBoundary', () => {
       expect(onError).toHaveBeenCalledWith(
         expect.any(Error),
         expect.objectContaining({
-          componentStack: expect.any(String)
+          componentStack: expect.any(String),
         })
       )
     })
@@ -167,7 +167,7 @@ describe('TimerErrorBoundary', () => {
       expect(onError).toHaveBeenCalledWith(
         expect.any(Error),
         expect.objectContaining({
-          componentStack: expect.stringContaining('ThrowError')
+          componentStack: expect.stringContaining('ThrowError'),
         })
       )
     })
@@ -266,7 +266,7 @@ describe('TimerErrorBoundary', () => {
 
     it('should reset error boundary state on reset', async () => {
       const user = userEvent.setup()
-      let shouldThrow = true
+      const shouldThrow = true
 
       render(
         <TimerErrorBoundary>
@@ -277,8 +277,7 @@ describe('TimerErrorBoundary', () => {
       expect(screen.getByText('Something Went Wrong')).toBeInTheDocument()
 
       const resetButton = screen.getByRole('button', { name: /reset timer/i })
-      shouldThrow = false
-      
+
       await user.click(resetButton)
 
       // After reset, error should be cleared but we can't easily test recovery
@@ -311,7 +310,7 @@ describe('TimerErrorBoundary', () => {
       const reloadMock = vi.fn()
       Object.defineProperty(window, 'location', {
         value: { reload: reloadMock },
-        writable: true
+        writable: true,
       })
 
       render(
@@ -330,7 +329,7 @@ describe('TimerErrorBoundary', () => {
       const user = userEvent.setup()
       Object.defineProperty(window, 'location', {
         value: { href: '' },
-        writable: true
+        writable: true,
       })
 
       render(
@@ -411,9 +410,7 @@ describe('TimerErrorBoundary', () => {
         </TimerErrorBoundary>
       )
 
-      expect(
-        screen.getByText(/if this problem persists/i)
-      ).toBeInTheDocument()
+      expect(screen.getByText(/if this problem persists/i)).toBeInTheDocument()
     })
 
     it('should suggest clearing browser cache', () => {
@@ -423,9 +420,7 @@ describe('TimerErrorBoundary', () => {
         </TimerErrorBoundary>
       )
 
-      expect(
-        screen.getByText(/clearing your browser cache/i)
-      ).toBeInTheDocument()
+      expect(screen.getByText(/clearing your browser cache/i)).toBeInTheDocument()
     })
   })
 
@@ -457,7 +452,7 @@ describe('TimerErrorBoundary', () => {
     it('should handle async errors', async () => {
       const AsyncErrorComponent = () => {
         const handleError = useErrorHandler()
-        
+
         React.useEffect(() => {
           setTimeout(() => {
             handleError(new Error('Async error'))

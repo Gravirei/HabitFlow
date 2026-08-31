@@ -29,8 +29,6 @@ export function ZapierSettings() {
   const [newWebhookUrl, setNewWebhookUrl] = useState('')
   const [urlError, setUrlError] = useState('')
 
-  // Settings are persisted JSON of unknown shape; fields are individually
-  // guarded with defaults where consumed below.
   const settings = (connection.settings || {}) as unknown as ZapierSettingsData
   const isConnected = connection.status === 'connected'
 

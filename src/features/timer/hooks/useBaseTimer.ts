@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * useBaseTimer Hook
  * Shared timer logic and state management for all timer modes
@@ -7,7 +6,7 @@
 
 import { useState, useCallback } from 'react'
 import { useTimerSettings } from './useTimerSettings'
-import { logError, ErrorCategory, ErrorSeverity } from '../utils/errorMessages'
+import { logError } from '../utils/errorMessages'
 import { logger } from '@/lib/logger'
 
 /**
@@ -26,9 +25,9 @@ export const getCurrentTime = (): number => {
 
 interface UseBaseTimerOptions {
   mode: 'Countdown' | 'Stopwatch' | 'Intervals'
-  onPause?: () => void     // Optional hook for mode-specific pause logic
-  onResume?: () => void    // Optional hook for mode-specific resume logic
-  onKill?: () => void      // Optional hook for mode-specific kill logic
+  onPause?: () => void // Optional hook for mode-specific pause logic
+  onResume?: () => void // Optional hook for mode-specific resume logic
+  onKill?: () => void // Optional hook for mode-specific kill logic
 }
 
 export interface UseBaseTimerReturn {
@@ -37,19 +36,19 @@ export interface UseBaseTimerReturn {
   isPaused: boolean
   timerStartTime: number | null
   pausedElapsed: number
-  
+
   // Setters (exposed for mode-specific logic)
   setIsActive: (active: boolean) => void
   setIsPaused: (paused: boolean) => void
   setTimerStartTime: (time: number | null) => void
   setPausedElapsed: (elapsed: number) => void
-  
+
   // Shared methods
   pauseTimer: () => void
   continueTimer: () => void
   killTimer: () => number
   getCurrentTime: () => number
-  
+
   // Settings
   settings: ReturnType<typeof useTimerSettings>['settings']
 }
@@ -61,7 +60,7 @@ export interface UseBaseTimerReturn {
 export const useBaseTimer = (options: UseBaseTimerOptions): UseBaseTimerReturn => {
   const { mode, onPause, onResume, onKill } = options
   const { settings } = useTimerSettings()
-  
+
   // Shared state across all timer modes
   const [isActive, setIsActive] = useState(false)
   const [isPaused, setIsPaused] = useState(false)
@@ -78,7 +77,7 @@ export const useBaseTimer = (options: UseBaseTimerOptions): UseBaseTimerReturn =
       logger.warn('Cannot pause: timer is not running', { context: `${mode}.pauseTimer` })
       return
     }
-    
+
     try {
       if (timerStartTime !== null) {
         const now = getCurrentTime()
@@ -88,7 +87,7 @@ export const useBaseTimer = (options: UseBaseTimerOptions): UseBaseTimerReturn =
       }
       setIsActive(false)
       setIsPaused(true)
-      
+
       // Call mode-specific pause hook if provided
       if (onPause) {
         onPause()
@@ -108,14 +107,14 @@ export const useBaseTimer = (options: UseBaseTimerOptions): UseBaseTimerReturn =
       logger.warn('Cannot resume: timer is not paused', { context: `${mode}.continueTimer` })
       return
     }
-    
+
     try {
       const now = getCurrentTime()
       // When continuing, adjust the start time to account for paused elapsed time
       setTimerStartTime(now - pausedElapsed)
       setIsActive(true)
       setIsPaused(false)
-      
+
       // Call mode-specific resume hook if provided
       if (onResume) {
         onResume()
@@ -134,20 +133,16 @@ export const useBaseTimer = (options: UseBaseTimerOptions): UseBaseTimerReturn =
       logger.warn('Cannot kill: timer is not active', { context: `${mode}.killTimer` })
       return 0
     }
-    
+
     try {
       const now = getCurrentTime()
-      const elapsed = isPaused 
-        ? pausedElapsed 
-        : timerStartTime !== null 
-          ? now - timerStartTime 
-          : 0
+      const elapsed = isPaused ? pausedElapsed : timerStartTime !== null ? now - timerStartTime : 0
 
       setIsActive(false)
       setIsPaused(false)
       setTimerStartTime(null)
       setPausedElapsed(0)
-      
+
       // Call mode-specific kill hook if provided
       if (onKill) {
         onKill()
@@ -166,20 +161,20 @@ export const useBaseTimer = (options: UseBaseTimerOptions): UseBaseTimerReturn =
     isPaused,
     timerStartTime,
     pausedElapsed,
-    
+
     // Setters
     setIsActive,
     setIsPaused,
     setTimerStartTime,
     setPausedElapsed,
-    
+
     // Methods
     pauseTimer,
     continueTimer,
     killTimer,
     getCurrentTime,
-    
+
     // Settings
-    settings
+    settings,
   }
 }

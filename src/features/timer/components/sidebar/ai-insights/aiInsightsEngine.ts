@@ -485,7 +485,7 @@ export function calculateProductivityScore(sessions: TimerSessionData[]): Produc
   const avgDuration = sessions.reduce((sum, s) => sum + s.duration, 0) / sessions.length
   const optimalMin = 15 * 60
   const optimalMax = 45 * 60
-  let durationScore = 0
+  let durationScore: number
   if (avgDuration >= optimalMin && avgDuration <= optimalMax) {
     durationScore = 100
   } else if (avgDuration < optimalMin) {

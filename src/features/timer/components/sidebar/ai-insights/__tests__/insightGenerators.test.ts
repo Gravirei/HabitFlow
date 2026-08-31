@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Insight Generators Tests
  * Comprehensive tests for text generation and recommendations
@@ -468,7 +467,6 @@ describe('insightGenerators', () => {
       const baseInsights = createBaseInsights(sessions)
       const recommendations = generateRecommendations(baseInsights)
 
-      const streakRec = recommendations.find((r) => r.title.includes('Streak'))
       // May or may not be present depending on streak calculation
       expect(recommendations.length).toBeGreaterThanOrEqual(0)
     })
@@ -514,7 +512,6 @@ describe('insightGenerators', () => {
       const baseInsights = createBaseInsights([...currentWeek, ...previousWeek])
       const recommendations = generateRecommendations(baseInsights)
 
-      const trendRec = recommendations.find((r) => r.title.includes('Track'))
       // May or may not be present depending on trend calculation
       expect(recommendations.length).toBeGreaterThanOrEqual(0)
     })
@@ -549,7 +546,6 @@ describe('insightGenerators', () => {
       const baseInsights = createBaseInsights(sessions)
       const recommendations = generateRecommendations(baseInsights)
 
-      const congratsRec = recommendations.find((r) => r.title.includes('Crushing'))
       // May or may not be present depending on exact scores
       expect(recommendations.length).toBeLessThanOrEqual(5)
     })

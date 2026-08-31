@@ -11,6 +11,7 @@ node_modules
 android
 dist
 dist-ssr
+android
 *.local
 
 # Editor directories and files
@@ -31,6 +32,9 @@ TIMER_MD
 .cursor
 .claude
 .codex
+
+# Husky internals (the hooks themselves in .husky/ are committed)
+.husky/_
 
 
 # Testing

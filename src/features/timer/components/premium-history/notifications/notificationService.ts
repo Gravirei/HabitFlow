@@ -1,11 +1,9 @@
-// @ts-nocheck
 /**
  * Notification Service
  * Handles browser notifications and permission management
  */
 
 import { useNotificationStore } from '@/features/timer/store/notificationStore'
-import type { NotificationType } from './types'
 
 /**
  * Request browser notification permission
@@ -180,7 +178,7 @@ export function getNotificationPermissionStatus(): NotificationPermission | 'uns
  */
 export function scheduleNotification(time: string, callback: () => void): number | null {
   const [hours, minutes] = time.split(':').map(Number)
-  
+
   const now = new Date()
   const scheduledTime = new Date()
   scheduledTime.setHours(hours, minutes, 0, 0)

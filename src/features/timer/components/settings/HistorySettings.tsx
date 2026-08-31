@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * HistorySettings Component
  * Premium timer history configuration with advanced features
@@ -6,7 +5,7 @@
 
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { useTimerSettings } from '@/features/timer/hooks/useTimerSettings'
 import { SettingsSection } from './SettingsSection'
 import { ToggleSwitch } from '@/shared/ui/ToggleSwitch'
@@ -66,7 +65,7 @@ export const HistorySettings: React.FC = () => {
   const { settings, updateSettings } = useTimerSettings()
   const navigate = useNavigate()
   const [isUpgrading, setIsUpgrading] = useState(false)
-  
+
   // Simulate subscription status (will be replaced with real check later)
   const isPremiumUser = true // Set to true as requested
 
@@ -76,7 +75,7 @@ export const HistorySettings: React.FC = () => {
 
   const handleUpgradeClick = () => {
     setIsUpgrading(true)
-    
+
     // Show upgrading animation for 1.5 seconds then navigate
     setTimeout(() => {
       navigate('/timer/premium-history')
@@ -100,8 +99,8 @@ export const HistorySettings: React.FC = () => {
       />
 
       {/* Premium Features */}
-      <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-500/10 via-yellow-500/5 to-orange-500/10 border border-amber-500/20 space-y-3">
-        <div className="flex items-center gap-2 mb-2">
+      <div className="space-y-3 rounded-2xl border border-amber-500/20 bg-gradient-to-br from-amber-500/10 via-yellow-500/5 to-orange-500/10 p-4">
+        <div className="mb-2 flex items-center gap-2">
           <span className="material-symbols-outlined text-amber-400">workspace_premium</span>
           <label className="text-sm font-bold text-amber-300">Premium Features</label>
         </div>
@@ -110,10 +109,10 @@ export const HistorySettings: React.FC = () => {
           {PREMIUM_FEATURES.map((feature, index) => (
             <div
               key={index}
-              className="flex items-center gap-3 p-3 rounded-xl bg-black/20 border border-amber-500/10 hover:border-amber-500/30 transition-all duration-200 group"
+              className="group flex items-center gap-3 rounded-xl border border-amber-500/10 bg-black/20 p-3 transition-all duration-200 hover:border-amber-500/30"
             >
-              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-amber-500/20 group-hover:bg-amber-500/30 transition-colors">
-                <span className="material-symbols-outlined text-amber-400 text-lg">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-500/20 transition-colors group-hover:bg-amber-500/30">
+                <span className="material-symbols-outlined text-lg text-amber-400">
                   {feature.icon}
                 </span>
               </div>
@@ -122,46 +121,45 @@ export const HistorySettings: React.FC = () => {
                 <div className="flex items-center gap-2">
                   <p className="text-sm font-semibold text-white">{feature.title}</p>
                   {feature.premium && (
-                    <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-500 to-yellow-500 text-black text-xs font-bold">
+                    <span className="flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-500 to-yellow-500 px-2 py-0.5 text-xs font-bold text-black">
                       <span className="text-xs">💎</span>
                       PRO
                     </span>
                   )}
                 </div>
-                <p className="text-xs text-gray-400 mt-0.5">{feature.description}</p>
+                <p className="mt-0.5 text-xs text-gray-400">{feature.description}</p>
               </div>
 
-              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-800/50">
-                <span className="material-symbols-outlined text-gray-500 text-lg">lock</span>
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-800/50">
+                <span className="material-symbols-outlined text-lg text-gray-500">lock</span>
               </div>
             </div>
           ))}
         </div>
 
         {/* Upgrade CTA or Access Button */}
-        <div className="mt-4 p-4 rounded-xl bg-gradient-to-r from-amber-500/20 to-yellow-500/20 border border-amber-400/30">
+        <div className="mt-4 rounded-xl border border-amber-400/30 bg-gradient-to-r from-amber-500/20 to-yellow-500/20 p-4">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-bold text-amber-300">
                 {isPremiumUser ? 'Access Premium History' : 'Unlock All Premium Features'}
               </p>
-              <p className="text-xs text-gray-400 mt-1">
-                {isPremiumUser 
+              <p className="mt-1 text-xs text-gray-400">
+                {isPremiumUser
                   ? 'View your complete history with analytics and insights'
-                  : 'Get access to advanced history analytics and insights'
-                }
+                  : 'Get access to advanced history analytics and insights'}
               </p>
             </div>
-            <button 
+            <button
               onClick={handleUpgradeClick}
               disabled={isUpgrading}
-              className="relative px-4 py-2 rounded-lg bg-gradient-to-r from-amber-500 to-yellow-500 text-black font-bold text-sm hover:from-amber-400 hover:to-yellow-400 active:scale-95 transition-all duration-200 shadow-lg shadow-amber-500/25 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden"
+              className="relative overflow-hidden rounded-lg bg-gradient-to-r from-amber-500 to-yellow-500 px-4 py-2 text-sm font-bold text-black shadow-lg shadow-amber-500/25 transition-all duration-200 hover:from-amber-400 hover:to-yellow-400 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isUpgrading ? (
                 <span className="flex items-center gap-2">
                   <motion.span
                     animate={{ rotate: 360 }}
-                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                    transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
                     className="material-symbols-outlined text-base"
                   >
                     progress_activity

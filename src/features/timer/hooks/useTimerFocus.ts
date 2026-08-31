@@ -1,31 +1,31 @@
 /**
  * useTimerFocus Hook
- * 
+ *
  * Provides access to timer focus management context.
  * Used to track which element currently has focus within the timer UI.
- * 
+ *
  * Features:
  * - Get current focused element ref
  * - Set focus to specific timer elements
  * - Focus management for keyboard navigation
  * - Accessibility support
- * 
+ *
  * @returns Timer focus context value
  * @throws {Error} If used outside TimerFocusProvider
- * 
+ *
  * @example
  * ```tsx
  * function TimerButton() {
  *   const { focusedElement, setFocusedElement } = useTimerFocus()
- *   
+ *
  *   const handleFocus = () => {
  *     setFocusedElement(buttonRef)
  *   }
- *   
+ *
  *   return <button ref={buttonRef} onFocus={handleFocus}>Start</button>
  * }
  * ```
- * 
+ *
  * @see {@link TimerFocusContext} for context definition
  * @see {@link TimerFocusProvider} for provider setup
  */

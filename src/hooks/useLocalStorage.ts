@@ -20,43 +20,52 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
   })
 
   // Wrapped setValue to dispatch custom event for cross-component sync
-  const setValue = useCallback((value: T | ((val: T) => T)) => {
-    setStoredValue(prevValue => {
-      const valueToStore = value instanceof Function ? value(prevValue) : value
-      
-      try {
-        // Save to localStorage
-        window.localStorage.setItem(key, JSON.stringify(valueToStore))
-        
-        // Dispatch custom event to notify other components
-        window.dispatchEvent(new CustomEvent('local-storage-change', {
-          detail: { key, value: valueToStore }
-        }))
-      } catch (error) {
-        // Handle localStorage quota exceeded error
-        if (error instanceof DOMException && (
-          error.name === 'QuotaExceededError' ||
-          error.name === 'NS_ERROR_DOM_QUOTA_REACHED'
-        )) {
-          console.error(`localStorage quota exceeded for key "${key}". Consider clearing old data.`)
-          // Attempt to notify user (optional - could dispatch a global error event)
-          window.dispatchEvent(new CustomEvent('local-storage-quota-exceeded', {
-            detail: { key }
-          }))
-        } else {
-          console.error(`Error setting localStorage key "${key}":`, error)
+  const setValue = useCallback(
+    (value: T | ((val: T) => T)) => {
+      setStoredValue((prevValue) => {
+        const valueToStore = value instanceof Function ? value(prevValue) : value
+
+        try {
+          // Save to localStorage
+          window.localStorage.setItem(key, JSON.stringify(valueToStore))
+
+          // Dispatch custom event to notify other components
+          window.dispatchEvent(
+            new CustomEvent('local-storage-change', {
+              detail: { key, value: valueToStore },
+            })
+          )
+        } catch (error) {
+          // Handle localStorage quota exceeded error
+          if (
+            error instanceof DOMException &&
+            (error.name === 'QuotaExceededError' || error.name === 'NS_ERROR_DOM_QUOTA_REACHED')
+          ) {
+            console.error(
+              `localStorage quota exceeded for key "${key}". Consider clearing old data.`
+            )
+            // Attempt to notify user (optional - could dispatch a global error event)
+            window.dispatchEvent(
+              new CustomEvent('local-storage-quota-exceeded', {
+                detail: { key },
+              })
+            )
+          } else {
+            console.error(`Error setting localStorage key "${key}":`, error)
+          }
         }
-      }
-      
-      return valueToStore
-    })
-  }, [key])
+
+        return valueToStore
+      })
+    },
+    [key]
+  )
 
   // Listen for storage changes from other components or tabs
   useEffect(() => {
     const handleStorageChange = (e: Event) => {
       const customEvent = e as CustomEvent<{ key: string; value: T }>
-      
+
       // Only update if it's for our key
       if (customEvent.detail?.key === key) {
         setStoredValue(customEvent.detail.value)

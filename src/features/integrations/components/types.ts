@@ -1,4 +1,12 @@
-export type IntegrationProvider = 'google-calendar' | 'notion' | 'slack' | 'spotify' | 'apple-health' | 'google-fit' | 'zapier' | 'ifttt'
+export type IntegrationProvider =
+  | 'google-calendar'
+  | 'notion'
+  | 'slack'
+  | 'spotify'
+  | 'apple-health'
+  | 'google-fit'
+  | 'zapier'
+  | 'ifttt'
 
 export type IntegrationStatus = 'disconnected' | 'connecting' | 'connected' | 'error' | 'syncing'
 
@@ -54,20 +62,20 @@ export interface NotionSettings {
 
 // Slack specific
 export interface SlackChannel {
-  id: string;
-  name: string;
-  is_member: boolean;
-  is_private: boolean;
+  id: string
+  name: string
+  is_member: boolean
+  is_private: boolean
 }
 
 export interface SlackSettings {
-  channelId: string;
-  channelName: string;
-  notifyOnCompletion: boolean;
-  notifyOnStreak: boolean;
-  dailySummary: boolean;
+  channelId: string
+  channelName: string
+  notifyOnCompletion: boolean
+  notifyOnStreak: boolean
+  dailySummary: boolean
   dailySummaryTime: string // HH:mm
-  webhookUrl: string;
+  webhookUrl: string
 }
 
 // Spotify specific

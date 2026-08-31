@@ -33,11 +33,8 @@ const CLIENT_ID =
   import.meta.env.VITE_GOOGLE_FIT_CLIENT_ID ||
   import.meta.env.VITE_GOOGLE_CLIENT_ID ||
   'YOUR_CLIENT_ID'
-// Must exactly match a redirect URI registered in the Google Cloud Console.
 const REDIRECT_URI =
-  import.meta.env.VITE_GOOGLE_FIT_REDIRECT_URI ||
-  import.meta.env.VITE_GOOGLE_REDIRECT_URI ||
-  `${window.location.origin}/integrations/callback/google-fit`
+  import.meta.env.VITE_GOOGLE_REDIRECT_URI || 'http://localhost:5173/auth/callback'
 
 const FITNESS_SCOPES = [
   'https://www.googleapis.com/auth/fitness.activity.read',

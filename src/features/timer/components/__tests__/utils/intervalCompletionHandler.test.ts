@@ -8,7 +8,7 @@ import {
   calculateSessionDuration,
   isValidSession,
   type CompletionParams,
-  type CompletionCallbacks
+  type CompletionCallbacks,
 } from '@/features/timer/utils/intervalCompletionHandler'
 import { soundManager } from '@/features/timer/utils/soundManager'
 import { vibrationManager } from '@/features/timer/utils/vibrationManager'
@@ -37,8 +37,8 @@ describe('intervalCompletionHandler', () => {
         vibrationEnabled: true,
         vibrationPattern: 'pulse',
         notificationsEnabled: true,
-        notificationMessage: 'Session complete!'
-      }
+        notificationMessage: 'Session complete!',
+      },
     }
 
     it('should play sound when sound is enabled', () => {
@@ -51,7 +51,7 @@ describe('intervalCompletionHandler', () => {
     it('should not play sound when sound is disabled', () => {
       const params = {
         ...defaultParams,
-        settings: { ...defaultParams.settings, soundEnabled: false }
+        settings: { ...defaultParams.settings, soundEnabled: false },
       }
 
       handleIntervalSessionComplete(params, {})
@@ -69,7 +69,7 @@ describe('intervalCompletionHandler', () => {
     it('should not trigger vibration when vibration is disabled', () => {
       const params = {
         ...defaultParams,
-        settings: { ...defaultParams.settings, vibrationEnabled: false }
+        settings: { ...defaultParams.settings, vibrationEnabled: false },
       }
 
       handleIntervalSessionComplete(params, {})
@@ -91,7 +91,7 @@ describe('intervalCompletionHandler', () => {
     it('should not show notification when notifications are disabled', () => {
       const params = {
         ...defaultParams,
-        settings: { ...defaultParams.settings, notificationsEnabled: false }
+        settings: { ...defaultParams.settings, notificationsEnabled: false },
       }
 
       handleIntervalSessionComplete(params, {})
@@ -105,12 +105,7 @@ describe('intervalCompletionHandler', () => {
 
       handleIntervalSessionComplete(defaultParams, callbacks)
 
-      expect(onSessionComplete).toHaveBeenCalledWith(
-        30 * 60 * 1000,
-        3,
-        'Test Session',
-        3
-      )
+      expect(onSessionComplete).toHaveBeenCalledWith(30 * 60 * 1000, 3, 'Test Session', 3)
     })
 
     it('should not call onSessionComplete when duration is 0', () => {
@@ -183,8 +178,8 @@ describe('intervalCompletionHandler', () => {
           vibrationEnabled: false,
           vibrationPattern: 'short',
           notificationsEnabled: false,
-          notificationMessage: ''
-        }
+          notificationMessage: '',
+        },
       }
 
       const result = handleIntervalSessionComplete(params, {})

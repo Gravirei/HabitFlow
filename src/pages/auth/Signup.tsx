@@ -1,10 +1,9 @@
 import { useState, useMemo } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { signInWithOAuth, signUpAccount } from '@/lib/auth/api'
+import { supabase } from '@/lib/supabase'
 import toast from 'react-hot-toast'
 import { TurnstileWidget } from '@/shared/ui/TurnstileWidget'
 import { callAuthGateway } from '@/lib/security/authGatewayClient'
-import { env, isSupabaseConfigured } from '@/lib/env'
 
 // Password strength checker
 const calculatePasswordStrength = (password: string) => {
@@ -123,8 +122,8 @@ export function Signup() {
     }
 
     // Check if Turnstile is configured and token is required (not needed for mobile)
-    const turnstileSiteKey = env.turnstileSiteKey
-    const turnstileDisabled = env.turnstileDisabled
+    const turnstileSiteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY
+    const turnstileDisabled = import.meta.env.VITE_TURNSTILE_DISABLED === 'true'
     const isMobile = isMobileApp()
     const isTurnstileRequired = turnstileSiteKey && !turnstileDisabled && !isMobile
 
@@ -134,7 +133,10 @@ export function Signup() {
     }
 
     // Check if Supabase is configured
-    if (!isSupabaseConfigured()) {
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+
+    if (!supabaseUrl || !supabaseAnonKey) {
       toast.error(
         'Supabase is not configured. Please add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your .env file.'
       )
@@ -161,10 +163,17 @@ export function Signup() {
       const useDirectAuth = turnstileDisabled || !turnstileSiteKey
 
       if (useDirectAuth) {
-        const { error } = await signUpAccount({ email, password, username })
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: username ? { data: { username } } : undefined,
+        })
 
         if (error) {
-          if (error.message.toLowerCase().includes('user already registered') || error.message.toLowerCase().includes('already registered')) {
+          if (
+            error.message.toLowerCase().includes('user already registered') ||
+            error.message.toLowerCase().includes('already registered')
+          ) {
             toast.error('This email is already registered. Please login instead.')
             navigate('/login')
             return
@@ -226,7 +235,13 @@ export function Signup() {
 
   const handleGoogleSignup = async () => {
     try {
-      const { error } = await signInWithOAuth('google', `${window.location.origin}/`)
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/`,
+        },
+      })
+
       if (error) {
         throw error
       }
@@ -238,7 +253,13 @@ export function Signup() {
 
   const handleAppleSignup = async () => {
     try {
-      const { error } = await signInWithOAuth('apple', `${window.location.origin}/`)
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'apple',
+        options: {
+          redirectTo: `${window.location.origin}/`,
+        },
+      })
+
       if (error) {
         throw error
       }

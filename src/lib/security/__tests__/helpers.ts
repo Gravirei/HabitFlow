@@ -28,9 +28,7 @@ const CHAIN_METHODS: ChainMethod[] = [
  * Supports `.single()` and direct await (`await supabase.from(...).eq(...)`) usage.
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function createQueryBuilder<T = unknown>(
-  result: Partial<DbResult<T>> = {}
-): any {
+export function createQueryBuilder<T = unknown>(result: Partial<DbResult<T>> = {}): any {
   const res: DbResult<T> = { data: result.data ?? null, error: result.error ?? null }
   const builder: Record<string, unknown> = {}
 

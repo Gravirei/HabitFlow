@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Test Setup and Mocks for Sidebar Tests
  */
@@ -26,7 +25,7 @@ const localStorageMock = (() => {
     key: vi.fn((index: number) => {
       const keys = Object.keys(store)
       return keys[index] || null
-    })
+    }),
   }
 })()
 
@@ -49,8 +48,8 @@ vi.mock('../../goals/goalsStore', () => ({
       addGoal: vi.fn(),
       updateGoal: vi.fn(),
       deleteGoal: vi.fn(),
-      updateGoalProgress: vi.fn()
-    }))
+      updateGoalProgress: vi.fn(),
+    })),
   })),
   default: {
     getState: vi.fn(() => ({
@@ -58,9 +57,9 @@ vi.mock('../../goals/goalsStore', () => ({
       addGoal: vi.fn(),
       updateGoal: vi.fn(),
       deleteGoal: vi.fn(),
-      updateGoalProgress: vi.fn()
-    }))
-  }
+      updateGoalProgress: vi.fn(),
+    })),
+  },
 }))
 
 vi.mock('../../achievements/achievementsStore', () => ({
@@ -75,8 +74,8 @@ vi.mock('../../achievements/achievementsStore', () => ({
       unlockedCount: 0,
       unlockAchievement: vi.fn(),
       updateProgress: vi.fn(),
-      getRecentUnlocks: vi.fn(() => [])
-    }))
+      getRecentUnlocks: vi.fn(() => []),
+    })),
   })),
   default: {
     getState: vi.fn(() => ({
@@ -84,9 +83,9 @@ vi.mock('../../achievements/achievementsStore', () => ({
       unlockedCount: 0,
       unlockAchievement: vi.fn(),
       updateProgress: vi.fn(),
-      getRecentUnlocks: vi.fn(() => [])
-    }))
-  }
+      getRecentUnlocks: vi.fn(() => []),
+    })),
+  },
 }))
 
 vi.mock('../../archive/archiveStore', () => ({
@@ -101,8 +100,8 @@ vi.mock('../../archive/archiveStore', () => ({
     archiveByDateRange: vi.fn(),
     archiveOlderThan: vi.fn(),
     searchArchive: vi.fn(() => []),
-    filterByMode: vi.fn(() => [])
-  }))
+    filterByMode: vi.fn(() => []),
+  })),
 }))
 
 vi.mock('../../notifications/notificationStore', () => {
@@ -112,7 +111,7 @@ vi.mock('../../notifications/notificationStore', () => {
       sessionReminders: false,
       streakReminders: false,
       goalReminders: false,
-      dailySummary: false
+      dailySummary: false,
     },
     history: [],
     quietHours: { start: '22:00', end: '08:00' },
@@ -127,12 +126,12 @@ vi.mock('../../notifications/notificationStore', () => {
     addToHistory: vi.fn(),
     clearHistory: vi.fn(),
     setQuietHours: vi.fn(),
-    isQuietHours: vi.fn(() => false)
+    isQuietHours: vi.fn(() => false),
   }
 
   return {
     useNotificationStore: vi.fn(() => mockState),
-    default: vi.fn(() => mockState)
+    default: vi.fn(() => mockState),
   }
 })
 
@@ -142,57 +141,57 @@ vi.mock('../../hooks/useFilterVisibility', () => ({
       dateRange: true,
       duration: true,
       completion: true,
-      search: true
+      search: true,
     },
-    setFilterVisibility: vi.fn()
-  }))
+    setFilterVisibility: vi.fn(),
+  })),
 }))
 
 // Mock Notification API
 global.Notification = {
   permission: 'granted',
-  requestPermission: vi.fn().mockResolvedValue('granted')
+  requestPermission: vi.fn().mockResolvedValue('granted'),
 } as any
 
 // localStorage is already mocked at the top
 
 // Mock jsPDF for PDF export tests
-global.jsPDF = vi.fn(() => ({
+;(global as unknown as { jsPDF: unknown }).jsPDF = vi.fn(() => ({
   text: vi.fn(),
   line: vi.fn(),
   setFontSize: vi.fn(),
   setFont: vi.fn(),
   addPage: vi.fn(),
-  save: vi.fn()
-})) as any
+  save: vi.fn(),
+}))
 
 // Mock all component imports to prevent actual rendering
 vi.mock('../../export/ExportModal', () => ({
-  ExportModal: vi.fn(() => null)
+  ExportModal: vi.fn(() => null),
 }))
 
 vi.mock('../../goals/GoalsModal', () => ({
-  GoalsModal: vi.fn(() => null)
+  GoalsModal: vi.fn(() => null),
 }))
 
 vi.mock('../../achievements/AchievementsModal', () => ({
-  AchievementsModal: vi.fn(() => null)
+  AchievementsModal: vi.fn(() => null),
 }))
 
 vi.mock('../../ai-insights/AIInsightsModal', () => ({
-  AIInsightsModal: vi.fn(() => null)
+  AIInsightsModal: vi.fn(() => null),
 }))
 
 vi.mock('../../archive/ArchiveModal', () => ({
-  ArchiveModal: vi.fn(() => null)
+  ArchiveModal: vi.fn(() => null),
 }))
 
 vi.mock('../../filters/FilterSettingsModal', () => ({
-  FilterSettingsModal: vi.fn(() => null)
+  FilterSettingsModal: vi.fn(() => null),
 }))
 
 vi.mock('../../notifications/NotificationSettingsModal', () => ({
-  NotificationSettingsModal: vi.fn(() => null)
+  NotificationSettingsModal: vi.fn(() => null),
 }))
 
 // Export test utilities
@@ -202,22 +201,22 @@ export const mockSessionData = [
     mode: 'Stopwatch' as const,
     duration: 1500,
     timestamp: Date.now() - 86400000,
-    completed: true
+    completed: true,
   },
   {
     id: '2',
     mode: 'Countdown' as const,
     duration: 1800,
     timestamp: Date.now() - 43200000,
-    completed: true
+    completed: true,
   },
   {
     id: '3',
     mode: 'Intervals' as const,
     duration: 2400,
     timestamp: Date.now(),
-    completed: false
-  }
+    completed: false,
+  },
 ]
 
 export const resetAllMocks = () => {

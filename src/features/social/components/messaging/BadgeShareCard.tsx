@@ -24,10 +24,10 @@ function rarityTheme(rarity: BadgeRarity) {
         pill: 'bg-slate-300/[0.08] border-slate-300/20 text-slate-200',
       },
       uncommon: {
-        topBg: 'from-green-300/[0.10] to-emerald-300/[0.03]',
-        iconBg: 'from-green-600 to-emerald-500',
-        accent: 'text-green-200',
-        pill: 'bg-green-300/[0.08] border-green-300/20 text-green-200',
+        topBg: 'from-emerald-300/[0.10] to-green-300/[0.03]',
+        iconBg: 'from-emerald-500 to-green-500',
+        accent: 'text-emerald-200',
+        pill: 'bg-emerald-300/[0.08] border-emerald-300/20 text-emerald-200',
       },
       rare: {
         topBg: 'from-cyan-300/[0.10] to-blue-300/[0.03]',

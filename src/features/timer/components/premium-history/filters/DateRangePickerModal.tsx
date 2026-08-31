@@ -6,12 +6,12 @@
 import { useState, useEffect, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { 
-  startOfMonth, 
-  endOfMonth, 
-  eachDayOfInterval, 
-  format, 
-  isSameDay, 
+import {
+  startOfMonth,
+  endOfMonth,
+  eachDayOfInterval,
+  format,
+  isSameDay,
   isBefore,
   isAfter,
   addMonths,
@@ -19,7 +19,7 @@ import {
   startOfWeek,
   endOfWeek,
   isToday,
-  isSameMonth
+  isSameMonth,
 } from 'date-fns'
 
 interface DateRangePickerModalProps {
@@ -30,14 +30,15 @@ interface DateRangePickerModalProps {
   onDateRangeChange: (start: Date, end: Date) => void
 }
 
-type QuickRange = 'today' | 'yesterday' | 'last7days' | 'last30days' | 'thisMonth' | 'lastMonth' | 'custom'
+type QuickRange =
+  'today' | 'yesterday' | 'last7days' | 'last30days' | 'thisMonth' | 'lastMonth' | 'custom'
 
-export function DateRangePickerModal({ 
-  isOpen, 
-  onClose, 
-  startDate, 
-  endDate, 
-  onDateRangeChange 
+export function DateRangePickerModal({
+  isOpen,
+  onClose,
+  startDate,
+  endDate,
+  onDateRangeChange,
 }: DateRangePickerModalProps) {
   const [tempStartDate, setTempStartDate] = useState<Date | undefined>(startDate)
   const [tempEndDate, setTempEndDate] = useState<Date | undefined>(endDate)
@@ -58,7 +59,7 @@ export function DateRangePickerModal({
     setSelectedQuickRange(range)
     const now = new Date()
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-    
+
     switch (range) {
       case 'today': {
         setTempStartDate(today)
@@ -102,7 +103,7 @@ export function DateRangePickerModal({
 
   const handleDateClick = (date: Date) => {
     setSelectedQuickRange('custom')
-    
+
     if (!tempStartDate || (tempStartDate && tempEndDate)) {
       // Start new selection
       setTempStartDate(date)
@@ -186,10 +187,10 @@ export function DateRangePickerModal({
     return (
       <div className="relative">
         {/* Month Navigation */}
-        <div className="flex items-center justify-between mb-4">
+        <div className="mb-4 flex items-center justify-between">
           <button
             onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
-            className="size-9 flex items-center justify-center rounded-lg hover:bg-slate-200 dark:hover:bg-white/10 text-slate-600 dark:text-slate-400 transition-colors"
+            className="flex size-9 items-center justify-center rounded-lg text-slate-600 transition-colors hover:bg-slate-200 dark:text-slate-400 dark:hover:bg-white/10"
           >
             <span className="material-symbols-outlined text-[20px]">chevron_left</span>
           </button>
@@ -200,16 +201,19 @@ export function DateRangePickerModal({
 
           <button
             onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
-            className="size-9 flex items-center justify-center rounded-lg hover:bg-slate-200 dark:hover:bg-white/10 text-slate-600 dark:text-slate-400 transition-colors"
+            className="flex size-9 items-center justify-center rounded-lg text-slate-600 transition-colors hover:bg-slate-200 dark:text-slate-400 dark:hover:bg-white/10"
           >
             <span className="material-symbols-outlined text-[20px]">chevron_right</span>
           </button>
         </div>
 
         {/* Weekday Headers */}
-        <div className="grid grid-cols-7 gap-1 mb-2">
+        <div className="mb-2 grid grid-cols-7 gap-1">
           {weekDays.map((day) => (
-            <div key={day} className="text-center text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider py-2">
+            <div
+              key={day}
+              className="py-2 text-center text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500"
+            >
               {day}
             </div>
           ))}
@@ -224,9 +228,7 @@ export function DateRangePickerModal({
             const isEnd = tempEndDate && isSameDay(day, tempEndDate)
             const isRangeStartOrEnd = isStart || isEnd
 
-            const bgClass = inRange
-              ? 'bg-primary/10 dark:bg-primary/20'
-              : ''
+            const bgClass = inRange ? 'bg-primary/10 dark:bg-primary/20' : ''
 
             const roundedClass = getRangeClasses(day)
 
@@ -238,17 +240,13 @@ export function DateRangePickerModal({
                     handleDateClick(day)
                   }}
                   disabled={!isCurrentMonth}
-                  className={`
-                    w-full aspect-square flex items-center justify-center text-sm font-medium relative z-10 transition-all
-                    ${!isCurrentMonth ? 'text-slate-300 dark:text-slate-700 opacity-0 pointer-events-none' : ''}
-                    ${isRangeStartOrEnd
+                  className={`relative z-10 flex aspect-square w-full items-center justify-center text-sm font-medium transition-all ${!isCurrentMonth ? 'pointer-events-none text-slate-300 opacity-0 dark:text-slate-700' : ''} ${
+                    isRangeStartOrEnd
                       ? 'bg-gradient-to-br from-primary to-purple-600 text-white shadow-md'
                       : inRange
-                        ? 'text-primary font-semibold'
-                        : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/10'
-                    }
-                    ${isToday(day) && !isRangeStartOrEnd ? 'ring-2 ring-primary/50 dark:ring-primary/40' : ''}
-                  `}
+                        ? 'font-semibold text-primary'
+                        : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/10'
+                  } ${isToday(day) && !isRangeStartOrEnd ? 'ring-2 ring-primary/50 dark:ring-primary/40' : ''} `}
                 >
                   {format(day, 'd')}
                 </button>
@@ -268,7 +266,7 @@ export function DateRangePickerModal({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/70 backdrop-blur-sm p-4"
+        className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/70 p-4 backdrop-blur-sm"
         onClick={onClose}
       >
         <motion.div
@@ -276,40 +274,39 @@ export function DateRangePickerModal({
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 50, scale: 0.95 }}
           transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-          className="bg-gradient-to-b from-white to-slate-50 dark:from-[#1E1E24] dark:to-[#18181B] rounded-3xl shadow-2xl w-full max-w-xl overflow-hidden border border-white/20 dark:border-white/10"
+          className="w-full max-w-xl overflow-hidden rounded-3xl border border-white/20 bg-gradient-to-b from-white to-slate-50 shadow-2xl dark:border-white/10 dark:from-[#1E1E24] dark:to-[#18181B]"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="px-6 py-5 border-b border-slate-100 dark:border-white/5 flex items-center justify-between">
+          <div className="flex items-center justify-between border-b border-slate-100 px-6 py-5 dark:border-white/5">
             <div className="flex items-center gap-3">
-              <div className="size-10 rounded-xl bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center shadow-lg shadow-primary/30">
-                <span className="material-symbols-outlined text-white text-[20px]">calendar_month</span>
+              <div className="flex size-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-purple-600 shadow-lg shadow-primary/30">
+                <span className="material-symbols-outlined text-[20px] text-white">
+                  calendar_month
+                </span>
               </div>
               <div>
-                <h2 className="text-lg font-bold text-slate-800 dark:text-white">
-                  Date Range
-                </h2>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                <h2 className="text-lg font-bold text-slate-800 dark:text-white">Date Range</h2>
+                <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
                   {tempStartDate && tempEndDate
                     ? `${format(tempStartDate, 'MMM d')} - ${format(tempEndDate, 'MMM d, yyyy')}`
-                    : 'Select dates to continue'
-                  }
+                    : 'Select dates to continue'}
                 </p>
               </div>
             </div>
             <button
               onClick={onClose}
-              className="size-8 rounded-lg bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-500 hover:bg-slate-200 dark:hover:bg-white/10 transition-colors"
+              className="flex size-8 items-center justify-center rounded-lg bg-slate-100 text-slate-500 transition-colors hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10"
             >
               <span className="material-symbols-outlined text-[20px]">close</span>
             </button>
           </div>
 
           {/* Content */}
-          <div className="px-6 py-5 space-y-4">
+          <div className="space-y-4 px-6 py-5">
             {/* Quick Select */}
             <div>
-              <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-3 px-1">
+              <label className="mb-3 block px-1 text-xs font-semibold text-slate-600 dark:text-slate-400">
                 Quick Select
               </label>
               <div className="grid grid-cols-3 gap-2">
@@ -319,13 +316,11 @@ export function DateRangePickerModal({
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => handleQuickRange(range.id)}
-                    className={`
-                      px-4 py-3 rounded-xl text-xs font-semibold transition-all
-                      ${selectedQuickRange === range.id
+                    className={`rounded-xl px-4 py-3 text-xs font-semibold transition-all ${
+                      selectedQuickRange === range.id
                         ? 'bg-gradient-to-br from-primary to-purple-600 text-white shadow-lg shadow-primary/30'
-                        : 'bg-slate-50 dark:bg-white/5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10 border border-slate-200/50 dark:border-white/5'
-                      }
-                    `}
+                        : 'border border-slate-200/50 bg-slate-50 text-slate-600 hover:bg-slate-100 dark:border-white/5 dark:bg-white/5 dark:text-slate-400 dark:hover:bg-white/10'
+                    } `}
                   >
                     {range.label}
                   </motion.button>
@@ -334,23 +329,23 @@ export function DateRangePickerModal({
             </div>
 
             {/* Calendar */}
-            <div className="bg-slate-50/80 dark:bg-white/5 rounded-xl p-4 border border-slate-200/50 dark:border-white/5">
+            <div className="rounded-xl border border-slate-200/50 bg-slate-50/80 p-4 dark:border-white/5 dark:bg-white/5">
               {renderCalendar()}
             </div>
           </div>
 
           {/* Footer */}
-          <div className="px-6 py-4 border-t border-slate-100 dark:border-white/5 flex gap-3">
+          <div className="flex gap-3 border-t border-slate-100 px-6 py-4 dark:border-white/5">
             <button
               onClick={handleClear}
-              className="flex-1 py-3 rounded-xl font-semibold text-sm text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
+              className="flex-1 rounded-xl py-3 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-white/5"
             >
               Clear
             </button>
             <button
               onClick={handleApply}
               disabled={!tempStartDate || !tempEndDate}
-              className="flex-[2] py-3 rounded-xl font-semibold text-sm text-white bg-gradient-to-r from-primary to-purple-600 hover:from-primary-dark hover:to-purple-700 transition-colors shadow-lg shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="hover:from-primary-dark flex-[2] rounded-xl bg-gradient-to-r from-primary to-purple-600 py-3 text-sm font-semibold text-white shadow-lg shadow-primary/20 transition-colors hover:to-purple-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
               Apply Range
             </button>

@@ -61,13 +61,14 @@ export const VibrationSettings: React.FC = () => {
         <>
           {/* Vibration Not Supported Warning */}
           {!isVibrationSupported && (
-            <div className="p-4 rounded-xl bg-yellow-500/10 border border-yellow-500/30">
+            <div className="rounded-xl border border-yellow-500/30 bg-yellow-500/10 p-4">
               <div className="flex items-start gap-3">
-                <span className="material-symbols-outlined text-yellow-400 text-xl">warning</span>
+                <span className="material-symbols-outlined text-xl text-yellow-400">warning</span>
                 <div>
                   <p className="text-sm font-semibold text-yellow-300">Vibration Not Supported</p>
-                  <p className="text-xs text-yellow-400/80 mt-1">
-                    Your device or browser doesn't support the Vibration API. This is normal for desktop computers and iOS devices.
+                  <p className="mt-1 text-xs text-yellow-400/80">
+                    Your device or browser doesn't support the Vibration API. This is normal for
+                    desktop computers and iOS devices.
                   </p>
                 </div>
               </div>
@@ -75,7 +76,7 @@ export const VibrationSettings: React.FC = () => {
           )}
 
           {/* Vibration Pattern Selection */}
-          <div className="p-4 rounded-2xl bg-white/5 space-y-3">
+          <div className="space-y-3 rounded-2xl bg-white/5 p-4">
             <label className="text-sm font-semibold text-white">Vibration Pattern</label>
             <div className="space-y-2">
               {VIBRATION_PATTERNS.map((pattern) => (
@@ -83,18 +84,17 @@ export const VibrationSettings: React.FC = () => {
                   key={pattern.value}
                   onClick={() => handlePatternChange(pattern.value)}
                   disabled={!isVibrationSupported}
-                  className={`
-                    w-full flex items-center justify-between p-4 rounded-xl text-left transition-all
-                    ${settings.vibrationPattern === pattern.value
+                  className={`flex w-full items-center justify-between rounded-xl p-4 text-left transition-all ${
+                    settings.vibrationPattern === pattern.value
                       ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white'
-                      : 'bg-white/5 hover:bg-white/10 text-gray-300'
-                    }
-                    ${!isVibrationSupported ? 'opacity-50 cursor-not-allowed' : ''}
-                  `}
+                      : 'bg-white/5 text-gray-300 hover:bg-white/10'
+                  } ${!isVibrationSupported ? 'cursor-not-allowed opacity-50' : ''} `}
                 >
                   <div>
                     <p className="text-sm font-semibold">{pattern.label}</p>
-                    <p className={`text-xs mt-1 ${settings.vibrationPattern === pattern.value ? 'text-blue-100' : 'text-gray-400'}`}>
+                    <p
+                      className={`mt-1 text-xs ${settings.vibrationPattern === pattern.value ? 'text-blue-100' : 'text-gray-400'}`}
+                    >
                       {pattern.description}
                     </p>
                   </div>
@@ -110,23 +110,22 @@ export const VibrationSettings: React.FC = () => {
           <button
             onClick={handlePreviewClick}
             disabled={!isVibrationSupported}
-            className={`
-              w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold transition-all
-              ${isVibrationSupported
-                ? 'bg-gradient-to-r from-blue-500/20 to-cyan-500/20 hover:from-blue-500/30 hover:to-cyan-500/30 border border-blue-500/30 text-white active:scale-95'
-                : 'bg-white/5 border border-white/10 text-gray-500 cursor-not-allowed opacity-50'
-              }
-            `}
+            className={`flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 font-semibold transition-all ${
+              isVibrationSupported
+                ? 'border border-blue-500/30 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 text-white hover:from-blue-500/30 hover:to-cyan-500/30 active:scale-95'
+                : 'cursor-not-allowed border border-white/10 bg-white/5 text-gray-500 opacity-50'
+            } `}
           >
             <span className="material-symbols-outlined text-xl">vibration</span>
             {isVibrationSupported ? 'Test Vibration' : 'Vibration Not Available'}
           </button>
 
           {/* Info Tip */}
-          <div className="p-3 rounded-xl bg-white/5 border border-white/10">
+          <div className="rounded-xl border border-white/10 bg-white/5 p-3">
             <p className="text-xs text-gray-400">
-              💡 <strong className="text-gray-300">Tip:</strong> {isVibrationSupported 
-                ? 'Click a pattern to feel it instantly. Works best on Android devices.' 
+              💡 <strong className="text-gray-300">Tip:</strong>{' '}
+              {isVibrationSupported
+                ? 'Click a pattern to feel it instantly. Works best on Android devices.'
                 : 'Vibration works on Android devices. Not supported on desktop or iOS.'}
             </p>
           </div>

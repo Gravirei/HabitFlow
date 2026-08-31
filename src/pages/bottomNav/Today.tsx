@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useNavigate } from 'react-router-dom'
 import { useHabitStore } from '@/store/useHabitStore'
 import { useHabitTaskStore } from '@/store/useHabitTaskStore'
@@ -14,10 +13,17 @@ import { ConfirmDialog } from '@/shared/ui/ConfirmDialog'
 import { useState, useEffect } from 'react'
 import { format, isToday, isBefore } from 'date-fns'
 import { motion, AnimatePresence } from 'framer-motion'
-import { GreetingHero, HabitCard, HydrationCard, TaskCard, DateStrip } from '@/features/today/components'
+import {
+  GreetingHero,
+  HabitCard,
+  HydrationCard,
+  TaskCard,
+  DateStrip,
+} from '@/features/today/components'
 import { cn } from '@/utils/cn'
 import { shouldResetTaskForStartFresh } from '@/utils/habitResetUtils'
 import { createPortal } from 'react-dom'
+import { useNewHabitModalStore } from '@/store/useNewHabitModalStore'
 
 // ─── Mock tasks ───────────────────────────────────────────────────────────────
 const tasks = [
@@ -180,11 +186,9 @@ function EmptyState({ icon, message }: { icon: string; message: string }) {
 // ─── Habit Context Menu Items (shared between mobile & desktop) ───────────────
 function HabitContextMenuItems({
   habit,
-  onClose,
   onAction,
 }: {
   habit: any
-  onClose: () => void
   onAction: (action: string, habit: any) => void
 }) {
   return (
@@ -277,6 +281,7 @@ function HabitSheetHeader({ habit }: { habit: any }) {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export function Today() {
   const navigate = useNavigate()
+  const openNewHabit = useNewHabitModalStore((s) => s.open)
   const [isSideNavOpen, setIsSideNavOpen] = useState(false)
   const { habits, toggleHabitCompletion, isHabitCompletedOnDate } = useHabitStore()
   const { getTaskCount, getTasksByHabitId, updateTask, resetTasksIfNeeded } = useHabitTaskStore()
@@ -304,9 +309,6 @@ export function Today() {
 
   // HabitTasksModal state
   const [selectedHabitId, setSelectedHabitId] = useState<string | null>(null)
-  const [selectedHabitName, setSelectedHabitName] = useState('')
-  const [selectedHabitIcon, setSelectedHabitIcon] = useState('checklist')
-  const [selectedHabitIconColor, setSelectedHabitIconColor] = useState(0)
 
   // Long-press bottom sheet
   const [longPressHabit, setLongPressHabit] = useState<any | null>(null)
@@ -342,9 +344,6 @@ export function Today() {
     if (taskCount > 0) {
       // Open task completion modal
       setSelectedHabitId(habit.id)
-      setSelectedHabitName(habit.name)
-      setSelectedHabitIcon(habit.icon)
-      setSelectedHabitIconColor(habit.iconColor ?? 0)
     }
     // If no tasks, do nothing (only completion checkbox toggles)
   }
@@ -595,7 +594,7 @@ export function Today() {
     <div className="relative mx-auto flex h-auto min-h-screen w-full max-w-md flex-col overflow-x-hidden bg-gray-950 text-slate-50 selection:bg-teal-500/30 sm:max-w-2xl md:max-w-4xl lg:max-w-6xl xl:max-w-7xl">
       {/* Fixed Header */}
       <header className="fixed left-0 right-0 top-0 z-30 mx-auto max-w-md shrink-0 bg-background-light/95 backdrop-blur-sm dark:bg-background-dark/95 sm:max-w-2xl md:max-w-4xl lg:max-w-6xl xl:max-w-7xl">
-        <div className="flex flex-col gap-1 px-4 pb-2 pt-safe sm:px-6 lg:px-8">
+        <div className="pt-safe flex flex-col gap-1 px-4 pb-2 sm:px-6 lg:px-8">
           <div className="relative flex h-10 items-center justify-between">
             {/* Menu button */}
             <button
@@ -824,7 +823,7 @@ export function Today() {
       {/* ── FAB ──────────────────────────────────────────────────────── */}
       <div className="fixed bottom-24 right-6 z-30 lg:right-10">
         <motion.button
-          onClick={() => navigate('/new-habit')}
+          onClick={() => openNewHabit()}
           aria-label="Add new habit"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
@@ -852,9 +851,6 @@ export function Today() {
           isOpen={!!selectedHabitId}
           onClose={() => {
             setSelectedHabitId(null)
-            setSelectedHabitName('')
-            setSelectedHabitIcon('checklist')
-            setSelectedHabitIconColor(0)
           }}
           habitId={selectedHabitId}
           habitName={habits.find((h) => h.id === selectedHabitId)?.name || 'Habit Tasks'}
@@ -920,11 +916,7 @@ export function Today() {
                 <div className="h-1 w-10 rounded-full bg-slate-700" />
               </div>
               <HabitSheetHeader habit={longPressHabit} />
-              <HabitContextMenuItems
-                habit={longPressHabit}
-                onClose={() => setLongPressHabit(null)}
-                onAction={handleBottomSheetAction}
-              />
+              <HabitContextMenuItems habit={longPressHabit} onAction={handleBottomSheetAction} />
               <div className="h-6" />
             </motion.div>
 
@@ -949,11 +941,7 @@ export function Today() {
                   </span>
                 </button>
                 <HabitSheetHeader habit={longPressHabit} />
-                <HabitContextMenuItems
-                  habit={longPressHabit}
-                  onClose={() => setLongPressHabit(null)}
-                  onAction={handleBottomSheetAction}
-                />
+                <HabitContextMenuItems habit={longPressHabit} onAction={handleBottomSheetAction} />
               </motion.div>
             </div>
           </AnimatePresence>,

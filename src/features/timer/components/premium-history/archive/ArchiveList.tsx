@@ -1,13 +1,10 @@
-// @ts-nocheck
 /**
  * Archive List Component
  * Display list of archived sessions
  */
 
-import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import type { ArchivedSession } from '@/features/timer/store/archiveStore'
-import { SessionCard } from '../cards/SessionCard'
 
 interface ArchiveListProps {
   sessions: ArchivedSession[]
@@ -24,8 +21,6 @@ export function ArchiveList({
   onSelect,
   selectedIds = new Set(),
 }: ArchiveListProps) {
-  const [expandedId, setExpandedId] = useState<string | null>(null)
-
   const sortedSessions = [...sessions].sort((a, b) => b.archivedAt - a.archivedAt)
 
   if (sessions.length === 0) {

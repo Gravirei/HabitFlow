@@ -5,8 +5,8 @@
 export interface PeakHoursInsight {
   type: 'peak-hours'
   peakWindow: {
-    startHour: number  // 0-23
-    endHour: number    // 0-23
+    startHour: number // 0-23
+    endHour: number // 0-23
     sessionsCount: number
     totalDuration: number
     completionRate: number
@@ -60,14 +60,14 @@ export interface ModeMasteryInsight {
 
 export interface ConsistencyInsight {
   type: 'consistency'
-  score: number  // 0-100
+  score: number // 0-100
   metrics: {
     activeDays: number
     totalDays: number
     currentStreak: number
     longestStreak: number
     avgSessionsPerDay: number
-    regularityScore: number  // 0-100
+    regularityScore: number // 0-100
   }
   message: string
   trend: 'improving' | 'declining' | 'stable'
@@ -86,9 +86,9 @@ export interface ProductivityTrendInsight {
     completionRate: number
   }
   change: {
-    sessions: number  // percentage
-    duration: number  // percentage
-    completionRate: number  // percentage
+    sessions: number // percentage
+    duration: number // percentage
+    completionRate: number // percentage
   }
   trend: 'up' | 'down' | 'stable'
   message: string
@@ -129,13 +129,13 @@ export interface WeeklySummary {
 }
 
 export interface ProductivityScore {
-  overall: number  // 0-100
+  overall: number // 0-100
   breakdown: {
-    consistency: number  // 0-100
-    duration: number     // 0-100
-    completion: number   // 0-100
-    frequency: number    // 0-100
-    improvement: number  // 0-100
+    consistency: number // 0-100
+    duration: number // 0-100
+    completion: number // 0-100
+    frequency: number // 0-100
+    improvement: number // 0-100
   }
   grade: 'A+' | 'A' | 'B' | 'C' | 'D' | 'F'
   message: string
@@ -169,7 +169,7 @@ export interface InsightsCache {
 export interface TimerSessionData {
   id: string
   mode: 'Stopwatch' | 'Countdown' | 'Intervals'
-  duration: number  // seconds
+  duration: number // seconds
   startTime: Date
   endTime: Date
   completed: boolean

@@ -39,7 +39,7 @@ export function calculateGoalProgress(goal: Goal, history: TimerRecord[]): numbe
 
     case 'sessions': {
       // Count completed sessions
-      return relevantHistory.filter(r => r.completed !== false).length
+      return relevantHistory.filter((r) => r.completed !== false).length
     }
 
     case 'streak': {
@@ -49,7 +49,7 @@ export function calculateGoalProgress(goal: Goal, history: TimerRecord[]): numbe
 
     case 'mode-specific': {
       // Count sessions for specific mode
-      return relevantHistory.filter(r => r.mode === goal.mode).length
+      return relevantHistory.filter((r) => r.mode === goal.mode).length
     }
 
     default:
@@ -65,19 +65,17 @@ function calculateStreak(history: TimerRecord[]): number {
 
   // Get unique days with activity
   const daysWithActivity = new Set(
-    history.map(record => 
-      startOfDay(new Date(record.timestamp)).getTime()
-    )
+    history.map((record) => startOfDay(new Date(record.timestamp)).getTime())
   )
 
   const sortedDays = Array.from(daysWithActivity).sort((a, b) => b - a)
-  
+
   let streak = 0
   let currentDay = startOfDay(new Date()).getTime()
 
   for (const day of sortedDays) {
     const daysDiff = differenceInDays(currentDay, day)
-    
+
     if (daysDiff === 0 || daysDiff === 1) {
       streak++
       currentDay = day
@@ -95,13 +93,13 @@ function calculateStreak(history: TimerRecord[]): number {
 export function getGoalProgressDetails(goal: Goal): GoalProgress {
   const percentage = Math.min((goal.current / goal.target) * 100, 100)
   const remaining = Math.max(goal.target - goal.current, 0)
-  
+
   // Calculate time left
   const now = new Date()
   const end = new Date(goal.endDate)
   const daysLeft = Math.max(differenceInDays(end, now), 0)
-  
-  let timeLeft = ''
+
+  let timeLeft: string
   if (daysLeft === 0) {
     timeLeft = 'Today'
   } else if (daysLeft === 1) {
@@ -120,7 +118,7 @@ export function getGoalProgressDetails(goal: Goal): GoalProgress {
     percentage,
     remaining,
     timeLeft,
-    onTrack
+    onTrack,
   }
 }
 
@@ -130,12 +128,8 @@ export function getGoalProgressDetails(goal: Goal): GoalProgress {
 export function isGoalFailed(goal: Goal): boolean {
   const now = new Date()
   const end = new Date(goal.endDate)
-  
-  return (
-    goal.status === 'active' &&
-    isAfter(now, end) &&
-    goal.current < goal.target
-  )
+
+  return goal.status === 'active' && isAfter(now, end) && goal.current < goal.target
 }
 
 /**
@@ -160,10 +154,10 @@ export function updateAllGoalsProgress(
  * Get motivational message based on progress
  */
 export function getMotivationalMessage(progress: number): string {
-  if (progress >= 100) return "🎉 Goal Achieved! Amazing work!"
-  if (progress >= 90) return "🔥 Almost there! Keep pushing!"
+  if (progress >= 100) return '🎉 Goal Achieved! Amazing work!'
+  if (progress >= 90) return '🔥 Almost there! Keep pushing!'
   if (progress >= 75) return "💪 Great progress! You're doing awesome!"
-  if (progress >= 50) return "⭐ Halfway there! Keep it up!"
-  if (progress >= 25) return "🚀 Good start! Keep going!"
+  if (progress >= 50) return '⭐ Halfway there! Keep it up!'
+  if (progress >= 25) return '🚀 Good start! Keep going!'
   return "💫 Let's do this! Start strong!"
 }

@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * useStopwatch Hook
  * Manages stopwatch timer logic and state
@@ -12,19 +11,19 @@ import {
   MS_PER_MINUTE,
   calculateProgress,
   calculateStrokeDashoffset,
-  formatTime
+  formatTime,
 } from '../constants/timer.constants'
 import { useBaseTimer, getCurrentTime } from './useBaseTimer'
-import { logError, ErrorCategory, ErrorSeverity } from '../utils/errorMessages'
+import { logError } from '../utils/errorMessages'
 import { logger } from '@/lib/logger'
 
 export const useStopwatch = (): UseStopwatchReturn => {
   // Use base timer for shared state and methods
   const baseTimer = useBaseTimer({ mode: 'Stopwatch' })
-  const { 
-    isActive, 
-    isPaused, 
-    timerStartTime, 
+  const {
+    isActive,
+    isPaused,
+    timerStartTime,
     pausedElapsed,
     setIsActive,
     setIsPaused,
@@ -32,9 +31,10 @@ export const useStopwatch = (): UseStopwatchReturn => {
     setPausedElapsed,
     pauseTimer,
     continueTimer,
-    killTimer: baseKillTimer
+    killTimer: baseKillTimer,
+    settings,
   } = baseTimer
-  
+
   // Stopwatch-specific state
   const [timeLeft, setTimeLeft] = useState(0)
   const [laps, setLaps] = useState<Lap[]>([])
@@ -47,15 +47,15 @@ export const useStopwatch = (): UseStopwatchReturn => {
         try {
           const now = getCurrentTime()
           const elapsed = now - timerStartTime
-          
+
           // Handle potential overflow (though unlikely)
           if (elapsed > Number.MAX_SAFE_INTEGER - 1000) {
-            logger.warn('Timer elapsed time approaching maximum safe integer', { 
+            logger.warn('Timer elapsed time approaching maximum safe integer', {
               context: 'useStopwatch.interval',
-              data: { elapsed }
+              data: { elapsed },
             })
           }
-          
+
           setTimeLeft(elapsed)
         } catch (error) {
           logError(error, 'useStopwatch.interval')
@@ -74,7 +74,7 @@ export const useStopwatch = (): UseStopwatchReturn => {
       logger.warn('Timer is already running', { context: 'useStopwatch.startTimer' })
       return
     }
-    
+
     try {
       const now = getCurrentTime()
       setTimerStartTime(now)
@@ -119,58 +119,67 @@ export const useStopwatch = (): UseStopwatchReturn => {
   const addLap = useCallback(() => {
     const prevLapTime = laps.length > 0 ? laps[0].timeMs : 0
     const lapDuration = timeLeft - prevLapTime
-    
-    setLaps((prev) => [{
-      id: prev.length + 1,
-      time: formatTime(timeLeft),
-      timeMs: timeLeft,
-      split: formatTime(lapDuration),
-      delta: prev.length > 0 ? formatTime(lapDuration - (prev[0].timeMs - (prev[1]?.timeMs || 0))) : undefined
-    }, ...prev])
+
+    setLaps((prev) => [
+      {
+        id: prev.length + 1,
+        time: formatTime(timeLeft),
+        timeMs: timeLeft,
+        split: formatTime(lapDuration),
+        delta:
+          prev.length > 0
+            ? formatTime(lapDuration - (prev[0].timeMs - (prev[1]?.timeMs || 0)))
+            : undefined,
+      },
+      ...prev,
+    ])
   }, [timeLeft, laps])
 
   /**
    * Restore timer from saved state
    * Used for persistence when resuming from localStorage
    */
-  const restoreTimer = useCallback((state: any) => {
-    const now = getCurrentTime()
+  const restoreTimer = useCallback(
+    (state: any) => {
+      const now = getCurrentTime()
 
-    // Restore internal state
-    setPausedElapsed(state.pausedElapsed)
-    
-    if (state.isPaused) {
-      // Timer was paused - restore paused state
-      setIsPaused(true)
-      setIsActive(false)
-      setTimerStartTime(null)
-      
-      // Calculate time at pause moment
-      const elapsed = (state.startTime ? now - state.startTime : 0) + state.pausedElapsed
-      setTimeLeft(elapsed)
-    } else if (state.isActive && state.startTime) {
-      // Timer was running - calculate current time
-      const elapsed = now - state.startTime + state.pausedElapsed
-      
-      // Adjust start time to account for time passed
-      setTimerStartTime(now - elapsed)
-      setTimeLeft(elapsed)
-      setIsActive(true)
-      setIsPaused(false)
-    }
+      // Restore internal state
+      setPausedElapsed(state.pausedElapsed)
 
-    // Restore laps
-    if (state.laps && Array.isArray(state.laps)) {
-      const restoredLaps = state.laps.map((lap: any, index: number) => ({
-        id: parseInt(lap.id) || index + 1,
-        time: formatTime(lap.time),
-        timeMs: lap.time,
-        split: formatTime(lap.time - (state.laps[index + 1]?.time || 0)),
-        delta: undefined
-      }))
-      setLaps(restoredLaps)
-    }
-  }, [setIsActive, setIsPaused, setTimerStartTime, setPausedElapsed])
+      if (state.isPaused) {
+        // Timer was paused - restore paused state
+        setIsPaused(true)
+        setIsActive(false)
+        setTimerStartTime(null)
+
+        // Calculate time at pause moment
+        const elapsed = (state.startTime ? now - state.startTime : 0) + state.pausedElapsed
+        setTimeLeft(elapsed)
+      } else if (state.isActive && state.startTime) {
+        // Timer was running - calculate current time
+        const elapsed = now - state.startTime + state.pausedElapsed
+
+        // Adjust start time to account for time passed
+        setTimerStartTime(now - elapsed)
+        setTimeLeft(elapsed)
+        setIsActive(true)
+        setIsPaused(false)
+      }
+
+      // Restore laps
+      if (state.laps && Array.isArray(state.laps)) {
+        const restoredLaps = state.laps.map((lap: any, index: number) => ({
+          id: parseInt(lap.id) || index + 1,
+          time: formatTime(lap.time),
+          timeMs: lap.time,
+          split: formatTime(lap.time - (state.laps[index + 1]?.time || 0)),
+          delta: undefined,
+        }))
+        setLaps(restoredLaps)
+      }
+    },
+    [setIsActive, setIsPaused, setTimerStartTime, setPausedElapsed]
+  )
 
   // Calculate progress (1 minute rotation for stopwatch)
   const totalTime = MS_PER_MINUTE
@@ -191,9 +200,10 @@ export const useStopwatch = (): UseStopwatchReturn => {
     laps,
     progress,
     strokeDashoffset,
+    settings,
     // Expose for persistence
     timerStartTime,
     pausedElapsed,
-    restoreTimer
+    restoreTimer,
   }
 }

@@ -6,7 +6,12 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useSocialStore } from '../store/socialStore'
-import { getLeagueConfig, getLeagueTierColor, getLeagueTierGradient, LEAGUE_CONFIGS } from '../constants'
+import {
+  getLeagueConfig,
+  getLeagueTierColor,
+  getLeagueTierGradient,
+  LEAGUE_CONFIGS,
+} from '../constants'
 import type { LeagueTier, LeagueMember, ProfilePreviewData } from '../types'
 import { ProfilePreviewModal, generateProfilePreview } from './ProfilePreviewModal'
 
@@ -26,7 +31,7 @@ function TierBadge({ tier, size = 'md' }: { tier: LeagueTier; size?: 'sm' | 'md'
         initial={{ scale: 0.85, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-        className={`${s.w} rounded-2xl bg-gradient-to-br ${cfg.gradient} flex items-center justify-center shadow-lg relative overflow-hidden`}
+        className={`${s.w} rounded-2xl bg-gradient-to-br ${cfg.gradient} relative flex items-center justify-center overflow-hidden shadow-lg`}
       >
         <span
           className={`material-symbols-outlined ${s.icon} text-white drop-shadow-md`}
@@ -38,7 +43,7 @@ function TierBadge({ tier, size = 'md' }: { tier: LeagueTier; size?: 'sm' | 'md'
           initial={{ x: '-100%' }}
           animate={{ x: '200%' }}
           transition={{ duration: 2.5, repeat: Infinity, repeatDelay: 4, ease: 'easeInOut' }}
-          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none"
+          className="pointer-events-none absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
           style={{ transform: 'skewX(-20deg)' }}
         />
       </motion.div>
@@ -50,35 +55,37 @@ function TierBadge({ tier, size = 'md' }: { tier: LeagueTier; size?: 'sm' | 'md'
 // ─── Tier Progress Dots ─────────────────────────────────────────────────────
 
 function TierProgress({ current }: { current: LeagueTier }) {
-  const tiers: LeagueTier[] = LEAGUE_CONFIGS.map(c => c.tier)
+  const tiers: LeagueTier[] = LEAGUE_CONFIGS.map((c) => c.tier)
   const idx = tiers.indexOf(current)
-  
+
   // Show a window of 5 tiers around the current tier
-  const windowSize = 5;
-  let startIdx = Math.max(0, idx - 2);
-  const endIdx = Math.min(tiers.length - 1, startIdx + windowSize - 1);
-  
+  const windowSize = 5
+  let startIdx = Math.max(0, idx - 2)
+  const endIdx = Math.min(tiers.length - 1, startIdx + windowSize - 1)
+
   if (endIdx - startIdx + 1 < windowSize) {
-    startIdx = Math.max(0, endIdx - windowSize + 1);
+    startIdx = Math.max(0, endIdx - windowSize + 1)
   }
-  
-  const displayTiers = tiers.slice(startIdx, endIdx + 1);
+
+  const displayTiers = tiers.slice(startIdx, endIdx + 1)
 
   return (
-    <div className="flex flex-col items-center gap-1 w-full overflow-hidden">
-      <div className="flex items-center justify-center gap-1 w-full">
+    <div className="flex w-full flex-col items-center gap-1 overflow-hidden">
+      <div className="flex w-full items-center justify-center gap-1">
         {displayTiers.map((tier) => {
           const cfg = getLeagueConfig(tier)
           const tierGlobalIdx = tiers.indexOf(tier)
           const active = tierGlobalIdx <= idx
           const isCurrent = tierGlobalIdx === idx
-          
+
           return (
-            <div key={tier} className="flex items-center gap-1 flex-1">
-              <div className="flex flex-col items-center gap-1 flex-1">
-                <div className={`h-1 w-full rounded-full transition-all duration-300 ${
-                  active ? `bg-gradient-to-r ${getLeagueTierGradient(tier)}` : 'bg-slate-700/40'
-                }`} />
+            <div key={tier} className="flex flex-1 items-center gap-1">
+              <div className="flex flex-1 flex-col items-center gap-1">
+                <div
+                  className={`h-1 w-full rounded-full transition-all duration-300 ${
+                    active ? `bg-gradient-to-r ${getLeagueTierGradient(tier)}` : 'bg-slate-700/40'
+                  }`}
+                />
                 <span
                   className={`material-symbols-outlined text-[13px] transition-all duration-300 ${
                     isCurrent ? 'scale-110' : ''
@@ -95,14 +102,25 @@ function TierProgress({ current }: { current: LeagueTier }) {
           )
         })}
       </div>
-      <span className="text-[9px] text-slate-500 uppercase tracking-widest">{startIdx > 0 ? '...' : ''} Tier {idx + 1} of {tiers.length} {endIdx < tiers.length - 1 ? '...' : ''}</span>
+      <span className="text-[9px] uppercase tracking-widest text-slate-500">
+        {startIdx > 0 ? '...' : ''} Tier {idx + 1} of {tiers.length}{' '}
+        {endIdx < tiers.length - 1 ? '...' : ''}
+      </span>
     </div>
   )
 }
 
 // ─── Member Row ─────────────────────────────────────────────────────────────
 
-function MemberRow({ member, index, onRowClick }: { member: LeagueMember; index: number; onRowClick: (member: LeagueMember) => void }) {
+function MemberRow({
+  member,
+  index,
+  onRowClick,
+}: {
+  member: LeagueMember
+  index: number
+  onRowClick: (member: LeagueMember) => void
+}) {
   const zoneBorder = {
     promotion: 'border-l-emerald-500/60',
     safe: 'border-l-transparent',
@@ -121,32 +139,24 @@ function MemberRow({ member, index, onRowClick }: { member: LeagueMember; index:
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.02, ease: 'easeOut' }}
       onClick={() => onRowClick(member)}
-      className={`
-        flex items-center gap-2.5 rounded-xl px-3 py-2 border-l-2 cursor-pointer
-        transition-all duration-200
-        ${zoneBorder} ${zoneBg}
-        ${member.isCurrentUser
-          ? 'bg-primary/[0.07] border-l-primary/60'
-          : 'hover:bg-white/[0.02]'
-        }
-      `}
+      className={`flex cursor-pointer items-center gap-2.5 rounded-xl border-l-2 px-3 py-2 transition-all duration-200 ${zoneBorder} ${zoneBg} ${member.isCurrentUser ? 'border-l-primary/60 bg-primary/[0.07]' : 'hover:bg-white/[0.02]'} `}
     >
       {/* Rank */}
-      <div className="flex size-7 items-center justify-center flex-shrink-0">
+      <div className="flex size-7 flex-shrink-0 items-center justify-center">
         {member.rank <= 3 ? (
           <div
             className={`flex size-6 items-center justify-center rounded-md bg-gradient-to-br shadow-sm ${
               member.rank === 1
                 ? 'from-yellow-400 to-amber-500 shadow-yellow-500/20'
                 : member.rank === 2
-                ? 'from-slate-300 to-gray-400 shadow-gray-400/20'
-                : 'from-amber-600 to-yellow-700 shadow-amber-700/20'
+                  ? 'from-slate-300 to-gray-400 shadow-gray-400/20'
+                  : 'from-amber-600 to-yellow-700 shadow-amber-700/20'
             }`}
           >
             <span className="text-[10px] font-black text-white">{member.rank}</span>
           </div>
         ) : (
-          <span className="text-[11px] font-bold text-slate-500 tabular-nums">{member.rank}</span>
+          <span className="text-[11px] font-bold tabular-nums text-slate-500">{member.rank}</span>
         )}
       </div>
 
@@ -154,30 +164,36 @@ function MemberRow({ member, index, onRowClick }: { member: LeagueMember; index:
       <img
         src={member.avatarUrl}
         alt={member.displayName}
-        className="size-8 rounded-lg object-cover flex-shrink-0"
+        className="size-8 flex-shrink-0 rounded-lg object-cover"
       />
 
       {/* Name */}
-      <div className="flex-1 min-w-0">
-        <p className={`text-[12px] font-medium truncate ${
-          member.isCurrentUser ? 'text-primary font-semibold' : 'text-white'
-        }`}>
+      <div className="min-w-0 flex-1">
+        <p
+          className={`truncate text-[12px] font-medium ${
+            member.isCurrentUser ? 'font-semibold text-primary' : 'text-white'
+          }`}
+        >
           {member.isCurrentUser ? 'You' : member.displayName}
         </p>
       </div>
 
       {/* XP */}
-      <span className="text-[12px] font-bold text-slate-300 tabular-nums flex-shrink-0">
+      <span className="flex-shrink-0 text-[12px] font-bold tabular-nums text-slate-300">
         {member.weeklyXP}
-        <span className="text-[9px] text-slate-500 ml-0.5">XP</span>
+        <span className="ml-0.5 text-[9px] text-slate-500">XP</span>
       </span>
 
       {/* Zone arrow */}
       {member.zone === 'promotion' && (
-        <span className="material-symbols-outlined text-[14px] text-emerald-400 flex-shrink-0">north</span>
+        <span className="material-symbols-outlined flex-shrink-0 text-[14px] text-emerald-400">
+          north
+        </span>
       )}
       {member.zone === 'demotion' && (
-        <span className="material-symbols-outlined text-[14px] text-red-400 flex-shrink-0">south</span>
+        <span className="material-symbols-outlined flex-shrink-0 text-[14px] text-red-400">
+          south
+        </span>
       )}
     </motion.div>
   )
@@ -191,15 +207,15 @@ function DemoDataBanner({ onDismiss }: { onDismiss: () => void }) {
       initial={{ opacity: 0, y: -8 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, height: 0 }}
-      className="flex items-center gap-2.5 rounded-xl bg-amber-500/[0.08] border border-amber-500/20 px-3.5 py-2.5"
+      className="flex items-center gap-2.5 rounded-xl border border-amber-500/20 bg-amber-500/[0.08] px-3.5 py-2.5"
     >
       <span className="material-symbols-outlined text-sm text-amber-400">info</span>
-      <p className="flex-1 text-[11px] text-amber-300/80 font-medium">
+      <p className="flex-1 text-[11px] font-medium text-amber-300/80">
         Preview uses sample data until you connect with friends.
       </p>
       <button
         onClick={onDismiss}
-        className="flex size-6 items-center justify-center rounded-md hover:bg-white/[0.05] cursor-pointer transition-colors duration-200"
+        className="flex size-6 cursor-pointer items-center justify-center rounded-md transition-colors duration-200 hover:bg-white/[0.05]"
         aria-label="Dismiss notice"
       >
         <span className="material-symbols-outlined text-sm text-amber-400/60">close</span>
@@ -214,7 +230,8 @@ interface LeagueScreenProps {
 }
 
 export function LeagueScreen({ tier, onBack }: LeagueScreenProps) {
-  const { currentLeagueTier, leagueMembers, refreshLeague, getLeagueDaysRemaining, friends } = useSocialStore()
+  const { currentLeagueTier, leagueMembers, refreshLeague, getLeagueDaysRemaining, friends } =
+    useSocialStore()
   const [loading, setLoading] = useState(true)
   const [showAll, setShowAll] = useState(false)
   const [showDemoBanner, setShowDemoBanner] = useState(true)
@@ -248,26 +265,32 @@ export function LeagueScreen({ tier, onBack }: LeagueScreenProps) {
   return (
     <div className="space-y-4">
       {/* Hero card */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-800 via-slate-800/95 to-slate-900 border border-white/[0.05] p-5 text-center">
+      <div className="relative overflow-hidden rounded-2xl border border-white/[0.05] bg-gradient-to-br from-slate-800 via-slate-800/95 to-slate-900 p-5 text-center">
         {/* Back button */}
         {onBack && (
           <button
             onClick={onBack}
-            className="absolute top-4 left-4 z-10 flex size-8 items-center justify-center rounded-xl bg-white/[0.06] hover:bg-white/[0.1] transition-all cursor-pointer active:scale-95"
+            className="absolute left-4 top-4 z-10 flex size-8 cursor-pointer items-center justify-center rounded-xl bg-white/[0.06] transition-all hover:bg-white/[0.1] active:scale-95"
           >
             <span className="material-symbols-outlined text-lg text-slate-400">arrow_back</span>
           </button>
         )}
 
         {/* Ambient */}
-        <div className="pointer-events-none absolute -top-16 -right-16 size-40 rounded-full blur-3xl" style={{ backgroundColor: getLeagueTierColor(activeTier) + '15' }} />
-        <div className="pointer-events-none absolute -bottom-12 -left-12 size-32 rounded-full blur-3xl" style={{ backgroundColor: getLeagueTierColor(activeTier) + '10' }} />
+        <div
+          className="pointer-events-none absolute -right-16 -top-16 size-40 rounded-full blur-3xl"
+          style={{ backgroundColor: getLeagueTierColor(activeTier) + '15' }}
+        />
+        <div
+          className="pointer-events-none absolute -bottom-12 -left-12 size-32 rounded-full blur-3xl"
+          style={{ backgroundColor: getLeagueTierColor(activeTier) + '10' }}
+        />
 
         <div className="relative">
           <TierBadge tier={activeTier} size="lg" />
 
           {/* Timer pill */}
-          <div className="inline-flex items-center gap-1.5 mt-4 rounded-full bg-white/[0.05] border border-white/[0.06] py-1.5 px-4">
+          <div className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-white/[0.06] bg-white/[0.05] px-4 py-1.5">
             <span className="material-symbols-outlined text-[14px] text-slate-400">timer</span>
             <span className="text-[12px] font-semibold text-white">
               {days} day{days !== 1 ? 's' : ''} left
@@ -320,22 +343,26 @@ export function LeagueScreen({ tier, onBack }: LeagueScreenProps) {
       {loading ? (
         <div className="space-y-1.5">
           {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="flex items-center gap-2.5 rounded-xl px-3 py-2 animate-pulse">
+            <div key={i} className="flex animate-pulse items-center gap-2.5 rounded-xl px-3 py-2">
               <div className="size-6 rounded-md bg-slate-700/30" />
               <div className="size-8 rounded-lg bg-slate-700/30" />
-              <div className="flex-1"><div className="h-3 w-20 rounded bg-slate-700/30" /></div>
+              <div className="flex-1">
+                <div className="h-3 w-20 rounded bg-slate-700/30" />
+              </div>
               <div className="h-3 w-10 rounded bg-slate-700/30" />
             </div>
           ))}
         </div>
       ) : leagueMembers.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-4 py-20 text-center">
-          <div className="flex size-20 items-center justify-center rounded-3xl bg-slate-800/40 border border-dashed border-slate-700/50">
+          <div className="flex size-20 items-center justify-center rounded-3xl border border-dashed border-slate-700/50 bg-slate-800/40">
             <span className="material-symbols-outlined text-4xl text-slate-600">shield</span>
           </div>
           <div>
             <p className="text-sm font-semibold text-slate-400">No league yet</p>
-            <p className="text-xs text-slate-500 mt-1 max-w-[200px] mx-auto">Earn XP to join a league!</p>
+            <p className="mx-auto mt-1 max-w-[200px] text-xs text-slate-500">
+              Earn XP to join a league!
+            </p>
           </div>
         </div>
       ) : (
@@ -349,7 +376,7 @@ export function LeagueScreen({ tier, onBack }: LeagueScreenProps) {
           {leagueMembers.length > 10 && (
             <button
               onClick={() => setShowAll(!showAll)}
-              className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-white/[0.03] border border-white/[0.04] py-2.5 text-[11px] font-semibold text-slate-400 cursor-pointer hover:text-white hover:bg-white/[0.05] transition-all duration-200"
+              className="flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-white/[0.04] bg-white/[0.03] py-2.5 text-[11px] font-semibold text-slate-400 transition-all duration-200 hover:bg-white/[0.05] hover:text-white"
             >
               <span className="material-symbols-outlined text-sm">
                 {showAll ? 'expand_less' : 'expand_more'}
@@ -361,18 +388,36 @@ export function LeagueScreen({ tier, onBack }: LeagueScreenProps) {
       )}
 
       {/* Info card */}
-      <div className="rounded-2xl bg-white/[0.02] border border-white/[0.04] p-4">
-        <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2.5">How It Works</h4>
+      <div className="rounded-2xl border border-white/[0.04] bg-white/[0.02] p-4">
+        <h4 className="mb-2.5 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+          How It Works
+        </h4>
         <div className="space-y-2 text-[11px] text-slate-400">
           {[
-            { icon: 'north', color: 'text-emerald-400', text: 'Top 5 promote to the next league each week' },
+            {
+              icon: 'north',
+              color: 'text-emerald-400',
+              text: 'Top 5 promote to the next league each week',
+            },
             ...(activeTier !== 'reis'
-              ? [{ icon: 'south', color: 'text-red-400', text: 'Bottom 5 move down — every week is a fresh start!' }]
+              ? [
+                  {
+                    icon: 'south',
+                    color: 'text-red-400',
+                    text: 'Bottom 5 move down — every week is a fresh start!',
+                  },
+                ]
               : []),
-            { icon: 'restart_alt', color: 'text-primary', text: 'Weekly reset every Monday — earn XP to climb' },
+            {
+              icon: 'restart_alt',
+              color: 'text-primary',
+              text: 'Weekly reset every Monday — earn XP to climb',
+            },
           ].map((item) => (
             <div key={item.icon} className="flex items-start gap-2">
-              <span className={`material-symbols-outlined text-sm mt-px ${item.color}`}>{item.icon}</span>
+              <span className={`material-symbols-outlined mt-px text-sm ${item.color}`}>
+                {item.icon}
+              </span>
               <p>{item.text}</p>
             </div>
           ))}
@@ -384,7 +429,9 @@ export function LeagueScreen({ tier, onBack }: LeagueScreenProps) {
         profile={previewProfile}
         isOpen={!!previewProfile}
         onClose={() => setPreviewProfile(null)}
-        showAddFriend={previewProfile ? !friends.some((f) => f.userId === previewProfile.userId) : false}
+        showAddFriend={
+          previewProfile ? !friends.some((f) => f.userId === previewProfile.userId) : false
+        }
         onAddFriend={() => setPreviewProfile(null)}
       />
     </div>

@@ -1,44 +1,60 @@
 /**
  * Logger Utility
- * Centralized logging with environment-aware output
- * Replaces scattered console.log statements throughout the timer module
- * 
- * Security: Sanitizes sensitive data and gates logs by environment
+ *
+ * Centralized logging with environment-aware output.
+ *
+ * Output routing:
+ *   - DEV (non-PROD):   console.*  +  Sentry breadcrumb (if Sentry initialized)
+ *   - PROD:             console.*  (always)  +  Sentry breadcrumb (always)
+ *
+ * Level filtering is opt-in via `setMinLevel()`. Default is `info`.
+ *
+ * Sensitive-key redaction is unchanged from the previous implementation —
+ * password/token/secret/etc. are replaced with `'[REDACTED]'` before
+ * being emitted anywhere.
  */
+import { addBreadcrumb, captureError } from './sentry'
 
+export type LogLevel = 'debug' | 'info' | 'warn' | 'error'
+
+const LEVEL_RANK: Record<LogLevel, number> = {
+  debug: 0,
+  info: 1,
+  warn: 2,
+  error: 3,
+}
 
 interface LogOptions {
   context?: string
-  data?: any
+  data?: Record<string, unknown> | unknown
 }
 
 // Security: List of sensitive keys to redact
 const SENSITIVE_KEYS = [
-  'password', 'token', 'secret', 'apiKey', 'accessToken', 
-  'refreshToken', 'sessionId', 'userId', 'email', 'creditCard'
+  'password',
+  'token',
+  'secret',
+  'apiKey',
+  'accessToken',
+  'refreshToken',
+  'sessionId',
+  'userId',
+  'email',
+  'creditCard',
 ]
 
-/**
- * Sanitizes data object by redacting sensitive fields
- * Security: Prevents accidental logging of sensitive information
- */
-function sanitizeData(data: any): any {
-  if (!data || typeof data !== 'object') return data
-  
-  if (Array.isArray(data)) {
-    return data.map(item => sanitizeData(item))
-  }
-  
-  const sanitized: any = {}
-  for (const [key, value] of Object.entries(data)) {
-    // Check if key contains sensitive information
-    const isSensitive = SENSITIVE_KEYS.some(sensitiveKey => 
+function sanitizeData(data: unknown): unknown {
+  if (data == null || typeof data !== 'object') return data
+  if (Array.isArray(data)) return data.map((item) => sanitizeData(item))
+
+  const sanitized: Record<string, unknown> = {}
+  for (const [key, value] of Object.entries(data as Record<string, unknown>)) {
+    const isSensitive = SENSITIVE_KEYS.some((sensitiveKey) =>
       key.toLowerCase().includes(sensitiveKey.toLowerCase())
     )
-    
     if (isSensitive) {
       sanitized[key] = '[REDACTED]'
-    } else if (typeof value === 'object' && value !== null) {
+    } else if (value !== null && typeof value === 'object') {
       sanitized[key] = sanitizeData(value)
     } else {
       sanitized[key] = value
@@ -47,87 +63,137 @@ function sanitizeData(data: any): any {
   return sanitized
 }
 
+/** Current minimum level. Messages below this are dropped. */
+let minLevel: LogLevel = 'info'
+
+/**
+ * Set the minimum level emitted by the logger. Defaults to `'info'`,
+ * which drops `debug` messages. Call once at app boot to change.
+ */
+export function setMinLevel(level: LogLevel): void {
+  minLevel = level
+}
+
+export function getMinLevel(): LogLevel {
+  return minLevel
+}
+
+function shouldEmit(level: LogLevel): boolean {
+  return LEVEL_RANK[level] >= LEVEL_RANK[minLevel]
+}
+
 class TimerLogger {
   private isDevelopment = import.meta.env.DEV
   private prefix = '[Timer]'
-  
+
   /**
    * Prepares log data by sanitizing sensitive information
    */
-  private prepareLogData(options?: LogOptions): any {
+  private prepareLogData(options?: LogOptions): unknown {
     if (!options?.data) return ''
     return sanitizeData(options.data)
   }
 
+  private formatMessage(message: string, options?: LogOptions): string {
+    const ctx = options?.context ? `[${options.context}]` : ''
+    return `${this.prefix}${ctx} ${message}`
+  }
+
   /**
-   * Debug-level logging (only in development)
-   * Use for detailed debugging information
+   * Debug-level logging.
+   * Use for detailed debugging information. Default-gated unless
+   * `setMinLevel('debug')` is called.
    */
   debug(message: string, options?: LogOptions): void {
-    if (!this.isDevelopment) return
+    if (!shouldEmit('debug')) return
 
-    const contextMsg = options?.context ? `[${options.context}]` : ''
-    const sanitizedData = this.prepareLogData(options)
-    console.log(`${this.prefix}${contextMsg} ${message}`, sanitizedData)
+    const formatted = this.formatMessage(message, options)
+    const data = this.prepareLogData(options)
+
+    // Console: only in dev (matches previous behavior — avoid prod noise)
+    if (this.isDevelopment) {
+      console.log(formatted, data)
+    }
+    addBreadcrumb(formatted, 'log.debug', { data })
   }
 
   /**
-   * Info-level logging (only in development)
-   * Use for general information
+   * Info-level logging.
+   * Use for general information.
    */
   info(message: string, options?: LogOptions): void {
-    if (!this.isDevelopment) return
+    if (!shouldEmit('info')) return
 
-    const contextMsg = options?.context ? `[${options.context}]` : ''
-    const sanitizedData = this.prepareLogData(options)
-    console.info(`${this.prefix}${contextMsg} ${message}`, sanitizedData)
+    const formatted = this.formatMessage(message, options)
+    const data = this.prepareLogData(options)
+
+    if (this.isDevelopment) {
+      console.info(formatted, data)
+    }
+    addBreadcrumb(formatted, 'log.info', { data })
   }
 
   /**
-   * Warning-level logging (always shown, but sanitized)
-   * Use for recoverable issues
+   * Warning-level logging (always shown, but sanitized).
+   * Use for recoverable issues.
    */
   warn(message: string, options?: LogOptions): void {
-    const contextMsg = options?.context ? `[${options.context}]` : ''
-    const sanitizedData = this.prepareLogData(options)
-    console.warn(`${this.prefix}${contextMsg} ${message}`, sanitizedData)
+    if (!shouldEmit('warn')) return
+
+    const formatted = this.formatMessage(message, options)
+    const data = this.prepareLogData(options)
+
+    // Warnings go to console in both dev and prod (matches previous behavior)
+    console.warn(formatted, data)
+    addBreadcrumb(formatted, 'log.warn', { level: 'warning', data })
   }
 
   /**
-   * Error-level logging (always shown, but sanitized)
-   * Use for errors and exceptions
+   * Error-level logging (always shown, but sanitized).
+   * Use for errors and exceptions. Captures the Error to Sentry as
+   * an exception so it shows up alongside breadcrumbs.
    */
   error(message: string, error?: Error | unknown, options?: LogOptions): void {
-    const contextMsg = options?.context ? `[${options.context}]` : ''
-    const sanitizedData = this.prepareLogData(options)
-    
-    // Only log error message and stack in development
+    if (!shouldEmit('error')) return
+
+    const formatted = this.formatMessage(message, options)
+    const data = this.prepareLogData(options)
+    const err = error instanceof Error ? error : error ? new Error(String(error)) : undefined
+
+    // Console: full details in dev, message-only in prod (previous behavior)
     if (this.isDevelopment) {
-      console.error(`${this.prefix}${contextMsg} ${message}`, error, sanitizedData)
+      console.error(formatted, err, data)
     } else {
-      // In production, only log message without full error details
-      console.error(`${this.prefix}${contextMsg} ${message}`)
+      console.error(formatted)
+    }
+
+    addBreadcrumb(formatted, 'log.error', { level: 'error', data })
+    if (err) {
+      captureError(err, {
+        log_message: message,
+        ...(options?.context && { context: options.context }),
+      })
     }
   }
 
   /**
-   * Log timer state changes (development only)
+   * Log timer state changes
    */
   stateChange(from: string, to: string, context?: string): void {
     this.debug(`State: ${from} → ${to}`, { context })
   }
 
   /**
-   * Log performance metrics (development only)
+   * Log performance metrics
    */
   performance(operation: string, duration: number, context?: string): void {
     this.debug(`Performance: ${operation} took ${duration}ms`, { context })
   }
 
   /**
-   * Log persistence operations (development only)
+   * Log persistence operations
    */
-  persistence(action: string, data?: any): void {
+  persistence(action: string, data?: unknown): void {
     this.debug(`Persistence: ${action}`, { context: 'Storage', data })
   }
 }
@@ -136,4 +202,4 @@ class TimerLogger {
 export const logger = new TimerLogger()
 
 // Export for testing
-export { TimerLogger }
+export { TimerLogger, sanitizeData }

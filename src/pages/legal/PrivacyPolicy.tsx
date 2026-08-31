@@ -1,4 +1,8 @@
+import { useNavigate } from 'react-router-dom'
+
 export function PrivacyPolicy() {
+  useNavigate()
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-900 dark:to-indigo-950">
       {/* Header */}

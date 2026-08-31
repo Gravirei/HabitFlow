@@ -1,10 +1,9 @@
-// @ts-nocheck
 /**
  * Advanced Filters Modal
  * Modal with duration filters and additional filter options
  */
 
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -21,7 +20,7 @@ export function AdvancedFiltersModal({
   onClose,
   minDuration = 0,
   maxDuration = 7200, // 2 hours default max
-  onDurationChange
+  onDurationChange,
 }: AdvancedFiltersModalProps) {
   const [tempMinDuration, setTempMinDuration] = useState(minDuration)
   const [tempMaxDuration, setTempMaxDuration] = useState(maxDuration)
@@ -38,7 +37,7 @@ export function AdvancedFiltersModal({
   const formatDuration = (seconds: number) => {
     const hours = Math.floor(seconds / 3600)
     const mins = Math.floor((seconds % 3600) / 60)
-    
+
     if (hours > 0) {
       return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`
     }
@@ -55,7 +54,7 @@ export function AdvancedFiltersModal({
     setTempMaxDuration(7200)
   }
 
-  const handlePresetClick = (preset: typeof durationPresets[0]) => {
+  const handlePresetClick = (preset: (typeof durationPresets)[0]) => {
     setTempMinDuration(preset.min)
     setTempMaxDuration(preset.max)
   }
@@ -80,9 +79,9 @@ export function AdvancedFiltersModal({
 
   // Calculate percentages for slider track
   // Hardcoded max of 7200 for slider logic visualization
-  const ABSOLUTE_MAX = 7200;
-  const minPercent = (tempMinDuration / ABSOLUTE_MAX) * 100;
-  const maxPercent = (tempMaxDuration / ABSOLUTE_MAX) * 100;
+  const ABSOLUTE_MAX = 7200
+  const minPercent = (tempMinDuration / ABSOLUTE_MAX) * 100
+  const maxPercent = (tempMaxDuration / ABSOLUTE_MAX) * 100
 
   return createPortal(
     <AnimatePresence>
@@ -90,7 +89,7 @@ export function AdvancedFiltersModal({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[100] flex items-center justify-center bg-gradient-to-br from-slate-900/90 via-slate-900/70 to-slate-900/90 backdrop-blur-md p-4"
+        className="fixed inset-0 z-[100] flex items-center justify-center bg-gradient-to-br from-slate-900/90 via-slate-900/70 to-slate-900/90 p-4 backdrop-blur-md"
         onClick={onClose}
       >
         <motion.div
@@ -98,117 +97,121 @@ export function AdvancedFiltersModal({
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 50, scale: 0.95 }}
           transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-          className="relative bg-gradient-to-b from-white to-slate-50 dark:from-[#1E1E24] dark:to-[#18181B] rounded-3xl shadow-2xl w-full max-w-xl overflow-hidden border border-white/20 dark:border-white/10"
+          className="relative w-full max-w-xl overflow-hidden rounded-3xl border border-white/20 bg-gradient-to-b from-white to-slate-50 shadow-2xl dark:border-white/10 dark:from-[#1E1E24] dark:to-[#18181B]"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Decorative gradient blur */}
-          <div className="absolute -top-24 -left-24 w-96 h-96 bg-gradient-to-br from-primary/30 to-purple-500/30 rounded-full blur-3xl opacity-20 pointer-events-none" />
-          <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-gradient-to-tr from-blue-500/20 to-cyan-400/20 rounded-full blur-3xl opacity-20 pointer-events-none" />
+          <div className="pointer-events-none absolute -left-24 -top-24 h-96 w-96 rounded-full bg-gradient-to-br from-primary/30 to-purple-500/30 opacity-20 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-24 -right-24 h-96 w-96 rounded-full bg-gradient-to-tr from-blue-500/20 to-cyan-400/20 opacity-20 blur-3xl" />
 
           {/* Header */}
-            <div className="relative px-8 py-6 border-b border-slate-200/80 dark:border-white/5 flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                    <div className="size-10 rounded-2xl bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center shadow-lg shadow-primary/30">
-                        <span className="material-symbols-outlined text-white text-[20px]">tune</span>
-                    </div>
-                    <div>
-                        <h2 className="text-lg font-bold bg-gradient-to-r from-slate-800 to-slate-600 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
-                            Advanced Filters
-                        </h2>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                            Adjust session duration range
-                        </p>
-                    </div>
-                </div>
-                <button
-                    onClick={onClose}
-                    className="size-9 rounded-full bg-slate-100/80 dark:bg-white/5 flex items-center justify-center text-slate-500 hover:bg-slate-200 dark:hover:bg-white/10 transition-all duration-200 hover:rotate-90"
-                >
-                    <span className="material-symbols-outlined text-[18px]">close</span>
-                </button>
+          <div className="relative flex items-center justify-between border-b border-slate-200/80 px-8 py-6 dark:border-white/5">
+            <div className="flex items-center gap-4">
+              <div className="flex size-10 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-purple-600 shadow-lg shadow-primary/30">
+                <span className="material-symbols-outlined text-[20px] text-white">tune</span>
+              </div>
+              <div>
+                <h2 className="bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-lg font-bold text-transparent dark:from-white dark:to-slate-300">
+                  Advanced Filters
+                </h2>
+                <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+                  Adjust session duration range
+                </p>
+              </div>
             </div>
+            <button
+              onClick={onClose}
+              className="flex size-9 items-center justify-center rounded-full bg-slate-100/80 text-slate-500 transition-all duration-200 hover:rotate-90 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10"
+            >
+              <span className="material-symbols-outlined text-[18px]">close</span>
+            </button>
+          </div>
 
           {/* Content */}
-          <div className="relative px-8 py-6 space-y-6">
+          <div className="relative space-y-6 px-8 py-6">
             {/* Custom Duration Range - Dual Slider Simulation */}
             <div className="space-y-5">
-               {/* Values Display */}
-               <div className="flex items-center justify-between">
-                   <div className="flex flex-col items-start bg-gradient-to-br from-white to-slate-50 dark:from-[#2A2A31] dark:to-[#202026] px-4 py-3 rounded-2xl border border-slate-200/80 dark:border-white/5 min-w-[100px] shadow-lg">
-                       <span className="text-[10px] uppercase text-slate-400 dark:text-slate-500 font-bold tracking-wider">Minimum</span>
-                       <span className="text-lg font-bold text-slate-800 dark:text-white leading-tight">
-                           {formatDuration(tempMinDuration)}
-                       </span>
-                   </div>
-                    <div className="h-[2px] w-12 bg-gradient-to-r from-slate-200 via-primary/50 to-slate-200 dark:from-white/10 dark:via-primary/30 dark:to-white/10 rounded-full" />
-                   <div className="flex flex-col items-end bg-gradient-to-br from-white to-slate-50 dark:from-[#2A2A31] dark:to-[#202026] px-4 py-3 rounded-2xl border border-slate-200/80 dark:border-white/5 min-w-[100px] shadow-lg">
-                       <span className="text-[10px] uppercase text-slate-400 dark:text-slate-500 font-bold tracking-wider">Maximum</span>
-                       <span className="text-lg font-bold text-slate-800 dark:text-white leading-tight">
-                           {formatDuration(tempMaxDuration)}
-                       </span>
-                   </div>
-               </div>
+              {/* Values Display */}
+              <div className="flex items-center justify-between">
+                <div className="flex min-w-[100px] flex-col items-start rounded-2xl border border-slate-200/80 bg-gradient-to-br from-white to-slate-50 px-4 py-3 shadow-lg dark:border-white/5 dark:from-[#2A2A31] dark:to-[#202026]">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                    Minimum
+                  </span>
+                  <span className="text-lg font-bold leading-tight text-slate-800 dark:text-white">
+                    {formatDuration(tempMinDuration)}
+                  </span>
+                </div>
+                <div className="h-[2px] w-12 rounded-full bg-gradient-to-r from-slate-200 via-primary/50 to-slate-200 dark:from-white/10 dark:via-primary/30 dark:to-white/10" />
+                <div className="flex min-w-[100px] flex-col items-end rounded-2xl border border-slate-200/80 bg-gradient-to-br from-white to-slate-50 px-4 py-3 shadow-lg dark:border-white/5 dark:from-[#2A2A31] dark:to-[#202026]">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                    Maximum
+                  </span>
+                  <span className="text-lg font-bold leading-tight text-slate-800 dark:text-white">
+                    {formatDuration(tempMaxDuration)}
+                  </span>
+                </div>
+              </div>
 
-                {/* Slider Components */}
-              <div className="pt-5 pb-3 relative h-8">
-                  {/* Active Range Track (Gradient) */}
-                  <div
-                    className="absolute top-1/2 h-2 bg-gradient-to-r from-primary to-purple-600 rounded-full -translate-y-1/2 pointer-events-none z-[2] shadow-lg shadow-primary/30"
-                    style={{ left: `${minPercent}%`, right: `${100 - maxPercent}%` }}
-                  />
+              {/* Slider Components */}
+              <div className="relative h-8 pb-3 pt-5">
+                {/* Active Range Track (Gradient) */}
+                <div
+                  className="pointer-events-none absolute top-1/2 z-[2] h-2 -translate-y-1/2 rounded-full bg-gradient-to-r from-primary to-purple-600 shadow-lg shadow-primary/30"
+                  style={{ left: `${minPercent}%`, right: `${100 - maxPercent}%` }}
+                />
 
-                  {/* Background Track */}
-                  <div className="absolute top-1/2 h-2 bg-slate-200 dark:bg-white/10 rounded-full -translate-y-1/2 w-full" />
+                {/* Background Track */}
+                <div className="absolute top-1/2 h-2 w-full -translate-y-1/2 rounded-full bg-slate-200 dark:bg-white/10" />
 
-                  {/* Input Min */}
-                  <input
-                    type="range"
-                    min={0}
-                    max={ABSOLUTE_MAX}
-                    step={60}
-                    value={tempMinDuration}
-                    onChange={(e) => {
-                        const val = Math.min(Number(e.target.value), tempMaxDuration - 300);
-                        setTempMinDuration(val);
-                    }}
-                    className="absolute top-0 w-full h-full opacity-0 cursor-pointer z-20"
-                    style={{ pointerEvents: 'none' }}
-                  />
-                   {/* Custom Thumb Min */}
-                   <motion.div
-                        whileHover={{ scale: 1.2 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="absolute top-1/2 size-6 bg-white border-3 border-primary rounded-full shadow-lg shadow-primary/30 z-30 pointer-events-none -translate-x-1/2 transition-all"
-                        style={{ left: `${minPercent}%`, transform: `translate(-50%, -50%)` }}
-                   >
-                        <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary to-purple-600 opacity-0 hover:opacity-100 transition-opacity" />
-                   </motion.div>
+                {/* Input Min */}
+                <input
+                  type="range"
+                  min={0}
+                  max={ABSOLUTE_MAX}
+                  step={60}
+                  value={tempMinDuration}
+                  onChange={(e) => {
+                    const val = Math.min(Number(e.target.value), tempMaxDuration - 300)
+                    setTempMinDuration(val)
+                  }}
+                  className="absolute top-0 z-20 h-full w-full cursor-pointer opacity-0"
+                  style={{ pointerEvents: 'none' }}
+                />
+                {/* Custom Thumb Min */}
+                <motion.div
+                  whileHover={{ scale: 1.2 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="border-3 pointer-events-none absolute top-1/2 z-30 size-6 -translate-x-1/2 rounded-full border-primary bg-white shadow-lg shadow-primary/30 transition-all"
+                  style={{ left: `${minPercent}%`, transform: `translate(-50%, -50%)` }}
+                >
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary to-purple-600 opacity-0 transition-opacity hover:opacity-100" />
+                </motion.div>
 
-                   {/* Input Max */}
-                   <input
-                    type="range"
-                    min={0}
-                    max={ABSOLUTE_MAX}
-                    step={60}
-                    value={tempMaxDuration}
-                    onChange={(e) => {
-                        const val = Math.max(Number(e.target.value), tempMinDuration + 300);
-                        setTempMaxDuration(val);
-                    }}
-                    className="absolute top-0 w-full h-full opacity-0 cursor-pointer z-20"
-                    style={{ pointerEvents: 'none' }}
-                  />
-                    {/* Custom Thumb Max */}
-                    <motion.div
-                        whileHover={{ scale: 1.2 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="absolute top-1/2 size-6 bg-white border-3 border-primary rounded-full shadow-lg shadow-primary/30 z-30 pointer-events-none -translate-x-1/2 transition-all"
-                        style={{ left: `${maxPercent}%`, transform: `translate(-50%, -50%)` }}
-                   >
-                        <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary to-purple-600 opacity-0 hover:opacity-100 transition-opacity" />
-                   </motion.div>
-                    
-                    {/* 
+                {/* Input Max */}
+                <input
+                  type="range"
+                  min={0}
+                  max={ABSOLUTE_MAX}
+                  step={60}
+                  value={tempMaxDuration}
+                  onChange={(e) => {
+                    const val = Math.max(Number(e.target.value), tempMinDuration + 300)
+                    setTempMaxDuration(val)
+                  }}
+                  className="absolute top-0 z-20 h-full w-full cursor-pointer opacity-0"
+                  style={{ pointerEvents: 'none' }}
+                />
+                {/* Custom Thumb Max */}
+                <motion.div
+                  whileHover={{ scale: 1.2 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="border-3 pointer-events-none absolute top-1/2 z-30 size-6 -translate-x-1/2 rounded-full border-primary bg-white shadow-lg shadow-primary/30 transition-all"
+                  style={{ left: `${maxPercent}%`, transform: `translate(-50%, -50%)` }}
+                >
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary to-purple-600 opacity-0 transition-opacity hover:opacity-100" />
+                </motion.div>
+
+                {/* 
                       Hack to make inputs clickable only on their thumbs is tough in pure CSS/React without libs.
                       So we rely on standard range inputs being full width and z-index usage.
                       Actually, standard inputs with pointer-events-none and explicit thumb styling is needed.
@@ -223,7 +226,7 @@ export function AdvancedFiltersModal({
                       input[type=range] { pointer-events: none; }
                       input[type=range]::-webkit-slider-thumb { pointer-events: auto; }
                     */}
-                     <style>{`
+                <style>{`
                         input[type=range]::-webkit-slider-thumb {
                             pointer-events: auto;
                             width: 24px;
@@ -260,7 +263,7 @@ export function AdvancedFiltersModal({
 
             {/* Presets - Modern Chips */}
             <div>
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-3">
+              <label className="mb-3 block text-xs font-bold text-slate-700 dark:text-slate-300">
                 Quick Presets
               </label>
               <div className="grid grid-cols-3 gap-3">
@@ -272,16 +275,14 @@ export function AdvancedFiltersModal({
                       whileHover={{ scale: 1.05, y: -2 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => handlePresetClick(preset)}
-                      className={`
-                        px-4 py-2.5 rounded-2xl text-sm font-bold transition-all relative overflow-hidden
-                        ${isActive
+                      className={`relative overflow-hidden rounded-2xl px-4 py-2.5 text-sm font-bold transition-all ${
+                        isActive
                           ? 'bg-gradient-to-br from-primary to-purple-600 text-white shadow-lg shadow-primary/30'
-                          : 'bg-gradient-to-br from-white to-slate-50 dark:from-[#2A2A31] dark:to-[#202026] text-slate-600 dark:text-slate-400 hover:from-primary/10 hover:to-purple-500/10 dark:hover:from-primary/20 dark:hover:to-purple-600/20 border border-slate-200/50 dark:border-white/5'
-                        }
-                      `}
+                          : 'border border-slate-200/50 bg-gradient-to-br from-white to-slate-50 text-slate-600 hover:from-primary/10 hover:to-purple-500/10 dark:border-white/5 dark:from-[#2A2A31] dark:to-[#202026] dark:text-slate-400 dark:hover:from-primary/20 dark:hover:to-purple-600/20'
+                      } `}
                     >
                       {isActive && (
-                        <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                        <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-white/0 via-white/10 to-white/0 transition-transform duration-1000 group-hover:translate-x-full" />
                       )}
                       {preset.label}
                     </motion.button>
@@ -292,12 +293,12 @@ export function AdvancedFiltersModal({
           </div>
 
           {/* Footer Actions */}
-          <div className="relative px-8 py-5 border-t border-slate-200/80 dark:border-white/5 flex gap-3">
+          <div className="relative flex gap-3 border-t border-slate-200/80 px-8 py-5 dark:border-white/5">
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={handleReset}
-              className="flex-1 py-3.5 rounded-2xl font-bold text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 transition-all duration-200"
+              className="flex-1 rounded-2xl py-3.5 text-sm font-bold text-slate-600 transition-all duration-200 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/5"
             >
               Reset
             </motion.button>
@@ -305,7 +306,7 @@ export function AdvancedFiltersModal({
               whileHover={{ scale: 1.02, y: -2 }}
               whileTap={{ scale: 0.98 }}
               onClick={handleApply}
-              className="flex-[2] py-3.5 rounded-2xl font-bold text-sm text-white bg-gradient-to-r from-primary to-purple-600 hover:from-primary-dark hover:to-purple-700 transition-all duration-200 shadow-xl shadow-primary/30 flex items-center justify-center gap-2"
+              className="hover:from-primary-dark flex flex-[2] items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-primary to-purple-600 py-3.5 text-sm font-bold text-white shadow-xl shadow-primary/30 transition-all duration-200 hover:to-purple-700"
             >
               <span className="material-symbols-outlined text-[18px]">check_circle</span>
               Apply Filters

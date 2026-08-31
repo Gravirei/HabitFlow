@@ -102,7 +102,7 @@ export function AddFriendsModal({ isOpen, onClose }: AddFriendsModalProps) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
       {/* Backdrop */}
       <motion.div
         initial={{ opacity: 0 }}
@@ -118,26 +118,26 @@ export function AddFriendsModal({ isOpen, onClose }: AddFriendsModalProps) {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 40 }}
         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-        className="relative w-full max-w-md max-h-[85vh] bg-[#0f1628] border border-white/[0.08] rounded-t-3xl sm:rounded-3xl overflow-hidden flex flex-col"
+        className="relative flex max-h-[85vh] w-full max-w-md flex-col overflow-hidden rounded-t-3xl border border-white/[0.08] bg-[#0f1628] sm:rounded-3xl"
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-5 pt-5 pb-3">
+        <div className="flex items-center justify-between px-5 pb-3 pt-5">
           <h2 className="text-lg font-bold text-white">Add Friends</h2>
           <button
             onClick={onClose}
-            className="flex size-8 items-center justify-center rounded-full bg-white/[0.06] hover:bg-white/[0.1] transition-colors cursor-pointer"
+            className="flex size-8 cursor-pointer items-center justify-center rounded-full bg-white/[0.06] transition-colors hover:bg-white/[0.1]"
           >
             <span className="material-symbols-outlined text-lg text-slate-400">close</span>
           </button>
         </div>
 
         {/* Tab bar */}
-        <div className="flex gap-1 mx-5 mb-4 p-1 rounded-xl bg-white/[0.04] border border-white/[0.06]">
+        <div className="mx-5 mb-4 flex gap-1 rounded-xl border border-white/[0.06] bg-white/[0.04] p-1">
           {TABS.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+              className={`flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-semibold transition-all ${
                 activeTab === tab.id
                   ? 'bg-primary/15 text-primary'
                   : 'text-slate-500 hover:text-slate-300'
@@ -171,13 +171,13 @@ export function AddFriendsModal({ isOpen, onClose }: AddFriendsModalProps) {
                     placeholder="Search by name..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full rounded-xl bg-white/[0.04] border border-white/[0.08] pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-slate-600 outline-none focus:border-primary/30 transition-colors"
+                    className="w-full rounded-xl border border-white/[0.08] bg-white/[0.04] py-2.5 pl-10 pr-4 text-sm text-white outline-none transition-colors placeholder:text-slate-600 focus:border-primary/30"
                     autoFocus
                   />
                   {searchQuery && (
                     <button
                       onClick={() => setSearchQuery('')}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 cursor-pointer"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-slate-500 hover:text-slate-300"
                     >
                       <span className="material-symbols-outlined text-lg">close</span>
                     </button>
@@ -194,16 +194,20 @@ export function AddFriendsModal({ isOpen, onClose }: AddFriendsModalProps) {
                     </div>
                   ) : (
                     <div className="flex flex-col items-center py-10 text-center">
-                      <span className="material-symbols-outlined text-3xl text-slate-600 mb-2">search_off</span>
+                      <span className="material-symbols-outlined mb-2 text-3xl text-slate-600">
+                        search_off
+                      </span>
                       <p className="text-sm text-slate-400">No users found</p>
-                      <p className="text-xs text-slate-500 mt-1">Try a different name</p>
+                      <p className="mt-1 text-xs text-slate-500">Try a different name</p>
                     </div>
                   )
                 ) : (
                   <div className="flex flex-col items-center py-10 text-center">
-                    <span className="material-symbols-outlined text-3xl text-slate-600 mb-2">person_search</span>
+                    <span className="material-symbols-outlined mb-2 text-3xl text-slate-600">
+                      person_search
+                    </span>
                     <p className="text-sm text-slate-400">Search for users</p>
-                    <p className="text-xs text-slate-500 mt-1">Type a name to find people</p>
+                    <p className="mt-1 text-xs text-slate-500">Type a name to find people</p>
                   </div>
                 )}
               </motion.div>
@@ -218,23 +222,31 @@ export function AddFriendsModal({ isOpen, onClose }: AddFriendsModalProps) {
                 className="space-y-5"
               >
                 {/* Your invite code */}
-                <div className="rounded-2xl bg-white/[0.03] border border-white/[0.06] p-4 space-y-3">
-                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Your Invite Code</p>
+                <div className="space-y-3 rounded-2xl border border-white/[0.06] bg-white/[0.03] p-4">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                    Your Invite Code
+                  </p>
                   <div className="flex items-center gap-2">
-                    <div className="flex-1 rounded-xl bg-white/[0.06] border border-dashed border-white/[0.1] px-4 py-3 text-center">
-                      <span className="text-lg font-bold text-white tracking-widest font-mono">{inviteCode}</span>
+                    <div className="flex-1 rounded-xl border border-dashed border-white/[0.1] bg-white/[0.06] px-4 py-3 text-center">
+                      <span className="font-mono text-lg font-bold tracking-widest text-white">
+                        {inviteCode}
+                      </span>
                     </div>
                     <button
                       onClick={handleCopyCode}
-                      className="flex size-11 items-center justify-center rounded-xl bg-primary/10 hover:bg-primary/20 transition-colors cursor-pointer"
+                      className="flex size-11 cursor-pointer items-center justify-center rounded-xl bg-primary/10 transition-colors hover:bg-primary/20"
                     >
-                      <span className="material-symbols-outlined text-lg text-primary">content_copy</span>
+                      <span className="material-symbols-outlined text-lg text-primary">
+                        content_copy
+                      </span>
                     </button>
                   </div>
-                  <p className="text-xs text-slate-500 text-center">Share this code with friends so they can add you</p>
+                  <p className="text-center text-xs text-slate-500">
+                    Share this code with friends so they can add you
+                  </p>
                   <button
                     onClick={handleShare}
-                    className="w-full flex items-center justify-center gap-2 rounded-xl bg-primary/10 hover:bg-primary/20 py-2.5 text-[13px] font-semibold text-primary transition-colors cursor-pointer"
+                    className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-primary/10 py-2.5 text-[13px] font-semibold text-primary transition-colors hover:bg-primary/20"
                   >
                     <span className="material-symbols-outlined text-lg">share</span>
                     Share with friends
@@ -242,20 +254,22 @@ export function AddFriendsModal({ isOpen, onClose }: AddFriendsModalProps) {
                 </div>
 
                 {/* Enter friend's code */}
-                <div className="rounded-2xl bg-white/[0.03] border border-white/[0.06] p-4 space-y-3">
-                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Enter Friend&apos;s Code</p>
+                <div className="space-y-3 rounded-2xl border border-white/[0.06] bg-white/[0.03] p-4">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                    Enter Friend&apos;s Code
+                  </p>
                   <input
                     type="text"
                     placeholder="HABIT-XXXX-XXXX"
                     value={inviteInput}
                     onChange={(e) => setInviteInput(e.target.value.toUpperCase())}
                     maxLength={14}
-                    className="w-full rounded-xl bg-white/[0.04] border border-white/[0.08] px-4 py-2.5 text-sm text-white text-center font-mono tracking-widest placeholder:text-slate-600 placeholder:tracking-widest outline-none focus:border-primary/30 transition-colors"
+                    className="w-full rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-2.5 text-center font-mono text-sm tracking-widest text-white outline-none transition-colors placeholder:tracking-widest placeholder:text-slate-600 focus:border-primary/30"
                   />
                   <button
                     onClick={handleRedeemCode}
                     disabled={!inviteInput.trim()}
-                    className="w-full rounded-xl bg-primary py-2.5 text-[13px] font-semibold text-primary-content hover:opacity-90 transition-opacity disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                    className="w-full cursor-pointer rounded-xl bg-primary py-2.5 text-[13px] font-semibold text-primary-content transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-30"
                   >
                     Add Friend
                   </button>
@@ -271,7 +285,9 @@ export function AddFriendsModal({ isOpen, onClose }: AddFriendsModalProps) {
                 exit={{ opacity: 0, x: 12 }}
                 className="space-y-3"
               >
-                <p className="text-xs text-slate-500 mb-2">People you might know based on your activity</p>
+                <p className="mb-2 text-xs text-slate-500">
+                  People you might know based on your activity
+                </p>
                 {suggestions.length > 0 ? (
                   <AnimatePresence>
                     {suggestions.map((user, i) => (
@@ -287,9 +303,11 @@ export function AddFriendsModal({ isOpen, onClose }: AddFriendsModalProps) {
                   </AnimatePresence>
                 ) : (
                   <div className="flex flex-col items-center py-10 text-center">
-                    <span className="material-symbols-outlined text-3xl text-slate-600 mb-2">diversity_3</span>
+                    <span className="material-symbols-outlined mb-2 text-3xl text-slate-600">
+                      diversity_3
+                    </span>
                     <p className="text-sm text-slate-400">No more suggestions</p>
-                    <p className="text-xs text-slate-500 mt-1">Try searching by name instead</p>
+                    <p className="mt-1 text-xs text-slate-500">Try searching by name instead</p>
                   </div>
                 )}
               </motion.div>

@@ -1,0 +1,54 @@
+#!/usr/bin/env sh
+# Pre-commit hook — block accidental secret commits.
+# Wired automatically by husky via the `prepare` npm script.
+
+echo "🔍 Checking for sensitive files..."
+
+# Block .env / .env.local / .env.*.local from being committed
+if git diff --cached --name-only | grep -E '^\.env(\.|\.local|\..*\.local|$)'; then
+  echo ""
+  echo "❌ ERROR: Attempting to commit a .env file!"
+  echo ""
+  echo "These files contain sensitive credentials and must NEVER be committed."
+  echo ""
+  echo "To fix:"
+  echo "  1. Unstage the file:    git reset HEAD .env"
+  echo "  2. Ensure .env is in .gitignore (it is, by default)"
+  echo "  3. Use .env.example for templates"
+  echo ""
+  exit 1
+fi
+
+# Block common credential file extensions
+if git diff --cached --name-only | grep -E '\.(pem|key|p12|pfx)$'; then
+  echo ""
+  echo "❌ ERROR: Attempting to commit a credential file (*.pem, *.key, *.p12, *.pfx)!"
+  echo "  Unstage the file and ensure it is in .gitignore."
+  echo ""
+  exit 1
+fi
+
+# Warn on hardcoded credential patterns in staged diffs.
+# We only flag strings that look like actual secrets (40+ chars, mixed
+# casing/digits) — short placeholder values like 'YOUR_NOTION_CLIENT_SECRET'
+# or 'placeholder_client_secret' are legitimate code, not leaked creds.
+if git diff --cached | grep -iE "(password|secret|api[_-]?key|token|private[_-]?key).*=.*[\"'][A-Za-z0-9+/=_-]{40,}[\"']" | grep -ivE "(placeholder|YOUR_|example|TODO|FIXME|mock_|test_)"; then
+  echo ""
+  echo "⚠️  WARNING: Possible hardcoded credentials detected in staged diff!"
+  echo ""
+  echo "Found patterns that look like hardcoded secrets."
+  echo "Please review your changes carefully."
+  echo ""
+  echo "If these are real credentials, DO NOT commit them."
+  echo "Use environment variables instead."
+  echo ""
+  printf "Continue anyway? (y/N) "
+  read -r REPLY
+  case "$REPLY" in
+    [Yy]|[Yy][Ee][Ss]) ;;
+    *) exit 1 ;;
+  esac
+fi
+
+echo "✅ Pre-commit checks passed!"
+exit 0

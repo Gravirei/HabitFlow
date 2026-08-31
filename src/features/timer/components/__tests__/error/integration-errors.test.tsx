@@ -10,7 +10,7 @@ declare const process: NodeJS.Process
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { TimerContainer } from '../../TimerContainer'
@@ -65,7 +65,11 @@ describe('Integration Error Tests', () => {
           <div>
             <h1>Parent Component</h1>
             <TimerErrorBoundary>
-              <div>{(() => { throw new Error('Child error') })()}</div>
+              <div>
+                {(() => {
+                  throw new Error('Child error')
+                })()}
+              </div>
             </TimerErrorBoundary>
           </div>
         )
@@ -83,12 +87,15 @@ describe('Integration Error Tests', () => {
   describe('State Management Errors', () => {
     // Skip: Component rendering with corrupted localStorage is timing-sensitive
     it.skip('should handle timer state corruption', () => {
-      localStorage.setItem('flowmodoro_active_timer', JSON.stringify({
-        mode: 'Countdown',
-        startTime: 'invalid',
-        duration: -1000,
-        isRunning: 'not a boolean'
-      }))
+      localStorage.setItem(
+        'flowmodoro_active_timer',
+        JSON.stringify({
+          mode: 'Countdown',
+          startTime: 'invalid',
+          duration: -1000,
+          isRunning: 'not a boolean',
+        })
+      )
 
       renderWithRouter(
         <TimerErrorBoundary>
@@ -100,7 +107,7 @@ describe('Integration Error Tests', () => {
       expect(screen.getByText(/stopwatch|countdown|intervals/i)).toBeInTheDocument()
     })
 
-    // Skip: Timer container render with corrupted localStorage is timing-sensitive  
+    // Skip: Timer container render with corrupted localStorage is timing-sensitive
     it.skip('should recover from invalid persisted state', () => {
       localStorage.setItem('flowmodoro_active_timer', 'corrupted data')
 
@@ -116,9 +123,19 @@ describe('Integration Error Tests', () => {
   })
 
   describe('User Interaction Errors', () => {
-    it('should handle rapid button clicks', async () => {
-      const user = userEvent.setup({ delay: null })
-
+    // Uses fireEvent rather than userEvent.click because user-event
+    // v14.6.1's internal `wait()` schedules `setTimeout(0)` resolves
+    // between each interaction step, and this suite runs under
+    // `vi.useFakeTimers()` which starves those resolves. With @testing-
+    // library/react v16 the interaction surface is larger (focus/blur,
+    // pointer events), so each `user.click()` schedules more waits
+    // than ever and the loop never completes within vitest's 15s
+    // timeout. The buttons are also framer-motion <motion.button>
+    // elements that re-render constantly, compounding the wait load.
+    // fireEvent dispatches the click event synchronously without any
+    // inter-step waits, which matches the test's intent (verify rapid
+    // clicks don't trigger the error boundary).
+    it('should handle rapid button clicks', () => {
       renderWithRouter(
         <TimerErrorBoundary>
           <TimerContainer />
@@ -127,14 +144,14 @@ describe('Integration Error Tests', () => {
 
       // Switch to countdown mode (tabs have role="tab", not "button")
       const countdownTab = screen.getByRole('tab', { name: /countdown/i })
-      await user.click(countdownTab)
+      fireEvent.click(countdownTab)
 
       // Get start button
       const startButton = screen.getByRole('button', { name: /start/i })
 
       // Rapid clicks
       for (let i = 0; i < 10; i++) {
-        await user.click(startButton)
+        fireEvent.click(startButton)
       }
 
       // Should handle gracefully
@@ -164,8 +181,8 @@ describe('Integration Error Tests', () => {
         writable: true,
         value: {
           permission: 'denied',
-          requestPermission: vi.fn().mockResolvedValue('denied')
-        }
+          requestPermission: vi.fn().mockResolvedValue('denied'),
+        },
       })
 
       renderWithRouter(
@@ -194,7 +211,7 @@ describe('Integration Error Tests', () => {
       const audioMock = {
         play: vi.fn().mockRejectedValue(new Error('Audio playback failed')),
         pause: vi.fn(),
-        volume: 0.5
+        volume: 0.5,
       }
       global.Audio = vi.fn().mockImplementation(() => audioMock) as any
 
@@ -224,7 +241,7 @@ describe('Integration Error Tests', () => {
         writable: true,
         value: vi.fn().mockImplementation(() => {
           throw new Error('Vibration failed')
-        })
+        }),
       })
 
       renderWithRouter(
@@ -369,9 +386,10 @@ describe('Integration Error Tests', () => {
     it('should handle invalid preset selection', async () => {
       // const user = userEvent.setup()
 
-      localStorage.setItem('flowmodoro_presets', JSON.stringify([
-        { id: '1', name: 'Invalid', duration: -1000 }
-      ]))
+      localStorage.setItem(
+        'flowmodoro_presets',
+        JSON.stringify([{ id: '1', name: 'Invalid', duration: -1000 }])
+      )
 
       renderWithRouter(
         <TimerErrorBoundary>
@@ -417,9 +435,10 @@ describe('Integration Error Tests', () => {
       expect(screen.queryByText(/something went wrong/i)).not.toBeInTheDocument()
     }, 10000)
 
-    it('should handle rapid keyboard inputs', async () => {
-      const user = userEvent.setup({ delay: null })
-
+    // Same rationale as the rapid-click test above: userEvent.keyboard
+    // schedules `setTimeout(0)` resolves between each keystroke that
+    // never fire under `vi.useFakeTimers()`.
+    it('should handle rapid keyboard inputs', () => {
       renderWithRouter(
         <TimerErrorBoundary>
           <TimerContainer />
@@ -428,7 +447,7 @@ describe('Integration Error Tests', () => {
 
       // Rapid keyboard inputs
       for (let i = 0; i < 20; i++) {
-        await user.keyboard('{Space}')
+        fireEvent.keyDown(document.body, { key: ' ' })
       }
 
       // Should handle without errors
@@ -448,7 +467,7 @@ describe('Integration Error Tests', () => {
       Object.defineProperty(document, 'hidden', {
         writable: true,
         configurable: true,
-        value: true
+        value: true,
       })
       document.dispatchEvent(new Event('visibilitychange'))
 
@@ -456,7 +475,7 @@ describe('Integration Error Tests', () => {
       Object.defineProperty(document, 'hidden', {
         writable: true,
         configurable: true,
-        value: false
+        value: false,
       })
       document.dispatchEvent(new Event('visibilitychange'))
 
@@ -541,7 +560,7 @@ describe('Integration Error Tests', () => {
       )
 
       // Clear corrupted data
-      Object.keys(localStorage).forEach(key => localStorage.removeItem(key))
+      Object.keys(localStorage).forEach((key) => localStorage.removeItem(key))
 
       // Rerender
       rerender(

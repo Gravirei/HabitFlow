@@ -13,31 +13,29 @@ export function OnboardingModal() {
   return (
     <>
       {/* Backdrop */}
-      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] animate-in fade-in duration-300" />
+      <div className="animate-in fade-in fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm duration-300" />
 
       {/* Modal */}
-      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 pointer-events-none">
+      <div className="pointer-events-none fixed inset-0 z-[100] flex items-center justify-center p-4">
         <div
-          className="relative w-full max-w-md bg-gradient-to-br from-gray-900 via-black to-gray-900 rounded-3xl shadow-2xl border border-white/10 pointer-events-auto animate-in zoom-in-95 fade-in duration-300"
+          className="animate-in zoom-in-95 fade-in pointer-events-auto relative w-full max-w-md rounded-3xl border border-white/10 bg-gradient-to-br from-gray-900 via-black to-gray-900 shadow-2xl duration-300"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Decorative gradient orbs */}
-          <div className="absolute -top-24 -right-24 w-96 h-96 bg-gradient-to-br from-primary/20 to-green-500/20 rounded-full blur-3xl" />
-          <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-full blur-3xl" />
+          <div className="absolute -right-24 -top-24 h-96 w-96 rounded-full bg-gradient-to-br from-primary/20 to-green-500/20 blur-3xl" />
+          <div className="absolute -bottom-24 -left-24 h-96 w-96 rounded-full bg-gradient-to-br from-cyan-500/20 to-blue-500/20 blur-3xl" />
 
           {/* Content */}
-          <div className="relative p-8 space-y-6">
+          <div className="relative space-y-6 p-8">
             {/* Header */}
-            <div className="text-center space-y-3">
-              <div className="w-20 h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center mb-4">
+            <div className="space-y-3 text-center">
+              <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-primary/10">
                 <span className="material-symbols-outlined text-5xl text-primary">
                   self_improvement
                 </span>
               </div>
-              <h2 className="text-3xl font-bold text-white">
-                Welcome to HabitFlow! 🎉
-              </h2>
-              <p className="text-gray-400 text-base">
+              <h2 className="text-3xl font-bold text-white">Welcome to HabitFlow! 🎉</h2>
+              <p className="text-base text-gray-400">
                 Start your journey to building better habits
               </p>
             </div>
@@ -47,18 +45,16 @@ export function OnboardingModal() {
               {/* Option 1: Start Fresh */}
               <button
                 onClick={() => markOnboardingComplete()}
-                className="w-full p-5 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-primary/50 transition-all duration-200 group text-left"
+                className="group w-full rounded-2xl border border-white/10 bg-white/5 p-5 text-left transition-all duration-200 hover:border-primary/50 hover:bg-white/10"
               >
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center shrink-0 group-hover:bg-blue-500/20 transition-colors">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-500/10 transition-colors group-hover:bg-blue-500/20">
                     <span className="material-symbols-outlined text-2xl text-blue-400">
                       add_circle
                     </span>
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-white mb-1">
-                      Start Fresh
-                    </h3>
+                    <h3 className="mb-1 text-lg font-semibold text-white">Start Fresh</h3>
                     <p className="text-sm text-gray-400">
                       Begin with a clean slate and create your own habits from scratch
                     </p>
@@ -69,18 +65,16 @@ export function OnboardingModal() {
               {/* Option 2: Load Sample Habits */}
               <button
                 onClick={() => loadSampleHabits()}
-                className="w-full p-5 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-primary/50 transition-all duration-200 group text-left"
+                className="group w-full rounded-2xl border border-white/10 bg-white/5 p-5 text-left transition-all duration-200 hover:border-primary/50 hover:bg-white/10"
               >
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 transition-colors group-hover:bg-primary/20">
                     <span className="material-symbols-outlined text-2xl text-primary">
                       lightbulb
                     </span>
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-white mb-1">
-                      Load Sample Habits
-                    </h3>
+                    <h3 className="mb-1 text-lg font-semibold text-white">Load Sample Habits</h3>
                     <p className="text-sm text-gray-400">
                       Explore the app with pre-loaded example habits (you can delete them later)
                     </p>
@@ -90,8 +84,8 @@ export function OnboardingModal() {
             </div>
 
             {/* Info */}
-            <div className="pt-4 border-t border-white/10">
-              <p className="text-xs text-gray-500 text-center">
+            <div className="border-t border-white/10 pt-4">
+              <p className="text-center text-xs text-gray-500">
                 💡 You can always change or delete habits later in Settings
               </p>
             </div>

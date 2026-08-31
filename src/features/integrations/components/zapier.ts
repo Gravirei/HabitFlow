@@ -1,17 +1,14 @@
-import { useIntegrationStore } from '../store/integrationStore';
+import { useIntegrationStore } from '../store/integrationStore'
 
 /**
  * Validates Zapier webhook URL format
  */
 function isValidWebhookUrl(url: string): boolean {
   try {
-    const urlObj = new URL(url);
-    return (
-      (urlObj.protocol === 'https:' || urlObj.protocol === 'http:') &&
-      url.length > 0
-    );
+    const urlObj = new URL(url)
+    return (urlObj.protocol === 'https:' || urlObj.protocol === 'http:') && url.length > 0
   } catch {
-    return false;
+    return false
   }
 }
 
@@ -21,7 +18,7 @@ function isValidWebhookUrl(url: string): boolean {
 function getWebhookHeaders(): Record<string, string> {
   return {
     'Content-Type': 'application/json',
-  };
+  }
 }
 
 export const zapierService = {
@@ -32,9 +29,9 @@ export const zapierService = {
    */
   validateWebhookUrl(url: string): boolean {
     if (!url || typeof url !== 'string') {
-      return false;
+      return false
     }
-    return isValidWebhookUrl(url);
+    return isValidWebhookUrl(url)
   },
 
   /**
@@ -45,26 +42,26 @@ export const zapierService = {
   async testWebhook(webhookUrl: string): Promise<boolean> {
     try {
       if (!this.validateWebhookUrl(webhookUrl)) {
-        console.error('Invalid webhook URL format');
-        return false;
+        console.error('Invalid webhook URL format')
+        return false
       }
 
       const testPayload = {
         event: 'test',
         timestamp: new Date().toISOString(),
         message: 'HabitFlow test event',
-      };
+      }
 
       const response = await fetch(webhookUrl, {
         method: 'POST',
         headers: getWebhookHeaders(),
         body: JSON.stringify(testPayload),
-      });
+      })
 
-      return response.ok;
+      return response.ok
     } catch (error) {
-      console.error('Error testing webhook:', error);
-      return false;
+      console.error('Error testing webhook:', error)
+      return false
     }
   },
 
@@ -74,35 +71,35 @@ export const zapierService = {
   async sendHabitCompleted(
     webhookUrl: string,
     data: {
-      habitName: string;
-      habitId: string;
-      category: string;
-      streak: number;
-      completedAt: string;
+      habitName: string
+      habitId: string
+      category: string
+      streak: number
+      completedAt: string
     }
   ): Promise<boolean> {
     try {
       if (!this.validateWebhookUrl(webhookUrl)) {
-        console.error('Invalid webhook URL');
-        return false;
+        console.error('Invalid webhook URL')
+        return false
       }
 
       const payload = {
         event: 'habit_completed',
         timestamp: new Date().toISOString(),
         data,
-      };
+      }
 
       const response = await fetch(webhookUrl, {
         method: 'POST',
         headers: getWebhookHeaders(),
         body: JSON.stringify(payload),
-      });
+      })
 
-      return response.ok;
+      return response.ok
     } catch (error) {
-      console.error('Error sending habit completed event:', error);
-      return false;
+      console.error('Error sending habit completed event:', error)
+      return false
     }
   },
 
@@ -112,34 +109,34 @@ export const zapierService = {
   async sendHabitCreated(
     webhookUrl: string,
     data: {
-      habitName: string;
-      habitId: string;
-      category: string;
-      frequency: string;
+      habitName: string
+      habitId: string
+      category: string
+      frequency: string
     }
   ): Promise<boolean> {
     try {
       if (!this.validateWebhookUrl(webhookUrl)) {
-        console.error('Invalid webhook URL');
-        return false;
+        console.error('Invalid webhook URL')
+        return false
       }
 
       const payload = {
         event: 'habit_created',
         timestamp: new Date().toISOString(),
         data,
-      };
+      }
 
       const response = await fetch(webhookUrl, {
         method: 'POST',
         headers: getWebhookHeaders(),
         body: JSON.stringify(payload),
-      });
+      })
 
-      return response.ok;
+      return response.ok
     } catch (error) {
-      console.error('Error sending habit created event:', error);
-      return false;
+      console.error('Error sending habit created event:', error)
+      return false
     }
   },
 
@@ -149,33 +146,33 @@ export const zapierService = {
   async sendStreakMilestone(
     webhookUrl: string,
     data: {
-      habitName: string;
-      streak: number;
-      milestone: number;
+      habitName: string
+      streak: number
+      milestone: number
     }
   ): Promise<boolean> {
     try {
       if (!this.validateWebhookUrl(webhookUrl)) {
-        console.error('Invalid webhook URL');
-        return false;
+        console.error('Invalid webhook URL')
+        return false
       }
 
       const payload = {
         event: 'streak_milestone',
         timestamp: new Date().toISOString(),
         data,
-      };
+      }
 
       const response = await fetch(webhookUrl, {
         method: 'POST',
         headers: getWebhookHeaders(),
         body: JSON.stringify(payload),
-      });
+      })
 
-      return response.ok;
+      return response.ok
     } catch (error) {
-      console.error('Error sending streak milestone event:', error);
-      return false;
+      console.error('Error sending streak milestone event:', error)
+      return false
     }
   },
 
@@ -185,35 +182,35 @@ export const zapierService = {
   async sendDailySummary(
     webhookUrl: string,
     data: {
-      date: string;
-      totalHabits: number;
-      completedHabits: number;
-      topStreak: number;
-      completionRate: number;
+      date: string
+      totalHabits: number
+      completedHabits: number
+      topStreak: number
+      completionRate: number
     }
   ): Promise<boolean> {
     try {
       if (!this.validateWebhookUrl(webhookUrl)) {
-        console.error('Invalid webhook URL');
-        return false;
+        console.error('Invalid webhook URL')
+        return false
       }
 
       const payload = {
         event: 'daily_summary',
         timestamp: new Date().toISOString(),
         data,
-      };
+      }
 
       const response = await fetch(webhookUrl, {
         method: 'POST',
         headers: getWebhookHeaders(),
         body: JSON.stringify(payload),
-      });
+      })
 
-      return response.ok;
+      return response.ok
     } catch (error) {
-      console.error('Error sending daily summary event:', error);
-      return false;
+      console.error('Error sending daily summary event:', error)
+      return false
     }
   },
 
@@ -227,26 +224,26 @@ export const zapierService = {
   ): Promise<boolean> {
     try {
       if (!this.validateWebhookUrl(webhookUrl)) {
-        console.error('Invalid webhook URL');
-        return false;
+        console.error('Invalid webhook URL')
+        return false
       }
 
       const payload = {
         event: eventType,
         timestamp: new Date().toISOString(),
         data,
-      };
+      }
 
       const response = await fetch(webhookUrl, {
         method: 'POST',
         headers: getWebhookHeaders(),
         body: JSON.stringify(payload),
-      });
+      })
 
-      return response.ok;
+      return response.ok
     } catch (error) {
-      console.error('Error sending custom event:', error);
-      return false;
+      console.error('Error sending custom event:', error)
+      return false
     }
   },
 
@@ -254,8 +251,8 @@ export const zapierService = {
    * Disconnects the Zapier integration
    */
   disconnect(): void {
-    const store = // eslint-disable-next-line react-hooks/rules-of-hooks -- TODO(burn-down): zustand hook called inside plain function; should be getState(), see refactor plan P1
-    useIntegrationStore();
-    store.disconnect('zapier');
+    // eslint-disable-next-line react-hooks/rules-of-hooks -- TODO(burn-down): zustand hook called inside plain function; should be getState(), see refactor plan P1
+    const store = useIntegrationStore()
+    store.disconnect('zapier')
   },
-};
+}

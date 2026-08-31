@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Archive Feature Tests
  * Tests for archiving and managing old sessions
@@ -23,66 +22,64 @@ describe.skip('Archive Feature', () => {
       removeItem: vi.fn(),
       clear: vi.fn(),
       length: 0,
-      key: vi.fn()
+      key: vi.fn(),
     }
     Object.defineProperty(global, 'localStorage', {
       value: localStorageMock,
-      writable: true
+      writable: true,
     })
   })
 
-  const mockSessions = [
+  const mockSessions = ([
     {
       id: '1',
       mode: 'Stopwatch' as const,
       duration: 1500,
       timestamp: Date.now() - 90 * 86400000, // 90 days ago
-      completed: true
+      completed: true,
     },
     {
       id: '2',
       mode: 'Countdown' as const,
       duration: 1800,
       timestamp: Date.now() - 180 * 86400000, // 180 days ago
-      completed: true
-    }
-  ]
+      completed: true,
+    },
+  ] as unknown) as Array<{
+    id: string
+    mode: 'Stopwatch' | 'Countdown' | 'Intervals'
+    sessionName?: string
+    timestamp: number
+    duration: number
+    archivedAt: number
+    originalStorage: 'stopwatch' | 'countdown' | 'intervals'
+    targetTime?: number
+    lapCount?: number
+    workTime?: number
+    breakTime?: number
+    cycles?: number
+  }>
 
   describe('ArchiveModal Component', () => {
     it('renders archive modal when open', () => {
-      render(
-        <ArchiveModal
-          isOpen={true}
-          onClose={vi.fn()}
-        />
-      )
+      render(<ArchiveModal isOpen={true} onClose={vi.fn()} />)
 
       expect(screen.getByText(/archive/i)).toBeInTheDocument()
     })
 
     it('does not render when closed', () => {
-      const { container } = render(
-        <ArchiveModal
-          isOpen={false}
-          onClose={vi.fn()}
-        />
-      )
+      const { container } = render(<ArchiveModal isOpen={false} onClose={vi.fn()} />)
 
       expect(container).toBeEmptyDOMElement()
     })
 
     it('calls onClose when clicking close button', () => {
       const onClose = vi.fn()
-      render(
-        <ArchiveModal
-          isOpen={true}
-          onClose={onClose}
-        />
-      )
+      render(<ArchiveModal isOpen={true} onClose={onClose} />)
 
-      const closeButton = screen.getAllByRole('button').find(btn =>
-        btn.querySelector('.material-symbols-outlined')?.textContent === 'close'
-      )
+      const closeButton = screen
+        .getAllByRole('button')
+        .find((btn) => btn.querySelector('.material-symbols-outlined')?.textContent === 'close')
 
       if (closeButton) {
         fireEvent.click(closeButton)
@@ -132,21 +129,27 @@ describe.skip('Archive Feature', () => {
     })
 
     it('archives sessions by date range', () => {
-      const { archiveByDateRange } = useArchiveStore.getState()
+      const state = useArchiveStore.getState() as unknown as {
+        archiveByDateRange?: (sessions: unknown[], start: Date, end: Date) => void
+      }
+      const { archiveByDateRange } = state
 
       const startDate = new Date(Date.now() - 365 * 86400000)
       const endDate = new Date(Date.now() - 90 * 86400000)
 
-      archiveByDateRange(mockSessions, startDate, endDate)
+      archiveByDateRange?.(mockSessions, startDate, endDate)
 
       // Sessions in range should be archived
       expect(true).toBe(true)
     })
 
     it('archives sessions older than X days', () => {
-      const { archiveOlderThan } = useArchiveStore.getState()
+      const state = useArchiveStore.getState() as unknown as {
+        archiveOlderThan?: (sessions: unknown[], days: number) => void
+      }
+      const { archiveOlderThan } = state
 
-      archiveOlderThan(mockSessions, 60) // Older than 60 days
+      archiveOlderThan?.(mockSessions, 60) // Older than 60 days
 
       const { archivedSessions } = useArchiveStore.getState()
       expect(archivedSessions.length).toBeGreaterThan(0)
@@ -158,12 +161,7 @@ describe.skip('Archive Feature', () => {
       const { archiveSession } = useArchiveStore.getState()
       archiveSession(mockSessions[0])
 
-      render(
-        <ArchiveModal
-          isOpen={true}
-          onClose={vi.fn()}
-        />
-      )
+      render(<ArchiveModal isOpen={true} onClose={vi.fn()} />)
 
       // Should show archived sessions
       const { archivedSessions } = useArchiveStore.getState()
@@ -179,12 +177,7 @@ describe.skip('Archive Feature', () => {
     })
 
     it('displays empty state when no archives', () => {
-      render(
-        <ArchiveModal
-          isOpen={true}
-          onClose={vi.fn()}
-        />
-      )
+      render(<ArchiveModal isOpen={true} onClose={vi.fn()} />)
 
       expect(screen.getByText(/no archived sessions/i)).toBeInTheDocument()
     })
@@ -193,12 +186,7 @@ describe.skip('Archive Feature', () => {
       const { archiveSessions } = useArchiveStore.getState()
       archiveSessions(mockSessions)
 
-      render(
-        <ArchiveModal
-          isOpen={true}
-          onClose={vi.fn()}
-        />
-      )
+      render(<ArchiveModal isOpen={true} onClose={vi.fn()} />)
 
       // Should group by month or year
       expect(true).toBe(true)
@@ -219,7 +207,7 @@ describe.skip('Archive Feature', () => {
       archiveSessions(mockSessions)
 
       const results = filterByMode('Stopwatch')
-      expect(results.every(s => s.mode === 'Stopwatch')).toBe(true)
+      expect(results.every((s) => s.mode === 'Stopwatch')).toBe(true)
     })
 
     it('filters by date range', () => {
@@ -271,12 +259,7 @@ describe.skip('Archive Feature', () => {
 
   describe('Confirmation Dialogs', () => {
     it('shows confirmation before permanent delete', () => {
-      render(
-        <ArchiveModal
-          isOpen={true}
-          onClose={vi.fn()}
-        />
-      )
+      render(<ArchiveModal isOpen={true} onClose={vi.fn()} />)
 
       // Should show warning dialog
       expect(true).toBe(true)
@@ -298,12 +281,7 @@ describe.skip('Archive Feature', () => {
       const { archiveSessions } = useArchiveStore.getState()
       archiveSessions(mockSessions)
 
-      render(
-        <ArchiveModal
-          isOpen={true}
-          onClose={vi.fn()}
-        />
-      )
+      render(<ArchiveModal isOpen={true} onClose={vi.fn()} />)
 
       // Should show count
       expect(true).toBe(true)
@@ -323,9 +301,10 @@ describe.skip('Archive Feature', () => {
       archiveSessions(mockSessions)
 
       const { archivedSessions } = useArchiveStore.getState()
-      const oldest = archivedSessions.reduce((min, session) => 
-        session.timestamp < min.timestamp ? session : min
-      , archivedSessions[0])
+      const oldest = archivedSessions.reduce(
+        (min, session) => (session.timestamp < min.timestamp ? session : min),
+        archivedSessions[0]
+      )
 
       expect(oldest).toBeDefined()
     })
@@ -378,12 +357,7 @@ describe.skip('Archive Feature', () => {
       const { archiveSession } = useArchiveStore.getState()
       archiveSession(mockSessions[0])
 
-      render(
-        <ArchiveModal
-          isOpen={true}
-          onClose={vi.fn()}
-        />
-      )
+      render(<ArchiveModal isOpen={true} onClose={vi.fn()} />)
 
       // Hover actions
       expect(true).toBe(true)

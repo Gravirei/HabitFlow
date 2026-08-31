@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
 
 // Type declarations for test environment
@@ -11,7 +10,10 @@ declare const process: NodeJS.Process
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { notificationManager, NotificationManager } from '@/features/timer/utils/notificationManager'
+import {
+  notificationManager,
+  NotificationManager,
+} from '@/features/timer/utils/notificationManager'
 
 // Mock Notification API
 class MockNotification {
@@ -30,7 +32,7 @@ class MockNotification {
   }
 
   static permission: NotificationPermission = 'default'
-  
+
   static async requestPermission(): Promise<NotificationPermission> {
     return MockNotification.permission
   }
@@ -45,10 +47,10 @@ describe('NotificationManager', () => {
 
     // Reset permission to default
     MockNotification.permission = 'default'
-    
+
     // Mock Notification API
     ;(global as any).Notification = MockNotification
-    
+
     // Clear console spies
     vi.spyOn(console, 'log').mockImplementation(() => {})
     vi.spyOn(console, 'warn').mockImplementation(() => {})
@@ -57,7 +59,7 @@ describe('NotificationManager', () => {
 
   afterEach(() => {
     // Restore original Notification
-    (global as any).Notification = originalNotification
+    ;(global as any).Notification = originalNotification
     vi.restoreAllMocks()
   })
 
@@ -72,14 +74,14 @@ describe('NotificationManager', () => {
 
       // Create new instance to test
       const manager = NotificationManager.getInstance()
-      
+
       expect(manager.isSupported()).toBe(false)
     })
 
     it('should return denied permission when not supported', () => {
       delete (global as any).Notification
       const manager = NotificationManager.getInstance()
-      
+
       expect(manager.getPermission()).toBe('denied')
     })
   })
@@ -121,36 +123,36 @@ describe('NotificationManager', () => {
 
     it('should request permission and return true when granted', async () => {
       MockNotification.permission = 'default'
-      
+
       // Mock permission request to grant
       MockNotification.requestPermission = vi.fn().mockResolvedValue('granted')
-      
+
       const result = await notificationManager.requestPermission()
-      
+
       expect(MockNotification.requestPermission).toHaveBeenCalled()
       expect(result).toBe(true)
     })
 
     it('should request permission and return false when denied', async () => {
       MockNotification.permission = 'default'
-      
+
       // Mock permission request to deny
       MockNotification.requestPermission = vi.fn().mockResolvedValue('denied')
-      
+
       const result = await notificationManager.requestPermission()
-      
+
       expect(MockNotification.requestPermission).toHaveBeenCalled()
       expect(result).toBe(false)
     })
 
     it('should handle permission request errors', async () => {
       MockNotification.permission = 'default'
-      
+
       // Mock permission request to throw error
       MockNotification.requestPermission = vi.fn().mockRejectedValue(new Error('Permission error'))
-      
+
       const result = await notificationManager.requestPermission()
-      
+
       expect(result).toBe(false)
       expect(console.error).toHaveBeenCalled()
     })
@@ -158,7 +160,7 @@ describe('NotificationManager', () => {
     it('should return false when requesting permission on unsupported browser', async () => {
       delete (global as any).Notification
       const manager = NotificationManager.getInstance()
-      
+
       const result = await manager.requestPermission()
       expect(result).toBe(false)
     })
@@ -177,17 +179,17 @@ describe('NotificationManager', () => {
     it('should show notification with correct title and message', async () => {
       const notification = await notificationManager.showNotification({
         title: 'Test Title',
-        message: 'Test message'
+        message: 'Test message',
       })
 
       expect(notification).toBeTruthy()
       expect(notification?.title).toBe('Test Title')
-      expect(notification?.options.body).toBe('Test message')
+      expect((notification as unknown as MockNotification)?.options.body).toBe('Test message')
     })
 
     it('should use default title if not provided', async () => {
       const notification = await notificationManager.showNotification({
-        message: 'Test message'
+        message: 'Test message',
       })
 
       expect(notification?.title).toBe('Timer Complete!')
@@ -197,26 +199,26 @@ describe('NotificationManager', () => {
       const notification = await notificationManager.showNotification({
         message: 'Test',
         icon: '/custom-icon.png',
-        badge: '/custom-badge.png'
+        badge: '/custom-badge.png',
       })
 
-      expect(notification?.options.icon).toBe('/custom-icon.png')
-      expect(notification?.options.badge).toBe('/custom-badge.png')
+      expect((notification as unknown as MockNotification)?.options.icon).toBe('/custom-icon.png')
+      expect((notification as unknown as MockNotification)?.options.badge).toBe('/custom-badge.png')
     })
 
     it('should use default icon if not provided', async () => {
       const notification = await notificationManager.showNotification({
-        message: 'Test'
+        message: 'Test',
       })
 
-      expect(notification?.options.icon).toBe('/vite.svg')
-      expect(notification?.options.badge).toBe('/vite.svg')
+      expect((notification as unknown as MockNotification)?.options.icon).toBe('/vite.svg')
+      expect((notification as unknown as MockNotification)?.options.badge).toBe('/vite.svg')
     })
 
     it('should auto-close notification after duration', async () => {
       const notification = await notificationManager.showNotification({
         message: 'Test',
-        autoCloseDuration: 3000
+        autoCloseDuration: 3000,
       })
 
       const closeSpy = vi.spyOn(notification!, 'close')
@@ -230,7 +232,7 @@ describe('NotificationManager', () => {
     it('should not auto-close if duration is 0', async () => {
       const notification = await notificationManager.showNotification({
         message: 'Test',
-        autoCloseDuration: 0
+        autoCloseDuration: 0,
       })
 
       const closeSpy = vi.spyOn(notification!, 'close')
@@ -242,9 +244,9 @@ describe('NotificationManager', () => {
 
     it('should focus window when notification is clicked', async () => {
       const focusSpy = vi.spyOn(window, 'focus')
-      
+
       const notification = await notificationManager.showNotification({
-        message: 'Test'
+        message: 'Test',
       })
 
       const closeSpy = vi.spyOn(notification!, 'close')
@@ -260,7 +262,7 @@ describe('NotificationManager', () => {
       MockNotification.permission = 'denied'
 
       const notification = await notificationManager.showNotification({
-        message: 'Test'
+        message: 'Test',
       })
 
       expect(notification).toBeNull()
@@ -271,7 +273,7 @@ describe('NotificationManager', () => {
       const manager = NotificationManager.getInstance()
 
       const notification = await manager.showNotification({
-        message: 'Test'
+        message: 'Test',
       })
 
       expect(notification).toBeNull()
@@ -286,7 +288,7 @@ describe('NotificationManager', () => {
       ;(global as any).Notification.permission = 'granted'
 
       const notification = await notificationManager.showNotification({
-        message: 'Test'
+        message: 'Test',
       })
 
       expect(notification).toBeNull()
@@ -311,7 +313,7 @@ describe('NotificationManager', () => {
 
       expect(notification?.title).toContain('⏱️')
       expect(notification?.title).toContain('Stopwatch')
-      expect(notification?.options.body).toContain('Great job!')
+      expect((notification as unknown as MockNotification)?.options.body).toContain('Great job!')
     })
 
     it('should show Countdown completion notification', async () => {
@@ -323,7 +325,7 @@ describe('NotificationManager', () => {
 
       expect(notification?.title).toContain('⏲️')
       expect(notification?.title).toContain('Countdown')
-      expect(notification?.options.body).toContain('Time is up!')
+      expect((notification as unknown as MockNotification)?.options.body).toContain('Time is up!')
     })
 
     it('should show Intervals completion notification', async () => {
@@ -335,7 +337,7 @@ describe('NotificationManager', () => {
 
       expect(notification?.title).toContain('🔄')
       expect(notification?.title).toContain('Intervals')
-      expect(notification?.options.body).toContain('Session complete!')
+      expect((notification as unknown as MockNotification)?.options.body).toContain('Session complete!')
     })
 
     it('should include duration in message when provided', async () => {
@@ -345,28 +347,21 @@ describe('NotificationManager', () => {
         125 // 2m 5s
       )
 
-      expect(notification?.options.body).toContain('2m 5s')
+      expect((notification as unknown as MockNotification)?.options.body).toContain('2m 5s')
     })
 
     it('should format duration correctly for seconds only', async () => {
-      const notification = await notificationManager.showTimerComplete(
-        'Done!',
-        'Countdown',
-        45
-      )
+      const notification = await notificationManager.showTimerComplete('Done!', 'Countdown', 45)
 
-      expect(notification?.options.body).toContain('45s')
-      expect(notification?.options.body).not.toContain('0m')
+      expect((notification as unknown as MockNotification)?.options.body).toContain('45s')
+      expect((notification as unknown as MockNotification)?.options.body).not.toContain('0m')
     })
 
     it('should work without duration', async () => {
-      const notification = await notificationManager.showTimerComplete(
-        'Done!',
-        'Stopwatch'
-      )
+      const notification = await notificationManager.showTimerComplete('Done!', 'Stopwatch')
 
       expect(notification).toBeTruthy()
-      expect(notification?.options.body).toBe('Done!')
+      expect((notification as unknown as MockNotification)?.options.body).toBe('Done!')
     })
   })
 
@@ -380,7 +375,7 @@ describe('NotificationManager', () => {
 
       expect(notification).toBeTruthy()
       expect(notification?.title).toContain('Test Notification')
-      expect(notification?.options.body).toContain('Notifications are working')
+      expect((notification as unknown as MockNotification)?.options.body).toContain('Notifications are working')
     })
   })
 

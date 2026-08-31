@@ -12,20 +12,20 @@ import type { DeliveryStatus } from './types'
 export const MESSAGING_DESIGN_TOKENS = {
   /** Message bubble backgrounds */
   bubble: {
-    sent: '#13ec5b',          // brand primary — current user's messages
-    sentText: '#003811',      // dark text on green bubble
+    sent: '#13ec5b', // brand primary — current user's messages
+    sentText: '#003811', // dark text on green bubble
     received: 'rgba(255, 255, 255, 0.06)', // subtle white — other user's messages
     receivedText: '#ffffff',
-    system: 'rgba(255, 255, 255, 0.03)',   // system messages — very subtle
+    system: 'rgba(255, 255, 255, 0.03)', // system messages — very subtle
     systemText: 'rgba(255, 255, 255, 0.5)',
   },
 
   /** Rich card accent colors — match social rarity system */
   cardAccent: {
-    habit: '#13ec5b',    // brand green — habit completions
-    badge: '#a855f7',    // purple — badge unlocks (matches SOCIAL_DESIGN_TOKENS.rarity.epic.from)
-    xp: '#f59e0b',       // amber — XP milestones (matches SOCIAL_DESIGN_TOKENS.rarity.legendary.from)
-    nudge: '#3b82f6',    // blue — nudges (matches SOCIAL_DESIGN_TOKENS.rarity.rare.from)
+    habit: '#13ec5b', // brand green — habit completions
+    badge: '#a855f7', // purple — badge unlocks (matches SOCIAL_DESIGN_TOKENS.rarity.epic.from)
+    xp: '#f59e0b', // amber — XP milestones (matches SOCIAL_DESIGN_TOKENS.rarity.legendary.from)
+    nudge: '#3b82f6', // blue — nudges (matches SOCIAL_DESIGN_TOKENS.rarity.rare.from)
   },
 
   /** Input bar */
@@ -121,7 +121,8 @@ export const MESSAGING_ANIMATIONS = {
       animate: { opacity: [0.5, 1, 0.5] },
       transition: { duration: 1.2, repeat: Infinity, ease: 'easeInOut' },
     },
-    notes: 'Three dots with staggered delay (0ms, 150ms, 300ms). Reduced motion uses opacity fade instead of bounce.',
+    notes:
+      'Three dots with staggered delay (0ms, 150ms, 300ms). Reduced motion uses opacity fade instead of bounce.',
   },
 
   /** Share tray slides up from bottom */
@@ -189,7 +190,7 @@ export const MESSAGING_LIMITS = {
   MESSAGES_PER_PAGE: 50,
   TYPING_DEBOUNCE_MS: 500,
   TYPING_TIMEOUT_MS: 3000,
-  MAX_REACTIONS_PER_MESSAGE: 8,  // matches REACTION_EMOJIS.length
+  MAX_REACTIONS_PER_MESSAGE: 8, // matches REACTION_EMOJIS.length
   CONVERSATION_NAME_MAX_LENGTH: 50,
 } as const
 

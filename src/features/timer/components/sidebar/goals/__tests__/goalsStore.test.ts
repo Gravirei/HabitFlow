@@ -1,18 +1,19 @@
-// @ts-nocheck
 /**
  * Goals Store Tests
  * Comprehensive tests for the goals Zustand store
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { renderHook, act } from '@testing-library/react'
+import { act } from '@testing-library/react'
 import type { Goal, GoalType, GoalPeriod, TimerMode } from '../types'
 
 // Import store dynamically
 let useGoalsStore: typeof import('@/features/timer/store/goalsStore').useGoalsStore
 
 // Helper to create mock goal data
-const createMockGoalData = (overrides: Partial<Omit<Goal, 'id' | 'current' | 'createdAt' | 'status'>> = {}) => ({
+const createMockGoalData = (
+  overrides: Partial<Omit<Goal, 'id' | 'current' | 'createdAt' | 'status'>> = {}
+) => ({
   type: 'time' as GoalType,
   target: 3600, // 1 hour in seconds
   period: 'daily' as GoalPeriod,
@@ -29,7 +30,7 @@ describe('useGoalsStore', () => {
   beforeEach(async () => {
     // Reset modules to ensure fresh store
     vi.resetModules()
-    
+
     // Mock Date.now() for predictable IDs
     mockDate = 1000000000000
     vi.spyOn(Date, 'now').mockImplementation(() => {
@@ -168,10 +169,12 @@ describe('useGoalsStore', () => {
       const { addGoal } = useGoalsStore.getState()
 
       act(() => {
-        addGoal(createMockGoalData({ 
-          type: 'mode-specific',
-          mode: 'Stopwatch' as TimerMode
-        }))
+        addGoal(
+          createMockGoalData({
+            type: 'mode-specific',
+            mode: 'Stopwatch' as TimerMode,
+          })
+        )
       })
 
       const { goals } = useGoalsStore.getState()
@@ -217,10 +220,10 @@ describe('useGoalsStore', () => {
       const goalId = goals[0].id
 
       act(() => {
-        updateGoal(goalId, { 
+        updateGoal(goalId, {
           name: 'New Name',
           description: 'New Description',
-          target: 7200
+          target: 7200,
         })
       })
 
@@ -231,8 +234,8 @@ describe('useGoalsStore', () => {
     })
 
     it('should not affect other goals', () => {
-      const { addGoal, updateGoal, goals } = useGoalsStore.getState()
-      
+      const { addGoal, updateGoal } = useGoalsStore.getState()
+
       act(() => {
         addGoal(createMockGoalData({ name: 'Second Goal' }))
       })
@@ -279,7 +282,7 @@ describe('useGoalsStore', () => {
 
       const { goals: updatedGoals } = useGoalsStore.getState()
       expect(updatedGoals.length).toBe(1)
-      expect(updatedGoals.find(g => g.id === goalToDelete)).toBeUndefined()
+      expect(updatedGoals.find((g) => g.id === goalToDelete)).toBeUndefined()
     })
 
     it('should not affect other goals', () => {
@@ -309,7 +312,7 @@ describe('useGoalsStore', () => {
       const { deleteGoal, goals } = useGoalsStore.getState()
 
       act(() => {
-        goals.forEach(g => deleteGoal(g.id))
+        goals.forEach((g) => deleteGoal(g.id))
       })
 
       expect(useGoalsStore.getState().goals.length).toBe(0)
@@ -436,8 +439,6 @@ describe('useGoalsStore', () => {
         completeGoal(goalId)
       })
 
-      const firstCompletedAt = useGoalsStore.getState().goals[0].completedAt
-
       act(() => {
         completeGoal(goalId)
       })
@@ -528,21 +529,21 @@ describe('useGoalsStore', () => {
 
     it('should return only active goals', () => {
       const activeGoals = useGoalsStore.getState().getActiveGoals()
-      
+
       expect(activeGoals.length).toBe(2)
-      activeGoals.forEach(g => expect(g.status).toBe('active'))
+      activeGoals.forEach((g) => expect(g.status).toBe('active'))
     })
 
     it('should not include paused goals', () => {
       const activeGoals = useGoalsStore.getState().getActiveGoals()
-      
-      expect(activeGoals.find(g => g.name === 'Paused Goal')).toBeUndefined()
+
+      expect(activeGoals.find((g) => g.name === 'Paused Goal')).toBeUndefined()
     })
 
     it('should not include completed goals', () => {
       const activeGoals = useGoalsStore.getState().getActiveGoals()
-      
-      expect(activeGoals.find(g => g.name === 'Completed Goal')).toBeUndefined()
+
+      expect(activeGoals.find((g) => g.name === 'Completed Goal')).toBeUndefined()
     })
   })
 
@@ -564,15 +565,15 @@ describe('useGoalsStore', () => {
 
     it('should return only completed goals', () => {
       const completedGoals = useGoalsStore.getState().getCompletedGoals()
-      
+
       expect(completedGoals.length).toBe(2)
-      completedGoals.forEach(g => expect(g.status).toBe('completed'))
+      completedGoals.forEach((g) => expect(g.status).toBe('completed'))
     })
 
     it('should not include active goals', () => {
       const completedGoals = useGoalsStore.getState().getCompletedGoals()
-      
-      expect(completedGoals.find(g => g.name === 'Active Goal')).toBeUndefined()
+
+      expect(completedGoals.find((g) => g.name === 'Active Goal')).toBeUndefined()
     })
   })
 
@@ -587,7 +588,7 @@ describe('useGoalsStore', () => {
     it('should return goal when found', () => {
       const { getGoalById, goals } = useGoalsStore.getState()
       const targetId = goals[0].id
-      
+
       const goal = getGoalById(targetId)
       expect(goal).toBeDefined()
       expect(goal?.id).toBe(targetId)
@@ -595,7 +596,7 @@ describe('useGoalsStore', () => {
 
     it('should return undefined for non-existent ID', () => {
       const { getGoalById } = useGoalsStore.getState()
-      
+
       const goal = getGoalById('non-existent-id')
       expect(goal).toBeUndefined()
     })
@@ -603,7 +604,7 @@ describe('useGoalsStore', () => {
     it('should return goal with all properties', () => {
       const { getGoalById, goals } = useGoalsStore.getState()
       const targetId = goals[0].id
-      
+
       const goal = getGoalById(targetId)
       expect(goal?.name).toBe('Test Goal')
       expect(goal?.status).toBe('active')
@@ -614,14 +615,14 @@ describe('useGoalsStore', () => {
   describe('Persistence', () => {
     it('should persist goals to localStorage', () => {
       const { addGoal } = useGoalsStore.getState()
-      
+
       act(() => {
         addGoal(createMockGoalData({ name: 'Persistent Goal' }))
       })
 
       const stored = localStorage.getItem('timer-sidebar-goals')
       expect(stored).toBeTruthy()
-      
+
       const parsed = JSON.parse(stored!)
       expect(parsed.state.goals).toBeDefined()
       expect(parsed.state.goals.length).toBe(1)
@@ -629,7 +630,7 @@ describe('useGoalsStore', () => {
 
     it('should use correct storage key', () => {
       const { addGoal } = useGoalsStore.getState()
-      
+
       act(() => {
         addGoal(createMockGoalData())
       })

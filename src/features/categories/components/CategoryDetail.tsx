@@ -8,6 +8,7 @@ import toast from 'react-hot-toast'
 import { useCategoryStore } from '@/store/useCategoryStore'
 import { useHabitStore } from '@/store/useHabitStore'
 import { useHabitTaskStore } from '@/store/useHabitTaskStore'
+import { useNewHabitModalStore } from '@/store/useNewHabitModalStore'
 import { HabitTasksModal } from '@/features/categories/components/HabitTasksModal'
 import { CreateNewHabit } from '@/features/categories/components/CreateNewHabit'
 import { EditHabit } from '@/features/categories/components/EditHabit'
@@ -42,6 +43,7 @@ const fallbackGradientByColor: Record<string, string> = {
 
 export function CategoryDetail() {
   const navigate = useNavigate()
+  const openNewHabit = useNewHabitModalStore((s) => s.open)
   const { categoryId } = useParams<{ categoryId: string }>()
 
   const { getCategoryById } = useCategoryStore()
@@ -345,7 +347,7 @@ export function CategoryDetail() {
                 title="No habits yet"
                 description="Start building momentum by adding your first habit."
                 actionLabel="Add a habit"
-                onAction={() => navigate(`/new-habit?categoryId=${category.id}`)}
+                onAction={() => openNewHabit({ categoryId: category.id })}
               />
             ) : (
               <div className="space-y-3 md:grid md:grid-cols-2 md:gap-4 md:space-y-0 lg:grid-cols-1 xl:grid-cols-2">

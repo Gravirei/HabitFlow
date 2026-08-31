@@ -63,17 +63,25 @@ export async function checkRateLimit(
 }
 
 /**
- * Record a login attempt
+ * Record a login attempt.
+ *
+ * NOTE: `login_attempts` has RLS deny-all for non-service-role per
+ * `20260223_security_tables_rls.sql`. Production writes go through the
+ * auth-gateway Edge Function (service role). This client-side helper is
+ * retained for symmetry but will silently fail at the DB layer until/unless
+ * the RLS policy is widened. The `action` field is required by the schema.
  */
 export async function recordLoginAttempt(
   email: string,
   ipAddress: string,
   userAgent: string,
   success: boolean,
-  userId?: string
+  userId?: string,
+  action: string = 'login'
 ): Promise<void> {
   try {
     await supabase.from('login_attempts').insert({
+      action,
       user_id: userId || null,
       email,
       ip_address: ipAddress,
@@ -107,10 +115,7 @@ export function getUserAgent(): string {
 export async function clearOldAttempts(daysOld: number = 7): Promise<void> {
   try {
     const cutoffDate = new Date(Date.now() - daysOld * 24 * 60 * 60 * 1000)
-    await supabase
-      .from('login_attempts')
-      .delete()
-      .lt('created_at', cutoffDate.toISOString())
+    await supabase.from('login_attempts').delete().lt('created_at', cutoffDate.toISOString())
   } catch (error) {
     console.error('Failed to clear old attempts:', error)
   }

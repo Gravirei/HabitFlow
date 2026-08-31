@@ -1,17 +1,16 @@
-// @ts-nocheck
 /**
  * Notification Settings Modal
  * Redesigned to match Custom Tags modal theme
  */
 
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useNotificationStore } from '@/features/timer/store/notificationStore'
-import { 
-  requestNotificationPermission, 
+import {
+  requestNotificationPermission,
   getNotificationPermissionStatus,
   sendNotification,
-  initializeNotificationScheduler 
+  initializeNotificationScheduler,
 } from './notificationService'
 
 interface NotificationSettingsModalProps {
@@ -20,7 +19,7 @@ interface NotificationSettingsModalProps {
 }
 
 export function NotificationSettingsModal({ isOpen, onClose }: NotificationSettingsModalProps) {
-  const { settings, updateSettings, permissionGranted, setPermissionGranted } = useNotificationStore()
+  const { settings, updateSettings } = useNotificationStore()
   const [localSettings, setLocalSettings] = useState(settings)
   const [permissionStatus, setPermissionStatus] = useState(getNotificationPermissionStatus())
 
@@ -68,23 +67,29 @@ export function NotificationSettingsModal({ isOpen, onClose }: NotificationSetti
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="fixed inset-x-4 top-[10%] z-50 mx-auto max-w-2xl max-h-[80vh] bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden"
+            className="fixed inset-x-4 top-[10%] z-50 mx-auto max-h-[80vh] max-w-2xl overflow-hidden rounded-3xl bg-white shadow-2xl dark:bg-slate-900"
           >
             {/* Header */}
-            <div className="sticky top-0 z-10 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800 px-6 py-4">
+            <div className="sticky top-0 z-10 border-b border-slate-200 bg-white/95 px-6 py-4 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/95">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center">
-                    <span className="material-symbols-outlined text-white text-xl">notifications</span>
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-500">
+                    <span className="material-symbols-outlined text-xl text-white">
+                      notifications
+                    </span>
                   </div>
                   <div>
-                    <h2 className="text-xl font-bold text-slate-900 dark:text-white">Notifications</h2>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">Configure reminders and alerts</p>
+                    <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+                      Notifications
+                    </h2>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                      Configure reminders and alerts
+                    </p>
                   </div>
                 </div>
                 <button
                   onClick={onClose}
-                  className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 transition-colors"
+                  className="rounded-full p-2 text-slate-600 transition-colors hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
                 >
                   <span className="material-symbols-outlined">close</span>
                 </button>
@@ -92,19 +97,21 @@ export function NotificationSettingsModal({ isOpen, onClose }: NotificationSetti
             </div>
 
             {/* Content */}
-            <div className="overflow-y-auto max-h-[calc(80vh-180px)] p-6 space-y-4">
+            <div className="max-h-[calc(80vh-180px)] space-y-4 overflow-y-auto p-6">
               {/* Permission Status */}
               {permissionStatus !== 'granted' && (
-                <div className="bg-orange-50 dark:bg-orange-900/20 border-2 border-orange-200 dark:border-orange-800 rounded-2xl p-4">
+                <div className="rounded-2xl border-2 border-orange-200 bg-orange-50 p-4 dark:border-orange-800 dark:bg-orange-900/20">
                   <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center shrink-0">
-                      <span className="material-symbols-outlined text-orange-600 dark:text-orange-400">warning</span>
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-orange-100 dark:bg-orange-900/30">
+                      <span className="material-symbols-outlined text-orange-600 dark:text-orange-400">
+                        warning
+                      </span>
                     </div>
                     <div className="flex-1">
-                      <h3 className="font-semibold text-orange-800 dark:text-orange-200 mb-1">
+                      <h3 className="mb-1 font-semibold text-orange-800 dark:text-orange-200">
                         Browser Notifications Disabled
                       </h3>
-                      <p className="text-sm text-orange-700 dark:text-orange-300 mb-3">
+                      <p className="mb-3 text-sm text-orange-700 dark:text-orange-300">
                         {permissionStatus === 'denied'
                           ? 'You have denied notification permissions. Please enable them in your browser settings.'
                           : 'Grant permission to receive notifications.'}
@@ -112,7 +119,7 @@ export function NotificationSettingsModal({ isOpen, onClose }: NotificationSetti
                       {permissionStatus !== 'denied' && (
                         <button
                           onClick={handleRequestPermission}
-                          className="px-4 py-2 rounded-xl bg-orange-600 text-white font-medium hover:bg-orange-700 transition-colors"
+                          className="rounded-xl bg-orange-600 px-4 py-2 font-medium text-white transition-colors hover:bg-orange-700"
                         >
                           Enable Notifications
                         </button>
@@ -123,224 +130,237 @@ export function NotificationSettingsModal({ isOpen, onClose }: NotificationSetti
               )}
 
               {/* Master Toggle */}
-              <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl">
+              <div className="flex items-center justify-between rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/50">
                 <div>
-                  <h3 className="font-semibold text-slate-900 dark:text-white">Enable Notifications</h3>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">Master switch for all notifications</p>
+                  <h3 className="font-semibold text-slate-900 dark:text-white">
+                    Enable Notifications
+                  </h3>
+                  <p className="text-sm text-slate-600 dark:text-slate-400">
+                    Master switch for all notifications
+                  </p>
                 </div>
                 <button
-                  onClick={() => setLocalSettings({ ...localSettings, enabled: !localSettings.enabled })}
-                  className={`
-                    relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-300
-                    ${localSettings.enabled ? 'bg-blue-500' : 'bg-slate-300 dark:bg-slate-600'}
-                    hover:scale-105 cursor-pointer
-                    focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-                  `}
+                  onClick={() =>
+                    setLocalSettings({ ...localSettings, enabled: !localSettings.enabled })
+                  }
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-300 ${localSettings.enabled ? 'bg-blue-500' : 'bg-slate-300 dark:bg-slate-600'} cursor-pointer hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2`}
                   role="switch"
                   aria-checked={localSettings.enabled}
                   aria-label="Enable Notifications"
                 >
                   <span
-                    className={`
-                      inline-block h-5 w-5 transform rounded-full bg-white transition-all duration-300 shadow-lg
-                      ${localSettings.enabled ? 'translate-x-6' : 'translate-x-1'}
-                    `}
+                    className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-lg transition-all duration-300 ${localSettings.enabled ? 'translate-x-6' : 'translate-x-1'} `}
                   />
                 </button>
               </div>
 
               {/* Session Reminders */}
-              <div className="space-y-3 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl">
+              <div className="space-y-3 rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/50">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="font-semibold text-slate-900 dark:text-white">Session Reminders</h3>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">Remind you to start a timer session</p>
+                    <h3 className="font-semibold text-slate-900 dark:text-white">
+                      Session Reminders
+                    </h3>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                      Remind you to start a timer session
+                    </p>
                   </div>
                   <button
-                    onClick={() => setLocalSettings({
-                      ...localSettings,
-                      sessionReminders: { ...localSettings.sessionReminders, enabled: !localSettings.sessionReminders.enabled }
-                    })}
-                    className={`
-                      relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-300
-                      ${localSettings.sessionReminders.enabled ? 'bg-blue-500' : 'bg-slate-300 dark:bg-slate-600'}
-                      hover:scale-105 cursor-pointer
-                      focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-                    `}
+                    onClick={() =>
+                      setLocalSettings({
+                        ...localSettings,
+                        sessionReminders: {
+                          ...localSettings.sessionReminders,
+                          enabled: !localSettings.sessionReminders.enabled,
+                        },
+                      })
+                    }
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-300 ${localSettings.sessionReminders.enabled ? 'bg-blue-500' : 'bg-slate-300 dark:bg-slate-600'} cursor-pointer hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2`}
                     role="switch"
                     aria-checked={localSettings.sessionReminders.enabled}
                     aria-label="Session Reminders"
                   >
                     <span
-                      className={`
-                        inline-block h-5 w-5 transform rounded-full bg-white transition-all duration-300 shadow-lg
-                        ${localSettings.sessionReminders.enabled ? 'translate-x-6' : 'translate-x-1'}
-                      `}
+                      className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-lg transition-all duration-300 ${localSettings.sessionReminders.enabled ? 'translate-x-6' : 'translate-x-1'} `}
                     />
                   </button>
                 </div>
                 {localSettings.sessionReminders.enabled && (
-                  <div className="pt-2 border-t border-slate-200 dark:border-slate-700">
-                    <label className="block text-sm text-slate-600 dark:text-slate-400 mb-2">
+                  <div className="border-t border-slate-200 pt-2 dark:border-slate-700">
+                    <label className="mb-2 block text-sm text-slate-600 dark:text-slate-400">
                       Reminder times (comma-separated, e.g., 09:00, 14:00, 20:00)
                     </label>
                     <input
                       type="text"
                       value={localSettings.sessionReminders.times.join(', ')}
-                      onChange={(e) => setLocalSettings({
-                        ...localSettings,
-                        sessionReminders: {
-                          ...localSettings.sessionReminders,
-                          times: e.target.value.split(',').map(t => t.trim()).filter(Boolean)
-                        }
-                      })}
-                      className="w-full px-4 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      onChange={(e) =>
+                        setLocalSettings({
+                          ...localSettings,
+                          sessionReminders: {
+                            ...localSettings.sessionReminders,
+                            times: e.target.value
+                              .split(',')
+                              .map((t) => t.trim())
+                              .filter(Boolean),
+                          },
+                        })
+                      }
+                      className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
                     />
                   </div>
                 )}
               </div>
 
               {/* Streak Reminder */}
-              <div className="space-y-3 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl">
+              <div className="space-y-3 rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/50">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="font-semibold text-slate-900 dark:text-white">Streak Reminder</h3>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">Keep your daily streak alive</p>
+                    <h3 className="font-semibold text-slate-900 dark:text-white">
+                      Streak Reminder
+                    </h3>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                      Keep your daily streak alive
+                    </p>
                   </div>
                   <button
-                    onClick={() => setLocalSettings({
-                      ...localSettings,
-                      streakReminder: { ...localSettings.streakReminder, enabled: !localSettings.streakReminder.enabled }
-                    })}
-                    className={`
-                      relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-300
-                      ${localSettings.streakReminder.enabled ? 'bg-blue-500' : 'bg-slate-300 dark:bg-slate-600'}
-                      hover:scale-105 cursor-pointer
-                      focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-                    `}
+                    onClick={() =>
+                      setLocalSettings({
+                        ...localSettings,
+                        streakReminder: {
+                          ...localSettings.streakReminder,
+                          enabled: !localSettings.streakReminder.enabled,
+                        },
+                      })
+                    }
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-300 ${localSettings.streakReminder.enabled ? 'bg-blue-500' : 'bg-slate-300 dark:bg-slate-600'} cursor-pointer hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2`}
                     role="switch"
                     aria-checked={localSettings.streakReminder.enabled}
                     aria-label="Streak Reminder"
                   >
                     <span
-                      className={`
-                        inline-block h-5 w-5 transform rounded-full bg-white transition-all duration-300 shadow-lg
-                        ${localSettings.streakReminder.enabled ? 'translate-x-6' : 'translate-x-1'}
-                      `}
+                      className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-lg transition-all duration-300 ${localSettings.streakReminder.enabled ? 'translate-x-6' : 'translate-x-1'} `}
                     />
                   </button>
                 </div>
                 {localSettings.streakReminder.enabled && (
-                  <div className="pt-2 border-t border-slate-200 dark:border-slate-700">
-                    <label className="block text-sm text-slate-600 dark:text-slate-400 mb-2">Time</label>
+                  <div className="border-t border-slate-200 pt-2 dark:border-slate-700">
+                    <label className="mb-2 block text-sm text-slate-600 dark:text-slate-400">
+                      Time
+                    </label>
                     <input
                       type="time"
                       value={localSettings.streakReminder.time}
-                      onChange={(e) => setLocalSettings({
-                        ...localSettings,
-                        streakReminder: { ...localSettings.streakReminder, time: e.target.value }
-                      })}
-                      className="px-4 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      onChange={(e) =>
+                        setLocalSettings({
+                          ...localSettings,
+                          streakReminder: { ...localSettings.streakReminder, time: e.target.value },
+                        })
+                      }
+                      className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
                     />
                   </div>
                 )}
               </div>
 
               {/* Daily Summary */}
-              <div className="space-y-3 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl">
+              <div className="space-y-3 rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/50">
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="font-semibold text-slate-900 dark:text-white">Daily Summary</h3>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">End-of-day productivity summary</p>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                      End-of-day productivity summary
+                    </p>
                   </div>
                   <button
-                    onClick={() => setLocalSettings({
-                      ...localSettings,
-                      dailySummary: { ...localSettings.dailySummary, enabled: !localSettings.dailySummary.enabled }
-                    })}
-                    className={`
-                      relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-300
-                      ${localSettings.dailySummary.enabled ? 'bg-blue-500' : 'bg-slate-300 dark:bg-slate-600'}
-                      hover:scale-105 cursor-pointer
-                      focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-                    `}
+                    onClick={() =>
+                      setLocalSettings({
+                        ...localSettings,
+                        dailySummary: {
+                          ...localSettings.dailySummary,
+                          enabled: !localSettings.dailySummary.enabled,
+                        },
+                      })
+                    }
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-300 ${localSettings.dailySummary.enabled ? 'bg-blue-500' : 'bg-slate-300 dark:bg-slate-600'} cursor-pointer hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2`}
                     role="switch"
                     aria-checked={localSettings.dailySummary.enabled}
                     aria-label="Daily Summary"
                   >
                     <span
-                      className={`
-                        inline-block h-5 w-5 transform rounded-full bg-white transition-all duration-300 shadow-lg
-                        ${localSettings.dailySummary.enabled ? 'translate-x-6' : 'translate-x-1'}
-                      `}
+                      className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-lg transition-all duration-300 ${localSettings.dailySummary.enabled ? 'translate-x-6' : 'translate-x-1'} `}
                     />
                   </button>
                 </div>
                 {localSettings.dailySummary.enabled && (
-                  <div className="pt-2 border-t border-slate-200 dark:border-slate-700">
-                    <label className="block text-sm text-slate-600 dark:text-slate-400 mb-2">Time</label>
+                  <div className="border-t border-slate-200 pt-2 dark:border-slate-700">
+                    <label className="mb-2 block text-sm text-slate-600 dark:text-slate-400">
+                      Time
+                    </label>
                     <input
                       type="time"
                       value={localSettings.dailySummary.time}
-                      onChange={(e) => setLocalSettings({
-                        ...localSettings,
-                        dailySummary: { ...localSettings.dailySummary, time: e.target.value }
-                      })}
-                      className="px-4 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      onChange={(e) =>
+                        setLocalSettings({
+                          ...localSettings,
+                          dailySummary: { ...localSettings.dailySummary, time: e.target.value },
+                        })
+                      }
+                      className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
                     />
                   </div>
                 )}
               </div>
 
               {/* Sound */}
-              <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl">
+              <div className="flex items-center justify-between rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/50">
                 <div>
-                  <h3 className="font-semibold text-slate-900 dark:text-white">Notification Sound</h3>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">Play sound with notifications</p>
+                  <h3 className="font-semibold text-slate-900 dark:text-white">
+                    Notification Sound
+                  </h3>
+                  <p className="text-sm text-slate-600 dark:text-slate-400">
+                    Play sound with notifications
+                  </p>
                 </div>
                 <button
-                  onClick={() => setLocalSettings({
-                    ...localSettings,
-                    browserNotifications: { ...localSettings.browserNotifications, sound: !localSettings.browserNotifications.sound }
-                  })}
-                  className={`
-                    relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-300
-                    ${localSettings.browserNotifications.sound ? 'bg-blue-500' : 'bg-slate-300 dark:bg-slate-600'}
-                    hover:scale-105 cursor-pointer
-                    focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-                  `}
+                  onClick={() =>
+                    setLocalSettings({
+                      ...localSettings,
+                      browserNotifications: {
+                        ...localSettings.browserNotifications,
+                        sound: !localSettings.browserNotifications.sound,
+                      },
+                    })
+                  }
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-300 ${localSettings.browserNotifications.sound ? 'bg-blue-500' : 'bg-slate-300 dark:bg-slate-600'} cursor-pointer hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2`}
                   role="switch"
                   aria-checked={localSettings.browserNotifications.sound}
                   aria-label="Notification Sound"
                 >
                   <span
-                    className={`
-                      inline-block h-5 w-5 transform rounded-full bg-white transition-all duration-300 shadow-lg
-                      ${localSettings.browserNotifications.sound ? 'translate-x-6' : 'translate-x-1'}
-                    `}
+                    className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-lg transition-all duration-300 ${localSettings.browserNotifications.sound ? 'translate-x-6' : 'translate-x-1'} `}
                   />
                 </button>
               </div>
             </div>
 
             {/* Footer */}
-            <div className="sticky bottom-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 px-6 py-4 flex gap-3">
+            <div className="sticky bottom-0 flex gap-3 border-t border-slate-200 bg-white/95 px-6 py-4 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/95">
               <button
                 onClick={handleTest}
                 disabled={permissionStatus !== 'granted'}
-                className="px-4 py-3 rounded-xl font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="rounded-xl px-4 py-3 font-medium text-slate-600 transition-all hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:text-slate-400 dark:hover:bg-slate-800"
               >
                 Test
               </button>
               <button
                 onClick={onClose}
-                className="flex-1 py-3 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl font-medium hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors"
+                className="flex-1 rounded-xl bg-slate-200 py-3 font-medium text-slate-700 transition-colors hover:bg-slate-300 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSave}
-                className="flex-1 py-3 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-xl font-medium hover:shadow-lg transition-all"
+                className="flex-1 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 py-3 font-medium text-white transition-all hover:shadow-lg"
               >
                 Save Settings
               </button>

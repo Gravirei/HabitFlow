@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
-import { motion, AnimatePresence, type Variants } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import toast from 'react-hot-toast'
 import {
   useIntegrationStore,
@@ -107,7 +107,7 @@ export function Integrations() {
     return d.toLocaleDateString()
   }
 
-  const containerVariants: Variants = {
+  const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -118,14 +118,29 @@ export function Integrations() {
     },
   }
 
-  const itemVariants: Variants = {
+  const itemVariants = {
     hidden: { opacity: 0, y: 8 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.3, ease: 'easeOut' },
+      transition: { duration: 0.3, ease: 'easeOut' as const },
     },
   }
+
+  const settingsPanelVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.3, ease: 'easeOut' as const },
+    },
+    exit: {
+      opacity: 0,
+      y: 20,
+      transition: { duration: 0.2 },
+    },
+  }
+  void settingsPanelVariants
 
   return (
     <div className="min-h-screen bg-white dark:bg-slate-950">

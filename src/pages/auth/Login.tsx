@@ -5,7 +5,7 @@ import { applySupabaseSessionFromGateway, callAuthGateway } from '@/lib/security
 import toast from 'react-hot-toast'
 import { TwoFactorChallengeModal } from '@/features/auth/components/TwoFactorChallengeModal'
 import { signInWithOAuth, signInWithPassword } from '@/lib/auth/api'
-import { env } from '@/lib/env'
+import { envCompat as env } from '@/lib/env'
 
 /**
  * Detects if running in a mobile app WebView (Capacitor/Cordova)

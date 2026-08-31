@@ -64,20 +64,18 @@ export const SoundSettings: React.FC = () => {
       {settings.soundEnabled && (
         <>
           {/* Sound Type Selection */}
-          <div className="p-4 rounded-2xl bg-white/5 space-y-2">
+          <div className="space-y-2 rounded-2xl bg-white/5 p-4">
             <label className="text-sm font-semibold text-white">Sound Type</label>
             <div className="grid grid-cols-2 gap-2">
               {SOUND_TYPES.map((type) => (
                 <button
                   key={type.value}
                   onClick={() => handleSoundTypeChange(type.value)}
-                  className={`
-                    flex items-center gap-2 p-3 rounded-xl text-sm font-medium transition-all
-                    ${settings.soundType === type.value
+                  className={`flex items-center gap-2 rounded-xl p-3 text-sm font-medium transition-all ${
+                    settings.soundType === type.value
                       ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg'
-                      : 'bg-white/5 hover:bg-white/10 text-gray-300'
-                    }
-                  `}
+                      : 'bg-white/5 text-gray-300 hover:bg-white/10'
+                  } `}
                 >
                   <span className="text-lg">{type.preview}</span>
                   <span>{type.label}</span>
@@ -100,16 +98,17 @@ export const SoundSettings: React.FC = () => {
           {/* Preview Button */}
           <button
             onClick={handlePreviewClick}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-purple-500/20 to-pink-500/20 hover:from-purple-500/30 hover:to-pink-500/30 border border-purple-500/30 text-white font-semibold transition-all active:scale-95"
+            className="flex w-full items-center justify-center gap-2 rounded-xl border border-purple-500/30 bg-gradient-to-r from-purple-500/20 to-pink-500/20 px-4 py-3 font-semibold text-white transition-all hover:from-purple-500/30 hover:to-pink-500/30 active:scale-95"
           >
             <span className="material-symbols-outlined text-xl">play_circle</span>
             Preview Sound
           </button>
 
           {/* Info Tip */}
-          <div className="p-3 rounded-xl bg-white/5 border border-white/10">
+          <div className="rounded-xl border border-white/10 bg-white/5 p-3">
             <p className="text-xs text-gray-400">
-              💡 <strong className="text-gray-300">Tip:</strong> Click a sound type to hear it instantly. Adjust volume and test again.
+              💡 <strong className="text-gray-300">Tip:</strong> Click a sound type to hear it
+              instantly. Adjust volume and test again.
             </p>
           </div>
         </>

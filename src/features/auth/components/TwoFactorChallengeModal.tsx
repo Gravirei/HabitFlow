@@ -52,11 +52,15 @@ export function TwoFactorChallengeModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-      <div className="w-full max-w-md rounded-3xl bg-white dark:bg-slate-800 p-6 shadow-2xl">
+      <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl dark:bg-slate-800">
         <div className="mb-4 flex items-start justify-between gap-3">
           <div>
-            <h2 className="text-lg font-bold text-slate-900 dark:text-white">Two-factor authentication</h2>
-            <p className="text-sm text-slate-600 dark:text-slate-400">Enter the 6-digit code from your authenticator app.</p>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+              Two-factor authentication
+            </h2>
+            <p className="text-sm text-slate-600 dark:text-slate-400">
+              Enter the 6-digit code from your authenticator app.
+            </p>
           </div>
           <button
             type="button"
@@ -77,7 +81,7 @@ export function TwoFactorChallengeModal({
             inputMode="numeric"
             maxLength={6}
             autoComplete="one-time-code"
-            className="w-full rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 text-slate-900 dark:text-white tracking-widest text-center text-xl"
+            className="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-center text-xl tracking-widest text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
           />
 
           <button

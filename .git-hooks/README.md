@@ -1,46 +1,29 @@
-# Git Hooks
+# Git Hooks (DEPRECATED — use Husky)
 
-This directory contains git hooks to improve code quality and prevent security issues.
+This directory is **deprecated**. Pre-commit hooks are now managed by
+[Husky](https://typicode.github.io/husky/) under `.husky/` and are wired
+automatically by the `prepare` npm script (no manual install needed).
 
-## Installation
+If you are a new contributor, run `npm install` and the pre-commit hook
+will be active on every `git commit`.
 
-To enable these hooks, run:
+## What the hook does
 
-```bash
-git config core.hooksPath .git-hooks
-```
+The current pre-commit hook (`.husky/pre-commit`):
 
-Or manually copy them to `.git/hooks/`:
+- **Blocks** `.env`, `.env.local`, `.env.*.local`, `*.pem`, `*.key`, `*.p12`, `*.pfx` from being committed.
+- **Warns** about hardcoded credential patterns in staged diffs (e.g. `password = "abcd…"`, `apiKey = "..."`).
+- **Allows** the commit to proceed if you confirm `y` at the prompt.
 
-```bash
-cp .git-hooks/* .git/hooks/
-chmod +x .git/hooks/*
-```
+## Why this directory still exists
 
-## Available Hooks
+It is kept as historical reference (the original hand-rolled hook lived
+here). It is safe to delete once all contributors are on the husky flow.
 
-### pre-commit
-
-Prevents committing sensitive files:
-- Blocks `.env` and `.env.local` files
-- Warns about hardcoded credentials
-- Checks for suspicious patterns
-
-**To bypass** (not recommended):
-```bash
-git commit --no-verify
-```
-
-## Testing Hooks
-
-Test the pre-commit hook:
+To remove it:
 
 ```bash
-# This should be blocked
-git add .env
-git commit -m "test"
-
-# This should pass
-git add README.md
-git commit -m "test"
+rm -rf .git-hooks
 ```
+
+The husky hook at `.husky/pre-commit` is the new source of truth.

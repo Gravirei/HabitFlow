@@ -1,7 +1,6 @@
-// @ts-nocheck
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { addDays, format } from 'date-fns'
+import { addDays } from 'date-fns'
 
 type PremiumTier = 'free' | 'pro' | 'team'
 
@@ -95,7 +94,10 @@ export const usePremiumStore = create<PremiumState>()(
       setTier: (tier) => {
         set((state) => ({
           tier,
-          subscribedAt: tier !== 'free' && state.tier === 'free' ? new Date().toISOString() : state.subscribedAt,
+          subscribedAt:
+            tier !== 'free' && state.tier === 'free'
+              ? new Date().toISOString()
+              : state.subscribedAt,
         }))
       },
 

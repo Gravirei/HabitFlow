@@ -1,10 +1,9 @@
-// @ts-nocheck
 /**
  * Achievement Notifications Component
  * Manages and displays achievement unlock notifications
  */
 
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { AchievementToast } from './AchievementToast'
 import { useAchievementSync } from './useAchievementSync'
 import type { Achievement } from './types'

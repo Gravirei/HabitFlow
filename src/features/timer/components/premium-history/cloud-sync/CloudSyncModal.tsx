@@ -1,11 +1,10 @@
-// @ts-nocheck
 /**
  * Cloud Sync Modal
  * Backup and restore timer data to cloud
  * Integrated with tieredStorage for real Supabase sync
  */
 
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useSyncStore } from '@/features/timer/store/syncStore'
 import { tieredStorage } from '@/lib/storage'
@@ -52,13 +51,13 @@ export function CloudSyncModal({ isOpen, onClose, sessions }: CloudSyncModalProp
       toast.error('Please log in to sync your data to the cloud')
       return
     }
-    
+
     // Check if backup before sync is enabled
     if (settings.backupBeforeSync && sessions.length > 0) {
       const deviceName = `Auto-backup before sync - ${new Date().toLocaleDateString()}`
       createBackup(deviceName, sessions)
     }
-    
+
     await startSync()
     if (!syncStatus.syncError) {
       toast.success('Sync completed successfully!')
@@ -74,7 +73,7 @@ export function CloudSyncModal({ isOpen, onClose, sessions }: CloudSyncModalProp
         sessions: sessions,
         totalSessions: sessions.length,
       }
-      
+
       const blob = new Blob([JSON.stringify(dataToExport, null, 2)], { type: 'application/json' })
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
@@ -84,9 +83,9 @@ export function CloudSyncModal({ isOpen, onClose, sessions }: CloudSyncModalProp
       a.click()
       document.body.removeChild(a)
       URL.revokeObjectURL(url)
-      
+
       toast.success('Data exported successfully!')
-    } catch (error) {
+    } catch {
       toast.error('Failed to export data')
     } finally {
       setIsDownloading(false)
@@ -101,12 +100,12 @@ export function CloudSyncModal({ isOpen, onClose, sessions }: CloudSyncModalProp
 
   const handleCreateBackup = async () => {
     setIsCreatingBackup(true)
-    
+
     try {
       const deviceName = `${navigator.platform || 'Device'} - ${new Date().toLocaleDateString()}`
       createBackup(deviceName, sessions)
       toast.success('Backup created successfully!')
-    } catch (error) {
+    } catch {
       toast.error('Failed to create backup')
     } finally {
       setIsCreatingBackup(false)
@@ -117,7 +116,7 @@ export function CloudSyncModal({ isOpen, onClose, sessions }: CloudSyncModalProp
     if (!confirm('Are you sure you want to restore this backup? Current data will be replaced.')) {
       return
     }
-    
+
     setIsRestoring(backupId)
     try {
       await restoreBackup(backupId)
@@ -174,14 +173,14 @@ export function CloudSyncModal({ isOpen, onClose, sessions }: CloudSyncModalProp
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="fixed inset-x-4 top-[5%] z-50 mx-auto max-w-3xl max-h-[90vh] bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden"
+            className="fixed inset-x-4 top-[5%] z-50 mx-auto max-h-[90vh] max-w-3xl overflow-hidden rounded-3xl bg-white shadow-2xl dark:bg-slate-900"
           >
             {/* Header */}
-            <div className="sticky top-0 z-10 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800 px-6 py-4">
-              <div className="flex items-center justify-between mb-4">
+            <div className="sticky top-0 z-10 border-b border-slate-200 bg-white/95 px-6 py-4 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/95">
+              <div className="mb-4 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
-                    <span className="material-symbols-outlined text-white text-xl">cloud_sync</span>
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-500">
+                    <span className="material-symbols-outlined text-xl text-white">cloud_sync</span>
                   </div>
                   <div>
                     <h2 className="text-xl font-bold text-slate-900 dark:text-white">Cloud Sync</h2>
@@ -190,7 +189,7 @@ export function CloudSyncModal({ isOpen, onClose, sessions }: CloudSyncModalProp
                 </div>
                 <button
                   onClick={onClose}
-                  className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 transition-colors"
+                  className="rounded-full p-2 text-slate-600 transition-colors hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
                 >
                   <span className="material-symbols-outlined">close</span>
                 </button>
@@ -200,30 +199,30 @@ export function CloudSyncModal({ isOpen, onClose, sessions }: CloudSyncModalProp
               <div className="flex gap-2">
                 <button
                   onClick={() => setActiveTab('sync')}
-                  className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                  className={`rounded-xl px-4 py-2 text-sm font-medium transition-all ${
                     activeTab === 'sync'
                       ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-lg'
-                      : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700'
                   }`}
                 >
                   Sync Now
                 </button>
                 <button
                   onClick={() => setActiveTab('backups')}
-                  className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                  className={`rounded-xl px-4 py-2 text-sm font-medium transition-all ${
                     activeTab === 'backups'
                       ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-lg'
-                      : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700'
                   }`}
                 >
                   Backups ({backups.length})
                 </button>
                 <button
                   onClick={() => setActiveTab('settings')}
-                  className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                  className={`rounded-xl px-4 py-2 text-sm font-medium transition-all ${
                     activeTab === 'settings'
                       ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-lg'
-                      : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700'
                   }`}
                 >
                   Settings
@@ -232,19 +231,23 @@ export function CloudSyncModal({ isOpen, onClose, sessions }: CloudSyncModalProp
             </div>
 
             {/* Content */}
-            <div className="overflow-y-auto max-h-[calc(90vh-180px)] p-6">
+            <div className="max-h-[calc(90vh-180px)] overflow-y-auto p-6">
               {/* Sync Tab */}
               {activeTab === 'sync' && (
                 <div className="space-y-6">
                   {/* Login Status Banner */}
                   {!isLoggedIn && (
-                    <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl">
+                    <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-900/20">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
-                          <span className="material-symbols-outlined text-amber-600 dark:text-amber-400">account_circle</span>
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/30">
+                          <span className="material-symbols-outlined text-amber-600 dark:text-amber-400">
+                            account_circle
+                          </span>
                         </div>
                         <div className="flex-1">
-                          <h4 className="font-semibold text-amber-800 dark:text-amber-200">Sign in to enable cloud sync</h4>
+                          <h4 className="font-semibold text-amber-800 dark:text-amber-200">
+                            Sign in to enable cloud sync
+                          </h4>
                           <p className="text-sm text-amber-600 dark:text-amber-400">
                             Your data is currently stored locally. Sign in to sync across devices.
                           </p>
@@ -254,23 +257,25 @@ export function CloudSyncModal({ isOpen, onClose, sessions }: CloudSyncModalProp
                   )}
 
                   {/* Sync Status */}
-                  <div className={`p-6 rounded-2xl border ${
-                    isLoggedIn 
-                      ? 'bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 border-indigo-200 dark:border-indigo-800'
-                      : 'bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700'
-                  }`}>
-                    <div className="flex items-start justify-between mb-4">
+                  <div
+                    className={`rounded-2xl border p-6 ${
+                      isLoggedIn
+                        ? 'border-indigo-200 bg-gradient-to-br from-indigo-50 to-purple-50 dark:border-indigo-800 dark:from-indigo-900/20 dark:to-purple-900/20'
+                        : 'border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800/50'
+                    }`}
+                  >
+                    <div className="mb-4 flex items-start justify-between">
                       <div>
-                        <div className="flex items-center gap-2 mb-1">
+                        <div className="mb-1 flex items-center gap-2">
                           <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
                             Sync Status
                           </h3>
                           {isLoggedIn ? (
-                            <span className="px-2 py-0.5 text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full">
+                            <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400">
                               Connected
                             </span>
                           ) : (
-                            <span className="px-2 py-0.5 text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 rounded-full">
+                            <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600 dark:bg-slate-700 dark:text-slate-400">
                               Local Only
                             </span>
                           )}
@@ -288,13 +293,15 @@ export function CloudSyncModal({ isOpen, onClose, sessions }: CloudSyncModalProp
                       <button
                         onClick={handleSync}
                         disabled={syncStatus.isSyncing || !isLoggedIn}
-                        className={`px-6 py-3 rounded-xl font-medium transition-all flex items-center gap-2 ${
+                        className={`flex items-center gap-2 rounded-xl px-6 py-3 font-medium transition-all ${
                           isLoggedIn
                             ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:shadow-lg disabled:opacity-50'
-                            : 'bg-slate-200 dark:bg-slate-700 text-slate-400 cursor-not-allowed'
+                            : 'cursor-not-allowed bg-slate-200 text-slate-400 dark:bg-slate-700'
                         }`}
                       >
-                        <span className={`material-symbols-outlined ${syncStatus.isSyncing ? 'animate-spin' : ''}`}>
+                        <span
+                          className={`material-symbols-outlined ${syncStatus.isSyncing ? 'animate-spin' : ''}`}
+                        >
                           {syncStatus.isSyncing ? 'sync' : 'cloud_sync'}
                         </span>
                         {syncStatus.isSyncing ? 'Syncing...' : 'Sync Now'}
@@ -302,8 +309,8 @@ export function CloudSyncModal({ isOpen, onClose, sessions }: CloudSyncModalProp
                     </div>
 
                     {syncStatus.syncError && (
-                      <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl mb-4">
-                        <div className="flex items-center gap-2 text-red-600 dark:text-red-400 text-sm">
+                      <div className="mb-4 rounded-xl border border-red-200 bg-red-50 p-3 dark:border-red-800 dark:bg-red-900/20">
+                        <div className="flex items-center gap-2 text-sm text-red-600 dark:text-red-400">
                           <span className="material-symbols-outlined text-lg">error</span>
                           {syncStatus.syncError}
                         </div>
@@ -312,22 +319,28 @@ export function CloudSyncModal({ isOpen, onClose, sessions }: CloudSyncModalProp
 
                     <div className="grid grid-cols-3 gap-4">
                       <div className="text-center">
-                        <div className={`text-2xl font-bold ${isLoggedIn ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400'}`}>
+                        <div
+                          className={`text-2xl font-bold ${isLoggedIn ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400'}`}
+                        >
                           {isLoggedIn ? syncStatus.itemsSynced : '-'}
                         </div>
-                        <div className="text-xs text-slate-600 dark:text-slate-400 mt-1">
+                        <div className="mt-1 text-xs text-slate-600 dark:text-slate-400">
                           Syncs Done
                         </div>
                       </div>
                       <div className="text-center">
-                        <div className={`text-2xl font-bold ${
-                          syncStatus.pendingChanges > 0 
-                            ? 'text-amber-600 dark:text-amber-400' 
-                            : isLoggedIn ? 'text-green-600 dark:text-green-400' : 'text-slate-400'
-                        }`}>
+                        <div
+                          className={`text-2xl font-bold ${
+                            syncStatus.pendingChanges > 0
+                              ? 'text-amber-600 dark:text-amber-400'
+                              : isLoggedIn
+                                ? 'text-green-600 dark:text-green-400'
+                                : 'text-slate-400'
+                          }`}
+                        >
                           {isLoggedIn ? syncStatus.pendingChanges : '-'}
                         </div>
-                        <div className="text-xs text-slate-600 dark:text-slate-400 mt-1">
+                        <div className="mt-1 text-xs text-slate-600 dark:text-slate-400">
                           Pending Changes
                         </div>
                       </div>
@@ -335,7 +348,7 @@ export function CloudSyncModal({ isOpen, onClose, sessions }: CloudSyncModalProp
                         <div className="text-2xl font-bold text-slate-900 dark:text-white">
                           {sessions.length}
                         </div>
-                        <div className="text-xs text-slate-600 dark:text-slate-400 mt-1">
+                        <div className="mt-1 text-xs text-slate-600 dark:text-slate-400">
                           Total Sessions
                         </div>
                       </div>
@@ -344,16 +357,16 @@ export function CloudSyncModal({ isOpen, onClose, sessions }: CloudSyncModalProp
 
                   {/* Quick Actions */}
                   <div>
-                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3">
+                    <h3 className="mb-3 text-sm font-semibold text-slate-900 dark:text-white">
                       Quick Actions
                     </h3>
                     <div className="grid gap-3">
                       <button
                         onClick={handleCreateBackup}
                         disabled={isCreatingBackup}
-                        className="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-50"
+                        className="flex items-center gap-3 rounded-xl bg-slate-50 p-4 transition-colors hover:bg-slate-100 disabled:opacity-50 dark:bg-slate-800/50 dark:hover:bg-slate-800"
                       >
-                        <div className="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400">
                           <span className="material-symbols-outlined">backup</span>
                         </div>
                         <div className="flex-1 text-left">
@@ -364,16 +377,20 @@ export function CloudSyncModal({ isOpen, onClose, sessions }: CloudSyncModalProp
                             Save current data to cloud
                           </div>
                         </div>
-                        <span className="material-symbols-outlined text-slate-400">chevron_right</span>
+                        <span className="material-symbols-outlined text-slate-400">
+                          chevron_right
+                        </span>
                       </button>
 
                       <button
                         onClick={handleDownloadLocalCopy}
                         disabled={isDownloading || sessions.length === 0}
-                        className="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="flex items-center gap-3 rounded-xl bg-slate-50 p-4 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-slate-800/50 dark:hover:bg-slate-800"
                       >
-                        <div className="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 dark:text-purple-400">
-                          <span className={`material-symbols-outlined ${isDownloading ? 'animate-pulse' : ''}`}>
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400">
+                          <span
+                            className={`material-symbols-outlined ${isDownloading ? 'animate-pulse' : ''}`}
+                          >
                             {isDownloading ? 'downloading' : 'download'}
                           </span>
                         </div>
@@ -382,10 +399,14 @@ export function CloudSyncModal({ isOpen, onClose, sessions }: CloudSyncModalProp
                             Download Local Copy
                           </div>
                           <div className="text-xs text-slate-500 dark:text-slate-500">
-                            {sessions.length === 0 ? 'No sessions to export' : `Export ${sessions.length} sessions as JSON file`}
+                            {sessions.length === 0
+                              ? 'No sessions to export'
+                              : `Export ${sessions.length} sessions as JSON file`}
                           </div>
                         </div>
-                        <span className="material-symbols-outlined text-slate-400">chevron_right</span>
+                        <span className="material-symbols-outlined text-slate-400">
+                          chevron_right
+                        </span>
                       </button>
                     </div>
                   </div>
@@ -396,34 +417,36 @@ export function CloudSyncModal({ isOpen, onClose, sessions }: CloudSyncModalProp
               {activeTab === 'backups' && (
                 <div className="space-y-4">
                   {backups.length === 0 ? (
-                    <div className="text-center py-12">
-                      <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-                        <span className="material-symbols-outlined text-slate-400 text-3xl">backup</span>
+                    <div className="py-12 text-center">
+                      <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
+                        <span className="material-symbols-outlined text-3xl text-slate-400">
+                          backup
+                        </span>
                       </div>
-                      <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
+                      <h3 className="mb-2 text-lg font-semibold text-slate-900 dark:text-white">
                         No Backups Yet
                       </h3>
-                      <p className="text-slate-600 dark:text-slate-400 mb-6">
+                      <p className="mb-6 text-slate-600 dark:text-slate-400">
                         Create your first backup to protect your data
                       </p>
                       <button
                         onClick={handleCreateBackup}
                         disabled={isCreatingBackup}
-                        className="px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-xl font-medium hover:shadow-lg transition-all"
+                        className="rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 px-6 py-3 font-medium text-white transition-all hover:shadow-lg"
                       >
                         Create Backup
                       </button>
                     </div>
                   ) : (
                     <>
-                      <div className="flex items-center justify-between mb-4">
+                      <div className="mb-4 flex items-center justify-between">
                         <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
                           Available Backups
                         </h3>
                         <button
                           onClick={handleCreateBackup}
                           disabled={isCreatingBackup}
-                          className="px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-xl text-sm font-medium hover:shadow-lg transition-all"
+                          className="rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 px-4 py-2 text-sm font-medium text-white transition-all hover:shadow-lg"
                         >
                           New Backup
                         </button>
@@ -432,10 +455,10 @@ export function CloudSyncModal({ isOpen, onClose, sessions }: CloudSyncModalProp
                         {backups.map((backup) => (
                           <div
                             key={backup.id}
-                            className="relative flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors overflow-hidden"
+                            className="relative flex items-center justify-between overflow-hidden rounded-xl bg-slate-50 p-4 transition-colors hover:bg-slate-100 dark:bg-slate-800/50 dark:hover:bg-slate-800"
                           >
                             <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400">
                                 <span className="material-symbols-outlined">cloud_done</span>
                               </div>
                               <div>
@@ -443,7 +466,8 @@ export function CloudSyncModal({ isOpen, onClose, sessions }: CloudSyncModalProp
                                   {backup.deviceName}
                                 </div>
                                 <div className="text-xs text-slate-500 dark:text-slate-500">
-                                  {formatDate(backup.timestamp)} • {backup.itemCount} items • {formatSize(backup.size)}
+                                  {formatDate(backup.timestamp)} • {backup.itemCount} items •{' '}
+                                  {formatSize(backup.size)}
                                 </div>
                               </div>
                             </div>
@@ -451,11 +475,13 @@ export function CloudSyncModal({ isOpen, onClose, sessions }: CloudSyncModalProp
                               <button
                                 onClick={() => handleRestoreBackup(backup.id)}
                                 disabled={isRestoring === backup.id}
-                                className="px-4 py-2 bg-indigo-500 text-white rounded-lg text-sm font-medium hover:bg-indigo-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+                                className="flex items-center gap-1 rounded-lg bg-indigo-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-600 disabled:cursor-not-allowed disabled:opacity-50"
                               >
                                 {isRestoring === backup.id ? (
                                   <>
-                                    <span className="material-symbols-outlined text-sm animate-spin">sync</span>
+                                    <span className="material-symbols-outlined animate-spin text-sm">
+                                      sync
+                                    </span>
                                     Restoring...
                                   </>
                                 ) : (
@@ -465,7 +491,7 @@ export function CloudSyncModal({ isOpen, onClose, sessions }: CloudSyncModalProp
                               <button
                                 onClick={() => setDeleteConfirmId(backup.id)}
                                 disabled={isRestoring === backup.id}
-                                className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500 transition-colors disabled:opacity-50"
+                                className="rounded-lg p-2 text-red-500 transition-colors hover:bg-red-50 disabled:opacity-50 dark:hover:bg-red-900/20"
                                 title="Delete backup"
                               >
                                 <span className="material-symbols-outlined text-sm">delete</span>
@@ -479,11 +505,13 @@ export function CloudSyncModal({ isOpen, onClose, sessions }: CloudSyncModalProp
                                   initial={{ opacity: 0 }}
                                   animate={{ opacity: 1 }}
                                   exit={{ opacity: 0 }}
-                                  className="absolute inset-0 bg-white dark:bg-slate-800 rounded-xl p-4 flex items-center justify-between z-10 border-2 border-red-300 dark:border-red-700"
+                                  className="absolute inset-0 z-10 flex items-center justify-between rounded-xl border-2 border-red-300 bg-white p-4 dark:border-red-700 dark:bg-slate-800"
                                 >
                                   <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
-                                      <span className="material-symbols-outlined text-red-500 text-xl">delete_forever</span>
+                                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-100 dark:bg-red-900/30">
+                                      <span className="material-symbols-outlined text-xl text-red-500">
+                                        delete_forever
+                                      </span>
                                     </div>
                                     <div>
                                       <p className="text-sm font-semibold text-slate-900 dark:text-white">
@@ -497,13 +525,13 @@ export function CloudSyncModal({ isOpen, onClose, sessions }: CloudSyncModalProp
                                   <div className="flex gap-2">
                                     <button
                                       onClick={() => setDeleteConfirmId(null)}
-                                      className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                                      className="rounded-lg px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700"
                                     >
                                       Cancel
                                     </button>
                                     <button
                                       onClick={() => handleDeleteBackup(backup.id)}
-                                      className="px-4 py-2 text-sm font-medium text-white bg-red-500 hover:bg-red-600 rounded-lg transition-colors"
+                                      className="rounded-lg bg-red-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-600"
                                     >
                                       Delete
                                     </button>
@@ -524,7 +552,7 @@ export function CloudSyncModal({ isOpen, onClose, sessions }: CloudSyncModalProp
                 <div className="space-y-6">
                   {/* Login required notice */}
                   {!isLoggedIn && (
-                    <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl">
+                    <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-900/20">
                       <div className="flex items-center gap-2 text-amber-700 dark:text-amber-300">
                         <span className="material-symbols-outlined text-lg">info</span>
                         <span className="text-sm">Sign in to enable sync settings</span>
@@ -536,9 +564,11 @@ export function CloudSyncModal({ isOpen, onClose, sessions }: CloudSyncModalProp
                     <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
                       Sync Settings
                     </h3>
-                    
+
                     {/* Auto Sync Toggle */}
-                    <div className={`flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl ${isLoggedIn ? '' : 'opacity-50'}`}>
+                    <div
+                      className={`flex items-center justify-between rounded-xl bg-slate-50 p-4 dark:bg-slate-800/50 ${isLoggedIn ? '' : 'opacity-50'}`}
+                    >
                       <div>
                         <div className="font-medium text-slate-900 dark:text-white">Auto Sync</div>
                         <div className="text-xs text-slate-500 dark:text-slate-500">
@@ -573,12 +603,12 @@ export function CloudSyncModal({ isOpen, onClose, sessions }: CloudSyncModalProp
 
                     {/* Sync Interval - only show when auto sync is enabled */}
                     {settings.autoSync && isLoggedIn && (
-                      <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl ml-4 border-l-2 border-indigo-500">
+                      <div className="ml-4 rounded-xl border-l-2 border-indigo-500 bg-slate-50 p-4 dark:bg-slate-800/50">
                         <label className="block">
-                          <div className="font-medium text-slate-900 dark:text-white mb-1">
+                          <div className="mb-1 font-medium text-slate-900 dark:text-white">
                             Sync Interval
                           </div>
-                          <div className="text-xs text-slate-500 dark:text-slate-500 mb-3">
+                          <div className="mb-3 text-xs text-slate-500 dark:text-slate-500">
                             How often to automatically sync (in minutes)
                           </div>
                           <select
@@ -588,7 +618,7 @@ export function CloudSyncModal({ isOpen, onClose, sessions }: CloudSyncModalProp
                               // Restart auto-sync with new interval
                               startAutoSync()
                             }}
-                            className="w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
                           >
                             <option value="5">Every 5 minutes</option>
                             <option value="15">Every 15 minutes</option>
@@ -601,9 +631,13 @@ export function CloudSyncModal({ isOpen, onClose, sessions }: CloudSyncModalProp
                     )}
 
                     {/* Sync on Login Toggle */}
-                    <div className={`flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl ${isLoggedIn ? '' : 'opacity-50'}`}>
+                    <div
+                      className={`flex items-center justify-between rounded-xl bg-slate-50 p-4 dark:bg-slate-800/50 ${isLoggedIn ? '' : 'opacity-50'}`}
+                    >
                       <div>
-                        <div className="font-medium text-slate-900 dark:text-white">Sync on Login</div>
+                        <div className="font-medium text-slate-900 dark:text-white">
+                          Sync on Login
+                        </div>
                         <div className="text-xs text-slate-500 dark:text-slate-500">
                           Automatically sync when you sign in
                         </div>
@@ -627,9 +661,11 @@ export function CloudSyncModal({ isOpen, onClose, sessions }: CloudSyncModalProp
                     </div>
 
                     {/* Backup Before Sync Toggle */}
-                    <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+                    <div className="flex items-center justify-between rounded-xl bg-slate-50 p-4 dark:bg-slate-800/50">
                       <div>
-                        <div className="font-medium text-slate-900 dark:text-white">Backup Before Sync</div>
+                        <div className="font-medium text-slate-900 dark:text-white">
+                          Backup Before Sync
+                        </div>
                         <div className="text-xs text-slate-500 dark:text-slate-500">
                           Create automatic backup before each sync
                         </div>
@@ -638,9 +674,13 @@ export function CloudSyncModal({ isOpen, onClose, sessions }: CloudSyncModalProp
                         type="button"
                         role="switch"
                         aria-checked={settings.backupBeforeSync}
-                        onClick={() => updateSettings({ backupBeforeSync: !settings.backupBeforeSync })}
+                        onClick={() =>
+                          updateSettings({ backupBeforeSync: !settings.backupBeforeSync })
+                        }
                         className={`relative inline-flex h-7 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 ${
-                          settings.backupBeforeSync ? 'bg-indigo-500' : 'bg-slate-300 dark:bg-slate-600'
+                          settings.backupBeforeSync
+                            ? 'bg-indigo-500'
+                            : 'bg-slate-300 dark:bg-slate-600'
                         }`}
                       >
                         <span
@@ -657,12 +697,12 @@ export function CloudSyncModal({ isOpen, onClose, sessions }: CloudSyncModalProp
                       Backup Settings
                     </h3>
 
-                    <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+                    <div className="rounded-xl bg-slate-50 p-4 dark:bg-slate-800/50">
                       <label className="block">
-                        <div className="font-medium text-slate-900 dark:text-white mb-1">
+                        <div className="mb-1 font-medium text-slate-900 dark:text-white">
                           Max Backups to Keep
                         </div>
-                        <div className="text-xs text-slate-500 dark:text-slate-500 mb-3">
+                        <div className="mb-3 text-xs text-slate-500 dark:text-slate-500">
                           Older backups will be automatically deleted
                         </div>
                         <input
@@ -676,7 +716,7 @@ export function CloudSyncModal({ isOpen, onClose, sessions }: CloudSyncModalProp
                               updateSettings({ maxBackups: value })
                             }
                           }}
-                          className="w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                          className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
                         />
                       </label>
                     </div>
@@ -687,15 +727,19 @@ export function CloudSyncModal({ isOpen, onClose, sessions }: CloudSyncModalProp
                     <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
                       Storage Info
                     </h3>
-                    <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+                    <div className="rounded-xl bg-slate-50 p-4 dark:bg-slate-800/50">
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
                           <div className="text-slate-500 dark:text-slate-400">Total Sessions</div>
-                          <div className="font-semibold text-slate-900 dark:text-white">{sessions.length}</div>
+                          <div className="font-semibold text-slate-900 dark:text-white">
+                            {sessions.length}
+                          </div>
                         </div>
                         <div>
                           <div className="text-slate-500 dark:text-slate-400">Total Backups</div>
-                          <div className="font-semibold text-slate-900 dark:text-white">{backups.length}</div>
+                          <div className="font-semibold text-slate-900 dark:text-white">
+                            {backups.length}
+                          </div>
                         </div>
                         <div>
                           <div className="text-slate-500 dark:text-slate-400">Storage Mode</div>
@@ -706,7 +750,9 @@ export function CloudSyncModal({ isOpen, onClose, sessions }: CloudSyncModalProp
                         <div>
                           <div className="text-slate-500 dark:text-slate-400">Last Sync</div>
                           <div className="font-semibold text-slate-900 dark:text-white">
-                            {syncStatus.lastSyncTime ? formatTimeAgo(syncStatus.lastSyncTime) : 'Never'}
+                            {syncStatus.lastSyncTime
+                              ? formatTimeAgo(syncStatus.lastSyncTime)
+                              : 'Never'}
                           </div>
                         </div>
                       </div>

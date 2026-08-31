@@ -17,7 +17,7 @@ export const generateUUID = (): string => {
   // Fallback for older browsers
   // Credit: RFC4122 version 4 compliant solution
   // Adapted from: https://stackoverflow.com/a/2117523/11037553
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
     const r = (Math.random() * 16) | 0 // Random 0-15
     const v = c === 'x' ? r : (r & 0x3) | 0x8 // For 'y': bits 8-11 set to 010b
     return v.toString(16)

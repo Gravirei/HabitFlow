@@ -48,7 +48,7 @@ export const TimerTopNav: React.FC = () => {
         tieredStorage.getHistory('Countdown', true),
         tieredStorage.getHistory('Intervals', true),
       ])
-      
+
       setStopwatchHistory(stopwatch)
       setCountdownHistory(countdown)
       setIntervalsHistory(intervals)
@@ -62,7 +62,7 @@ export const TimerTopNav: React.FC = () => {
       // OPTIMIZATION: Use local cache (forceCloud: false) for instant updates
       // The cache is already updated before this event is emitted
       const updatedHistory = await tieredStorage.getHistory(event.mode, false)
-      
+
       if (event.mode === 'Stopwatch') {
         setStopwatchHistory(updatedHistory)
       } else if (event.mode === 'Countdown') {
@@ -95,12 +95,12 @@ export const TimerTopNav: React.FC = () => {
 
   return (
     <>
-      <div className="flex items-center justify-between px-4 py-3 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-sm shrink-0 pt-safe">
+      <div className="pt-safe flex shrink-0 items-center justify-between bg-background-light/95 px-4 py-3 backdrop-blur-sm dark:bg-background-dark/95">
         {/* Left: Back Button + Hamburger Menu */}
         <div className="flex items-center gap-2">
           <button
             onClick={() => navigate('/today')}
-            className="flex size-10 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-white/5 active:scale-95 transition-all duration-150"
+            className="flex size-10 items-center justify-center rounded-full transition-all duration-150 hover:bg-gray-100 active:scale-95 dark:hover:bg-white/5"
             aria-label="Go back"
           >
             <span className="material-symbols-outlined text-xl text-gray-900 dark:text-white">
@@ -109,7 +109,7 @@ export const TimerTopNav: React.FC = () => {
           </button>
           <button
             onClick={() => setIsMenuOpen(true)}
-            className="flex size-10 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-white/5 active:scale-95 transition-all duration-150"
+            className="flex size-10 items-center justify-center rounded-full transition-all duration-150 hover:bg-gray-100 active:scale-95 dark:hover:bg-white/5"
             aria-label="Open menu"
           >
             <span className="material-symbols-outlined text-xl text-gray-900 dark:text-white">
@@ -129,13 +129,13 @@ export const TimerTopNav: React.FC = () => {
           {showHistoryIcon && (
             <button
               onClick={handleHistoryClick}
-              className="relative flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-white/20 to-white/10 hover:from-white/30 hover:to-white/20 text-white font-semibold transition-all duration-200 active:scale-95 shadow-lg"
+              className="relative flex items-center gap-2 rounded-full bg-gradient-to-r from-white/20 to-white/10 px-4 py-2 font-semibold text-white shadow-lg transition-all duration-200 hover:from-white/30 hover:to-white/20 active:scale-95"
               aria-label="View History"
             >
               <span className="material-symbols-outlined text-lg">history</span>
               <span className="text-sm">History</span>
               {totalHistoryCount > 0 && (
-                <span className="absolute -top-1 -right-1 flex size-5 items-center justify-center rounded-full bg-primary text-background-dark text-xs font-bold">
+                <span className="absolute -right-1 -top-1 flex size-5 items-center justify-center rounded-full bg-primary text-xs font-bold text-background-dark">
                   {totalHistoryCount > 99 ? '99+' : totalHistoryCount}
                 </span>
               )}
@@ -146,8 +146,8 @@ export const TimerTopNav: React.FC = () => {
           {showNotificationIcon && (
             <button
               onClick={toggleNotifications}
-              className={`flex size-10 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-white/5 active:scale-95 transition-all duration-150 ${
-                notificationsEnabled ? 'text-white font-bold' : 'text-gray-400 dark:text-gray-500'
+              className={`flex size-10 items-center justify-center rounded-full transition-all duration-150 hover:bg-gray-100 active:scale-95 dark:hover:bg-white/5 ${
+                notificationsEnabled ? 'font-bold text-white' : 'text-gray-400 dark:text-gray-500'
               }`}
               aria-label={`Notifications ${notificationsEnabled ? 'enabled' : 'disabled'}`}
             >
@@ -161,8 +161,8 @@ export const TimerTopNav: React.FC = () => {
           {showSoundIcon && (
             <button
               onClick={toggleSound}
-              className={`flex size-10 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-white/5 active:scale-95 transition-all duration-150 ${
-                soundEnabled ? 'text-white font-bold' : 'text-gray-400 dark:text-gray-500'
+              className={`flex size-10 items-center justify-center rounded-full transition-all duration-150 hover:bg-gray-100 active:scale-95 dark:hover:bg-white/5 ${
+                soundEnabled ? 'font-bold text-white' : 'text-gray-400 dark:text-gray-500'
               }`}
               aria-label={`Sound ${soundEnabled ? 'enabled' : 'disabled'}`}
             >
@@ -176,8 +176,8 @@ export const TimerTopNav: React.FC = () => {
           {showVibrationIcon && (
             <button
               onClick={toggleVibration}
-              className={`flex size-10 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-white/5 active:scale-95 transition-all duration-150 ${
-                vibrationEnabled ? 'text-white font-bold' : 'text-gray-400 dark:text-gray-500'
+              className={`flex size-10 items-center justify-center rounded-full transition-all duration-150 hover:bg-gray-100 active:scale-95 dark:hover:bg-white/5 ${
+                vibrationEnabled ? 'font-bold text-white' : 'text-gray-400 dark:text-gray-500'
               }`}
               aria-label={`Vibration ${vibrationEnabled ? 'enabled' : 'disabled'}`}
             >
@@ -190,7 +190,7 @@ export const TimerTopNav: React.FC = () => {
           {/* Settings Button */}
           <button
             onClick={handleSettingsClick}
-            className="flex size-10 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-white/5 active:scale-95 transition-all duration-150 text-white font-bold"
+            className="flex size-10 items-center justify-center rounded-full font-bold text-white transition-all duration-150 hover:bg-gray-100 active:scale-95 dark:hover:bg-white/5"
             aria-label="Settings"
           >
             <span className="material-symbols-outlined text-xl font-bold">settings</span>
@@ -201,14 +201,14 @@ export const TimerTopNav: React.FC = () => {
       {/* Modals - Rendered at root level for proper positioning */}
       <TimerSettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
       <HistoryModal isOpen={isHistoryOpen} onClose={() => setIsHistoryOpen(false)} />
-      <CloudSyncModal 
-        isOpen={isCloudSyncOpen} 
+      <CloudSyncModal
+        isOpen={isCloudSyncOpen}
         onClose={() => setIsCloudSyncOpen(false)}
         sessions={[...stopwatchHistory, ...countdownHistory, ...intervalsHistory]}
       />
       {/* ARCHIVED: ThemesModal removed (theme module archived) */}
-      <TimerMenuSidebar 
-        isOpen={isMenuOpen} 
+      <TimerMenuSidebar
+        isOpen={isMenuOpen}
         onClose={() => setIsMenuOpen(false)}
         onSettingsClick={handleSettingsClick}
         onHistoryClick={handleHistoryClick}

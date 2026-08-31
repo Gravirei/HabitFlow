@@ -30,10 +30,7 @@ const DEFAULT_SETTINGS: TimerSettings = {
 }
 
 export const useTimerSettings = () => {
-  const [settings, setSettings] = useLocalStorage<TimerSettings>(
-    'timer-settings',
-    DEFAULT_SETTINGS
-  )
+  const [settings, setSettings] = useLocalStorage<TimerSettings>('timer-settings', DEFAULT_SETTINGS)
 
   const toggleNotifications = () => {
     setSettings((prev) => ({
@@ -61,13 +58,16 @@ export const useTimerSettings = () => {
       // Validate volume if provided
       if (updates.soundVolume !== undefined) {
         if (isNaN(updates.soundVolume) || !isFinite(updates.soundVolume)) {
-          logError(new Error('Invalid sound volume: must be a number'), 'useTimerSettings.updateSettings')
+          logError(
+            new Error('Invalid sound volume: must be a number'),
+            'useTimerSettings.updateSettings'
+          )
           return
         }
         // Clamp volume to 0-100
         updates.soundVolume = Math.max(0, Math.min(100, updates.soundVolume))
       }
-      
+
       setSettings((prev) => ({
         ...prev,
         ...updates,

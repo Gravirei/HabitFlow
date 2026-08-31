@@ -36,10 +36,7 @@ const toKey = (d: Date): string => format(d, 'yyyy-MM-dd')
  *   Defaults to `new Date()`.
  * @returns The number of consecutive days ending at the anchor.
  */
-export function calculateCurrentStreak(
-  completedDates: string[],
-  today: Date = new Date(),
-): number {
+export function calculateCurrentStreak(completedDates: string[], today: Date = new Date()): number {
   if (completedDates.length === 0) return 0
 
   const dateSet = new Set(completedDates)
@@ -106,12 +103,9 @@ export function calculateBestStreak(completedDates: string[]): number {
  */
 export function calculateStreaks(
   completedDates: string[],
-  today: Date = new Date(),
+  today: Date = new Date()
 ): { currentStreak: number; bestStreak: number } {
   const currentStreak = calculateCurrentStreak(completedDates, today)
-  const bestStreak = Math.max(
-    calculateBestStreak(completedDates),
-    currentStreak,
-  )
+  const bestStreak = Math.max(calculateBestStreak(completedDates), currentStreak)
   return { currentStreak, bestStreak }
 }

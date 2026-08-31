@@ -1,9 +1,8 @@
-// @ts-nocheck
 /**
  * AI Insights Modal - Main Dashboard
  */
 
-import React, { useMemo } from 'react'
+import { useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { createPortal } from 'react-dom'
 import { getAIInsights } from './index'

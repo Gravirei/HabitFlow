@@ -54,10 +54,7 @@ export function GroupCreationFlow({ isOpen, onClose, onGroupCreated }: GroupCrea
 
   // Filtered friends for Step 2
   const filteredFriends = useMemo(
-    () =>
-      friends.filter((f) =>
-        f.displayName.toLowerCase().includes(searchQuery.toLowerCase())
-      ),
+    () => friends.filter((f) => f.displayName.toLowerCase().includes(searchQuery.toLowerCase())),
     [friends, searchQuery]
   )
 
@@ -138,19 +135,16 @@ export function GroupCreationFlow({ isOpen, onClose, onGroupCreated }: GroupCrea
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
       {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-        onClick={handleClose}
-      />
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={handleClose} />
 
       {/* Modal panel */}
-      <div className="relative w-full sm:max-w-md bg-[#0F1117] border border-white/[0.05] rounded-t-3xl sm:rounded-2xl p-6 max-h-[85vh] overflow-hidden">
+      <div className="relative max-h-[85vh] w-full overflow-hidden rounded-t-3xl border border-white/[0.05] bg-[#0F1117] p-6 sm:max-w-md sm:rounded-2xl">
         {/* Close button */}
         <button
           onClick={handleClose}
-          className="absolute top-4 right-4 cursor-pointer text-slate-500 hover:text-white transition-colors z-10"
+          className="absolute right-4 top-4 z-10 cursor-pointer text-slate-500 transition-colors hover:text-white"
           aria-label="Close"
         >
           <span className="material-symbols-outlined text-[20px]">close</span>
@@ -180,10 +174,10 @@ export function GroupCreationFlow({ isOpen, onClose, onGroupCreated }: GroupCrea
                     maxLength={MESSAGING_LIMITS.CONVERSATION_NAME_MAX_LENGTH}
                     placeholder="Enter group name..."
                     autoFocus
-                    className="w-full bg-white/[0.04] border border-white/[0.06] rounded-xl px-4 py-3 text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500/30 transition-all"
+                    className="w-full rounded-xl border border-white/[0.06] bg-white/[0.04] px-4 py-3 text-sm text-white placeholder-slate-500 transition-all focus:border-teal-500/30 focus:outline-none focus:ring-2 focus:ring-teal-500/30"
                   />
                   <p
-                    className={`text-xs mt-1.5 ${
+                    className={`mt-1.5 text-xs ${
                       groupName.length >= 45 ? 'text-amber-400' : 'text-slate-500'
                     }`}
                   >
@@ -195,8 +189,10 @@ export function GroupCreationFlow({ isOpen, onClose, onGroupCreated }: GroupCrea
                   <button
                     onClick={goNext}
                     disabled={groupName.trim().length === 0}
-                    className={`bg-gradient-to-r from-teal-600 to-emerald-500 text-white rounded-xl px-6 py-2.5 font-medium text-sm cursor-pointer transition-opacity ${
-                      groupName.trim().length === 0 ? 'opacity-40 cursor-not-allowed' : 'hover:opacity-90'
+                    className={`cursor-pointer rounded-xl bg-gradient-to-r from-teal-600 to-emerald-500 px-6 py-2.5 text-sm font-medium text-white transition-opacity ${
+                      groupName.trim().length === 0
+                        ? 'cursor-not-allowed opacity-40'
+                        : 'hover:opacity-90'
                     }`}
                   >
                     Next
@@ -210,7 +206,7 @@ export function GroupCreationFlow({ isOpen, onClose, onGroupCreated }: GroupCrea
               <div className="space-y-4">
                 <div>
                   <h3 className="text-lg font-semibold text-white">Add members</h3>
-                  <p className="text-sm text-slate-400 mt-0.5">
+                  <p className="mt-0.5 text-sm text-slate-400">
                     {selectedMemberIds.length}/{MESSAGING_LIMITS.MAX_GROUP_MEMBERS} selected
                   </p>
                 </div>
@@ -218,25 +214,25 @@ export function GroupCreationFlow({ isOpen, onClose, onGroupCreated }: GroupCrea
                 {/* Selected chips */}
                 {selectedMemberIds.length > 0 && (
                   <div
-                    className="flex gap-2 pb-3 overflow-x-auto"
+                    className="flex gap-2 overflow-x-auto pb-3"
                     style={{ scrollbarWidth: 'none' }}
                   >
                     {selectedFriends.map((friend) => (
                       <div
                         key={friend.userId}
-                        className="bg-white/[0.06] border border-white/[0.05] rounded-full px-3 py-1.5 flex items-center gap-2 flex-shrink-0"
+                        className="flex flex-shrink-0 items-center gap-2 rounded-full border border-white/[0.05] bg-white/[0.06] px-3 py-1.5"
                       >
                         <img
                           src={friend.avatarUrl || '/images/avatars/avatar1.jpg'}
                           alt={friend.displayName}
                           className="size-4 rounded-full object-cover"
                         />
-                        <span className="text-xs text-slate-300 whitespace-nowrap">
+                        <span className="whitespace-nowrap text-xs text-slate-300">
                           {friend.displayName}
                         </span>
                         <button
                           onClick={() => removeMember(friend.userId)}
-                          className="text-slate-500 hover:text-white cursor-pointer text-xs leading-none"
+                          className="cursor-pointer text-xs leading-none text-slate-500 hover:text-white"
                           aria-label={`Remove ${friend.displayName}`}
                         >
                           ✕
@@ -248,7 +244,7 @@ export function GroupCreationFlow({ isOpen, onClose, onGroupCreated }: GroupCrea
 
                 {/* Search */}
                 <div className="relative">
-                  <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-[16px]">
+                  <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[16px] text-slate-500">
                     search
                   </span>
                   <input
@@ -256,14 +252,14 @@ export function GroupCreationFlow({ isOpen, onClose, onGroupCreated }: GroupCrea
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search friends..."
-                    className="w-full bg-white/[0.04] border border-white/[0.06] rounded-xl pl-9 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500/30 transition-all"
+                    className="w-full rounded-xl border border-white/[0.06] bg-white/[0.04] py-2.5 pl-9 pr-4 text-sm text-white placeholder-slate-500 transition-all focus:border-teal-500/30 focus:outline-none focus:ring-2 focus:ring-teal-500/30"
                   />
                 </div>
 
                 {/* Friends list */}
-                <div className="max-h-[300px] overflow-y-auto space-y-0.5">
+                <div className="max-h-[300px] space-y-0.5 overflow-y-auto">
                   {filteredFriends.length === 0 ? (
-                    <p className="text-sm text-slate-500 text-center py-8">
+                    <p className="py-8 text-center text-sm text-slate-500">
                       {searchQuery ? 'No friends match your search' : 'No friends to add'}
                     </p>
                   ) : (
@@ -276,18 +272,14 @@ export function GroupCreationFlow({ isOpen, onClose, onGroupCreated }: GroupCrea
                           key={friend.userId}
                           onClick={() => !isDisabled && toggleMember(friend.userId)}
                           disabled={isDisabled}
-                          className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer transition-colors text-left ${
-                            isDisabled
-                              ? 'opacity-50 cursor-not-allowed'
-                              : 'hover:bg-white/[0.03]'
+                          className={`flex w-full cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors ${
+                            isDisabled ? 'cursor-not-allowed opacity-50' : 'hover:bg-white/[0.03]'
                           }`}
                         >
                           {/* Checkbox */}
                           <div
-                            className={`w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
-                              isSelected
-                                ? 'bg-teal-500 border-teal-500'
-                                : 'border-white/[0.15]'
+                            className={`flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-md border-2 transition-colors ${
+                              isSelected ? 'border-teal-500 bg-teal-500' : 'border-white/[0.15]'
                             }`}
                           >
                             {isSelected && (
@@ -305,19 +297,21 @@ export function GroupCreationFlow({ isOpen, onClose, onGroupCreated }: GroupCrea
                               className="size-9 rounded-full object-cover"
                             />
                             <div
-                              className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full ring-2 ring-[#0F1117] ${statusColor(friend.status)}`}
+                              className={`absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full ring-2 ring-[#0F1117] ${statusColor(friend.status)}`}
                             />
                           </div>
 
                           {/* Name + level */}
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm text-white truncate">{friend.displayName}</p>
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-sm text-white">{friend.displayName}</p>
                             <p className="text-xs text-slate-500">Lvl {friend.level}</p>
                           </div>
 
                           {/* Max reached label */}
                           {isDisabled && (
-                            <span className="text-amber-400 text-xs flex-shrink-0">Max reached</span>
+                            <span className="flex-shrink-0 text-xs text-amber-400">
+                              Max reached
+                            </span>
                           )}
                         </button>
                       )
@@ -329,15 +323,17 @@ export function GroupCreationFlow({ isOpen, onClose, onGroupCreated }: GroupCrea
                 <div className="flex justify-between pt-2">
                   <button
                     onClick={goBack}
-                    className="text-slate-400 hover:text-white px-4 py-2.5 cursor-pointer transition-colors text-sm"
+                    className="cursor-pointer px-4 py-2.5 text-sm text-slate-400 transition-colors hover:text-white"
                   >
                     Back
                   </button>
                   <button
                     onClick={goNext}
                     disabled={selectedMemberIds.length === 0}
-                    className={`bg-gradient-to-r from-teal-600 to-emerald-500 text-white rounded-xl px-6 py-2.5 font-medium text-sm cursor-pointer transition-opacity ${
-                      selectedMemberIds.length === 0 ? 'opacity-40 cursor-not-allowed' : 'hover:opacity-90'
+                    className={`cursor-pointer rounded-xl bg-gradient-to-r from-teal-600 to-emerald-500 px-6 py-2.5 text-sm font-medium text-white transition-opacity ${
+                      selectedMemberIds.length === 0
+                        ? 'cursor-not-allowed opacity-40'
+                        : 'hover:opacity-90'
                     }`}
                   >
                     Next
@@ -349,29 +345,29 @@ export function GroupCreationFlow({ isOpen, onClose, onGroupCreated }: GroupCrea
             {/* ─── Step 3: Review & Create ────────────────────────── */}
             {step === 3 && (
               <div className="space-y-5">
-                <h3 className="text-lg font-semibold text-white text-center">Review group</h3>
+                <h3 className="text-center text-lg font-semibold text-white">Review group</h3>
 
                 {/* Group name */}
-                <p className="text-xl font-semibold text-white text-center">{groupName.trim()}</p>
+                <p className="text-center text-xl font-semibold text-white">{groupName.trim()}</p>
 
                 {/* Member count */}
-                <p className="text-sm text-slate-400 text-center">
+                <p className="text-center text-sm text-slate-400">
                   {selectedMemberIds.length + 1} members
                 </p>
 
                 {/* Avatar stack */}
-                <div className="flex justify-center items-center">
+                <div className="flex items-center justify-center">
                   <div className="flex items-center">
                     {selectedFriends.slice(0, 5).map((friend, i) => (
                       <img
                         key={friend.userId}
                         src={friend.avatarUrl || '/images/avatars/avatar1.jpg'}
                         alt={friend.displayName}
-                        className={`w-10 h-10 rounded-full border-2 border-[#0F1117] object-cover ${i > 0 ? '-ml-3' : ''}`}
+                        className={`h-10 w-10 rounded-full border-2 border-[#0F1117] object-cover ${i > 0 ? '-ml-3' : ''}`}
                       />
                     ))}
                     {selectedFriends.length > 5 && (
-                      <div className="w-10 h-10 rounded-full bg-white/[0.06] border-2 border-[#0F1117] -ml-3 flex items-center justify-center text-xs text-slate-400 font-medium">
+                      <div className="-ml-3 flex h-10 w-10 items-center justify-center rounded-full border-2 border-[#0F1117] bg-white/[0.06] text-xs font-medium text-slate-400">
                         +{selectedFriends.length - 5}
                       </div>
                     )}
@@ -382,19 +378,19 @@ export function GroupCreationFlow({ isOpen, onClose, onGroupCreated }: GroupCrea
                 <div className="flex justify-between pt-2">
                   <button
                     onClick={goBack}
-                    className="text-slate-400 hover:text-white px-4 py-2.5 cursor-pointer transition-colors text-sm"
+                    className="cursor-pointer px-4 py-2.5 text-sm text-slate-400 transition-colors hover:text-white"
                   >
                     Back
                   </button>
                   <button
                     onClick={handleCreate}
                     disabled={isCreating}
-                    className={`flex items-center gap-2 bg-gradient-to-r from-teal-600 to-emerald-500 text-white rounded-xl px-6 py-2.5 font-medium text-sm cursor-pointer transition-opacity ${
-                      isCreating ? 'opacity-60 cursor-not-allowed' : 'hover:opacity-90'
+                    className={`flex cursor-pointer items-center gap-2 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-500 px-6 py-2.5 text-sm font-medium text-white transition-opacity ${
+                      isCreating ? 'cursor-not-allowed opacity-60' : 'hover:opacity-90'
                     }`}
                   >
                     {isCreating ? (
-                      <span className="material-symbols-outlined text-[18px] animate-spin">
+                      <span className="material-symbols-outlined animate-spin text-[18px]">
                         progress_activity
                       </span>
                     ) : (
@@ -409,11 +405,11 @@ export function GroupCreationFlow({ isOpen, onClose, onGroupCreated }: GroupCrea
         </AnimatePresence>
 
         {/* Progress dots */}
-        <div className="flex gap-2 justify-center py-4">
+        <div className="flex justify-center gap-2 py-4">
           {[1, 2, 3].map((s) => (
             <div
               key={s}
-              className={`w-2 h-2 rounded-full transition-colors duration-200 ${
+              className={`h-2 w-2 rounded-full transition-colors duration-200 ${
                 s === step ? 'bg-teal-400' : 'bg-white/[0.1]'
               }`}
             />

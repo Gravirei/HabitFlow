@@ -17,28 +17,35 @@ useBaseTimer (shared base)
 ## 📚 Core Hooks
 
 ### useBaseTimer
+
 **File:** `useBaseTimer.ts`  
 **Purpose:** Shared timer state and methods
 
 **Provides:**
+
 - Common state: `isActive`, `isPaused`, `timerStartTime`, `pausedElapsed`
 - Shared methods: `pauseTimer()`, `continueTimer()`, `killTimer()`
 - Settings integration
 - Mode-specific hooks for customization
 
 **Usage:**
+
 ```typescript
-const baseTimer = useBaseTimer({ 
+const baseTimer = useBaseTimer({
   mode: 'Countdown',
-  onPause: () => { /* custom pause logic */ }
+  onPause: () => {
+    /* custom pause logic */
+  },
 })
 ```
 
 ### useCountdown
+
 **File:** `useCountdown.ts`  
 **Purpose:** Countdown timer with duration tracking
 
 **Features:**
+
 - Set hours, minutes, seconds
 - Auto-stop when time reaches zero
 - Completion callbacks
@@ -46,24 +53,32 @@ const baseTimer = useBaseTimer({
 - Time presets
 
 **API:**
+
 ```typescript
-const countdown = useCountdown({ 
-  onSessionComplete: (duration) => { /* save to history */ },
-  onTimerComplete: () => { /* show completion modal */ }
+const countdown = useCountdown({
+  onSessionComplete: (duration) => {
+    /* save to history */
+  },
+  onTimerComplete: () => {
+    /* show completion modal */
+  },
 })
 ```
 
 ### useStopwatch
+
 **File:** `useStopwatch.ts`  
 **Purpose:** Elapsed time tracker with lap support
 
 **Features:**
+
 - Count up from zero
 - Lap tracking with splits
 - No time limit
 - Persistence support
 
 **API:**
+
 ```typescript
 const stopwatch = useStopwatch()
 stopwatch.startTimer()
@@ -71,10 +86,12 @@ stopwatch.addLap()
 ```
 
 ### useIntervals
+
 **File:** `useIntervals.ts`  
 **Purpose:** Work/break interval timer
 
 **Features:**
+
 - Configurable work and break durations
 - Loop counting with optional target
 - Session naming
@@ -82,9 +99,12 @@ stopwatch.addLap()
 - Completion callbacks
 
 **API:**
+
 ```typescript
 const intervals = useIntervals({
-  onSessionComplete: (duration, count, name, target) => { /* save session */ }
+  onSessionComplete: (duration, count, name, target) => {
+    /* save session */
+  },
 })
 intervals.startTimer('Focus Session', 4) // 4 loops
 ```
@@ -92,10 +112,12 @@ intervals.startTimer('Focus Session', 4) // 4 loops
 ## 🔧 Supporting Hooks
 
 ### useTimerSettings
+
 **File:** `useTimerSettings.ts`  
 **Purpose:** Timer configuration and preferences
 
 **Settings:**
+
 - Sound enabled/volume
 - Vibration enabled
 - Notifications enabled
@@ -103,10 +125,12 @@ intervals.startTimer('Focus Session', 4) // 4 loops
 - Keyboard shortcuts enabled
 
 ### useTimerHistory
+
 **File:** `useTimerHistory.ts`  
 **Purpose:** Timer session history tracking
 
 **Features:**
+
 - Save completed sessions
 - Load history with filtering
 - Delete records
@@ -114,58 +138,70 @@ intervals.startTimer('Focus Session', 4) // 4 loops
 - Validation (min duration 1 second)
 
 ### useTimerPersistence
+
 **File:** `useTimerPersistence.ts`  
 **Purpose:** Save/restore timer state across page reloads
 
 **Features:**
+
 - Auto-save timer state to localStorage
 - Restore on mount
 - Clear on unmount
 - Modal to resume interrupted timers
 
 ### useTimerFocus
+
 **File:** `useTimerFocus.ts`  
 **Purpose:** Manage timer focus context
 
 **Features:**
+
 - Track which timer mode is active
 - Prevent multiple timers running
 - Route-based focus management
 
 ### useCustomPresets
+
 **File:** `useCustomPresets.ts`  
 **Purpose:** Manage custom countdown presets
 
 **Features:**
+
 - Add custom time presets
 - Edit existing presets
 - Delete presets
 - LocalStorage persistence
 
 ### useCustomIntervalPresets
+
 **File:** `useCustomIntervalPresets.ts`  
 **Purpose:** Manage custom interval presets
 
 **Features:**
+
 - Save work/break combinations
 - Named presets
 - Edit and delete
 - LocalStorage persistence
 
 ### useTimerSound
+
 **File:** `useTimerSound.ts`  
 **Purpose:** Sound effects for timer events
 
 **Features:**
+
 - Play completion sounds
 - Volume control
 - Muted state management
 
 ### useKeyboardShortcuts
+
 **File:** `useKeyboardShortcuts.ts`  
 **Purpose:** Keyboard controls for timer
 
 **Shortcuts:**
+
 - `Space`: Play/Pause
 - `K`: Kill timer
 - `R`: Reset
@@ -264,17 +300,20 @@ useTimerHistory
 ### When to use which hook?
 
 **Use `useCountdown`** when:
+
 - You need a timer that counts down to zero
 - You want to set a specific duration
 - Example: Focus session, cooking timer, workout sets
 
 **Use `useStopwatch`** when:
+
 - You need to track elapsed time
 - No specific end time required
 - You want lap tracking
 - Example: Running splits, task duration tracking
 
 **Use `useIntervals`** when:
+
 - You need alternating work/break periods
 - You want to track multiple cycles
 - Example: Pomodoro technique, HIIT workouts, study sessions
@@ -284,15 +323,15 @@ useTimerHistory
 ```typescript
 // 1. Create new hook using base timer
 export const useMyTimer = () => {
-  const baseTimer = useBaseTimer({ 
+  const baseTimer = useBaseTimer({
     mode: 'MyTimer',
     onPause: () => { /* custom pause logic */ },
     onResume: () => { /* custom resume logic */ }
   })
-  
+
   // 2. Add mode-specific state
   const [mySpecificState, setMySpecificState] = useState(...)
-  
+
   // 3. Implement mode-specific methods
   const mySpecificMethod = useCallback(() => {
     // Use baseTimer state and methods
@@ -300,7 +339,7 @@ export const useMyTimer = () => {
       // ...
     }
   }, [baseTimer])
-  
+
   // 4. Return combined API
   return {
     ...baseTimer,
@@ -313,23 +352,25 @@ export const useMyTimer = () => {
 ## 🐛 Common Issues & Solutions
 
 ### Issue: Timer loses accuracy over time
+
 **Solution:** Use `getCurrentTime()` from `useBaseTimer` for wall-clock timing instead of incrementing counters.
 
 ### Issue: Timer state lost on page reload
+
 **Solution:** Use `useTimerPersistence` to auto-save/restore state.
 
 ### Issue: Multiple timers running simultaneously
+
 **Solution:** Use `useTimerFocus` to manage timer exclusivity.
 
 ### Issue: Tests failing with fake timers
+
 **Solution:** `getCurrentTime()` helper automatically detects and uses vitest's fake timers.
 
 ## 📖 Further Reading
 
-- [Timer Refactoring Summary](../../../TIMER_MD/TIMER_REFACTORING_SUMMARY.md) - Complete architecture documentation
-- [Timer Analysis](../../../TIMER_MD/TIMER_REFACTORING_ANALYSIS.md) - Original refactoring analysis
-- [Error Handling](../../../TIMER_MD/ERROR_HANDLING_IMPLEMENTATION.md) - Error handling patterns
-- [Testing Guide](../../../TIMER_MD/TEST_IMPLEMENTATION_COMPLETE.md) - Comprehensive test documentation
+- [Timer Architecture](../../../docs/ARCHITECTURE.md) — overall architecture guide
+- [Contributing Guide](../../../CONTRIBUTING.md) — workflow and conventions
 
 ---
 

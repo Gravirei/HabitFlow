@@ -292,18 +292,14 @@ export function CreateCategoryModal({ isOpen, onClose, onCreated }: CreateCatego
                 <div>
                   <GradientPicker
                     value={gradient}
-                    onChange={(g) => setGradient(g ?? '')}
+                    onChange={(v) => setGradient(v ?? '')}
                     label="Gradient (optional)"
                   />
                 </div>
 
                 {/* Image (Optional) */}
                 <div>
-                  <ImagePicker
-                    value={imagePath}
-                    onChange={(p) => setImagePath(p ?? '')}
-                    label="Image (optional)"
-                  />
+                  <ImagePicker value={imagePath} onChange={(v) => setImagePath(v ?? '')} label="Image (optional)" />
                 </div>
 
                 {/* Height */}

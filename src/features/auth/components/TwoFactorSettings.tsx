@@ -1,7 +1,13 @@
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import DOMPurify from 'dompurify'
-import { challengeFactor, enrollTotp, listFactors, unenrollFactor, verifyFactor } from '@/lib/auth/mfa'
+import {
+  challengeFactor,
+  enrollTotp,
+  listFactors,
+  unenrollFactor,
+  verifyFactor,
+} from '@/lib/auth/mfa'
 
 export function TwoFactorSettings() {
   const [isLoading, setIsLoading] = useState(false)
@@ -31,26 +37,38 @@ export function TwoFactorSettings() {
   useEffect(() => {
     const mounted = { current: true }
     refresh(mounted)
-    return () => { mounted.current = false }
+    return () => {
+      mounted.current = false
+    }
   }, [])
 
   const hasTotp = factors.length > 0
 
   return (
     <div className="py-4">
-      <h3 className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider mb-3">SECURITY</h3>
+      <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+        SECURITY
+      </h3>
 
       <div className="space-y-3">
-        <div className="rounded-lg bg-white dark:bg-card-dark p-4">
+        <div className="dark:bg-card-dark rounded-lg bg-white p-4">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="text-slate-900 dark:text-white font-semibold">Two-factor authentication (2FA)</p>
-              <p className="text-slate-500 dark:text-slate-400 text-sm">
+              <p className="font-semibold text-slate-900 dark:text-white">
+                Two-factor authentication (2FA)
+              </p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">
                 Add an extra layer of protection using an authenticator app (TOTP).
               </p>
               <p className="mt-2 text-sm">
                 Status:{' '}
-                <span className={hasTotp ? 'text-green-600 dark:text-green-400 font-semibold' : 'text-slate-600 dark:text-slate-300'}>
+                <span
+                  className={
+                    hasTotp
+                      ? 'font-semibold text-green-600 dark:text-green-400'
+                      : 'text-slate-600 dark:text-slate-300'
+                  }
+                >
                   {hasTotp ? 'Enabled' : 'Not enabled'}
                 </span>
               </p>
@@ -82,7 +100,7 @@ export function TwoFactorSettings() {
                     setIsLoading(false)
                   }
                 }}
-                className="rounded-full bg-red-50 dark:bg-red-900/20 px-4 py-2 text-sm font-semibold text-red-600 dark:text-red-400"
+                className="rounded-full bg-red-50 px-4 py-2 text-sm font-semibold text-red-600 dark:bg-red-900/20 dark:text-red-400"
               >
                 Disable
               </button>
@@ -121,29 +139,38 @@ export function TwoFactorSettings() {
           </div>
 
           {enrollData && !hasTotp && (
-            <div className="mt-4 rounded-xl bg-slate-50 dark:bg-slate-900 p-4">
-              <p className="text-sm text-slate-700 dark:text-slate-300 font-semibold mb-2">Step 1: Scan QR code</p>
+            <div className="mt-4 rounded-xl bg-slate-50 p-4 dark:bg-slate-900">
+              <p className="mb-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
+                Step 1: Scan QR code
+              </p>
               <div className="flex items-center justify-center rounded-lg bg-white p-3">
                 {/* Supabase returns SVG string in qr_code - sanitized to prevent XSS */}
                 <div
-                  className="w-40 h-40"
-                  dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(enrollData.qr_code, { USE_PROFILES: { svg: true, svgFilters: true } }) }}
+                  className="h-40 w-40"
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(enrollData.qr_code, {
+                      USE_PROFILES: { svg: true, svgFilters: true },
+                    }),
+                  }}
                 />
               </div>
 
               <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">
-                Or manually enter this secret: <span className="font-mono">{enrollData.secret}</span>
+                Or manually enter this secret:{' '}
+                <span className="font-mono">{enrollData.secret}</span>
               </p>
 
               <div className="mt-4">
-                <p className="text-sm text-slate-700 dark:text-slate-300 font-semibold mb-2">Step 2: Enter 6-digit code</p>
+                <p className="mb-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
+                  Step 2: Enter 6-digit code
+                </p>
                 <div className="flex gap-2">
                   <input
                     value={code}
                     onChange={(e) => setCode(e.target.value)}
                     placeholder="123456"
                     inputMode="numeric"
-                    className="flex-1 rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-slate-900 dark:text-white"
+                    className="flex-1 rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                   />
                   <button
                     type="button"

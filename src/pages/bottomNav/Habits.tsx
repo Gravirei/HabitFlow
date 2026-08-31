@@ -1,9 +1,9 @@
 import { useState, useMemo, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
-import { useNavigate } from 'react-router-dom'
 import { format } from 'date-fns'
 import { useHabitStore } from '@/store/useHabitStore'
 import { useHabitTaskStore } from '@/store/useHabitTaskStore'
+import { useNewHabitModalStore } from '@/store/useNewHabitModalStore'
 
 import { HabitTasksModal } from '@/features/categories/components/HabitTasksModal'
 import { HabitTaskCompletionModal } from '@/features/habits/components/HabitTaskCompletionModal'
@@ -167,7 +167,7 @@ function formatDate(): string {
    ───────────────────────────────────────────── */
 
 export function Habits() {
-  const navigate = useNavigate()
+  const openNewHabit = useNewHabitModalStore((s) => s.open)
   const { habits, toggleHabitCompletion, archiveHabit, pinHabit, unpinHabit, hideHabitForToday } =
     useHabitStore()
   const { getTaskCount, tasks: habitTasks, updateTask } = useHabitTaskStore()
@@ -604,7 +604,7 @@ export function Habits() {
               <EmptyState
                 searchQuery={searchQuery}
                 activeTab={activeTab}
-                onCreateHabit={() => navigate(`/new-habit?frequency=${activeTab}`)}
+                onCreateHabit={() => openNewHabit({ defaultFrequency: activeTab })}
               />
             ) : (
               <HabitList
@@ -662,21 +662,21 @@ export function Habits() {
                 {
                   label: 'Monthly',
                   icon: 'calendar_month',
-                  freq: 'monthly',
+                  freq: 'monthly' as const,
                   color: 'from-blue-500 to-blue-600',
                   delay: 0.1,
                 },
                 {
                   label: 'Weekly',
                   icon: 'date_range',
-                  freq: 'weekly',
+                  freq: 'weekly' as const,
                   color: 'from-purple-500 to-purple-600',
                   delay: 0.05,
                 },
                 {
                   label: 'Daily',
                   icon: 'today',
-                  freq: 'daily',
+                  freq: 'daily' as const,
                   color: 'from-teal-500 to-teal-600',
                   delay: 0,
                 },
@@ -687,7 +687,10 @@ export function Habits() {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 16, scale: 0.85 }}
                   transition={{ delay: item.delay }}
-                  onClick={() => navigate(`/new-habit?frequency=${item.freq}`)}
+                  onClick={() => {
+                    setIsFabOpen(false)
+                    openNewHabit({ defaultFrequency: item.freq })
+                  }}
                   className="flex cursor-pointer items-center gap-3 rounded-2xl border border-gray-100 bg-white py-2.5 pl-3 pr-5 shadow-xl dark:border-white/10 dark:bg-gray-800"
                 >
                   <div

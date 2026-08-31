@@ -1,10 +1,8 @@
-// @ts-nocheck
 /**
  * Achievement Toast Component
  * Toast notification for newly unlocked achievements
  */
 
-import React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import type { Achievement } from './types'
 import { getRarityColor, getRarityLabel } from './achievementTracking'
@@ -30,14 +28,11 @@ export function AchievementToast({ achievement, onClose }: AchievementToastProps
           damping: 20,
           stiffness: 300,
         }}
-        className="fixed top-4 left-1/2 -translate-x-1/2 z-[300] max-w-md w-full mx-4"
+        className="fixed left-1/2 top-4 z-[300] mx-4 w-full max-w-md -translate-x-1/2"
         onClick={onClose}
       >
         <div
-          className={`
-            relative overflow-hidden rounded-2xl shadow-2xl cursor-pointer
-            bg-gradient-to-br ${getRarityColor(rarity)}
-          `}
+          className={`relative cursor-pointer overflow-hidden rounded-2xl bg-gradient-to-br shadow-2xl ${getRarityColor(rarity)} `}
         >
           {/* Shine Animation */}
           <motion.div
@@ -49,7 +44,7 @@ export function AchievementToast({ achievement, onClose }: AchievementToastProps
               repeatDelay: 3,
               ease: 'easeInOut',
             }}
-            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent pointer-events-none"
+            className="pointer-events-none absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
             style={{ transform: 'skewX(-20deg)' }}
           />
 
@@ -64,31 +59,27 @@ export function AchievementToast({ achievement, onClose }: AchievementToastProps
                   damping: 15,
                   delay: 0.1,
                 }}
-                className="size-14 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0"
+                className="flex size-14 flex-shrink-0 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm"
               >
-                <span className="material-symbols-outlined text-white text-[32px]">
-                  {icon}
-                </span>
+                <span className="material-symbols-outlined text-[32px] text-white">{icon}</span>
               </motion.div>
 
               {/* Content */}
-              <div className="flex-1 min-w-0">
+              <div className="min-w-0 flex-1">
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.2 }}
                 >
-                  <div className="flex items-center gap-2 mb-1">
+                  <div className="mb-1 flex items-center gap-2">
                     <span className="text-xs font-bold uppercase tracking-wider text-white/80">
                       Achievement Unlocked!
                     </span>
-                    <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-white/20 text-white">
+                    <span className="rounded-full bg-white/20 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white">
                       {getRarityLabel(rarity)}
                     </span>
                   </div>
-                  <h3 className="font-bold text-white text-base leading-tight">
-                    {name}
-                  </h3>
+                  <h3 className="text-base font-bold leading-tight text-white">{name}</h3>
                 </motion.div>
               </div>
 
@@ -102,7 +93,7 @@ export function AchievementToast({ achievement, onClose }: AchievementToastProps
                   delay: 0.3,
                 }}
               >
-                <span className="material-symbols-outlined text-white text-[24px]">
+                <span className="material-symbols-outlined text-[24px] text-white">
                   emoji_events
                 </span>
               </motion.div>
@@ -113,7 +104,7 @@ export function AchievementToast({ achievement, onClose }: AchievementToastProps
               initial={{ scaleX: 0 }}
               animate={{ scaleX: 1 }}
               transition={{ duration: 5, ease: 'linear' }}
-              className="absolute bottom-0 left-0 right-0 h-1 bg-white/30 origin-left"
+              className="absolute bottom-0 left-0 right-0 h-1 origin-left bg-white/30"
             />
           </div>
         </div>

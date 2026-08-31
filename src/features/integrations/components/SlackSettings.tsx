@@ -15,8 +15,6 @@ export function SlackSettings() {
   const [testMessageLoading, setTestMessageLoading] = useState(false)
   const [showAdvanced, setShowAdvanced] = useState(false)
 
-  // Settings are persisted JSON of unknown shape; fields are individually
-  // guarded with defaults where consumed below.
   const settings = (connection.settings || {}) as unknown as SlackSettingsType
 
   // Fetch channels when connected

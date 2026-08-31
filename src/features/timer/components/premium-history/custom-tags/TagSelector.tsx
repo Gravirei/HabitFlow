@@ -1,11 +1,9 @@
-// @ts-nocheck
 /**
  * Tag Selector Component
  * Quick tag selection for sessions
  */
 
-import React, { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useState } from 'react'
 import { useTagStore } from '@/features/timer/store/tagStore'
 
 interface TagSelectorProps {
@@ -31,7 +29,7 @@ export function TagSelector({ sessionId, onClose }: TagSelectorProps) {
   }
 
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 shadow-xl border border-slate-200 dark:border-slate-800">
+    <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xl dark:border-slate-800 dark:bg-slate-900">
       {/* Search */}
       <div className="mb-3">
         <input
@@ -39,14 +37,14 @@ export function TagSelector({ sessionId, onClose }: TagSelectorProps) {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Search tags..."
-          className="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-pink-500 text-sm"
+          className="w-full rounded-lg border border-slate-200 bg-slate-100 px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-pink-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
         />
       </div>
 
       {/* Tags List */}
-      <div className="max-h-60 overflow-y-auto space-y-1">
+      <div className="max-h-60 space-y-1 overflow-y-auto">
         {filteredTags.length === 0 ? (
-          <p className="text-sm text-slate-500 dark:text-slate-500 text-center py-4">
+          <p className="py-4 text-center text-sm text-slate-500 dark:text-slate-500">
             No tags found
           </p>
         ) : (
@@ -56,14 +54,16 @@ export function TagSelector({ sessionId, onClose }: TagSelectorProps) {
               <button
                 key={tag.id}
                 onClick={() => handleToggleTag(tag.id)}
-                className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg transition-all ${
+                className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 transition-all ${
                   isSelected
                     ? 'bg-slate-100 dark:bg-slate-800'
                     : 'hover:bg-slate-50 dark:hover:bg-slate-800/50'
                 }`}
               >
-                <div className={`w-6 h-6 rounded-md ${tag.color} flex items-center justify-center shrink-0`}>
-                  <span className="material-symbols-outlined text-white text-xs">
+                <div
+                  className={`h-6 w-6 rounded-md ${tag.color} flex shrink-0 items-center justify-center`}
+                >
+                  <span className="material-symbols-outlined text-xs text-white">
                     {tag.icon || 'label'}
                   </span>
                 </div>
@@ -71,7 +71,7 @@ export function TagSelector({ sessionId, onClose }: TagSelectorProps) {
                   {tag.name}
                 </span>
                 {isSelected && (
-                  <span className="material-symbols-outlined text-pink-500 text-lg">check</span>
+                  <span className="material-symbols-outlined text-lg text-pink-500">check</span>
                 )}
               </button>
             )
@@ -81,10 +81,10 @@ export function TagSelector({ sessionId, onClose }: TagSelectorProps) {
 
       {/* Footer */}
       {onClose && (
-        <div className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-800">
+        <div className="mt-3 border-t border-slate-200 pt-3 dark:border-slate-800">
           <button
             onClick={onClose}
-            className="w-full py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg text-sm font-medium hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+            className="w-full rounded-lg bg-slate-100 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
           >
             Done
           </button>

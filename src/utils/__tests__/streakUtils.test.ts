@@ -1,9 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import {
-  calculateCurrentStreak,
-  calculateBestStreak,
-  calculateStreaks,
-} from '@/utils/streakUtils'
+import { calculateCurrentStreak, calculateBestStreak, calculateStreaks } from '@/utils/streakUtils'
 import { subDays, format } from 'date-fns'
 
 // Helper: returns 'yyyy-MM-dd' for N days ago relative to a fixed "today"
@@ -30,7 +26,13 @@ describe('calculateCurrentStreak', () => {
   })
 
   it('counts consecutive days including today', () => {
-    const dates = [daysAgo(0, TODAY), daysAgo(1, TODAY), daysAgo(2, TODAY), daysAgo(3, TODAY), daysAgo(4, TODAY)]
+    const dates = [
+      daysAgo(0, TODAY),
+      daysAgo(1, TODAY),
+      daysAgo(2, TODAY),
+      daysAgo(3, TODAY),
+      daysAgo(4, TODAY),
+    ]
     expect(calculateCurrentStreak(dates, TODAY)).toBe(5)
   })
 
@@ -80,9 +82,15 @@ describe('calculateBestStreak', () => {
   it('finds the longest consecutive run', () => {
     // Run of 3, gap, run of 5
     const dates = [
-      '2026-01-01', '2026-01-02', '2026-01-03', // 3-day run
+      '2026-01-01',
+      '2026-01-02',
+      '2026-01-03', // 3-day run
       // gap on Jan 4
-      '2026-01-05', '2026-01-06', '2026-01-07', '2026-01-08', '2026-01-09', // 5-day run
+      '2026-01-05',
+      '2026-01-06',
+      '2026-01-07',
+      '2026-01-08',
+      '2026-01-09', // 5-day run
     ]
     expect(calculateBestStreak(dates)).toBe(5)
   })
@@ -108,8 +116,14 @@ describe('calculateStreaks (combined)', () => {
     // Historical best: 5 days in January
     // Current: 3 days ending today
     const dates = [
-      '2026-01-10', '2026-01-11', '2026-01-12', '2026-01-13', '2026-01-14', // 5-day best
-      daysAgo(2, TODAY), daysAgo(1, TODAY), daysAgo(0, TODAY), // current 3-day
+      '2026-01-10',
+      '2026-01-11',
+      '2026-01-12',
+      '2026-01-13',
+      '2026-01-14', // 5-day best
+      daysAgo(2, TODAY),
+      daysAgo(1, TODAY),
+      daysAgo(0, TODAY), // current 3-day
     ]
     const result = calculateStreaks(dates, TODAY)
     expect(result.currentStreak).toBe(3)
@@ -127,13 +141,20 @@ describe('calculateStreaks (combined)', () => {
   it('uncompleting today shows previous streak, not 0', () => {
     // Before: 5-day streak (today + 4 previous days) → currentStreak = 5
     const beforeUncomplete = [
-      daysAgo(0, TODAY), daysAgo(1, TODAY), daysAgo(2, TODAY), daysAgo(3, TODAY), daysAgo(4, TODAY),
+      daysAgo(0, TODAY),
+      daysAgo(1, TODAY),
+      daysAgo(2, TODAY),
+      daysAgo(3, TODAY),
+      daysAgo(4, TODAY),
     ]
     expect(calculateStreaks(beforeUncomplete, TODAY).currentStreak).toBe(5)
 
     // After: user uncompletes today → remove today → should be 4, NOT 0
     const afterUncomplete = [
-      daysAgo(1, TODAY), daysAgo(2, TODAY), daysAgo(3, TODAY), daysAgo(4, TODAY),
+      daysAgo(1, TODAY),
+      daysAgo(2, TODAY),
+      daysAgo(3, TODAY),
+      daysAgo(4, TODAY),
     ]
     expect(calculateStreaks(afterUncomplete, TODAY).currentStreak).toBe(4)
   })

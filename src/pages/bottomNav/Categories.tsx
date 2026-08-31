@@ -43,6 +43,7 @@ import {
 import type { CategoryTemplatePack } from '@/types/categoryTemplate'
 import { ConfirmDialog } from '@/shared/ui/ConfirmDialog'
 import { useCategoryStore } from '@/store/useCategoryStore'
+import { GENERAL_CATEGORY_ID } from '@/constants/defaultCategories'
 import { useHabitStore } from '@/store/useHabitStore'
 import { useTaskStore } from '@/store/useTaskStore'
 import type { Category as StoreCategory } from '@/types/category'
@@ -187,7 +188,8 @@ export function Categories() {
   const { togglePinned, deleteCategory, reorderCategories, addCategory } = useCategoryStore()
 
   const habits = useHabitStore((state) => state.habits)
-  const { isHabitCompletedToday, clearCategoryFromHabits, getHabitsByCategory, addHabit } = useHabitStore()
+  const { isHabitCompletedToday, clearCategoryFromHabits, getHabitsByCategory, addHabit } =
+    useHabitStore()
 
   const tasks = useTaskStore((state) => state.tasks)
   const clearCategoryFromTasks = useTaskStore((state) => state.clearCategoryFromTasks)
@@ -241,7 +243,10 @@ export function Categories() {
     })
 
     if (importedCount > 0) {
-      const totalHabits = Object.values(selectedHabits).reduce((sum, habits) => sum + habits.length, 0)
+      const totalHabits = Object.values(selectedHabits).reduce(
+        (sum, habits) => sum + habits.length,
+        0
+      )
       toast.success(
         `✅ Imported ${importedCount} ${importedCount === 1 ? 'category' : 'categories'} with ${totalHabits} ${totalHabits === 1 ? 'habit' : 'habits'}!`
       )
@@ -251,16 +256,6 @@ export function Categories() {
   const orderedCategories = useMemo(() => {
     return [...categories].sort((a, b) => a.order - b.order)
   }, [categories])
-
-  const pinnedStoreCategories = useMemo(
-    () => orderedCategories.filter((category) => category.isPinned),
-    [orderedCategories]
-  )
-
-  const unpinnedStoreCategories = useMemo(
-    () => orderedCategories.filter((category) => !category.isPinned),
-    [orderedCategories]
-  )
 
   const derivedStatsByCategoryId = useMemo(() => {
     const map = new Map<
@@ -314,62 +309,89 @@ export function Categories() {
     return map
   }, [orderedCategories, habits, tasks, isHabitCompletedToday])
 
+  // The built-in General category stays hidden until it actually holds habits.
+  const visibleStoreCategories = useMemo(
+    () =>
+      orderedCategories.filter(
+        (category) =>
+          category.id !== GENERAL_CATEGORY_ID ||
+          (derivedStatsByCategoryId.get(GENERAL_CATEGORY_ID)?.habitCount ?? 0) > 0
+      ),
+    [orderedCategories, derivedStatsByCategoryId]
+  )
+
+  const pinnedStoreCategories = useMemo(
+    () => visibleStoreCategories.filter((category) => category.isPinned),
+    [visibleStoreCategories]
+  )
+
+  const unpinnedStoreCategories = useMemo(
+    () => visibleStoreCategories.filter((category) => !category.isPinned),
+    [visibleStoreCategories]
+  )
+
   const deferredSearchQuery = useDeferredValue(searchQuery)
 
   const normalizedSearchQuery = useMemo(() => {
     return deferredSearchQuery.trim().toLocaleLowerCase()
   }, [deferredSearchQuery])
 
-  const matchesSearchQuery = useCallback((category: StoreCategory) => {
-    if (!normalizedSearchQuery) return true
-    return category.name.toLocaleLowerCase().includes(normalizedSearchQuery)
-  }, [normalizedSearchQuery])
+  const matchesSearchQuery = useCallback(
+    (category: StoreCategory) => {
+      if (!normalizedSearchQuery) return true
+      return category.name.toLocaleLowerCase().includes(normalizedSearchQuery)
+    },
+    [normalizedSearchQuery]
+  )
 
-  const sortCategories = useCallback((values: StoreCategory[]) => {
-    const next = [...values]
+  const sortCategories = useCallback(
+    (values: StoreCategory[]) => {
+      const next = [...values]
 
-    const statFor = (category: StoreCategory) =>
-      derivedStatsByCategoryId.get(category.id) ?? {
-        habitCount: 0,
-        taskCount: 0,
-        completedToday: 0,
-        completionTodayPct: 0,
-      }
-
-    next.sort((a, b) => {
-      const nameCmp = a.name.localeCompare(b.name)
-
-      switch (sort) {
-        case 'name':
-          return nameCmp
-        case 'mostUsed': {
-          // Phase 5 decision (Option A): "Most used" reflects combined usage (habits + tasks).
-          const diff =
-            statFor(b).habitCount +
-            statFor(b).taskCount -
-            (statFor(a).habitCount + statFor(a).taskCount)
-          return diff !== 0 ? diff : nameCmp
+      const statFor = (category: StoreCategory) =>
+        derivedStatsByCategoryId.get(category.id) ?? {
+          habitCount: 0,
+          taskCount: 0,
+          completedToday: 0,
+          completionTodayPct: 0,
         }
-        case 'completionToday': {
-          const diff = statFor(b).completionTodayPct - statFor(a).completionTodayPct
-          return diff !== 0 ? diff : nameCmp
-        }
-        case 'favorites': {
-          // Sort pinned first, then unpinned, within each group alphabetically
-          if (a.isPinned && !b.isPinned) return -1
-          if (!a.isPinned && b.isPinned) return 1
-          return nameCmp
-        }
-        case 'order':
-        default: {
-          const diff = a.order - b.order
-          return diff !== 0 ? diff : nameCmp
-        }
-      }
-    })
 
-    return next
-  }, [sort, derivedStatsByCategoryId])
+      next.sort((a, b) => {
+        const nameCmp = a.name.localeCompare(b.name)
+
+        switch (sort) {
+          case 'name':
+            return nameCmp
+          case 'mostUsed': {
+            // Phase 5 decision (Option A): "Most used" reflects combined usage (habits + tasks).
+            const diff =
+              statFor(b).habitCount +
+              statFor(b).taskCount -
+              (statFor(a).habitCount + statFor(a).taskCount)
+            return diff !== 0 ? diff : nameCmp
+          }
+          case 'completionToday': {
+            const diff = statFor(b).completionTodayPct - statFor(a).completionTodayPct
+            return diff !== 0 ? diff : nameCmp
+          }
+          case 'favorites': {
+            // Sort pinned first, then unpinned, within each group alphabetically
+            if (a.isPinned && !b.isPinned) return -1
+            if (!a.isPinned && b.isPinned) return 1
+            return nameCmp
+          }
+          case 'order':
+          default: {
+            const diff = a.order - b.order
+            return diff !== 0 ? diff : nameCmp
+          }
+        }
+      })
+
+      return next
+    },
+    [sort, derivedStatsByCategoryId]
+  )
 
   const filteredPinnedStoreCategories = useMemo(() => {
     return sortCategories(
@@ -483,6 +505,11 @@ export function Categories() {
 
   const handleConfirmDelete = () => {
     if (!deleteCategoryId) return
+    if (deleteCategoryId === GENERAL_CATEGORY_ID) {
+      toast.error("The General category can't be deleted.")
+      setDeleteCategoryId(null)
+      return
+    }
     clearCategoryFromHabits(deleteCategoryId)
     clearCategoryFromTasks(deleteCategoryId)
     deleteCategory(deleteCategoryId)
@@ -508,7 +535,7 @@ export function Categories() {
       </div>
 
       {/* Header - Consistent with Habits Page */}
-      <header className="sticky top-0 z-50 flex shrink-0 flex-col gap-4 border-b border-gray-200/50 bg-background-light/80 p-4 pb-2 backdrop-blur-xl transition-all dark:border-white/5 dark:bg-background-dark/80 pt-safe">
+      <header className="pt-safe sticky top-0 z-50 flex shrink-0 flex-col gap-4 border-b border-gray-200/50 bg-background-light/80 p-4 pb-2 backdrop-blur-xl transition-all dark:border-white/5 dark:bg-background-dark/80">
         <div className="mx-auto flex w-full max-w-7xl flex-col gap-4">
           <div className="flex h-12 items-center justify-between">
             <div className="flex shrink-0 items-center gap-2">
@@ -800,7 +827,7 @@ export function Categories() {
                               <div className="absolute -right-12 -top-12 h-40 w-40 rounded-full bg-white/10 blur-3xl transition-transform duration-700 group-hover:scale-150 group-hover:bg-white/20" />
                             </>
                           )}
-                          
+
                           {/* Dark gradient overlay for image cards */}
                           {category.imagePath && (
                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
@@ -1321,45 +1348,47 @@ function CategoryCard({
             category.height
           )}
         >
-        {/* Inner wrapper for overflow control - keeps image contained */}
-        <div className="absolute inset-0 overflow-hidden rounded-3xl">
-          {/* Background Image or Gradient */}
-          {category.imagePath ? (
-            <img
-              src={category.imagePath}
-              alt=""
-              className="absolute inset-0 h-full w-full object-cover"
-              loading="lazy"
-            />
-          ) : (
-            category.gradient && (
-              <div className={`absolute inset-0 bg-gradient-to-br ${category.gradient}`} />
-            )
-          )}
-
-          {/* Dark gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
-        </div>
-
-        {/* Quick actions - rendered after overlay so it appears on top */}
-        {quickActions}
-
-        {/* Category icon */}
-        <div className="relative z-10 mb-auto">
-          <div
-            className={clsx(
-              'inline-flex rounded-2xl p-3 backdrop-blur-md transition-transform duration-300 group-hover:rotate-6',
-              category.color === 'primary' ? 'bg-primary/20 text-primary' : 'bg-white/20 text-white'
+          {/* Inner wrapper for overflow control - keeps image contained */}
+          <div className="absolute inset-0 overflow-hidden rounded-3xl">
+            {/* Background Image or Gradient */}
+            {category.imagePath ? (
+              <img
+                src={category.imagePath}
+                alt=""
+                className="absolute inset-0 h-full w-full object-cover"
+                loading="lazy"
+              />
+            ) : (
+              category.gradient && (
+                <div className={`absolute inset-0 bg-gradient-to-br ${category.gradient}`} />
+              )
             )}
-          >
-            <span className="material-symbols-outlined text-2xl">{category.icon}</span>
-          </div>
-        </div>
 
-        <div className="relative z-10 text-white">
-          <h3 className="text-xl font-bold drop-shadow-md">{category.name}</h3>
-          <p className="text-sm font-medium opacity-90">{category.count}</p>
-        </div>
+            {/* Dark gradient overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
+          </div>
+
+          {/* Quick actions - rendered after overlay so it appears on top */}
+          {quickActions}
+
+          {/* Category icon */}
+          <div className="relative z-10 mb-auto">
+            <div
+              className={clsx(
+                'inline-flex rounded-2xl p-3 backdrop-blur-md transition-transform duration-300 group-hover:rotate-6',
+                category.color === 'primary'
+                  ? 'bg-primary/20 text-primary'
+                  : 'bg-white/20 text-white'
+              )}
+            >
+              <span className="material-symbols-outlined text-2xl">{category.icon}</span>
+            </div>
+          </div>
+
+          <div className="relative z-10 text-white">
+            <h3 className="text-xl font-bold drop-shadow-md">{category.name}</h3>
+            <p className="text-sm font-medium opacity-90">{category.count}</p>
+          </div>
         </Wrapper>
       </motion.div>
     )
@@ -1380,37 +1409,64 @@ function CategoryCard({
           category.height
         )}
       >
-      {quickActions}
-      {category.type === 'progress' && (
-        <div className="flex flex-col items-center gap-4 text-center">
-          <div
-            className={clsx(
-              'mb-1 flex h-16 w-16 items-center justify-center rounded-2xl ring-1 transition-transform duration-300 group-hover:scale-110',
-              colors.bg,
-              colors.text,
-              colors.ring
-            )}
-          >
-            <span className="material-symbols-outlined text-3xl">{category.icon}</span>
-          </div>
-          <div className="relative z-10">
-            <h3 className="text-lg font-bold text-slate-800 dark:text-white">{category.name}</h3>
-            <p className="mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">
-              {category.count}
-            </p>
-          </div>
-          <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-white/10">
-            <div className={clsx('h-full w-3/4 rounded-full', colors.bar)}></div>
-          </div>
-        </div>
-      )}
-
-      {category.type === 'simple' && (
-        <div className="flex h-full flex-col justify-between">
-          <div className="absolute right-0 top-0 p-4">
+        {quickActions}
+        {category.type === 'progress' && (
+          <div className="flex flex-col items-center gap-4 text-center">
             <div
               className={clsx(
-                'flex h-12 w-12 items-center justify-center rounded-2xl ring-1 transition-transform duration-300 group-hover:rotate-12',
+                'mb-1 flex h-16 w-16 items-center justify-center rounded-2xl ring-1 transition-transform duration-300 group-hover:scale-110',
+                colors.bg,
+                colors.text,
+                colors.ring
+              )}
+            >
+              <span className="material-symbols-outlined text-3xl">{category.icon}</span>
+            </div>
+            <div className="relative z-10">
+              <h3 className="text-lg font-bold text-slate-800 dark:text-white">{category.name}</h3>
+              <p className="mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">
+                {category.count}
+              </p>
+            </div>
+            <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-white/10">
+              <div className={clsx('h-full w-3/4 rounded-full', colors.bar)}></div>
+            </div>
+          </div>
+        )}
+
+        {category.type === 'simple' && (
+          <div className="flex h-full flex-col justify-between">
+            <div className="absolute right-0 top-0 p-4">
+              <div
+                className={clsx(
+                  'flex h-12 w-12 items-center justify-center rounded-2xl ring-1 transition-transform duration-300 group-hover:rotate-12',
+                  colors.bg,
+                  colors.text,
+                  colors.ring
+                )}
+              >
+                <span className="material-symbols-outlined text-2xl">{category.icon}</span>
+              </div>
+            </div>
+            <div className="mt-auto">
+              <h3 className="text-xl font-bold text-slate-800 dark:text-white">{category.name}</h3>
+              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                {category.count}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {category.type === 'icon-bg' && (
+          <div className="flex h-full flex-col justify-between">
+            <div className="absolute right-0 top-0 p-4 opacity-50 transition-opacity duration-300 group-hover:opacity-100">
+              <span className="material-symbols-outlined pointer-events-none absolute -right-8 -top-8 rotate-12 transform text-[7rem] text-slate-900/5 dark:text-white/5">
+                {category.icon}
+              </span>
+            </div>
+            <div
+              className={clsx(
+                'relative z-10 flex h-12 w-12 items-center justify-center rounded-2xl ring-1',
                 colors.bg,
                 colors.text,
                 colors.ring
@@ -1418,154 +1474,127 @@ function CategoryCard({
             >
               <span className="material-symbols-outlined text-2xl">{category.icon}</span>
             </div>
+            <div className="relative z-10 mt-auto pt-4">
+              <h3 className="text-lg font-bold text-slate-800 dark:text-white">{category.name}</h3>
+              <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                {category.count}
+              </p>
+            </div>
           </div>
-          <div className="mt-auto">
-            <h3 className="text-xl font-bold text-slate-800 dark:text-white">{category.name}</h3>
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
-              {category.count}
-            </p>
-          </div>
-        </div>
-      )}
+        )}
 
-      {category.type === 'icon-bg' && (
-        <div className="flex h-full flex-col justify-between">
-          <div className="absolute right-0 top-0 p-4 opacity-50 transition-opacity duration-300 group-hover:opacity-100">
-            <span className="material-symbols-outlined pointer-events-none absolute -right-8 -top-8 rotate-12 transform text-[7rem] text-slate-900/5 dark:text-white/5">
-              {category.icon}
-            </span>
-          </div>
-          <div
-            className={clsx(
-              'relative z-10 flex h-12 w-12 items-center justify-center rounded-2xl ring-1',
-              colors.bg,
-              colors.text,
-              colors.ring
-            )}
-          >
-            <span className="material-symbols-outlined text-2xl">{category.icon}</span>
-          </div>
-          <div className="relative z-10 mt-auto pt-4">
-            <h3 className="text-lg font-bold text-slate-800 dark:text-white">{category.name}</h3>
-            <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
-              {category.count}
-            </p>
-          </div>
-        </div>
-      )}
-
-      {category.type === 'list' && (
-        <div className="flex h-full flex-col justify-between">
-          <div
-            className={clsx(
-              'mb-4 flex h-12 w-12 items-center justify-center rounded-2xl ring-1',
-              colors.bg,
-              colors.text,
-              colors.ring
-            )}
-          >
-            <span className="material-symbols-outlined text-2xl">{category.icon}</span>
-          </div>
-          <div>
-            <h3 className="mb-2 text-2xl font-bold leading-tight text-slate-800 dark:text-white">
-              {category.name.split(' ').map((word, i) => (
-                <span key={i} className="block">
-                  {word}
-                </span>
-              ))}
-            </h3>
-            <p className="mb-4 text-xs font-medium text-slate-500 dark:text-slate-400">
-              {category.count}
-            </p>
-            <div className="flex -space-x-2 overflow-hidden pl-1">
-              <div className="inline-block h-8 w-8 rounded-full bg-slate-200 ring-2 ring-white dark:bg-slate-700 dark:ring-slate-800"></div>
-              <div className="inline-block h-8 w-8 rounded-full bg-slate-300 ring-2 ring-white dark:bg-slate-600 dark:ring-slate-800"></div>
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-400 text-[10px] font-bold text-white ring-2 ring-white dark:bg-slate-500 dark:ring-slate-800">
-                +2
+        {category.type === 'list' && (
+          <div className="flex h-full flex-col justify-between">
+            <div
+              className={clsx(
+                'mb-4 flex h-12 w-12 items-center justify-center rounded-2xl ring-1',
+                colors.bg,
+                colors.text,
+                colors.ring
+              )}
+            >
+              <span className="material-symbols-outlined text-2xl">{category.icon}</span>
+            </div>
+            <div>
+              <h3 className="mb-2 text-2xl font-bold leading-tight text-slate-800 dark:text-white">
+                {category.name.split(' ').map((word, i) => (
+                  <span key={i} className="block">
+                    {word}
+                  </span>
+                ))}
+              </h3>
+              <p className="mb-4 text-xs font-medium text-slate-500 dark:text-slate-400">
+                {category.count}
+              </p>
+              <div className="flex -space-x-2 overflow-hidden pl-1">
+                <div className="inline-block h-8 w-8 rounded-full bg-slate-200 ring-2 ring-white dark:bg-slate-700 dark:ring-slate-800"></div>
+                <div className="inline-block h-8 w-8 rounded-full bg-slate-300 ring-2 ring-white dark:bg-slate-600 dark:ring-slate-800"></div>
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-400 text-[10px] font-bold text-white ring-2 ring-white dark:bg-slate-500 dark:ring-slate-800">
+                  +2
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {category.type === 'progress-card' && (
-        <div className="flex flex-col gap-4">
-          <div className="flex items-center justify-between">
-            <div
-              className={clsx(
-                'flex h-12 w-12 items-center justify-center rounded-2xl ring-1',
-                colors.bg,
-                colors.text,
-                colors.ring
-              )}
-            >
-              <span className="material-symbols-outlined text-2xl">{category.icon}</span>
+        {category.type === 'progress-card' && (
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <div
+                className={clsx(
+                  'flex h-12 w-12 items-center justify-center rounded-2xl ring-1',
+                  colors.bg,
+                  colors.text,
+                  colors.ring
+                )}
+              >
+                <span className="material-symbols-outlined text-2xl">{category.icon}</span>
+              </div>
+              <span className="rounded-full bg-indigo-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-300">
+                Daily
+              </span>
             </div>
-            <span className="rounded-full bg-indigo-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-300">
-              Daily
-            </span>
-          </div>
-          <div>
-            <h3 className="text-lg font-bold text-slate-800 dark:text-white">{category.name}</h3>
-            <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
-              {category.count}
-            </p>
-            <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-white/10">
-              <div className={clsx('h-full w-1/2 rounded-full', colors.bar)}></div>
+            <div>
+              <h3 className="text-lg font-bold text-slate-800 dark:text-white">{category.name}</h3>
+              <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                {category.count}
+              </p>
+              <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-white/10">
+                <div className={clsx('h-full w-1/2 rounded-full', colors.bar)}></div>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {category.type === 'simple-card' && (
-        <div className="flex flex-col gap-3">
-          <div className="mb-1 flex items-start justify-between">
-            <div
-              className={clsx(
-                'flex h-12 w-12 items-center justify-center rounded-2xl ring-1 transition-all duration-300 group-hover:scale-110',
-                colors.bg,
-                colors.text,
-                colors.ring
-              )}
-            >
-              <span className="material-symbols-outlined text-2xl">{category.icon}</span>
+        {category.type === 'simple-card' && (
+          <div className="flex flex-col gap-3">
+            <div className="mb-1 flex items-start justify-between">
+              <div
+                className={clsx(
+                  'flex h-12 w-12 items-center justify-center rounded-2xl ring-1 transition-all duration-300 group-hover:scale-110',
+                  colors.bg,
+                  colors.text,
+                  colors.ring
+                )}
+              >
+                <span className="material-symbols-outlined text-2xl">{category.icon}</span>
+              </div>
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-slate-800 dark:text-white">{category.name}</h3>
+              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                {category.count}
+              </p>
             </div>
           </div>
-          <div>
-            <h3 className="text-lg font-bold text-slate-800 dark:text-white">{category.name}</h3>
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
-              {category.count}
-            </p>
-          </div>
-        </div>
-      )}
+        )}
 
-      {category.type === 'avatars' && (
-        <div className="flex h-full flex-col justify-between">
-          <div className="flex items-start justify-between">
-            <div
-              className={clsx(
-                'flex h-12 w-12 items-center justify-center rounded-2xl ring-1',
-                colors.bg,
-                colors.text,
-                colors.ring
-              )}
-            >
-              <span className="material-symbols-outlined text-2xl">{category.icon}</span>
+        {category.type === 'avatars' && (
+          <div className="flex h-full flex-col justify-between">
+            <div className="flex items-start justify-between">
+              <div
+                className={clsx(
+                  'flex h-12 w-12 items-center justify-center rounded-2xl ring-1',
+                  colors.bg,
+                  colors.text,
+                  colors.ring
+                )}
+              >
+                <span className="material-symbols-outlined text-2xl">{category.icon}</span>
+              </div>
+              <div className="flex -space-x-2">
+                <div className="h-6 w-6 rounded-full border-2 border-white bg-slate-200 dark:border-slate-800 dark:bg-slate-600"></div>
+                <div className="h-6 w-6 rounded-full border-2 border-white bg-slate-300 dark:border-slate-800 dark:bg-slate-500"></div>
+              </div>
             </div>
-            <div className="flex -space-x-2">
-              <div className="h-6 w-6 rounded-full border-2 border-white bg-slate-200 dark:border-slate-800 dark:bg-slate-600"></div>
-              <div className="h-6 w-6 rounded-full border-2 border-white bg-slate-300 dark:border-slate-800 dark:bg-slate-500"></div>
+            <div>
+              <h3 className="text-lg font-bold text-slate-800 dark:text-white">{category.name}</h3>
+              <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                {category.count}
+              </p>
             </div>
           </div>
-          <div>
-            <h3 className="text-lg font-bold text-slate-800 dark:text-white">{category.name}</h3>
-            <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
-              {category.count}
-            </p>
-          </div>
-        </div>
-      )}
+        )}
       </Wrapper>
     </motion.div>
   )

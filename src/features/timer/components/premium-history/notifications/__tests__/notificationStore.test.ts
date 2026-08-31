@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Notification Store Tests
  * Comprehensive tests for notification settings Zustand store
@@ -21,7 +20,7 @@ describe('useNotificationStore', () => {
     },
     goalProgress: {
       enabled: false,
-      frequency: 'daily',
+      frequency: 'daily' as const,
       time: '20:00',
     },
     streakReminder: {
@@ -47,7 +46,7 @@ describe('useNotificationStore', () => {
   beforeEach(async () => {
     // Clear localStorage first
     localStorage.clear()
-    
+
     // Dynamic import to ensure fresh store after localStorage is ready
     vi.resetModules()
     const module = await import('@/features/timer/store/notificationStore')
@@ -358,7 +357,7 @@ describe('useNotificationStore', () => {
 
   describe('getSettings', () => {
     it('should return current settings', () => {
-      const { updateSettings, getSettings } = useNotificationStore.getState()
+      const { updateSettings } = useNotificationStore.getState()
 
       act(() => {
         updateSettings({ enabled: true })

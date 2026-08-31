@@ -1,16 +1,11 @@
-// @ts-nocheck
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { renderHook } from '@testing-library/react'
 import { act } from 'react'
 import { useDayChangeDetector } from '@/hooks/useDayChangeDetector'
 
 describe('useDayChangeDetector', () => {
-  let originalDateNow: typeof Date.now
-  let dateNowSpy: ReturnType<typeof vi.spyOn>
-
   beforeEach(() => {
     vi.useFakeTimers()
-    originalDateNow = Date.now
     // Default: 2026-03-01 12:00:00 UTC
     vi.setSystemTime(new Date('2026-03-01T12:00:00Z'))
   })
@@ -36,11 +31,15 @@ describe('useDayChangeDetector', () => {
     renderHook(() => useDayChangeDetector(onDayChange))
 
     // Advance 59 seconds — should not trigger yet
-    act(() => { vi.advanceTimersByTime(59_000) })
+    act(() => {
+      vi.advanceTimersByTime(59_000)
+    })
     expect(onDayChange).not.toHaveBeenCalled()
 
     // Advance to 60 seconds — still same day, should not trigger
-    act(() => { vi.advanceTimersByTime(1_000) })
+    act(() => {
+      vi.advanceTimersByTime(1_000)
+    })
     expect(onDayChange).not.toHaveBeenCalled()
   })
 
@@ -52,7 +51,9 @@ describe('useDayChangeDetector', () => {
     vi.setSystemTime(new Date('2026-03-02T00:01:00Z'))
 
     // Trigger interval
-    act(() => { vi.advanceTimersByTime(60_000) })
+    act(() => {
+      vi.advanceTimersByTime(60_000)
+    })
 
     expect(onDayChange).toHaveBeenCalledTimes(1)
   })
@@ -65,9 +66,15 @@ describe('useDayChangeDetector', () => {
     vi.setSystemTime(new Date('2026-03-02T00:01:00Z'))
 
     // Multiple interval firings on the same new day
-    act(() => { vi.advanceTimersByTime(60_000) })
-    act(() => { vi.advanceTimersByTime(60_000) })
-    act(() => { vi.advanceTimersByTime(60_000) })
+    act(() => {
+      vi.advanceTimersByTime(60_000)
+    })
+    act(() => {
+      vi.advanceTimersByTime(60_000)
+    })
+    act(() => {
+      vi.advanceTimersByTime(60_000)
+    })
 
     expect(onDayChange).toHaveBeenCalledTimes(1)
   })
@@ -78,12 +85,16 @@ describe('useDayChangeDetector', () => {
 
     // Day 1 → Day 2
     vi.setSystemTime(new Date('2026-03-02T00:01:00Z'))
-    act(() => { vi.advanceTimersByTime(60_000) })
+    act(() => {
+      vi.advanceTimersByTime(60_000)
+    })
     expect(onDayChange).toHaveBeenCalledTimes(1)
 
     // Day 2 → Day 3
     vi.setSystemTime(new Date('2026-03-03T00:01:00Z'))
-    act(() => { vi.advanceTimersByTime(60_000) })
+    act(() => {
+      vi.advanceTimersByTime(60_000)
+    })
     expect(onDayChange).toHaveBeenCalledTimes(2)
   })
 
@@ -93,7 +104,9 @@ describe('useDayChangeDetector', () => {
 
     // Still 2026-03-01 but later in the day (not close enough to midnight to roll over)
     vi.setSystemTime(new Date(2026, 2, 1, 18, 0, 0))
-    act(() => { vi.advanceTimersByTime(60_000) })
+    act(() => {
+      vi.advanceTimersByTime(60_000)
+    })
 
     expect(onDayChange).not.toHaveBeenCalled()
   })
@@ -207,7 +220,9 @@ describe('useDayChangeDetector', () => {
     expect(onDayChange).toHaveBeenCalledTimes(1)
 
     // Then interval fires — should NOT call again (already detected)
-    act(() => { vi.advanceTimersByTime(60_000) })
+    act(() => {
+      vi.advanceTimersByTime(60_000)
+    })
     expect(onDayChange).toHaveBeenCalledTimes(1)
   })
 
@@ -222,10 +237,7 @@ describe('useDayChangeDetector', () => {
 
     unmount()
 
-    expect(removeEventListenerSpy).toHaveBeenCalledWith(
-      'visibilitychange',
-      expect.any(Function)
-    )
+    expect(removeEventListenerSpy).toHaveBeenCalledWith('visibilitychange', expect.any(Function))
     expect(clearIntervalSpy).toHaveBeenCalled()
   })
 
@@ -239,7 +251,9 @@ describe('useDayChangeDetector', () => {
     vi.setSystemTime(new Date('2026-03-02T08:00:00Z'))
 
     // Interval should have been cleared, but let's verify no calls
-    act(() => { vi.advanceTimersByTime(120_000) })
+    act(() => {
+      vi.advanceTimersByTime(120_000)
+    })
     expect(onDayChange).not.toHaveBeenCalled()
   })
 
@@ -254,7 +268,9 @@ describe('useDayChangeDetector', () => {
 
     // Cross to March 1 (local time)
     vi.setSystemTime(new Date(2026, 2, 1, 0, 1, 0))
-    act(() => { vi.advanceTimersByTime(60_000) })
+    act(() => {
+      vi.advanceTimersByTime(60_000)
+    })
 
     expect(onDayChange).toHaveBeenCalledTimes(1)
   })
@@ -267,7 +283,9 @@ describe('useDayChangeDetector', () => {
 
     // Cross to Jan 1
     vi.setSystemTime(new Date(2026, 0, 1, 0, 1, 0))
-    act(() => { vi.advanceTimersByTime(60_000) })
+    act(() => {
+      vi.advanceTimersByTime(60_000)
+    })
 
     expect(onDayChange).toHaveBeenCalledTimes(1)
   })
@@ -281,7 +299,9 @@ describe('useDayChangeDetector', () => {
 
     // Cross to Feb 29
     vi.setSystemTime(new Date(2024, 1, 29, 0, 1, 0))
-    act(() => { vi.advanceTimersByTime(60_000) })
+    act(() => {
+      vi.advanceTimersByTime(60_000)
+    })
 
     expect(onDayChange).toHaveBeenCalledTimes(1)
   })
@@ -290,17 +310,18 @@ describe('useDayChangeDetector', () => {
     const onDayChange1 = vi.fn()
     const onDayChange2 = vi.fn()
 
-    const { rerender } = renderHook(
-      ({ cb }) => useDayChangeDetector(cb),
-      { initialProps: { cb: onDayChange1 } }
-    )
+    const { rerender } = renderHook(({ cb }) => useDayChangeDetector(cb), {
+      initialProps: { cb: onDayChange1 },
+    })
 
     // Rerender with new callback
     rerender({ cb: onDayChange2 })
 
     // Day change
     vi.setSystemTime(new Date('2026-03-02T00:01:00Z'))
-    act(() => { vi.advanceTimersByTime(60_000) })
+    act(() => {
+      vi.advanceTimersByTime(60_000)
+    })
 
     // New callback should be called
     expect(onDayChange2).toHaveBeenCalledTimes(1)

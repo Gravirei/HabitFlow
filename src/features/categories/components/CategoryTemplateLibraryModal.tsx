@@ -35,11 +35,9 @@ function CategoryTemplatePreviewModal({
 }: CategoryTemplatePreviewModalProps) {
   const [selectedCategories, setSelectedCategories] = useState<Set<string>>(new Set())
   const [selectedHabits, setSelectedHabits] = useState<{ [categoryName: string]: Set<string> }>(
-    {} as any
+    {}
   )
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set())
-  const [, setPrevTotalSelected] = useState(0)
-
   useEffect(() => {
     if (isOpen && template) {
       // Select all categories and habits by default
@@ -53,9 +51,6 @@ function CategoryTemplatePreviewModal({
         allHabits[cat.name] = new Set(cat.habits.map((h) => h.name))
       })
       setSelectedHabits(allHabits)
-
-      const totalHabits = Object.values(allHabits).reduce((sum, habits) => sum + habits.size, 0)
-      setPrevTotalSelected(totalHabits)
     }
   }, [isOpen, template])
 
@@ -64,11 +59,6 @@ function CategoryTemplatePreviewModal({
     (sum, habits) => sum + habits.size,
     0
   )
-
-  // Animated counter effect
-  useEffect(() => {
-    setPrevTotalSelected(totalHabitsSelected)
-  }, [totalHabitsSelected])
 
   if (!template) return null
 

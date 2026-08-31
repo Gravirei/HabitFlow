@@ -7,8 +7,7 @@ const NOTION_VERSION = '2022-06-28'
 
 export const notionService = {
   initiateAuth(): void {
-    const clientId =
-      import.meta.env.VITE_NOTION_CLIENT_ID || 'YOUR_NOTION_CLIENT_ID'
+    const clientId = import.meta.env.VITE_NOTION_CLIENT_ID || 'YOUR_NOTION_CLIENT_ID'
     const redirectUri =
       import.meta.env.VITE_NOTION_REDIRECT_URI ||
       `${window.location.origin}/integrations/callback/notion`
@@ -22,7 +21,7 @@ export const notionService = {
     window.location.href = `${NOTION_AUTH_URL}?${params.toString()}`
   },
 
-  /**
+/**
    * Exchange authorization code for an access token.
    * Secret-handled token exchange goes through the oauth-token-proxy Edge Function.
    */
@@ -49,9 +48,7 @@ export const notionService = {
     }
   },
 
-  async searchDatabases(
-    accessToken: string
-  ): Promise<Array<{ id: string; title: string }>> {
+  async searchDatabases(accessToken: string): Promise<Array<{ id: string; title: string }>> {
     const response = await fetch(`${NOTION_API}/search`, {
       method: 'POST',
       headers: this.getHeaders(accessToken),
@@ -67,10 +64,7 @@ export const notionService = {
     }))
   },
 
-  async createHabitDatabase(
-    accessToken: string,
-    parentPageId: string
-  ): Promise<string> {
+  async createHabitDatabase(accessToken: string, parentPageId: string): Promise<string> {
     const response = await fetch(`${NOTION_API}/databases`, {
       method: 'POST',
       headers: this.getHeaders(accessToken),
@@ -125,18 +119,14 @@ export const notionService = {
       Name: { title: [{ text: { content: habit.name } }] },
       Frequency: {
         select: {
-          name:
-            habit.frequency.charAt(0).toUpperCase() + habit.frequency.slice(1),
+          name: habit.frequency.charAt(0).toUpperCase() + habit.frequency.slice(1),
         },
       },
       Streak: { number: habit.streak },
     }
-    if (habit.category)
-      properties.Category = { select: { name: habit.category } }
-    if (habit.lastCompleted)
-      properties['Last Completed'] = { date: { start: habit.lastCompleted } }
-    if (habit.notes)
-      properties.Notes = { rich_text: [{ text: { content: habit.notes } }] }
+    if (habit.category) properties.Category = { select: { name: habit.category } }
+    if (habit.lastCompleted) properties['Last Completed'] = { date: { start: habit.lastCompleted } }
+    if (habit.notes) properties.Notes = { rich_text: [{ text: { content: habit.notes } }] }
 
     const response = await fetch(`${NOTION_API}/pages`, {
       method: 'POST',

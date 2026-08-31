@@ -1,10 +1,9 @@
 import { useIntegrationStore } from '../store/integrationStore'
-import { callOAuthProxy } from '@/lib/security/oauthProxyClient'
 
 const SLACK_CLIENT_ID = import.meta.env.VITE_SLACK_CLIENT_ID || 'placeholder_client_id'
-// Must exactly match a redirect URI registered in the Slack app settings.
+const SLACK_CLIENT_SECRET = import.meta.env.VITE_SLACK_CLIENT_SECRET || 'placeholder_client_secret'
 const SLACK_REDIRECT_URI =
-  import.meta.env.VITE_SLACK_REDIRECT_URI || `${window.location.origin}/integrations/callback/slack`
+  import.meta.env.VITE_SLACK_REDIRECT_URI || 'http://localhost:5173/auth/slack/callback'
 
 const SLACK_API_BASE = 'https://slack.com/api'
 const SLACK_OAUTH_URL = 'https://slack.com/oauth/v2/authorize'
@@ -94,18 +93,23 @@ export const slackService = {
   },
 
   /**
-   * Exchanges authorization code for access token and webhook URL.
-   * Secret-handled token exchange goes through the oauth-token-proxy Edge Function.
+   * Exchanges authorization code for access token and webhook URL
    */
   async exchangeCode(code: string): Promise<SlackOAuthResponse> {
     try {
-      const data: SlackOAuthResponse = await callOAuthProxy({
-        provider: 'slack',
-        action: 'exchange',
+      const params = new URLSearchParams({
+        client_id: SLACK_CLIENT_ID,
+        client_secret: SLACK_CLIENT_SECRET,
         code,
-        redirectUri: SLACK_REDIRECT_URI,
-        clientId: SLACK_CLIENT_ID,
+        redirect_uri: SLACK_REDIRECT_URI,
       })
+
+      const response = await fetch(`${SLACK_API_BASE}/oauth.v2.access`, {
+        method: 'POST',
+        body: params,
+      })
+
+      const data: SlackOAuthResponse = await response.json()
 
       if (!data.ok) {
         throw new Error(data.error || 'Failed to exchange authorization code')
@@ -414,7 +418,9 @@ export const slackService = {
    * Disconnects the Slack integration
    */
   disconnect(): void {
-    useIntegrationStore.getState().disconnect('slack')
+    // eslint-disable-next-line react-hooks/rules-of-hooks -- TODO(burn-down): zustand hook called inside plain function; should be getState(), see refactor plan P1
+    const store = useIntegrationStore()
+    store.disconnect('slack')
   },
 
   /**

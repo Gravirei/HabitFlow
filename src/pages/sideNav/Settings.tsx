@@ -7,7 +7,7 @@ import { TwoFactorSettings } from '@/features/auth/components/TwoFactorSettings'
 import { SessionManagement } from '@/features/auth/components/SessionManagement'
 import { useAuth } from '@/lib/auth/AuthContext'
 import { isEmailVerified } from '@/lib/auth/AuthContext'
-import { resendVerificationEmail } from '@/lib/auth/api'
+import { supabase } from '@/lib/supabase'
 import { useAccessibilityStore } from '@/store/useAccessibilityStore'
 
 type Theme = 'system' | 'light' | 'dark'
@@ -203,7 +203,7 @@ export function Settings() {
   const [accentColor, setAccentColor] = useState('green')
 
   // General
-  const [language, _setLanguage] = useState<Language>('en')
+  const [language] = useState<Language>('en')
   const [startOfWeek, setStartOfWeek] = useState<StartOfWeek>('monday')
   const [showCompleted, setShowCompleted] = useState(true)
   const [compactMode, setCompactMode] = useState(false)
@@ -318,7 +318,7 @@ export function Settings() {
             <SectionHeading>Profile</SectionHeading>
             <button
               onClick={() => navigate('/profile')}
-              className="group flex w-full cursor-pointer items-center gap-4 rounded-2xl border border-slate-800 bg-slate-900/60 p-4 transition-all duration-200 hover:border-primary/20 hover:shadow-md sm:p-5 "
+              className="group flex w-full cursor-pointer items-center gap-4 rounded-2xl border border-slate-800 bg-slate-900/60 p-4 transition-all duration-200 hover:border-primary/20 hover:shadow-md sm:p-5"
             >
               <div className="relative shrink-0">
                 <div className="shadow-glow/20 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary-focus">
@@ -772,7 +772,10 @@ export function Settings() {
                         type="button"
                         onClick={async () => {
                           try {
-                            const { error } = await resendVerificationEmail(user.email!)
+                            const { error } = await supabase.auth.resend({
+                              type: 'signup',
+                              email: user.email!,
+                            })
                             if (error) throw error
                             toast.success('Verification email resent')
                           } catch (e: any) {

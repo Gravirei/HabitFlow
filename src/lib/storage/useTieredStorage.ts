@@ -1,12 +1,11 @@
-// @ts-nocheck
 /**
  * useTieredStorage Hook
- * 
+ *
  * React hook for using the tiered storage service
  * Automatically syncs with auth state and provides reactive updates
  */
 
-import { useEffect, useState, useCallback, useRef, useContext } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
 import { tieredStorage, type SyncStatus } from './tieredStorage'
 import type { TimerHistoryRecord, TimerMode } from './timerHistory.types'
@@ -49,25 +48,25 @@ interface UseTieredStorageReturn {
   deleteRecord: (recordId: string) => Promise<void>
   clearHistory: () => Promise<void>
   refreshHistory: () => Promise<void>
-  
+
   // Sync status
   syncStatus: SyncStatus
   isLoggedIn: boolean
-  
+
   // Manual sync trigger
   syncNow: () => Promise<void>
 }
 
 /**
  * Hook for managing timer history with tiered storage
- * 
+ *
  * @param mode - The timer mode (Stopwatch, Countdown, Intervals)
  * @returns Object with history data and management functions
- * 
+ *
  * @example
  * ```tsx
  * const { history, saveRecord, isLoggedIn, syncStatus } = useTieredStorage('Stopwatch')
- * 
+ *
  * // Save a new record
  * await saveRecord({
  *   id: generateUUID(),
@@ -82,7 +81,7 @@ export function useTieredStorage(mode: TimerMode): UseTieredStorageReturn {
   const [history, setHistory] = useState<TimerHistoryRecord[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [syncStatus, setSyncStatus] = useState<SyncStatus>(tieredStorage.getSyncStatus())
-  
+
   // Track if this is the initial mount
   const isInitialMount = useRef(true)
   const previousUserId = useRef<string | null>(null)
@@ -90,7 +89,7 @@ export function useTieredStorage(mode: TimerMode): UseTieredStorageReturn {
   // Update tiered storage when auth state changes
   useEffect(() => {
     const userId = user?.id || null
-    
+
     // Only update if user ID actually changed
     if (userId !== previousUserId.current) {
       previousUserId.current = userId
@@ -152,13 +151,16 @@ export function useTieredStorage(mode: TimerMode): UseTieredStorageReturn {
   /**
    * Delete a record from history
    */
-  const deleteRecord = useCallback(async (recordId: string) => {
-    // Optimistically update local state
-    setHistory((prev) => prev.filter((r) => r.id !== recordId))
+  const deleteRecord = useCallback(
+    async (recordId: string) => {
+      // Optimistically update local state
+      setHistory((prev) => prev.filter((r) => r.id !== recordId))
 
-    // Delete from tiered storage
-    await tieredStorage.deleteRecord(recordId, mode)
-  }, [mode])
+      // Delete from tiered storage
+      await tieredStorage.deleteRecord(recordId, mode)
+    },
+    [mode]
+  )
 
   /**
    * Clear all history for this mode

@@ -54,21 +54,18 @@ export function generateDeviceId(): string {
  */
 export function generateDeviceName(deviceInfo: DeviceInfo): string {
   const parts = []
-  
+
   if (deviceInfo.browser) parts.push(deviceInfo.browser)
   if (deviceInfo.os) parts.push(deviceInfo.os)
   if (deviceInfo.device) parts.push(deviceInfo.device)
-  
+
   return parts.join(' on ') || 'Unknown Device'
 }
 
 /**
  * Check if device is trusted
  */
-export async function isDeviceTrusted(
-  userId: string,
-  deviceId: string
-): Promise<boolean> {
+export async function isDeviceTrusted(userId: string, deviceId: string): Promise<boolean> {
   try {
     const { data, error } = await supabase
       .from('trusted_devices')
@@ -150,10 +147,7 @@ export async function getTrustedDevices(userId: string): Promise<TrustedDevice[]
  */
 export async function removeTrustedDevice(deviceId: string): Promise<void> {
   try {
-    await supabase
-      .from('trusted_devices')
-      .update({ is_trusted: false })
-      .eq('id', deviceId)
+    await supabase.from('trusted_devices').update({ is_trusted: false }).eq('id', deviceId)
   } catch (error) {
     console.error('Failed to remove trusted device:', error)
   }

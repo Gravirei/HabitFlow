@@ -48,7 +48,7 @@ export function GroupInfoScreen({ conversationId, onClose }: GroupInfoScreenProp
           displayName: id === CURRENT_USER_ID ? 'You' : (friend?.displayName ?? 'Unknown'),
           avatarUrl: friend?.avatarUrl ?? '',
           level: friend?.level ?? 0,
-          isOnline: onlineUsers[id] ?? (friend?.status === 'active'),
+          isOnline: onlineUsers[id] ?? friend?.status === 'active',
           isCreator: id === conversation.createdBy,
           isCurrentUser: id === CURRENT_USER_ID,
         }
@@ -112,7 +112,7 @@ export function GroupInfoScreen({ conversationId, onClose }: GroupInfoScreenProp
 
   if (!conversation) {
     return (
-      <div className="fixed inset-0 z-40 bg-[#0F1117] flex items-center justify-center">
+      <div className="fixed inset-0 z-40 flex items-center justify-center bg-[#0F1117]">
         <p className="text-sm text-slate-500">Group not found</p>
       </div>
     )
@@ -133,27 +133,24 @@ export function GroupInfoScreen({ conversationId, onClose }: GroupInfoScreenProp
   const maxMembersReached = (conversation.memberCount ?? 0) >= MESSAGING_LIMITS.MAX_GROUP_MEMBERS
 
   return (
-    <motion.div
-      className="fixed inset-0 z-40 bg-[#0F1117] overflow-y-auto"
-      {...panelMotion}
-    >
+    <motion.div className="fixed inset-0 z-40 overflow-y-auto bg-[#0F1117]" {...panelMotion}>
       {/* App bar */}
-      <div className="flex items-center gap-3 px-4 py-3 border-b border-white/[0.05]">
+      <div className="flex items-center gap-3 border-b border-white/[0.05] px-4 py-3">
         <button
           onClick={onClose}
-          className="cursor-pointer text-slate-400 hover:text-white transition-colors"
+          className="cursor-pointer text-slate-400 transition-colors hover:text-white"
           aria-label="Back"
         >
           <span className="material-symbols-outlined text-[22px]">arrow_back</span>
         </button>
-        <h2 className="text-lg font-semibold text-white flex-1 text-center">Group Info</h2>
+        <h2 className="flex-1 text-center text-lg font-semibold text-white">Group Info</h2>
         <div className="w-10" />
       </div>
 
       {/* Group avatar section */}
       <div className="flex flex-col items-center py-6">
         {/* 2x2 avatar grid */}
-        <div className="w-20 h-20 rounded-2xl bg-white/[0.04] border border-white/[0.05] grid grid-cols-2 gap-0.5 p-1 overflow-hidden">
+        <div className="grid h-20 w-20 grid-cols-2 gap-0.5 overflow-hidden rounded-2xl border border-white/[0.05] bg-white/[0.04] p-1">
           {[0, 1, 2, 3].map((i) => {
             const member = avatarMembers[i]
             if (member) {
@@ -162,14 +159,14 @@ export function GroupInfoScreen({ conversationId, onClose }: GroupInfoScreenProp
                   key={member.userId}
                   src={member.avatarUrl || '/images/avatars/avatar1.jpg'}
                   alt={member.displayName}
-                  className="w-9 h-9 rounded-full object-cover"
+                  className="h-9 w-9 rounded-full object-cover"
                 />
               )
             }
             return (
               <div
                 key={i}
-                className="w-9 h-9 rounded-full bg-white/[0.06] flex items-center justify-center"
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-white/[0.06]"
               >
                 <span className="material-symbols-outlined text-[14px] text-slate-600">person</span>
               </div>
@@ -186,12 +183,12 @@ export function GroupInfoScreen({ conversationId, onClose }: GroupInfoScreenProp
               onChange={(e) => setEditedName(e.target.value)}
               maxLength={MESSAGING_LIMITS.CONVERSATION_NAME_MAX_LENGTH}
               autoFocus
-              className="bg-white/[0.04] border border-white/[0.06] rounded-xl px-4 py-2 text-white text-center text-lg max-w-[250px] focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500/30 transition-all"
+              className="max-w-[250px] rounded-xl border border-white/[0.06] bg-white/[0.04] px-4 py-2 text-center text-lg text-white transition-all focus:border-teal-500/30 focus:outline-none focus:ring-2 focus:ring-teal-500/30"
             />
             <div className="flex gap-3">
               <button
                 onClick={handleSaveName}
-                className="text-teal-400 text-sm font-medium cursor-pointer hover:text-teal-300 transition-colors"
+                className="cursor-pointer text-sm font-medium text-teal-400 transition-colors hover:text-teal-300"
               >
                 Save
               </button>
@@ -200,22 +197,22 @@ export function GroupInfoScreen({ conversationId, onClose }: GroupInfoScreenProp
                   setIsEditingName(false)
                   setEditedName(conversation.name)
                 }}
-                className="text-slate-500 text-sm font-medium cursor-pointer hover:text-slate-400 transition-colors"
+                className="cursor-pointer text-sm font-medium text-slate-500 transition-colors hover:text-slate-400"
               >
                 Cancel
               </button>
             </div>
           </div>
         ) : (
-          <div className="flex items-center gap-2 mt-3">
-            <h3 className="text-xl font-semibold text-white text-center">{conversation.name}</h3>
+          <div className="mt-3 flex items-center gap-2">
+            <h3 className="text-center text-xl font-semibold text-white">{conversation.name}</h3>
             {isCreator && (
               <button
                 onClick={() => {
                   setEditedName(conversation.name)
                   setIsEditingName(true)
                 }}
-                className="cursor-pointer text-slate-500 hover:text-white transition-colors"
+                className="cursor-pointer text-slate-500 transition-colors hover:text-white"
                 aria-label="Edit group name"
               >
                 <span className="material-symbols-outlined text-[16px]">edit</span>
@@ -225,20 +222,22 @@ export function GroupInfoScreen({ conversationId, onClose }: GroupInfoScreenProp
         )}
 
         {/* Member count */}
-        <p className="text-sm text-slate-400 text-center mt-1">
+        <p className="mt-1 text-center text-sm text-slate-400">
           {conversation.memberCount} members
         </p>
       </div>
 
       {/* Mute toggle */}
-      <div className="flex items-center justify-between px-4 py-3.5 mx-4 mt-4 rounded-xl bg-white/[0.025] border border-white/[0.05]">
+      <div className="mx-4 mt-4 flex items-center justify-between rounded-xl border border-white/[0.05] bg-white/[0.025] px-4 py-3.5">
         <div className="flex items-center gap-3">
-          <span className="material-symbols-outlined text-[20px] text-slate-400">notifications_off</span>
+          <span className="material-symbols-outlined text-[20px] text-slate-400">
+            notifications_off
+          </span>
           <span className="text-sm text-slate-300">Mute notifications</span>
         </div>
         <button
           onClick={() => muteConversation(conversationId)}
-          className={`w-11 h-6 rounded-full relative cursor-pointer transition-colors duration-200 ${
+          className={`relative h-6 w-11 cursor-pointer rounded-full transition-colors duration-200 ${
             conversation.isMuted ? 'bg-teal-500' : 'bg-white/[0.1]'
           }`}
           role="switch"
@@ -246,7 +245,7 @@ export function GroupInfoScreen({ conversationId, onClose }: GroupInfoScreenProp
           aria-label="Mute notifications"
         >
           <div
-            className={`w-5 h-5 rounded-full bg-white absolute top-0.5 transition-transform duration-200 ${
+            className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-transform duration-200 ${
               conversation.isMuted ? 'translate-x-[22px]' : 'translate-x-0.5'
             }`}
           />
@@ -256,11 +255,13 @@ export function GroupInfoScreen({ conversationId, onClose }: GroupInfoScreenProp
       {/* Members section */}
       <div className="mt-6">
         <div className="flex items-center justify-between px-4 pb-2">
-          <span className="text-sm font-medium text-slate-400 uppercase tracking-wider">Members</span>
+          <span className="text-sm font-medium uppercase tracking-wider text-slate-400">
+            Members
+          </span>
           {isCreator && !maxMembersReached && (
             <button
               onClick={() => setShowAddMembers(true)}
-              className="flex items-center gap-1 text-teal-400 hover:text-teal-300 text-sm font-medium cursor-pointer transition-colors"
+              className="flex cursor-pointer items-center gap-1 text-sm font-medium text-teal-400 transition-colors hover:text-teal-300"
             >
               <span className="material-symbols-outlined text-[18px]">person_add</span>
               Add
@@ -268,35 +269,35 @@ export function GroupInfoScreen({ conversationId, onClose }: GroupInfoScreenProp
           )}
         </div>
 
-        <div className="px-4 space-y-1">
+        <div className="space-y-1 px-4">
           {members.map((member) => (
             <div
               key={member.userId}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/[0.02] transition-colors"
+              className="flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-white/[0.02]"
             >
               {/* Avatar with status dot */}
               <div className="relative flex-shrink-0">
                 <img
                   src={member.avatarUrl || '/images/avatars/avatar1.jpg'}
                   alt={member.displayName}
-                  className="w-10 h-10 rounded-full object-cover"
+                  className="h-10 w-10 rounded-full object-cover"
                 />
                 <div
-                  className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full ring-2 ring-[#0F1117] ${
+                  className={`absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full ring-2 ring-[#0F1117] ${
                     member.isOnline ? 'bg-emerald-400' : 'bg-slate-500'
                   }`}
                 />
               </div>
 
               {/* Info */}
-              <div className="flex-1 min-w-0">
-                <p className="text-sm text-white font-medium truncate">{member.displayName}</p>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium text-white">{member.displayName}</p>
                 <p className="text-xs text-slate-500">Lvl {member.level}</p>
               </div>
 
               {/* Creator badge */}
               {member.isCreator && (
-                <span className="bg-teal-500/10 text-teal-400 text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full flex-shrink-0">
+                <span className="flex-shrink-0 rounded-full bg-teal-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-teal-400">
                   Creator
                 </span>
               )}
@@ -305,10 +306,12 @@ export function GroupInfoScreen({ conversationId, onClose }: GroupInfoScreenProp
               {isCreator && !member.isCurrentUser && (
                 <button
                   onClick={() => setShowRemoveConfirm(member.userId)}
-                  className="cursor-pointer text-red-400/60 hover:text-red-400 transition-colors flex-shrink-0"
+                  className="flex-shrink-0 cursor-pointer text-red-400/60 transition-colors hover:text-red-400"
                   aria-label={`Remove ${member.displayName}`}
                 >
-                  <span className="material-symbols-outlined text-[20px]">remove_circle_outline</span>
+                  <span className="material-symbols-outlined text-[20px]">
+                    remove_circle_outline
+                  </span>
                 </button>
               )}
             </div>
@@ -317,10 +320,10 @@ export function GroupInfoScreen({ conversationId, onClose }: GroupInfoScreenProp
       </div>
 
       {/* Leave group button */}
-      <div className="mx-4 mt-6 mb-4">
+      <div className="mx-4 mb-4 mt-6">
         <button
           onClick={() => setShowLeaveConfirm(true)}
-          className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-red-500/20 text-red-400 hover:bg-red-500/10 transition-colors text-sm font-medium cursor-pointer"
+          className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-red-500/20 py-3 text-sm font-medium text-red-400 transition-colors hover:bg-red-500/10"
         >
           <span className="material-symbols-outlined text-[18px]">logout</span>
           Leave Group
@@ -330,24 +333,24 @@ export function GroupInfoScreen({ conversationId, onClose }: GroupInfoScreenProp
       {/* ─── Leave Confirmation Dialog ──────────────────────────── */}
       {showLeaveConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="bg-[#0F1117] border border-white/[0.05] rounded-2xl p-6 max-w-sm mx-4">
+          <div className="mx-4 max-w-sm rounded-2xl border border-white/[0.05] bg-[#0F1117] p-6">
             <div className="flex justify-center">
               <span className="material-symbols-outlined text-3xl text-amber-400">warning</span>
             </div>
-            <h4 className="text-lg font-semibold text-white text-center mt-3">Leave group?</h4>
-            <p className="text-sm text-slate-400 text-center mt-2">
+            <h4 className="mt-3 text-center text-lg font-semibold text-white">Leave group?</h4>
+            <p className="mt-2 text-center text-sm text-slate-400">
               You won&apos;t be able to see new messages in this group.
             </p>
-            <div className="flex gap-3 mt-6">
+            <div className="mt-6 flex gap-3">
               <button
                 onClick={() => setShowLeaveConfirm(false)}
-                className="flex-1 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.05] text-slate-300 text-sm font-medium cursor-pointer hover:bg-white/[0.06] transition-colors"
+                className="flex-1 cursor-pointer rounded-xl border border-white/[0.05] bg-white/[0.04] py-2.5 text-sm font-medium text-slate-300 transition-colors hover:bg-white/[0.06]"
               >
                 Cancel
               </button>
               <button
                 onClick={handleLeave}
-                className="flex-1 py-2.5 rounded-xl bg-red-500/20 border border-red-500/30 text-red-400 text-sm font-medium cursor-pointer hover:bg-red-500/30 transition-colors"
+                className="flex-1 cursor-pointer rounded-xl border border-red-500/30 bg-red-500/20 py-2.5 text-sm font-medium text-red-400 transition-colors hover:bg-red-500/30"
               >
                 Leave
               </button>
@@ -359,24 +362,24 @@ export function GroupInfoScreen({ conversationId, onClose }: GroupInfoScreenProp
       {/* ─── Remove Member Confirmation Dialog ──────────────────── */}
       {showRemoveConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="bg-[#0F1117] border border-white/[0.05] rounded-2xl p-6 max-w-sm mx-4">
+          <div className="mx-4 max-w-sm rounded-2xl border border-white/[0.05] bg-[#0F1117] p-6">
             <div className="flex justify-center">
               <span className="material-symbols-outlined text-3xl text-amber-400">warning</span>
             </div>
-            <h4 className="text-lg font-semibold text-white text-center mt-3">Remove member?</h4>
-            <p className="text-sm text-slate-400 text-center mt-2">
+            <h4 className="mt-3 text-center text-lg font-semibold text-white">Remove member?</h4>
+            <p className="mt-2 text-center text-sm text-slate-400">
               Remove {removeMemberName} from the group?
             </p>
-            <div className="flex gap-3 mt-6">
+            <div className="mt-6 flex gap-3">
               <button
                 onClick={() => setShowRemoveConfirm(null)}
-                className="flex-1 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.05] text-slate-300 text-sm font-medium cursor-pointer hover:bg-white/[0.06] transition-colors"
+                className="flex-1 cursor-pointer rounded-xl border border-white/[0.05] bg-white/[0.04] py-2.5 text-sm font-medium text-slate-300 transition-colors hover:bg-white/[0.06]"
               >
                 Cancel
               </button>
               <button
                 onClick={handleRemoveMember}
-                className="flex-1 py-2.5 rounded-xl bg-red-500/20 border border-red-500/30 text-red-400 text-sm font-medium cursor-pointer hover:bg-red-500/30 transition-colors"
+                className="flex-1 cursor-pointer rounded-xl border border-red-500/30 bg-red-500/20 py-2.5 text-sm font-medium text-red-400 transition-colors hover:bg-red-500/30"
               >
                 Remove
               </button>
@@ -389,7 +392,7 @@ export function GroupInfoScreen({ conversationId, onClose }: GroupInfoScreenProp
       <AnimatePresence>
         {showAddMembers && (
           <motion.div
-            className="absolute inset-0 bg-[#0F1117] z-10 overflow-y-auto"
+            className="absolute inset-0 z-10 overflow-y-auto bg-[#0F1117]"
             {...(prefersReducedMotion
               ? {}
               : {
@@ -400,32 +403,34 @@ export function GroupInfoScreen({ conversationId, onClose }: GroupInfoScreenProp
                 })}
           >
             {/* App bar */}
-            <div className="flex items-center gap-3 px-4 py-3 border-b border-white/[0.05]">
+            <div className="flex items-center gap-3 border-b border-white/[0.05] px-4 py-3">
               <button
                 onClick={() => {
                   setShowAddMembers(false)
                   setAddMemberSearch('')
                 }}
-                className="cursor-pointer text-slate-400 hover:text-white transition-colors"
+                className="cursor-pointer text-slate-400 transition-colors hover:text-white"
                 aria-label="Back"
               >
                 <span className="material-symbols-outlined text-[22px]">arrow_back</span>
               </button>
-              <h2 className="text-lg font-semibold text-white flex-1 text-center">Add Members</h2>
+              <h2 className="flex-1 text-center text-lg font-semibold text-white">Add Members</h2>
               <div className="w-10" />
             </div>
 
             {/* Max members warning */}
             {maxMembersReached && (
               <div className="px-4 pt-4">
-                <p className="text-amber-400 text-xs text-center">Max members reached ({MESSAGING_LIMITS.MAX_GROUP_MEMBERS})</p>
+                <p className="text-center text-xs text-amber-400">
+                  Max members reached ({MESSAGING_LIMITS.MAX_GROUP_MEMBERS})
+                </p>
               </div>
             )}
 
             {/* Search */}
             <div className="px-4 pt-4">
               <div className="relative">
-                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-[16px]">
+                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[16px] text-slate-500">
                   search
                 </span>
                 <input
@@ -433,40 +438,44 @@ export function GroupInfoScreen({ conversationId, onClose }: GroupInfoScreenProp
                   value={addMemberSearch}
                   onChange={(e) => setAddMemberSearch(e.target.value)}
                   placeholder="Search friends..."
-                  className="w-full bg-white/[0.04] border border-white/[0.06] rounded-xl pl-9 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500/30 transition-all"
+                  className="w-full rounded-xl border border-white/[0.06] bg-white/[0.04] py-2.5 pl-9 pr-4 text-sm text-white placeholder-slate-500 transition-all focus:border-teal-500/30 focus:outline-none focus:ring-2 focus:ring-teal-500/30"
                 />
               </div>
             </div>
 
             {/* Friends list */}
-            <div className="px-4 pt-4 space-y-1">
+            <div className="space-y-1 px-4 pt-4">
               {availableFriends.length === 0 ? (
-                <p className="text-sm text-slate-500 text-center py-8">
+                <p className="py-8 text-center text-sm text-slate-500">
                   {addMemberSearch ? 'No friends match your search' : 'No more friends to add'}
                 </p>
               ) : (
                 availableFriends.map((friend) => (
                   <div
                     key={friend.userId}
-                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/[0.02] transition-colors"
+                    className="flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-white/[0.02]"
                   >
                     {/* Avatar */}
                     <div className="relative flex-shrink-0">
                       <img
                         src={friend.avatarUrl || '/images/avatars/avatar1.jpg'}
                         alt={friend.displayName}
-                        className="w-9 h-9 rounded-full object-cover"
+                        className="h-9 w-9 rounded-full object-cover"
                       />
                       <div
-                        className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full ring-2 ring-[#0F1117] ${
-                          friend.status === 'active' ? 'bg-emerald-400' : friend.status === 'inactive' ? 'bg-amber-400' : 'bg-slate-500'
+                        className={`absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full ring-2 ring-[#0F1117] ${
+                          friend.status === 'active'
+                            ? 'bg-emerald-400'
+                            : friend.status === 'inactive'
+                              ? 'bg-amber-400'
+                              : 'bg-slate-500'
                         }`}
                       />
                     </div>
 
                     {/* Info */}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm text-white truncate">{friend.displayName}</p>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm text-white">{friend.displayName}</p>
                       <p className="text-xs text-slate-500">Lvl {friend.level}</p>
                     </div>
 
@@ -474,10 +483,8 @@ export function GroupInfoScreen({ conversationId, onClose }: GroupInfoScreenProp
                     <button
                       onClick={() => handleAddMember(friend.userId)}
                       disabled={maxMembersReached}
-                      className={`text-teal-400 bg-teal-500/10 rounded-lg px-3 py-1.5 text-xs font-medium cursor-pointer transition-colors ${
-                        maxMembersReached
-                          ? 'opacity-40 cursor-not-allowed'
-                          : 'hover:bg-teal-500/20'
+                      className={`cursor-pointer rounded-lg bg-teal-500/10 px-3 py-1.5 text-xs font-medium text-teal-400 transition-colors ${
+                        maxMembersReached ? 'cursor-not-allowed opacity-40' : 'hover:bg-teal-500/20'
                       }`}
                     >
                       Add

@@ -5,7 +5,6 @@ interface AsanaKanbanProps {
   tasks: Task[]
   onTaskClick: (task: Task) => void
   onTaskStatusChange: (taskId: string, newStatus: Task['status']) => void
-  onDeleteTask: (taskId: string) => void
 }
 
 export function AsanaKanban({ tasks, onTaskClick, onTaskStatusChange }: AsanaKanbanProps) {

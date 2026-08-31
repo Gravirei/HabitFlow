@@ -4,7 +4,7 @@ import toast from 'react-hot-toast'
 import { TurnstileWidget } from '@/shared/ui/TurnstileWidget'
 import { callAuthGateway } from '@/lib/security/authGatewayClient'
 import { resetPasswordForEmail } from '@/lib/auth/api'
-import { env, isSupabaseConfigured } from '@/lib/env'
+import { envCompat as env, isSupabaseConfigured } from '@/lib/env'
 
 /**
  * Detects if running in a mobile app WebView (Capacitor/Cordova)

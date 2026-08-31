@@ -29,7 +29,7 @@ export function SplashScreen() {
   }, [navigate])
 
   return (
-    <div className="relative flex h-screen w-full max-w-md mx-auto flex-col bg-background-light dark:bg-background-dark overflow-hidden">
+    <div className="relative mx-auto flex h-screen w-full max-w-md flex-col overflow-hidden bg-background-light dark:bg-background-dark">
       {/* Main Content - Centered */}
       <div className="flex flex-1 flex-col items-center justify-center p-8 text-center">
         {/* App Logo with Animation */}
@@ -48,18 +48,18 @@ export function SplashScreen() {
         </div>
 
         {/* App Name */}
-        <h1 className="text-slate-900 dark:text-white font-display text-[40px] font-bold leading-tight tracking-tight px-4 text-center pb-2">
+        <h1 className="px-4 pb-2 text-center font-display text-[40px] font-bold leading-tight tracking-tight text-slate-900 dark:text-white">
           HabitFlow
         </h1>
 
         {/* Tagline */}
-        <p className="text-slate-600 dark:text-slate-300 font-display text-lg font-normal leading-normal px-4 text-center">
+        <p className="px-4 text-center font-display text-lg font-normal leading-normal text-slate-600 dark:text-slate-300">
           Build Better Habits, One Day at a Time.
         </p>
       </div>
 
       {/* Loading Indicator Section - Bottom */}
-      <div className="flex flex-col items-center justify-end p-8 pb-12 pb-safe">
+      <div className="pb-safe flex flex-col items-center justify-end p-8 pb-12">
         {/* Progress Bar */}
         <div className="flex w-full max-w-xs flex-col gap-3">
           <div className="h-2 rounded-full bg-slate-200 dark:bg-white/10">

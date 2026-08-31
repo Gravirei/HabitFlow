@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Sidebar Integration Tests
  * Tests that verify sidebar features work together correctly
@@ -23,7 +22,7 @@ describe('Sidebar Integration Tests', () => {
         'Timeline View',
         'Archive',
         'Filter Visibility',
-        'Notifications'
+        'Notifications',
       ]
 
       expect(features).toHaveLength(8)
@@ -38,7 +37,7 @@ describe('Sidebar Integration Tests', () => {
         timelineView: true,
         archive: true,
         filterVisibility: true,
-        notifications: true
+        notifications: true,
       }
 
       const totalFeatures = Object.keys(implementedFeatures).length
@@ -52,9 +51,7 @@ describe('Sidebar Integration Tests', () => {
 
   describe('Export Data Feature', () => {
     it('exports sessions to CSV format', () => {
-      const sessions = [
-        { id: '1', mode: 'Stopwatch', duration: 1500, timestamp: Date.now() }
-      ]
+      const sessions = [{ id: '1', mode: 'Stopwatch', duration: 1500, timestamp: Date.now() }]
 
       // CSV export should work
       expect(sessions).toBeDefined()
@@ -62,9 +59,7 @@ describe('Sidebar Integration Tests', () => {
     })
 
     it('exports sessions to JSON format', () => {
-      const sessions = [
-        { id: '1', mode: 'Stopwatch', duration: 1500, timestamp: Date.now() }
-      ]
+      const sessions = [{ id: '1', mode: 'Stopwatch', duration: 1500, timestamp: Date.now() }]
 
       const json = JSON.stringify(sessions)
       expect(json).toBeDefined()
@@ -72,7 +67,7 @@ describe('Sidebar Integration Tests', () => {
     })
 
     it('supports PDF export', () => {
-      expect(global.jsPDF).toBeDefined()
+      expect((global as any).jsPDF).toBeDefined()
     })
   })
 
@@ -88,10 +83,10 @@ describe('Sidebar Integration Tests', () => {
         type: 'time',
         target: 3600,
         current: 1800,
-        progress: 50
+        progress: 50,
       }
 
-      expect(goal.current / goal.target * 100).toBe(50)
+      expect((goal.current / goal.target) * 100).toBe(50)
     })
   })
 
@@ -121,7 +116,7 @@ describe('Sidebar Integration Tests', () => {
         'Consistency',
         'Productivity Trends',
         'Smart Recommendations',
-        'Weekly Summary'
+        'Weekly Summary',
       ]
 
       expect(insightCategories).toHaveLength(7)
@@ -188,10 +183,10 @@ describe('Sidebar Integration Tests', () => {
         timelineView: { status: 'complete', tests: 24 },
         archive: { status: 'complete', tests: 34 },
         filterVisibility: { status: 'complete', tests: 32 },
-        notifications: { status: 'complete', tests: 41 }
+        notifications: { status: 'complete', tests: 41 },
       }
 
-      const allComplete = Object.values(features).every(f => f.status === 'complete')
+      const allComplete = Object.values(features).every((f) => f.status === 'complete')
       expect(allComplete).toBe(true)
 
       const totalTests = Object.values(features).reduce((sum, f) => sum + f.tests, 0)

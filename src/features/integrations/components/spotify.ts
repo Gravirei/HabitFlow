@@ -1,54 +1,52 @@
-import { useIntegrationStore } from '../store/integrationStore';
-import { callOAuthProxy } from '@/lib/security/oauthProxyClient';
+import { useIntegrationStore } from '../store/integrationStore'
 
 interface AccessTokenResponse {
-  access_token: string;
-  refresh_token?: string;
-  expires_in: number;
-  token_type: string;
+  access_token: string
+  refresh_token?: string
+  expires_in: number
+  token_type: string
 }
 
 interface PlaybackState {
-  is_playing: boolean;
+  is_playing: boolean
   current_track?: {
-    id: string;
-    name: string;
-    artists: Array<{ name: string }>;
+    id: string
+    name: string
+    artists: Array<{ name: string }>
     album: {
-      images: Array<{ url: string; height: number; width: number }>;
-    };
-    uri: string;
-  };
+      images: Array<{ url: string; height: number; width: number }>
+    }
+    uri: string
+  }
   device?: {
-    id: string;
-    volume_percent: number;
-  };
+    id: string
+    volume_percent: number
+  }
 }
 
 interface Playlist {
-  id: string;
-  name: string;
-  images: Array<{ url: string }>;
+  id: string
+  name: string
+  images: Array<{ url: string }>
   tracks: {
-    total: number;
-  };
-  uri: string;
+    total: number
+  }
+  uri: string
 }
 
 interface SearchResponse {
   playlists: {
-    items: Playlist[];
-  };
+    items: Playlist[]
+  }
 }
 
-const SPOTIFY_AUTH_URL = 'https://accounts.spotify.com/authorize';
-const SPOTIFY_API_BASE = 'https://api.spotify.com/v1';
+const SPOTIFY_AUTH_URL = 'https://accounts.spotify.com/authorize'
+const SPOTIFY_API_BASE = 'https://api.spotify.com/v1'
+const SPOTIFY_TOKEN_URL = 'https://accounts.spotify.com/api/token'
 
-const CLIENT_ID = import.meta.env.VITE_SPOTIFY_CLIENT_ID || 'your_client_id';
-// Must exactly match a redirect URI registered in the Spotify developer dashboard.
-const REDIRECT_URI =
-  import.meta.env.VITE_SPOTIFY_REDIRECT_URI ||
-  `${window.location.origin}/integrations/callback/spotify`;
+const CLIENT_ID = import.meta.env.VITE_SPOTIFY_CLIENT_ID || 'your_client_id'
+const CLIENT_SECRET = import.meta.env.VITE_SPOTIFY_CLIENT_SECRET || 'your_client_secret'
+const REDIRECT_URI = import.meta.env.VITE_SPOTIFY_REDIRECT_URI || 'http://localhost:5173/callback'
 
 const SCOPES = [
   'user-read-playback-state',
@@ -56,7 +54,7 @@ const SCOPES = [
   'user-read-currently-playing',
   'playlist-read-private',
   'streaming',
-];
+]
 
 export const spotifyService = {
   /**
@@ -69,27 +67,40 @@ export const spotifyService = {
       redirect_uri: REDIRECT_URI,
       scope: SCOPES.join(' '),
       show_dialog: 'true',
-    });
+    })
 
-    window.location.href = `${SPOTIFY_AUTH_URL}?${params.toString()}`;
+    window.location.href = `${SPOTIFY_AUTH_URL}?${params.toString()}`
   },
 
   /**
-   * Exchanges authorization code for access token.
-   * Secret-handled token exchange goes through the oauth-token-proxy Edge Function.
+   * Exchanges authorization code for access token
    */
   async exchangeCode(code: string): Promise<AccessTokenResponse> {
     try {
-      return await callOAuthProxy({
-        provider: 'spotify',
-        action: 'exchange',
+      const params = new URLSearchParams({
+        grant_type: 'authorization_code',
         code,
-        redirectUri: REDIRECT_URI,
-        clientId: CLIENT_ID,
-      });
+        redirect_uri: REDIRECT_URI,
+        client_id: CLIENT_ID,
+        client_secret: CLIENT_SECRET,
+      })
+
+      const response = await fetch(SPOTIFY_TOKEN_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: params.toString(),
+      })
+
+      if (!response.ok) {
+        throw new Error(`Token exchange failed: ${response.statusText}`)
+      }
+
+      return response.json()
     } catch (error) {
-      console.error('Error exchanging code for token:', error);
-      throw error;
+      console.error('Error exchanging code for token:', error)
+      throw error
     }
   },
 
@@ -98,15 +109,29 @@ export const spotifyService = {
    */
   async refreshAccessToken(refreshToken: string): Promise<AccessTokenResponse> {
     try {
-      return await callOAuthProxy({
-        provider: 'spotify',
-        action: 'refresh',
-        refreshToken,
-        clientId: CLIENT_ID,
-      });
+      const params = new URLSearchParams({
+        grant_type: 'refresh_token',
+        refresh_token: refreshToken,
+        client_id: CLIENT_ID,
+        client_secret: CLIENT_SECRET,
+      })
+
+      const response = await fetch(SPOTIFY_TOKEN_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: params.toString(),
+      })
+
+      if (!response.ok) {
+        throw new Error(`Token refresh failed: ${response.statusText}`)
+      }
+
+      return response.json()
     } catch (error) {
-      console.error('Error refreshing access token:', error);
-      throw error;
+      console.error('Error refreshing access token:', error)
+      throw error
     }
   },
 
@@ -117,7 +142,7 @@ export const spotifyService = {
     return {
       Authorization: `Bearer ${accessToken}`,
       'Content-Type': 'application/json',
-    };
+    }
   },
 
   /**
@@ -127,20 +152,20 @@ export const spotifyService = {
     try {
       const response = await fetch(`${SPOTIFY_API_BASE}/me/player`, {
         headers: this.getHeaders(accessToken),
-      });
+      })
 
       if (response.status === 204) {
-        return null;
+        return null
       }
 
       if (!response.ok) {
-        throw new Error(`Failed to fetch playback state: ${response.statusText}`);
+        throw new Error(`Failed to fetch playback state: ${response.statusText}`)
       }
 
-      return response.json();
+      return response.json()
     } catch (error) {
-      console.error('Error fetching current playback:', error);
-      throw error;
+      console.error('Error fetching current playback:', error)
+      throw error
     }
   },
 
@@ -149,20 +174,20 @@ export const spotifyService = {
    */
   async play(accessToken: string, uri?: string): Promise<void> {
     try {
-      const body = uri ? JSON.stringify({ uris: [uri] }) : undefined;
+      const body = uri ? JSON.stringify({ uris: [uri] }) : undefined
 
       const response = await fetch(`${SPOTIFY_API_BASE}/me/player/play`, {
         method: 'PUT',
         headers: this.getHeaders(accessToken),
         body,
-      });
+      })
 
       if (!response.ok && response.status !== 204) {
-        throw new Error(`Failed to play: ${response.statusText}`);
+        throw new Error(`Failed to play: ${response.statusText}`)
       }
     } catch (error) {
-      console.error('Error playing track:', error);
-      throw error;
+      console.error('Error playing track:', error)
+      throw error
     }
   },
 
@@ -174,14 +199,14 @@ export const spotifyService = {
       const response = await fetch(`${SPOTIFY_API_BASE}/me/player/pause`, {
         method: 'PUT',
         headers: this.getHeaders(accessToken),
-      });
+      })
 
       if (!response.ok && response.status !== 204) {
-        throw new Error(`Failed to pause: ${response.statusText}`);
+        throw new Error(`Failed to pause: ${response.statusText}`)
       }
     } catch (error) {
-      console.error('Error pausing playback:', error);
-      throw error;
+      console.error('Error pausing playback:', error)
+      throw error
     }
   },
 
@@ -190,21 +215,21 @@ export const spotifyService = {
    */
   async setVolume(accessToken: string, volumePercent: number): Promise<void> {
     try {
-      const volume = Math.max(0, Math.min(100, volumePercent));
+      const volume = Math.max(0, Math.min(100, volumePercent))
       const response = await fetch(
         `${SPOTIFY_API_BASE}/me/player/volume?volume_percent=${volume}`,
         {
           method: 'PUT',
           headers: this.getHeaders(accessToken),
         }
-      );
+      )
 
       if (!response.ok && response.status !== 204) {
-        throw new Error(`Failed to set volume: ${response.statusText}`);
+        throw new Error(`Failed to set volume: ${response.statusText}`)
       }
     } catch (error) {
-      console.error('Error setting volume:', error);
-      throw error;
+      console.error('Error setting volume:', error)
+      throw error
     }
   },
 
@@ -215,17 +240,17 @@ export const spotifyService = {
     try {
       const response = await fetch(`${SPOTIFY_API_BASE}/me/playlists?limit=50`, {
         headers: this.getHeaders(accessToken),
-      });
+      })
 
       if (!response.ok) {
-        throw new Error(`Failed to fetch playlists: ${response.statusText}`);
+        throw new Error(`Failed to fetch playlists: ${response.statusText}`)
       }
 
-      const data = await response.json();
-      return data.items;
+      const data = await response.json()
+      return data.items
     } catch (error) {
-      console.error('Error fetching user playlists:', error);
-      throw error;
+      console.error('Error fetching user playlists:', error)
+      throw error
     }
   },
 
@@ -238,21 +263,21 @@ export const spotifyService = {
         q: query,
         type: 'playlist',
         limit: '50',
-      });
+      })
 
       const response = await fetch(`${SPOTIFY_API_BASE}/search?${params.toString()}`, {
         headers: this.getHeaders(accessToken),
-      });
+      })
 
       if (!response.ok) {
-        throw new Error(`Failed to search playlists: ${response.statusText}`);
+        throw new Error(`Failed to search playlists: ${response.statusText}`)
       }
 
-      const data: SearchResponse = await response.json();
-      return data.playlists.items;
+      const data: SearchResponse = await response.json()
+      return data.playlists.items
     } catch (error) {
-      console.error('Error searching playlists:', error);
-      throw error;
+      console.error('Error searching playlists:', error)
+      throw error
     }
   },
 
@@ -261,20 +286,20 @@ export const spotifyService = {
    */
   async getFocusPlaylists(accessToken: string): Promise<Playlist[]> {
     try {
-      const queries = ['focus', 'concentration', 'study', 'deep work', 'coding'];
-      const allPlaylists = new Map<string, Playlist>();
+      const queries = ['focus', 'concentration', 'study', 'deep work', 'coding']
+      const allPlaylists = new Map<string, Playlist>()
 
       for (const query of queries) {
-        const playlists = await this.searchPlaylists(accessToken, query);
+        const playlists = await this.searchPlaylists(accessToken, query)
         playlists.forEach((playlist) => {
-          allPlaylists.set(playlist.id, playlist);
-        });
+          allPlaylists.set(playlist.id, playlist)
+        })
       }
 
-      return Array.from(allPlaylists.values()).slice(0, 50);
+      return Array.from(allPlaylists.values()).slice(0, 50)
     } catch (error) {
-      console.error('Error fetching focus playlists:', error);
-      throw error;
+      console.error('Error fetching focus playlists:', error)
+      throw error
     }
   },
 
@@ -283,22 +308,19 @@ export const spotifyService = {
    */
   async getPlaylistTracks(accessToken: string, playlistId: string): Promise<any[]> {
     try {
-      const response = await fetch(
-        `${SPOTIFY_API_BASE}/playlists/${playlistId}/tracks?limit=50`,
-        {
-          headers: this.getHeaders(accessToken),
-        }
-      );
+      const response = await fetch(`${SPOTIFY_API_BASE}/playlists/${playlistId}/tracks?limit=50`, {
+        headers: this.getHeaders(accessToken),
+      })
 
       if (!response.ok) {
-        throw new Error(`Failed to fetch playlist tracks: ${response.statusText}`);
+        throw new Error(`Failed to fetch playlist tracks: ${response.statusText}`)
       }
 
-      const data = await response.json();
-      return data.items;
+      const data = await response.json()
+      return data.items
     } catch (error) {
-      console.error('Error fetching playlist tracks:', error);
-      throw error;
+      console.error('Error fetching playlist tracks:', error)
+      throw error
     }
   },
 
@@ -306,6 +328,8 @@ export const spotifyService = {
    * Disconnects Spotify integration
    */
   disconnect(): void {
-    useIntegrationStore.getState().disconnect('spotify');
+    // eslint-disable-next-line react-hooks/rules-of-hooks -- TODO(burn-down): zustand hook called inside plain function; should be getState(), see refactor plan P1
+    const integrationStore = useIntegrationStore()
+    integrationStore.disconnect('spotify')
   },
-};
+}

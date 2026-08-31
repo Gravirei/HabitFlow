@@ -11,27 +11,13 @@ describe('WheelPicker', () => {
 
   describe('Rendering', () => {
     it('should render with label', () => {
-      render(
-        <WheelPicker
-          label="Minutes"
-          value={5}
-          max={59}
-          onChange={mockOnChange}
-        />
-      )
+      render(<WheelPicker label="Minutes" value={5} max={59} onChange={mockOnChange} />)
 
       expect(screen.getByText('Minutes')).toBeInTheDocument()
     })
 
     it('should display current value', () => {
-      render(
-        <WheelPicker
-          label="Hours"
-          value={3}
-          max={23}
-          onChange={mockOnChange}
-        />
-      )
+      render(<WheelPicker label="Hours" value={3} max={23} onChange={mockOnChange} />)
 
       // WheelPicker pads values with leading zeros
       // The current value should be visible as "03"
@@ -40,12 +26,7 @@ describe('WheelPicker', () => {
 
     it('should render up and down buttons', () => {
       const { container } = render(
-        <WheelPicker
-          label="Seconds"
-          value={30}
-          max={59}
-          onChange={mockOnChange}
-        />
+        <WheelPicker label="Seconds" value={30} max={59} onChange={mockOnChange} />
       )
 
       const buttons = container.querySelectorAll('button')
@@ -57,12 +38,7 @@ describe('WheelPicker', () => {
   describe('Value Changes', () => {
     it('should increment value when up button is clicked', () => {
       const { container } = render(
-        <WheelPicker
-          label="Minutes"
-          value={5}
-          max={59}
-          onChange={mockOnChange}
-        />
+        <WheelPicker label="Minutes" value={5} max={59} onChange={mockOnChange} />
       )
 
       // Click the button below current value (value + 1)
@@ -75,12 +51,7 @@ describe('WheelPicker', () => {
 
     it('should decrement value when down button is clicked', () => {
       const { container } = render(
-        <WheelPicker
-          label="Minutes"
-          value={5}
-          max={59}
-          onChange={mockOnChange}
-        />
+        <WheelPicker label="Minutes" value={5} max={59} onChange={mockOnChange} />
       )
 
       // Click the button above current value (value - 1)
@@ -92,12 +63,7 @@ describe('WheelPicker', () => {
 
     it('should wrap to max when decrementing at 0', () => {
       const { container } = render(
-        <WheelPicker
-          label="Minutes"
-          value={0}
-          max={59}
-          onChange={mockOnChange}
-        />
+        <WheelPicker label="Minutes" value={0} max={59} onChange={mockOnChange} />
       )
 
       // Click value-1 button (should wrap to 59)
@@ -109,12 +75,7 @@ describe('WheelPicker', () => {
 
     it('should wrap to 0 when incrementing at max', () => {
       const { container } = render(
-        <WheelPicker
-          label="Minutes"
-          value={59}
-          max={59}
-          onChange={mockOnChange}
-        />
+        <WheelPicker label="Minutes" value={59} max={59} onChange={mockOnChange} />
       )
 
       // Click value+1 button (should wrap to 0)
@@ -128,12 +89,7 @@ describe('WheelPicker', () => {
   describe('Different Max Values', () => {
     it('should handle max=23 for hours', () => {
       const { container } = render(
-        <WheelPicker
-          label="Hours"
-          value={23}
-          max={23}
-          onChange={mockOnChange}
-        />
+        <WheelPicker label="Hours" value={23} max={23} onChange={mockOnChange} />
       )
 
       const buttons = container.querySelectorAll('button')
@@ -144,12 +100,7 @@ describe('WheelPicker', () => {
 
     it('should handle max=59 for minutes/seconds', () => {
       const { container } = render(
-        <WheelPicker
-          label="Seconds"
-          value={59}
-          max={59}
-          onChange={mockOnChange}
-        />
+        <WheelPicker label="Seconds" value={59} max={59} onChange={mockOnChange} />
       )
 
       const buttons = container.querySelectorAll('button')
@@ -160,12 +111,7 @@ describe('WheelPicker', () => {
 
     it('should handle custom max values', () => {
       const { container } = render(
-        <WheelPicker
-          label="Custom"
-          value={99}
-          max={99}
-          onChange={mockOnChange}
-        />
+        <WheelPicker label="Custom" value={99} max={99} onChange={mockOnChange} />
       )
 
       const buttons = container.querySelectorAll('button')
@@ -178,12 +124,7 @@ describe('WheelPicker', () => {
   describe('Scrolling Behavior', () => {
     it('should handle wheel scroll up', () => {
       const { container } = render(
-        <WheelPicker
-          label="Minutes"
-          value={5}
-          max={59}
-          onChange={mockOnChange}
-        />
+        <WheelPicker label="Minutes" value={5} max={59} onChange={mockOnChange} />
       )
 
       const scrollContainer = container.querySelector('[role="spinbutton"]') || container.firstChild
@@ -196,12 +137,7 @@ describe('WheelPicker', () => {
 
     it('should handle wheel scroll down', () => {
       const { container } = render(
-        <WheelPicker
-          label="Minutes"
-          value={5}
-          max={59}
-          onChange={mockOnChange}
-        />
+        <WheelPicker label="Minutes" value={5} max={59} onChange={mockOnChange} />
       )
 
       const scrollContainer = container.querySelector('[role="spinbutton"]') || container.firstChild
@@ -214,12 +150,7 @@ describe('WheelPicker', () => {
 
     it('should debounce rapid scroll events', () => {
       const { container } = render(
-        <WheelPicker
-          label="Minutes"
-          value={5}
-          max={59}
-          onChange={mockOnChange}
-        />
+        <WheelPicker label="Minutes" value={5} max={59} onChange={mockOnChange} />
       )
 
       const scrollContainer = container.querySelector('[role="spinbutton"]') || container.firstChild
@@ -240,19 +171,14 @@ describe('WheelPicker', () => {
   describe('Touch/Swipe Behavior', () => {
     it('should handle touch start', () => {
       const { container } = render(
-        <WheelPicker
-          label="Minutes"
-          value={5}
-          max={59}
-          onChange={mockOnChange}
-        />
+        <WheelPicker label="Minutes" value={5} max={59} onChange={mockOnChange} />
       )
 
       const scrollContainer = container.querySelector('[role="spinbutton"]') || container.firstChild
 
       if (scrollContainer) {
         fireEvent.touchStart(scrollContainer, {
-          touches: [{ clientY: 100 }]
+          touches: [{ clientY: 100 }],
         })
 
         // Should register touch start
@@ -262,23 +188,18 @@ describe('WheelPicker', () => {
 
     it('should handle swipe up gesture', () => {
       const { container } = render(
-        <WheelPicker
-          label="Minutes"
-          value={5}
-          max={59}
-          onChange={mockOnChange}
-        />
+        <WheelPicker label="Minutes" value={5} max={59} onChange={mockOnChange} />
       )
 
       const scrollContainer = container.querySelector('[role="spinbutton"]') || container.firstChild
 
       if (scrollContainer) {
         fireEvent.touchStart(scrollContainer, {
-          touches: [{ clientY: 200 }]
+          touches: [{ clientY: 200 }],
         })
 
         fireEvent.touchMove(scrollContainer, {
-          touches: [{ clientY: 150 }]
+          touches: [{ clientY: 150 }],
         })
 
         fireEvent.touchEnd(scrollContainer)
@@ -291,23 +212,18 @@ describe('WheelPicker', () => {
 
     it('should handle swipe down gesture', () => {
       const { container } = render(
-        <WheelPicker
-          label="Minutes"
-          value={5}
-          max={59}
-          onChange={mockOnChange}
-        />
+        <WheelPicker label="Minutes" value={5} max={59} onChange={mockOnChange} />
       )
 
       const scrollContainer = container.querySelector('[role="spinbutton"]') || container.firstChild
 
       if (scrollContainer) {
         fireEvent.touchStart(scrollContainer, {
-          touches: [{ clientY: 150 }]
+          touches: [{ clientY: 150 }],
         })
 
         fireEvent.touchMove(scrollContainer, {
-          touches: [{ clientY: 200 }]
+          touches: [{ clientY: 200 }],
         })
 
         fireEvent.touchEnd(scrollContainer)
@@ -321,66 +237,35 @@ describe('WheelPicker', () => {
   describe('Edge Cases', () => {
     it('should handle value prop changes', () => {
       const { rerender } = render(
-        <WheelPicker
-          label="Minutes"
-          value={5}
-          max={59}
-          onChange={mockOnChange}
-        />
+        <WheelPicker label="Minutes" value={5} max={59} onChange={mockOnChange} />
       )
 
       expect(screen.getByText('05')).toBeInTheDocument()
 
-      rerender(
-        <WheelPicker
-          label="Minutes"
-          value={10}
-          max={59}
-          onChange={mockOnChange}
-        />
-      )
+      rerender(<WheelPicker label="Minutes" value={10} max={59} onChange={mockOnChange} />)
 
       expect(screen.getByText('10')).toBeInTheDocument()
     })
 
     it('should handle value=0', () => {
-      render(
-        <WheelPicker
-          label="Minutes"
-          value={0}
-          max={59}
-          onChange={mockOnChange}
-        />
-      )
+      render(<WheelPicker label="Minutes" value={0} max={59} onChange={mockOnChange} />)
 
       expect(screen.getByText('00')).toBeInTheDocument()
     })
 
     it('should handle max value', () => {
-      render(
-        <WheelPicker
-          label="Minutes"
-          value={59}
-          max={59}
-          onChange={mockOnChange}
-        />
-      )
+      render(<WheelPicker label="Minutes" value={59} max={59} onChange={mockOnChange} />)
 
       expect(screen.getByText('59')).toBeInTheDocument()
     })
 
     it('should handle rapid button clicks', () => {
       const { container } = render(
-        <WheelPicker
-          label="Minutes"
-          value={5}
-          max={59}
-          onChange={mockOnChange}
-        />
+        <WheelPicker label="Minutes" value={5} max={59} onChange={mockOnChange} />
       )
 
       const upButton = container.querySelectorAll('button')[0]
-      
+
       fireEvent.click(upButton)
       fireEvent.click(upButton)
       fireEvent.click(upButton)
@@ -392,12 +277,7 @@ describe('WheelPicker', () => {
   describe('Accessibility', () => {
     it('should have proper ARIA roles', () => {
       const { container } = render(
-        <WheelPicker
-          label="Minutes"
-          value={5}
-          max={59}
-          onChange={mockOnChange}
-        />
+        <WheelPicker label="Minutes" value={5} max={59} onChange={mockOnChange} />
       )
 
       // Should have spinbutton role or similar
@@ -409,12 +289,7 @@ describe('WheelPicker', () => {
 
     it('should have buttons for keyboard users', () => {
       const { container } = render(
-        <WheelPicker
-          label="Minutes"
-          value={5}
-          max={59}
-          onChange={mockOnChange}
-        />
+        <WheelPicker label="Minutes" value={5} max={59} onChange={mockOnChange} />
       )
 
       const buttons = container.querySelectorAll('button')
@@ -429,16 +304,11 @@ describe('WheelPicker', () => {
 
     it('should handle 100 rapid increments', () => {
       const { container } = render(
-        <WheelPicker
-          label="Minutes"
-          value={0}
-          max={59}
-          onChange={mockOnChange}
-        />
+        <WheelPicker label="Minutes" value={0} max={59} onChange={mockOnChange} />
       )
 
       const upButton = container.querySelectorAll('button')[0]
-      
+
       for (let i = 0; i < 100; i++) {
         fireEvent.click(upButton)
       }

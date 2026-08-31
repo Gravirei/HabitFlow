@@ -1,10 +1,9 @@
-// @ts-nocheck
 /**
  * AI Insights Engine Tests
  * Comprehensive tests for core analysis algorithms
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import {
   generateAIInsights,
   analyzePeakHours,

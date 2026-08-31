@@ -23,7 +23,6 @@ export function HabitDetailsModal({ isOpen, onClose, habitId }: HabitDetailsModa
   if (!habit) return null
 
   const iconColor = iconColorOptions[habit.iconColor ?? 0]
-  // Habit has no createdAt; startDate is the closest recorded origin date
   const createdDate = habit.startDate ? new Date(habit.startDate) : null
 
   return (

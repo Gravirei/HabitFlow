@@ -1,10 +1,9 @@
-// @ts-nocheck
 /**
  * Date Range Picker Component
  * Button to select date range for filtering sessions
  */
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { DateRangePickerModal } from './DateRangePickerModal'
 
 interface DateRangePickerProps {
@@ -34,20 +33,20 @@ export function DateRangePicker({ startDate, endDate, onDateRangeChange }: DateR
 
   return (
     <>
-      <button 
+      <button
         onClick={handleClick}
-        className="flex-1 flex items-center justify-between gap-2 text-sm font-bold text-slate-700 dark:text-gray-100 bg-white dark:bg-surface-dark py-3.5 px-5 rounded-2xl border border-slate-100 dark:border-white/5 shadow-sm active:scale-[0.98] transition-all group hover:border-primary/20 hover:shadow-primary/5"
+        className="group flex flex-1 items-center justify-between gap-2 rounded-2xl border border-slate-100 bg-white px-5 py-3.5 text-sm font-bold text-slate-700 shadow-sm transition-all hover:border-primary/20 hover:shadow-primary/5 active:scale-[0.98] dark:border-white/5 dark:bg-surface-dark dark:text-gray-100"
       >
         <div className="flex flex-col items-start gap-0.5">
-          <span className="text-[10px] uppercase text-slate-400 dark:text-gray-500 font-bold tracking-wider group-hover:text-primary/70 transition-colors">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 transition-colors group-hover:text-primary/70 dark:text-gray-500">
             Date Range
           </span>
-          <span className="text-sm font-bold truncate">{formatDateRange()}</span>
+          <span className="truncate text-sm font-bold">{formatDateRange()}</span>
         </div>
-        <div className="size-8 rounded-full bg-slate-50 dark:bg-white/5 flex items-center justify-center group-hover:bg-primary/10 transition-colors">
-            <span className="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors text-[18px]">
+        <div className="flex size-8 items-center justify-center rounded-full bg-slate-50 transition-colors group-hover:bg-primary/10 dark:bg-white/5">
+          <span className="material-symbols-outlined text-[18px] text-slate-400 transition-colors group-hover:text-primary">
             calendar_month
-            </span>
+          </span>
         </div>
       </button>
 

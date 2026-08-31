@@ -1,9 +1,9 @@
 /**
  * Interval Completion Handler
- * 
+ *
  * Handles the completion of interval timer sessions.
  * Manages sound, vibration, notifications, and callbacks.
- * 
+ *
  * @module intervalCompletionHandler
  */
 
@@ -31,7 +31,12 @@ export interface CompletionParams {
 }
 
 export interface CompletionCallbacks {
-  onSessionComplete?: (duration: number, intervalCount: number, sessionName?: string, targetLoopCount?: number) => void
+  onSessionComplete?: (
+    duration: number,
+    intervalCount: number,
+    sessionName?: string,
+    targetLoopCount?: number
+  ) => void
   onTimerComplete?: () => void
 }
 
@@ -43,7 +48,7 @@ export interface CompletionResult {
 /**
  * Handle interval timer session completion
  * Plays feedback (sound/vibration/notification) and triggers callbacks
- * 
+ *
  * @returns Result indicating success/failure
  */
 export function handleIntervalSessionComplete(
@@ -124,9 +129,9 @@ export function handleIntervalSessionComplete(
     return { completed: true }
   } catch (error) {
     logError(error, 'intervalCompletionHandler.handleIntervalSessionComplete')
-    return { 
-      completed: false, 
-      error: error instanceof Error ? error : new Error(String(error))
+    return {
+      completed: false,
+      error: error instanceof Error ? error : new Error(String(error)),
     }
   }
 }

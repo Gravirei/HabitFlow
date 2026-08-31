@@ -470,7 +470,7 @@ export const useSocialStore = create<SocialState>()(
 
       checkAndUnlockBadges: () => {
         const state = get()
-        const { totalXP, currentStreak, friends, sentNudgesCount, currentLeagueTier } = state
+        const { totalXP, currentStreak, friends, sentNudgesCount } = state
         const level = getLevelForXP(totalXP).level
 
         const updatedBadges = state.badges.map((badge) => {
@@ -524,24 +524,13 @@ export const useSocialStore = create<SocialState>()(
               shouldUnlock = totalXP >= 10000
               break
 
-            // League badges — legacy bronze/diamond tier names; the current
-            // spell-tier LeagueType never matches, so these stay locked until
-            // the badge thresholds are migrated to league positions.
+            // League badges (tier names use slug format, not metal names —
+            // legacy names from before the league refactor; no-op for now)
             case 'league-silver':
-              shouldUnlock = (['silver', 'gold', 'platinum', 'diamond'] as string[]).includes(
-                currentLeagueTier
-              )
-              break
             case 'league-gold':
-              shouldUnlock = (['gold', 'platinum', 'diamond'] as string[]).includes(
-                currentLeagueTier
-              )
-              break
             case 'league-platinum':
-              shouldUnlock = (['platinum', 'diamond'] as string[]).includes(currentLeagueTier)
-              break
             case 'league-diamond':
-              shouldUnlock = (currentLeagueTier as string) === 'diamond'
+              shouldUnlock = false
               break
           }
 

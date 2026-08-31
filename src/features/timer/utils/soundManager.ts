@@ -35,7 +35,7 @@ class SoundManager {
   public playSound(type: SoundType, volume: number): void {
     try {
       const ctx = this.getAudioContext()
-      
+
       // Normalize volume to 0-1 range
       const normalizedVolume = Math.max(0, Math.min(100, volume)) / 100
 
@@ -81,7 +81,7 @@ class SoundManager {
     const oscillator = ctx.createOscillator()
     oscillator.type = 'sine'
     oscillator.frequency.value = 800
-    
+
     oscillator.connect(gainNode).connect(ctx.destination)
     oscillator.start(ctx.currentTime)
     oscillator.stop(ctx.currentTime + 0.2)
@@ -94,17 +94,17 @@ class SoundManager {
   private playBell(ctx: AudioContext, gainNode: GainNode): void {
     // Major chord frequencies: C5, E5, G5
     const frequencies = [523.25, 659.25, 783.99]
-    
+
     frequencies.forEach((freq, i) => {
       const osc = ctx.createOscillator()
       osc.type = 'sine'
       osc.frequency.value = freq
-      
+
       // Create envelope for decay effect
       const envelope = ctx.createGain()
       envelope.gain.setValueAtTime(0.3, ctx.currentTime)
       envelope.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 1)
-      
+
       osc.connect(envelope).connect(gainNode).connect(ctx.destination)
       osc.start(ctx.currentTime + i * 0.1) // Slight delay between notes
       osc.stop(ctx.currentTime + 1)
@@ -117,18 +117,18 @@ class SoundManager {
    */
   private playChime(ctx: AudioContext, gainNode: GainNode): void {
     // Ascending notes: A4, C#5, E5, A5
-    const notes = [440.00, 554.37, 659.25, 880.00]
-    
+    const notes = [440.0, 554.37, 659.25, 880.0]
+
     notes.forEach((freq, i) => {
       const osc = ctx.createOscillator()
       osc.type = 'triangle' // Softer than sine
       osc.frequency.value = freq
-      
+
       // Create envelope for smooth note
       const envelope = ctx.createGain()
       envelope.gain.setValueAtTime(0.4, ctx.currentTime + i * 0.15)
       envelope.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + i * 0.15 + 0.3)
-      
+
       osc.connect(envelope).connect(gainNode).connect(ctx.destination)
       osc.start(ctx.currentTime + i * 0.15)
       osc.stop(ctx.currentTime + i * 0.15 + 0.3)
@@ -141,12 +141,12 @@ class SoundManager {
    */
   private playDigital(ctx: AudioContext, gainNode: GainNode): void {
     const frequencies = [1000, 1200, 1000] // Up-down pattern
-    
+
     frequencies.forEach((freq, i) => {
       const osc = ctx.createOscillator()
       osc.type = 'square' // More electronic/digital sound
       osc.frequency.value = freq
-      
+
       osc.connect(gainNode).connect(ctx.destination)
       osc.start(ctx.currentTime + i * 0.1)
       osc.stop(ctx.currentTime + i * 0.1 + 0.08) // Very short beeps

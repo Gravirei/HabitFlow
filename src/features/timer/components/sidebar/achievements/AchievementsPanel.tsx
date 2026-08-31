@@ -1,11 +1,9 @@
-// @ts-nocheck
 /**
  * Achievements Panel Component
  * Main panel displaying achievements with filtering
  */
 
-import React, { useState } from 'react'
-import { motion } from 'framer-motion'
+import { useState } from 'react'
 import { AchievementCard } from './AchievementCard'
 import type { Achievement } from './types'
 import { getAchievementStats } from './achievementTracking'
@@ -27,7 +25,7 @@ export function AchievementsPanel({ achievements }: AchievementsPanelProps) {
     // Status filter
     if (filter === 'unlocked' && !achievement.unlocked) return false
     if (filter === 'locked' && achievement.unlocked) return false
-    
+
     // Rarity filter
     if (filter === 'common' && achievement.rarity !== 'common') return false
     if (filter === 'rare' && achievement.rarity !== 'rare') return false
@@ -43,7 +41,7 @@ export function AchievementsPanel({ achievements }: AchievementsPanelProps) {
   // Sort: unlocked first, then by rarity, then by progress
   const sortedAchievements = [...filteredAchievements].sort((a, b) => {
     if (a.unlocked !== b.unlocked) return a.unlocked ? -1 : 1
-    
+
     const rarityOrder = { legendary: 4, epic: 3, rare: 2, common: 1 }
     const rarityDiff = rarityOrder[b.rarity] - rarityOrder[a.rarity]
     if (rarityDiff !== 0) return rarityDiff
@@ -78,44 +76,34 @@ export function AchievementsPanel({ achievements }: AchievementsPanelProps) {
   return (
     <div className="space-y-6">
       {/* Stats Overview */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="bg-slate-100 dark:bg-slate-800/50 rounded-xl p-4">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="rounded-xl bg-slate-100 p-4 dark:bg-slate-800/50">
           <div className="text-2xl font-bold text-slate-800 dark:text-white">
             {stats.unlockedAchievements}
           </div>
-          <div className="text-xs text-slate-600 dark:text-slate-400 font-medium">
-            Unlocked
-          </div>
+          <div className="text-xs font-medium text-slate-600 dark:text-slate-400">Unlocked</div>
         </div>
-        <div className="bg-slate-100 dark:bg-slate-800/50 rounded-xl p-4">
+        <div className="rounded-xl bg-slate-100 p-4 dark:bg-slate-800/50">
           <div className="text-2xl font-bold text-slate-800 dark:text-white">
             {stats.totalAchievements}
           </div>
-          <div className="text-xs text-slate-600 dark:text-slate-400 font-medium">
-            Total
-          </div>
+          <div className="text-xs font-medium text-slate-600 dark:text-slate-400">Total</div>
         </div>
-        <div className="bg-slate-100 dark:bg-slate-800/50 rounded-xl p-4">
+        <div className="rounded-xl bg-slate-100 p-4 dark:bg-slate-800/50">
           <div className="text-2xl font-bold text-slate-800 dark:text-white">
             {Math.round(stats.completionRate)}%
           </div>
-          <div className="text-xs text-slate-600 dark:text-slate-400 font-medium">
-            Complete
-          </div>
+          <div className="text-xs font-medium text-slate-600 dark:text-slate-400">Complete</div>
         </div>
-        <div className="bg-slate-100 dark:bg-slate-800/50 rounded-xl p-4">
-          <div className="text-2xl font-bold text-orange-500">
-            {stats.legendaryUnlocked}
-          </div>
-          <div className="text-xs text-slate-600 dark:text-slate-400 font-medium">
-            Legendary
-          </div>
+        <div className="rounded-xl bg-slate-100 p-4 dark:bg-slate-800/50">
+          <div className="text-2xl font-bold text-orange-500">{stats.legendaryUnlocked}</div>
+          <div className="text-xs font-medium text-slate-600 dark:text-slate-400">Legendary</div>
         </div>
       </div>
 
       {/* Status Filters */}
       <div>
-        <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">
+        <label className="mb-3 block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
           Status
         </label>
         <div className="flex flex-wrap gap-2">
@@ -123,13 +111,11 @@ export function AchievementsPanel({ achievements }: AchievementsPanelProps) {
             <button
               key={btn.id}
               onClick={() => setFilter(btn.id)}
-              className={`
-                px-4 py-2 rounded-xl font-medium text-sm transition-all flex items-center gap-2
-                ${filter === btn.id
+              className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-all ${
+                filter === btn.id
                   ? 'bg-primary text-white shadow-lg shadow-primary/30'
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
-                }
-              `}
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
+              } `}
             >
               <span className="material-symbols-outlined text-[18px]">{btn.icon}</span>
               {btn.label}
@@ -140,7 +126,7 @@ export function AchievementsPanel({ achievements }: AchievementsPanelProps) {
 
       {/* Rarity Filters */}
       <div>
-        <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">
+        <label className="mb-3 block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
           Rarity
         </label>
         <div className="flex flex-wrap gap-2">
@@ -148,13 +134,11 @@ export function AchievementsPanel({ achievements }: AchievementsPanelProps) {
             <button
               key={btn.id}
               onClick={() => setFilter(btn.id)}
-              className={`
-                px-4 py-2 rounded-xl font-medium text-sm transition-all
-                ${filter === btn.id
+              className={`rounded-xl px-4 py-2 text-sm font-medium transition-all ${
+                filter === btn.id
                   ? `bg-${btn.color}-500 text-white shadow-lg shadow-${btn.color}-500/30`
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
-                }
-              `}
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
+              } `}
             >
               {btn.label}
             </button>
@@ -164,7 +148,7 @@ export function AchievementsPanel({ achievements }: AchievementsPanelProps) {
 
       {/* Category Filters */}
       <div>
-        <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">
+        <label className="mb-3 block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
           Category
         </label>
         <div className="flex flex-wrap gap-2">
@@ -172,13 +156,11 @@ export function AchievementsPanel({ achievements }: AchievementsPanelProps) {
             <button
               key={btn.id}
               onClick={() => setCategoryFilter(btn.id)}
-              className={`
-                px-4 py-2 rounded-xl font-medium text-sm transition-all flex items-center gap-2
-                ${categoryFilter === btn.id
+              className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-all ${
+                categoryFilter === btn.id
                   ? 'bg-primary text-white shadow-lg shadow-primary/30'
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
-                }
-              `}
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
+              } `}
             >
               <span className="material-symbols-outlined text-[18px]">{btn.icon}</span>
               {btn.label}
@@ -189,28 +171,24 @@ export function AchievementsPanel({ achievements }: AchievementsPanelProps) {
 
       {/* Achievement Grid */}
       <div>
-        <div className="flex items-center justify-between mb-4">
+        <div className="mb-4 flex items-center justify-between">
           <h3 className="font-bold text-slate-800 dark:text-white">
             {sortedAchievements.length} Achievement{sortedAchievements.length !== 1 ? 's' : ''}
           </h3>
         </div>
 
         {sortedAchievements.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {sortedAchievements.map((achievement, index) => (
-              <AchievementCard
-                key={achievement.id}
-                achievement={achievement}
-                index={index}
-              />
+              <AchievementCard key={achievement.id} achievement={achievement} index={index} />
             ))}
           </div>
         ) : (
-          <div className="text-center py-12">
-            <span className="material-symbols-outlined text-slate-300 dark:text-slate-600 text-[48px] mb-3">
+          <div className="py-12 text-center">
+            <span className="material-symbols-outlined mb-3 text-[48px] text-slate-300 dark:text-slate-600">
               emoji_events
             </span>
-            <p className="text-slate-600 dark:text-slate-400 font-medium">
+            <p className="font-medium text-slate-600 dark:text-slate-400">
               No achievements match your filters
             </p>
           </div>

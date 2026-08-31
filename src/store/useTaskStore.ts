@@ -1,7 +1,6 @@
-// @ts-nocheck
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { Task } from '@/types/task'
+import type { Task, TaskStatus } from '@/types/task'
 
 interface TaskState {
   tasks: Task[]
@@ -18,7 +17,7 @@ interface TaskState {
   clearCategoryFromTasks: (categoryId: string) => void
 }
 
-const readJson = <T,>(raw: string | null): T | null => {
+const readJson = <T>(raw: string | null): T | null => {
   if (!raw) return null
   try {
     return JSON.parse(raw) as T
@@ -47,8 +46,7 @@ export const useTaskStore = create<TaskState>()(
           tasks: state.tasks.map((t) => (t.id === id ? { ...t, ...patch } : t)),
         })),
 
-      deleteTask: (id) =>
-        set((state) => ({ tasks: state.tasks.filter((t) => t.id !== id) })),
+      deleteTask: (id) => set((state) => ({ tasks: state.tasks.filter((t) => t.id !== id) })),
 
       toggleTask: (id) => {
         const next = get().tasks.map((t) =>
@@ -56,7 +54,7 @@ export const useTaskStore = create<TaskState>()(
             ? {
                 ...t,
                 completed: !t.completed,
-                status: !t.completed ? 'completed' : 'todo',
+                status: (!t.completed ? 'completed' : 'todo') as TaskStatus,
                 updatedAt: new Date().toISOString(),
               }
             : t

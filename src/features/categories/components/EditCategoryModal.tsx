@@ -57,7 +57,8 @@ export function EditCategoryModal({ isOpen, onClose, categoryId }: EditCategoryM
     return categories.some((c) => c.id !== categoryId && c.name.trim().toLocaleLowerCase() === key)
   }, [categories, normalizedName, categoryId])
 
-  const isValid = normalizedName.length > 0 && normalizedName.length <= NAME_MAX_LEN && !duplicateName
+  const isValid =
+    normalizedName.length > 0 && normalizedName.length <= NAME_MAX_LEN && !duplicateName
 
   const handleSave = async () => {
     setError(undefined)
@@ -125,7 +126,7 @@ export function EditCategoryModal({ isOpen, onClose, categoryId }: EditCategoryM
               <button
                 type="button"
                 onClick={onClose}
-                className="rounded-xl bg-white/5 px-4 py-2 text-sm font-semibold text-gray-200 hover:bg-white/10 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+                className="cursor-pointer rounded-xl bg-white/5 px-4 py-2 text-sm font-semibold text-gray-200 hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
               >
                 Close
               </button>
@@ -177,9 +178,11 @@ export function EditCategoryModal({ isOpen, onClose, categoryId }: EditCategoryM
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <span className="material-symbols-outlined text-sm text-gray-500">visibility</span>
-                <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Preview</p>
+                <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+                  Preview
+                </p>
               </div>
-              
+
               <motion.div
                 layout
                 className={clsx(
@@ -197,12 +200,10 @@ export function EditCategoryModal({ isOpen, onClose, categoryId }: EditCategoryM
                 {imagePath && (
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
                 )}
-                
+
                 <div className="absolute left-4 top-4">
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/80 shadow-sm backdrop-blur-sm">
-                    <span className="material-symbols-outlined text-xl text-slate-700">
-                      {icon}
-                    </span>
+                    <span className="material-symbols-outlined text-xl text-slate-700">{icon}</span>
                   </div>
                 </div>
 
@@ -232,7 +233,7 @@ export function EditCategoryModal({ isOpen, onClose, categoryId }: EditCategoryM
             </div>
 
             {/* Form Content */}
-            <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
+            <div className="custom-scrollbar flex-1 overflow-y-auto p-6">
               <div className="space-y-6">
                 {/* Name Input */}
                 <div>
@@ -283,7 +284,9 @@ export function EditCategoryModal({ isOpen, onClose, categoryId }: EditCategoryM
                     </label>
                     <div className="rounded-xl border border-white/10 bg-slate-800/50 p-3">
                       <div className="mb-2 flex items-center gap-2">
-                        <span className="material-symbols-outlined text-lg text-primary">{icon}</span>
+                        <span className="material-symbols-outlined text-lg text-primary">
+                          {icon}
+                        </span>
                         <span className="text-sm text-gray-300">{icon}</span>
                       </div>
                       <IconPicker value={icon} onChange={setIcon} />
@@ -346,7 +349,9 @@ export function EditCategoryModal({ isOpen, onClose, categoryId }: EditCategoryM
               >
                 {isSubmitting ? (
                   <>
-                    <span className="material-symbols-outlined animate-spin text-lg">progress_activity</span>
+                    <span className="material-symbols-outlined animate-spin text-lg">
+                      progress_activity
+                    </span>
                     Saving...
                   </>
                 ) : (

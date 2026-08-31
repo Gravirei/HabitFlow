@@ -43,21 +43,22 @@ export function SocialBottomNav({ activeTab, onChange }: SocialBottomNavProps) {
       <div className="flex items-center justify-center rounded-full border border-white/20 bg-white/95 px-6 py-2 shadow-2xl backdrop-blur-xl">
         {SOCIAL_NAV_ITEMS.map((item, index) => {
           const active = activeTab === item.id
-          const hasBadge = (item.id === 'friends' && unreadCount > 0) || (item.id === 'messages' && totalUnread > 0)
+          const hasBadge =
+            (item.id === 'friends' && unreadCount > 0) ||
+            (item.id === 'messages' && totalUnread > 0)
           const badgeCount = item.id === 'friends' ? unreadCount : totalUnread
           const badgeDisplay = badgeCount > 99 ? '99+' : `${badgeCount}`
-          const badgeColor = item.id === 'messages'
-            ? 'bg-teal-500 shadow-teal-500/30'
-            : 'bg-red-500 shadow-red-500/30'
+          const badgeColor =
+            item.id === 'messages'
+              ? 'bg-teal-500 shadow-teal-500/30'
+              : 'bg-red-500 shadow-red-500/30'
 
           return (
             <motion.button
               key={item.id}
               onClick={() => onChange(item.id)}
               className={`group relative flex min-w-[64px] flex-col items-center justify-center gap-0.5 rounded-lg px-2 py-1 transition-all duration-300 ${
-                active
-                  ? 'text-black'
-                  : 'text-gray-400 hover:text-gray-600'
+                active ? 'text-black' : 'text-gray-400 hover:text-gray-600'
               }`}
             >
               <motion.span
@@ -97,7 +98,7 @@ export function SocialBottomNav({ activeTab, onChange }: SocialBottomNavProps) {
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     exit={{ scale: 0 }}
-                    className={`absolute -top-0.5 right-1 flex ${badgeCount > 99 ? 'h-4 px-1 min-w-[16px]' : 'size-4'} items-center justify-center rounded-full ${badgeColor} shadow-lg`}
+                    className={`absolute -top-0.5 right-1 flex ${badgeCount > 99 ? 'h-4 min-w-[16px] px-1' : 'size-4'} items-center justify-center rounded-full ${badgeColor} shadow-lg`}
                   >
                     <span className="text-[8px] font-bold text-white">{badgeDisplay}</span>
                   </motion.div>

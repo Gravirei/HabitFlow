@@ -71,7 +71,7 @@ export function NotionSettings() {
 
     setIsExporting(true)
     try {
-      const habits: Array<{ name: string; frequency: string; streak: number }> = [] // TODO: Get habits from habit store
+      const habits: Parameters<typeof notionService.exportHabits>[2] = [] // TODO: Get habits from habit store
       const result = await notionService.exportHabits(
         connection.accessToken,
         selectedDatabase,
@@ -218,7 +218,7 @@ export function NotionSettings() {
                   <div>
                     <p className="text-sm font-semibold text-slate-300">Connected to Notion</p>
                     <p className="text-xs text-slate-500">
-                      Workspace: {(connection.settings?.workspaceId as string) || '—'}
+                      Workspace: {connection.settings?.workspaceId as string}
                     </p>
                   </div>
                 </div>

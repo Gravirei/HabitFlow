@@ -12,6 +12,7 @@ import { SyncOnAuthChange } from '@/features/timer/components/premium-history/cl
 import { useDayChangeDetector } from '@/hooks/useDayChangeDetector'
 import { useHabitTaskStore } from '@/store/useHabitTaskStore'
 import { GlobalAccessibilityButton } from '@/features/accessibility/components/GlobalAccessibilityButton'
+import { NavigationTracker } from '@/shared/layout/NavigationTracker'
 // ARCHIVED: ThemeProvider import removed (theme module archived)
 
 /**
@@ -111,6 +112,9 @@ function App() {
   return (
     <ErrorBoundary>
       <BrowserRouter>
+        {/* Sentry breadcrumb on every route change */}
+        <NavigationTracker />
+
         {/* Day change detection — resets habit tasks at midnight */}
         <DayChangeDetector />
 
@@ -177,264 +181,264 @@ function App() {
 
         <GlobalAccessibilityButton />
 
-        <Suspense fallback={<RouteFallback />}>
+<Suspense fallback={<RouteFallback />}>
           <Routes>
-            {/* Splash screen is now at root route "/" */}
-            <Route path="/onboarding" element={<Onboarding />} />
-            <Route path="/welcome" element={<Welcome />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/2fa-verify" element={<TwoFactorVerification />} />
-            <Route path="/terms" element={<TermsOfService />} />
-            <Route path="/privacy" element={<PrivacyPolicy />} />
-            <Route
-              path="/settings"
-              element={
-                <RequireAuth>
-                  <Settings />
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/profile"
-              element={
-                <RequireAuth>
-                  <EditProfile />
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/calendar"
-              element={
-                <RequireAuth>
-                  <RequireVerifiedEmail>
-                    <Calendar />
-                  </RequireVerifiedEmail>
-                </RequireAuth>
-              }
-            />
-            <Route path="/" element={<SplashScreen />} />
-            <Route
-              path="/today"
-              element={
-                <RequireAuth>
-                  <RequireVerifiedEmail>
-                    <Today />
-                  </RequireVerifiedEmail>
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/habits"
-              element={
-                <RequireAuth>
-                  <RequireVerifiedEmail>
-                    <Habits />
-                  </RequireVerifiedEmail>
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/tasks"
-              element={
-                <RequireAuth>
-                  <RequireVerifiedEmail>
-                    <Tasks />
-                  </RequireVerifiedEmail>
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/categories"
-              element={
-                <RequireAuth>
-                  <RequireVerifiedEmail>
-                    <Categories />
-                  </RequireVerifiedEmail>
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/category/:categoryId"
-              element={
-                <RequireAuth>
-                  <RequireVerifiedEmail>
-                    <CategoryDetail />
-                  </RequireVerifiedEmail>
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/timer"
-              element={
-                <RequireAuth>
-                  <RequireVerifiedEmail>
-                    <Timer />
-                  </RequireVerifiedEmail>
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/timer/premium-history"
-              element={
-                <RequireAuth>
-                  <RequireVerifiedEmail>
-                    <PremiumHistory />
-                  </RequireVerifiedEmail>
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/timer/analytics"
-              element={
-                <RequireAuth>
-                  <RequireVerifiedEmail>
-                    <Analytics />
-                  </RequireVerifiedEmail>
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/timer/goals"
-              element={
-                <RequireAuth>
-                  <RequireVerifiedEmail>
-                    <Goals />
-                  </RequireVerifiedEmail>
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/timer/achievements"
-              element={
-                <RequireAuth>
-                  <RequireVerifiedEmail>
-                    <Achievements />
-                  </RequireVerifiedEmail>
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/timer/ai-insights"
-              element={
-                <RequireAuth>
-                  <RequireVerifiedEmail>
-                    <AIInsights />
-                  </RequireVerifiedEmail>
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/timer/timeline"
-              element={
-                <RequireAuth>
-                  <RequireVerifiedEmail>
-                    <Timeline />
-                  </RequireVerifiedEmail>
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/timer/export"
-              element={
-                <RequireAuth>
-                  <RequireVerifiedEmail>
-                    <Export />
-                  </RequireVerifiedEmail>
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/new-habit"
-              element={
-                <RequireAuth>
-                  <RequireVerifiedEmail>
-                    <NewHabit />
-                  </RequireVerifiedEmail>
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/progress"
-              element={
-                <RequireAuth>
-                  <RequireVerifiedEmail>
-                    <ProgressOverview />
-                  </RequireVerifiedEmail>
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/all-habits"
-              element={
-                <RequireAuth>
-                  <RequireVerifiedEmail>
-                    <Habits />
-                  </RequireVerifiedEmail>
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/about"
-              element={
-                <RequireAuth>
-                  <AboutUs />
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/help"
-              element={
-                <RequireAuth>
-                  <HelpSupport />
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/feedback"
-              element={
-                <RequireAuth>
-                  <Feedback />
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/share"
-              element={
-                <RequireAuth>
-                  <ShareApp />
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/premium"
-              element={
-                <RequireAuth>
-                  <PremiumFeatures />
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/integrations"
-              element={
-                <RequireAuth>
-                  <Integrations />
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/social"
-              element={
-                <RequireAuth>
-                  <RequireVerifiedEmail>
-                    <Social />
-                  </RequireVerifiedEmail>
-                </RequireAuth>
-              }
-            />
-          </Routes>
+          {/* Splash screen is now at root route "/" */}
+          <Route path="/onboarding" element={<Onboarding />} />
+          <Route path="/welcome" element={<Welcome />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/2fa-verify" element={<TwoFactorVerification />} />
+          <Route path="/terms" element={<TermsOfService />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route
+            path="/settings"
+            element={
+              <RequireAuth>
+                <Settings />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <RequireAuth>
+                <EditProfile />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/calendar"
+            element={
+              <RequireAuth>
+                <RequireVerifiedEmail>
+                  <Calendar />
+                </RequireVerifiedEmail>
+              </RequireAuth>
+            }
+          />
+          <Route path="/" element={<SplashScreen />} />
+          <Route
+            path="/today"
+            element={
+              <RequireAuth>
+                <RequireVerifiedEmail>
+                  <Today />
+                </RequireVerifiedEmail>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/habits"
+            element={
+              <RequireAuth>
+                <RequireVerifiedEmail>
+                  <Habits />
+                </RequireVerifiedEmail>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/tasks"
+            element={
+              <RequireAuth>
+                <RequireVerifiedEmail>
+                  <Tasks />
+                </RequireVerifiedEmail>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/categories"
+            element={
+              <RequireAuth>
+                <RequireVerifiedEmail>
+                  <Categories />
+                </RequireVerifiedEmail>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/category/:categoryId"
+            element={
+              <RequireAuth>
+                <RequireVerifiedEmail>
+                  <CategoryDetail />
+                </RequireVerifiedEmail>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/timer"
+            element={
+              <RequireAuth>
+                <RequireVerifiedEmail>
+                  <Timer />
+                </RequireVerifiedEmail>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/timer/premium-history"
+            element={
+              <RequireAuth>
+                <RequireVerifiedEmail>
+                  <PremiumHistory />
+                </RequireVerifiedEmail>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/timer/analytics"
+            element={
+              <RequireAuth>
+                <RequireVerifiedEmail>
+                  <Analytics />
+                </RequireVerifiedEmail>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/timer/goals"
+            element={
+              <RequireAuth>
+                <RequireVerifiedEmail>
+                  <Goals />
+                </RequireVerifiedEmail>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/timer/achievements"
+            element={
+              <RequireAuth>
+                <RequireVerifiedEmail>
+                  <Achievements />
+                </RequireVerifiedEmail>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/timer/ai-insights"
+            element={
+              <RequireAuth>
+                <RequireVerifiedEmail>
+                  <AIInsights />
+                </RequireVerifiedEmail>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/timer/timeline"
+            element={
+              <RequireAuth>
+                <RequireVerifiedEmail>
+                  <Timeline />
+                </RequireVerifiedEmail>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/timer/export"
+            element={
+              <RequireAuth>
+                <RequireVerifiedEmail>
+                  <Export />
+                </RequireVerifiedEmail>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/new-habit"
+            element={
+              <RequireAuth>
+                <RequireVerifiedEmail>
+                  <NewHabit />
+                </RequireVerifiedEmail>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/progress"
+            element={
+              <RequireAuth>
+                <RequireVerifiedEmail>
+                  <ProgressOverview />
+                </RequireVerifiedEmail>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/all-habits"
+            element={
+              <RequireAuth>
+                <RequireVerifiedEmail>
+                  <Habits />
+                </RequireVerifiedEmail>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/about"
+            element={
+              <RequireAuth>
+                <AboutUs />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/help"
+            element={
+              <RequireAuth>
+                <HelpSupport />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/feedback"
+            element={
+              <RequireAuth>
+                <Feedback />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/share"
+            element={
+              <RequireAuth>
+                <ShareApp />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/premium"
+            element={
+              <RequireAuth>
+                <PremiumFeatures />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/integrations"
+            element={
+              <RequireAuth>
+                <Integrations />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/social"
+            element={
+              <RequireAuth>
+                <RequireVerifiedEmail>
+                  <Social />
+                </RequireVerifiedEmail>
+              </RequireAuth>
+            }
+          />
+        </Routes>
         </Suspense>
       </BrowserRouter>
     </ErrorBoundary>

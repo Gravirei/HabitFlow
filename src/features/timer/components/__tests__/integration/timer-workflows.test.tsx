@@ -18,12 +18,12 @@ const localStorageMock = (() => {
     },
     clear: () => {
       store = {}
-    }
+    },
   }
 })()
 
 Object.defineProperty(window, 'localStorage', {
-  value: localStorageMock
+  value: localStorageMock,
 })
 
 describe('Timer Workflows - Integration Tests', () => {
@@ -39,7 +39,7 @@ describe('Timer Workflows - Integration Tests', () => {
   describe('Stopwatch - Complete Session with History', () => {
     it('should complete full stopwatch session and save to history', () => {
       const { result: stopwatchResult } = renderHook(() => useStopwatch())
-      const { result: historyResult } = renderHook(() => 
+      const { result: historyResult } = renderHook(() =>
         useTimerHistory({ mode: 'Stopwatch', storageKey: 'test-stopwatch-history' })
       )
 
@@ -127,7 +127,7 @@ describe('Timer Workflows - Integration Tests', () => {
   describe('Countdown - Complete Session with History', () => {
     it('should complete full countdown session and save to history', () => {
       const { result: countdownResult } = renderHook(() => useCountdown())
-      const { result: historyResult } = renderHook(() => 
+      const { result: historyResult } = renderHook(() =>
         useTimerHistory({ mode: 'Countdown', storageKey: 'test-countdown-history' })
       )
 
@@ -182,7 +182,7 @@ describe('Timer Workflows - Integration Tests', () => {
 
     it('should handle manual kill before completion', () => {
       const { result: countdownResult } = renderHook(() => useCountdown())
-      const { result: historyResult } = renderHook(() => 
+      const { result: historyResult } = renderHook(() =>
         useTimerHistory({ mode: 'Countdown', storageKey: 'test-countdown-history' })
       )
 
@@ -219,7 +219,7 @@ describe('Timer Workflows - Integration Tests', () => {
   describe('Intervals - Complete Multiple Cycles with History', () => {
     it('should complete multiple work-break cycles and save to history', () => {
       const { result: intervalsResult } = renderHook(() => useIntervals())
-      const { result: historyResult } = renderHook(() => 
+      const { result: historyResult } = renderHook(() =>
         useTimerHistory({ mode: 'Intervals', storageKey: 'test-intervals-history' })
       )
 
@@ -263,7 +263,10 @@ describe('Timer Workflows - Integration Tests', () => {
 
       act(() => {
         // Convert ms to seconds for history
-        historyResult.current.saveToHistory({ duration: Math.floor(result!.duration / 1000), intervalCount: result!.intervalCount })
+        historyResult.current.saveToHistory({
+          duration: Math.floor(result!.duration / 1000),
+          intervalCount: result!.intervalCount,
+        })
       })
 
       expect(historyResult.current.history).toHaveLength(1)
@@ -351,13 +354,13 @@ describe('Timer Workflows - Integration Tests', () => {
 
   describe('Cross-Mode History Management', () => {
     it('should maintain separate histories for each mode', () => {
-      const { result: stopwatchHistory } = renderHook(() => 
+      const { result: stopwatchHistory } = renderHook(() =>
         useTimerHistory({ mode: 'Stopwatch', storageKey: 'test-stopwatch' })
       )
-      const { result: countdownHistory } = renderHook(() => 
+      const { result: countdownHistory } = renderHook(() =>
         useTimerHistory({ mode: 'Countdown', storageKey: 'test-countdown' })
       )
-      const { result: intervalsHistory } = renderHook(() => 
+      const { result: intervalsHistory } = renderHook(() =>
         useTimerHistory({ mode: 'Intervals', storageKey: 'test-intervals' })
       )
 
@@ -378,7 +381,7 @@ describe('Timer Workflows - Integration Tests', () => {
 
     it('should accumulate multiple sessions in history', () => {
       const { result: stopwatchResult } = renderHook(() => useStopwatch())
-      const { result: historyResult } = renderHook(() => 
+      const { result: historyResult } = renderHook(() =>
         useTimerHistory({ mode: 'Stopwatch', storageKey: 'test-multi-session' })
       )
 
@@ -540,7 +543,7 @@ describe('Timer Workflows - Integration Tests', () => {
         throw new Error('QuotaExceededError')
       })
 
-      const { result: historyResult } = renderHook(() => 
+      const { result: historyResult } = renderHook(() =>
         useTimerHistory({ mode: 'Stopwatch', storageKey: 'test-error' })
       )
 
@@ -561,7 +564,7 @@ describe('Timer Workflows - Integration Tests', () => {
       // Pre-populate with corrupted data
       localStorageMock.setItem('test-corrupted', 'invalid json{]')
 
-      const { result } = renderHook(() => 
+      const { result } = renderHook(() =>
         useTimerHistory({ mode: 'Stopwatch', storageKey: 'test-corrupted' })
       )
 

@@ -1,11 +1,10 @@
-// @ts-nocheck
 /**
  * Logger Integration Tests
  * Tests for logger usage in real timer scenarios
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { logger } from '@/lib/logger'
+import { logger, setMinLevel } from '@/lib/logger'
 import { timerPersistence } from '@/features/timer/utils/timerPersistence'
 
 describe('Logger Integration', () => {
@@ -20,22 +19,27 @@ describe('Logger Integration', () => {
     console.warn = vi.fn()
     console.error = vi.fn()
     vi.clearAllMocks()
+    // logger.debug() is dropped at default minLevel='info'. The integration
+    // scenarios below assert console.log was hit, so flip to 'debug'.
+    setMinLevel('debug')
   })
 
   afterEach(() => {
     console.log = originalConsole.log
     console.warn = originalConsole.warn
     console.error = originalConsole.error
+    setMinLevel('info')
   })
 
   describe('Timer Persistence Integration', () => {
     it('should log when saving timer state', () => {
       const testState = {
-        mode: 'countdown' as const,
+        mode: 'Countdown' as const,
         isActive: true,
         isPaused: false,
-        duration: 300000,
-        elapsed: 0,
+        totalDuration: 300000,
+        savedAt: Date.now(),
+        version: 1,
         pausedElapsed: 0,
         startTime: Date.now(),
       }

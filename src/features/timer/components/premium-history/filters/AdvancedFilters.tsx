@@ -1,10 +1,9 @@
-// @ts-nocheck
 /**
  * Advanced Filters Component
  * Button to open duration filters modal
  */
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { AdvancedFiltersModal } from './AdvancedFiltersModal'
 
 interface AdvancedFiltersProps {
@@ -14,11 +13,11 @@ interface AdvancedFiltersProps {
   hasActiveFilters?: boolean
 }
 
-export function AdvancedFilters({ 
-  minDuration, 
-  maxDuration, 
+export function AdvancedFilters({
+  minDuration,
+  maxDuration,
   onDurationChange,
-  hasActiveFilters = false
+  hasActiveFilters = false,
 }: AdvancedFiltersProps) {
   const [isModalOpen, setIsModalOpen] = useState(false)
 
@@ -32,21 +31,15 @@ export function AdvancedFilters({
 
   return (
     <>
-      <button 
+      <button
         onClick={handleClick}
-        className={`
-          size-[58px] shrink-0 flex items-center justify-center rounded-2xl 
-          bg-white dark:bg-surface-dark text-slate-400 dark:text-slate-500
-          border border-slate-100 dark:border-white/5 shadow-sm 
-          active:scale-95 transition-all hover:text-primary hover:border-primary/20 hover:shadow-primary/5 hover:bg-slate-50 dark:hover:bg-white/5 relative
-          ${hasActiveFilters ? 'ring-2 ring-primary/30 text-primary border-primary/20 bg-primary/5 dark:bg-primary/10' : ''}
-        `}
+        className={`relative flex size-[58px] shrink-0 items-center justify-center rounded-2xl border border-slate-100 bg-white text-slate-400 shadow-sm transition-all hover:border-primary/20 hover:bg-slate-50 hover:text-primary hover:shadow-primary/5 active:scale-95 dark:border-white/5 dark:bg-surface-dark dark:text-slate-500 dark:hover:bg-white/5 ${hasActiveFilters ? 'border-primary/20 bg-primary/5 text-primary ring-2 ring-primary/30 dark:bg-primary/10' : ''} `}
         aria-label="Duration filters"
         title="Duration filters"
       >
         <span className="material-symbols-outlined text-[24px]">tune</span>
         {hasActiveFilters && (
-          <span className="absolute top-3 right-3 size-2 bg-primary rounded-full ring-2 ring-white dark:ring-surface-dark" />
+          <span className="absolute right-3 top-3 size-2 rounded-full bg-primary ring-2 ring-white dark:ring-surface-dark" />
         )}
       </button>
 

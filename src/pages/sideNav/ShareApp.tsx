@@ -78,7 +78,7 @@ export function ShareApp() {
   // Animation variants with reduced motion support
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
-  const containerVariants: Variants = {
+  const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -98,7 +98,7 @@ export function ShareApp() {
     },
   }
 
-  const buttonHoverVariants: Variants = {
+  const buttonHoverVariants = {
     hover: { scale: prefersReducedMotion ? 1 : 1.02 },
     tap: { scale: prefersReducedMotion ? 1 : 0.98 },
   }
