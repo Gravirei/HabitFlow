@@ -1,7 +1,6 @@
-// @ts-nocheck
 import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
-import { motion } from 'framer-motion'
+import { motion, type Variants } from 'framer-motion'
 import toast from 'react-hot-toast'
 
 export function ShareApp() {
@@ -90,7 +89,7 @@ export function ShareApp() {
     },
   }
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: prefersReducedMotion ? 0 : 16 },
     visible: {
       opacity: 1,

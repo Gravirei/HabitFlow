@@ -1,10 +1,8 @@
-// @ts-nocheck
 /**
  * Filter Settings Modal
  * Redesigned to match Custom Tags modal theme
  */
 
-import React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 interface FilterSettingsModalProps {

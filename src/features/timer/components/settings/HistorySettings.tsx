@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * HistorySettings Component
  * Premium timer history configuration with advanced features
@@ -6,7 +5,7 @@
 
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { useTimerSettings } from '@/features/timer/hooks/useTimerSettings'
 import { SettingsSection } from './SettingsSection'
 import { ToggleSwitch } from '@/shared/ui/ToggleSwitch'

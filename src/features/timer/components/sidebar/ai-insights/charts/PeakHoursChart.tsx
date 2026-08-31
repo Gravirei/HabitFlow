@@ -1,9 +1,6 @@
-// @ts-nocheck
 /**
  * Peak Hours Chart - Hourly productivity heatmap
  */
-
-import React from 'react'
 
 interface HourlyData {
   hour: number

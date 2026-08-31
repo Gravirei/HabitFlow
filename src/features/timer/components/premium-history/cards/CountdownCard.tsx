@@ -1,10 +1,8 @@
-// @ts-nocheck
 /**
  * Countdown Card Component
  * Displays countdown session with completion status or stopped state
  */
 
-import React from 'react'
 import { motion } from 'framer-motion'
 import type { CountdownSession } from '../types/session.types'
 

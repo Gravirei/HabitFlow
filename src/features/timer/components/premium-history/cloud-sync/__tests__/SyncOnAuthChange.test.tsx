@@ -1,11 +1,10 @@
-// @ts-nocheck
 /**
  * SyncOnAuthChange Component Tests
  * Tests for auth state change handling and sync triggers
  */
 
 import { describe, it, expect, beforeEach, vi, afterEach, type Mock } from 'vitest'
-import { render, waitFor, act } from '@testing-library/react'
+import { render, waitFor } from '@testing-library/react'
 import { SyncOnAuthChange } from '../SyncOnAuthChange'
 import { useAuth } from '@/lib/auth/AuthContext'
 import { useSyncStore } from '@/features/timer/store/syncStore'

@@ -1,10 +1,8 @@
-// @ts-nocheck
 /**
  * Empty State Component
  * Displays when no sessions match the current filters
  */
 
-import React from 'react'
 import { motion } from 'framer-motion'
 
 interface EmptyStateProps {
