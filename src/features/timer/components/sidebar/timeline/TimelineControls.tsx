@@ -1,10 +1,8 @@
-// @ts-nocheck
 /**
  * Timeline Controls Component
  * Navigation and view mode controls for timeline
  */
 
-import React from 'react'
 import { motion } from 'framer-motion'
 import type { TimelineViewMode } from './types'
 import { formatTimelineDate } from './timelineUtils'

@@ -869,24 +869,18 @@ export function Tasks() {
               <HybridKanban
                 tasks={filteredTasks}
                 onTaskClick={setEditingTask}
-                onTaskStatusChange={handleTaskStatusChange}
-                onDeleteTask={deleteTask}
               />
             )}
             {kanbanStyle === 'trello' && (
               <TrelloKanban
                 tasks={filteredTasks}
                 onTaskClick={setEditingTask}
-                onTaskStatusChange={handleTaskStatusChange}
-                onDeleteTask={deleteTask}
               />
             )}
             {kanbanStyle === 'minimal' && (
               <MinimalKanban
                 tasks={filteredTasks}
                 onTaskClick={setEditingTask}
-                onTaskStatusChange={handleTaskStatusChange}
-                onDeleteTask={deleteTask}
               />
             )}
             {kanbanStyle === 'notion' && (
@@ -902,7 +896,6 @@ export function Tasks() {
                 tasks={filteredTasks}
                 onTaskClick={setEditingTask}
                 onTaskStatusChange={handleTaskStatusChange}
-                onDeleteTask={deleteTask}
               />
             )}
           </>

@@ -1,9 +1,6 @@
-// @ts-nocheck
 /**
  * Insight Card - Individual insight display
  */
-
-import React from 'react'
 
 interface InsightCardProps {
   icon: string

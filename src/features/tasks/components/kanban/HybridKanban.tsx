@@ -1,19 +1,14 @@
-// @ts-nocheck
 import { Task } from '@/types/task'
 import { cn } from '@/utils/cn'
 
 interface HybridKanbanProps {
   tasks: Task[]
   onTaskClick: (task: Task) => void
-  onTaskStatusChange: (taskId: string, newStatus: Task['status']) => void
-  onDeleteTask: (taskId: string) => void
 }
 
 export function HybridKanban({
   tasks,
   onTaskClick,
-  onTaskStatusChange,
-  onDeleteTask,
 }: HybridKanbanProps) {
   const todoTasks = tasks.filter((t) => t.status === 'todo' && !t.completed)
   const inProgressTasks = tasks.filter((t) => t.status === 'in_progress')

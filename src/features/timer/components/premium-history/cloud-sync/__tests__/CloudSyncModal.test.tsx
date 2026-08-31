@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * CloudSyncModal Component Tests
  * Tests for cloud sync modal functionality
@@ -9,7 +8,6 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { CloudSyncModal } from '../CloudSyncModal'
 import { useSyncStore } from '@/features/timer/store/syncStore'
 import { tieredStorage } from '@/lib/storage'
-import toast from 'react-hot-toast'
 
 // Mock dependencies
 vi.mock('@/features/timer/store/syncStore')

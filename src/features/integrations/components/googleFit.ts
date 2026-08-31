@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useIntegrationStore } from '../store/integrationStore'
 
 interface TokenResponse {
@@ -6,11 +5,6 @@ interface TokenResponse {
   refresh_token?: string
   expires_in: number
   token_type: string
-}
-
-interface StepsData {
-  steps: number
-  date: string
 }
 
 interface Workout {

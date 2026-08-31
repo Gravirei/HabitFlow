@@ -1,10 +1,9 @@
-// @ts-nocheck
 /**
  * Advanced Filters Modal
  * Modal with duration filters and additional filter options
  */
 
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 

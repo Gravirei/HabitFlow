@@ -1,10 +1,8 @@
-// @ts-nocheck
 /**
  * Analytics Dashboard Page
  * Displays comprehensive timer analytics and statistics
  */
 
-import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AnalyticsDashboard } from '@/features/timer/components/sidebar/analytics'
 

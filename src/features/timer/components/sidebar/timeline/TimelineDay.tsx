@@ -1,10 +1,8 @@
-// @ts-nocheck
 /**
  * Timeline Day Component
  * Single day view in the timeline
  */
 
-import React from 'react'
 import { format, startOfDay, endOfDay } from 'date-fns'
 import { TimelineSessionBlock } from './TimelineSession'
 import type { TimelineDay, TimelineSession } from './types'

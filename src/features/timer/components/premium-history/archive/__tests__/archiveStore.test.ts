@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Archive Store Tests
  * Comprehensive tests for archive Zustand store
@@ -117,7 +116,7 @@ describe('useArchiveStore', () => {
 
   describe('restoreSession', () => {
     it('should restore and remove session from archive', () => {
-      const { archiveSession, restoreSession } = useArchiveStore.getState()
+      const { archiveSession } = useArchiveStore.getState()
       const session = createMockSession({ id: 'test-1' })
 
       act(() => {
@@ -131,7 +130,7 @@ describe('useArchiveStore', () => {
 
       const state = useArchiveStore.getState()
       expect(restored).not.toBeNull()
-      expect(restored?.id).toBe('test-1')
+      expect((restored as ArchivedSession | null)?.id).toBe('test-1')
       expect(state.archivedSessions).toHaveLength(0)
     })
 

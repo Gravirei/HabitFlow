@@ -1,10 +1,8 @@
-// @ts-nocheck
 /**
  * Stopwatch Card Component
  * Displays stopwatch session with Total Time, Laps, and Best Lap
  */
 
-import React from 'react'
 import { motion } from 'framer-motion'
 import type { StopwatchSession } from '../types/session.types'
 

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useEffect } from 'react'
 import { AccessibleModal } from '@/shared/ui/AccessibleModal'
 import type { TaskTemplate } from '@/types/taskTemplate'
@@ -77,7 +76,6 @@ export function TemplateCreationModal({
   const [icon, setIcon] = useState('task')
   const [category, setCategory] = useState('Work')
   const [color, setColor] = useState('bg-blue-500')
-  const [customHex, setCustomHex] = useState<string | null>(null)
   const [title, setTitle] = useState('')
   const [priority, setPriority] = useState<TaskPriority>('medium')
   const [status, setStatus] = useState<TaskStatus>('todo')
@@ -96,7 +94,6 @@ export function TemplateCreationModal({
       setIcon(editingTemplate.icon)
       setCategory(editingTemplate.category)
       setColor(editingTemplate.color)
-      setCustomHex(null)
       setTitle(editingTemplate.template.title)
       setPriority(editingTemplate.template.priority)
       setStatus(editingTemplate.template.status)
@@ -114,7 +111,6 @@ export function TemplateCreationModal({
     setIcon('task')
     setCategory('Work')
     setColor('bg-blue-500')
-    setCustomHex(null)
     setTitle('')
     setPriority('medium')
     setStatus('todo')
@@ -368,7 +364,6 @@ export function TemplateCreationModal({
                   key={col.value}
                   onClick={() => {
                     setColor(col.value)
-                    setCustomHex(col.hex)
                   }}
                   className={`h-10 w-full rounded-lg transition-all duration-200 ${
                     color === col.value
@@ -391,10 +386,8 @@ export function TemplateCreationModal({
                     const matched = colorOptions.find((c) => c.hex === hex.toUpperCase())
                     if (matched) {
                       setColor(matched.value)
-                      setCustomHex(matched.hex)
                     } else {
                       setColor('bg-[' + hex.replace('#', '') + ']')
-                      setCustomHex(hex)
                     }
                   }}
                   className="absolute inset-0 h-12 w-12 cursor-pointer opacity-0"

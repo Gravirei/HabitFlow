@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Automated Accessibility Audit Tests
  *

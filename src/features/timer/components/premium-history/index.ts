@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Premium History Components Barrel Export
  * Central export point for all premium history components
@@ -32,4 +31,5 @@ export * from './notifications'
 export * from './hooks'
 
 // Types
-export * from './types/session.types'
+export type { TimerSession, StopwatchSession, CountdownSession, IntervalsSession } from './types/session.types'
+export { isStopwatchSession, isCountdownSession, isIntervalsSession } from './types/session.types'

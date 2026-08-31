@@ -1,11 +1,10 @@
-// @ts-nocheck
 /**
  * Goals Store Tests
  * Comprehensive tests for the goals Zustand store
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { renderHook, act } from '@testing-library/react'
+import { act } from '@testing-library/react'
 import type { Goal, GoalType, GoalPeriod, TimerMode } from '../types'
 
 // Import store dynamically
@@ -235,7 +234,7 @@ describe('useGoalsStore', () => {
     })
 
     it('should not affect other goals', () => {
-      const { addGoal, updateGoal, goals } = useGoalsStore.getState()
+      const { addGoal, updateGoal } = useGoalsStore.getState()
 
       act(() => {
         addGoal(createMockGoalData({ name: 'Second Goal' }))
@@ -439,8 +438,6 @@ describe('useGoalsStore', () => {
       act(() => {
         completeGoal(goalId)
       })
-
-      const firstCompletedAt = useGoalsStore.getState().goals[0].completedAt
 
       act(() => {
         completeGoal(goalId)

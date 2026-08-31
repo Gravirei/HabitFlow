@@ -1,10 +1,8 @@
-// @ts-nocheck
 /**
  * Intervals Card Component
  * Displays intervals session with cycles, work, and break breakdown
  */
 
-import React from 'react'
 import { motion } from 'framer-motion'
 import type { IntervalsSession } from '../types/session.types'
 

@@ -1,10 +1,7 @@
-// @ts-nocheck
 /**
  * Export Panel Component
  * Placeholder for future export functionality (CSV, PDF, JSON)
  */
-
-import React from 'react'
 
 export function ExportPanel() {
   return (

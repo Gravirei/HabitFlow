@@ -1,10 +1,9 @@
-// @ts-nocheck
 /**
  * Smart Reports Modal
  * Automated insights and PDF generation
  */
 
-import React, { useState, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { generateReport } from './reportUtils'
 import type { ReportPeriod } from './types'

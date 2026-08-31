@@ -1,10 +1,9 @@
-// @ts-nocheck
 /**
  * Session Group Component
  * Groups sessions by date with header and count
  */
 
-import React, { ReactNode } from 'react'
+import { ReactNode } from 'react'
 import { AnimatePresence } from 'framer-motion'
 
 interface SessionGroupProps {

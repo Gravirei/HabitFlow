@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * SyncOnAuthChange Component
  * Listens to auth state changes and triggers sync operations
@@ -20,7 +19,7 @@ import { useGracefulShutdown } from '@/hooks/useGracefulShutdown'
 
 export function SyncOnAuthChange() {
   const { user } = useAuth()
-  const { triggerSyncOnLogin, stopAutoSync, settings } = useSyncStore()
+  const { triggerSyncOnLogin, stopAutoSync } = useSyncStore()
   const previousUserId = useRef<string | null>(null)
 
   // Graceful shutdown — clear the auto-sync interval when the tab is hidden

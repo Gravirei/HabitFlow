@@ -1,10 +1,9 @@
-// @ts-nocheck
 /**
  * Timeline View Component
  * Main timeline visualization component
  */
 
-import React, { useState, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { TimelineControls } from './TimelineControls'
 import { TimelineDayView } from './TimelineDay'
@@ -29,8 +28,8 @@ export function TimelineView({ sessions, onSessionClick }: TimelineViewProps) {
   // Convert sessions to timeline format
   const timelineSessions = useMemo(() => convertToTimelineSessions(sessions), [sessions])
 
-  // Get timeline data based on view mode
-  const timelineData = useMemo(
+  // Get timeline data based on view mode (reserved for future summary views)
+  useMemo(
     () => getTimelineData(timelineSessions, currentDate, viewMode),
     [timelineSessions, currentDate, viewMode]
   )
@@ -62,9 +61,8 @@ export function TimelineView({ sessions, onSessionClick }: TimelineViewProps) {
     setCurrentDate(new Date())
   }
 
-  // Calculate totals
-  const totalSessions = timelineSessions.length
-  const totalDuration = timelineSessions.reduce((sum, s) => sum + s.duration, 0)
+  // Calculate totals (reserved for future summary views)
+  void timelineSessions.length
 
   return (
     <div className="space-y-6">

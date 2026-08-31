@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Test Setup and Mocks for Sidebar Tests
  */
@@ -157,14 +156,14 @@ global.Notification = {
 // localStorage is already mocked at the top
 
 // Mock jsPDF for PDF export tests
-global.jsPDF = vi.fn(() => ({
+;(global as unknown as { jsPDF: unknown }).jsPDF = vi.fn(() => ({
   text: vi.fn(),
   line: vi.fn(),
   setFontSize: vi.fn(),
   setFont: vi.fn(),
   addPage: vi.fn(),
   save: vi.fn(),
-})) as any
+}))
 
 // Mock all component imports to prevent actual rendering
 vi.mock('../../export/ExportModal', () => ({

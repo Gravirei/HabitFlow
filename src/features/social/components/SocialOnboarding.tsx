@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Social Onboarding — First-time user flow (GAP 5)
  *
@@ -17,7 +16,6 @@ import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { useSocialStore } from '../store/socialStore'
 import { AddFriendsModal } from './AddFriendsModal'
-import toast from 'react-hot-toast'
 
 // ─── Feature Preview Card ───────────────────────────────────────────────────
 

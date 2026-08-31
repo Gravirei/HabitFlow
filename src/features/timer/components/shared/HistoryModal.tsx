@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * HistoryModal Component
  * Full-screen modal displaying timer history with modern glassmorphism and animations
@@ -6,8 +5,7 @@
  */
 
 import React, { useState, useMemo, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { useNavigate } from 'react-router-dom'
+import { motion, AnimatePresence, type Variants } from 'framer-motion'
 import { useTimerHistory } from '@/features/timer/hooks/useTimerHistory'
 import { validateTimerHistory } from '@/features/timer/utils/validation'
 import type { TimerHistoryRecord, TimerMode } from '@/features/timer/types/timer.types'
@@ -29,7 +27,7 @@ const modalVariants = {
   exit: { opacity: 0 },
 }
 
-const containerVariants = {
+const containerVariants: Variants = {
   hidden: { opacity: 0, scale: 0.95, y: 20 },
   visible: {
     opacity: 1,
@@ -56,9 +54,8 @@ const itemVariants = {
 }
 
 export const HistoryModal: React.FC<HistoryModalProps> = React.memo(({ isOpen, onClose }) => {
-  const navigate = useNavigate()
   const [filterMode, setFilterMode] = useState<FilterMode>('All')
-  const [sortBy, setSortBy] = useState<SortOption>('date')
+  const [sortBy] = useState<SortOption>('date')
   const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set())
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')

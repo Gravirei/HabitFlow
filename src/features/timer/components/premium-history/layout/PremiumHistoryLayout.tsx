@@ -1,10 +1,9 @@
-// @ts-nocheck
 /**
  * Premium History Layout Component
  * Main layout wrapper with background effects
  */
 
-import React, { ReactNode } from 'react'
+import { ReactNode } from 'react'
 import { PremiumHistoryHeader } from './PremiumHistoryHeader'
 
 interface PremiumHistoryLayoutProps {

@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * useStopwatch Hook
  * Manages stopwatch timer logic and state
@@ -15,7 +14,7 @@ import {
   formatTime,
 } from '../constants/timer.constants'
 import { useBaseTimer, getCurrentTime } from './useBaseTimer'
-import { logError, ErrorCategory, ErrorSeverity } from '../utils/errorMessages'
+import { logError } from '../utils/errorMessages'
 import { logger } from '@/lib/logger'
 
 export const useStopwatch = (): UseStopwatchReturn => {
@@ -33,6 +32,7 @@ export const useStopwatch = (): UseStopwatchReturn => {
     pauseTimer,
     continueTimer,
     killTimer: baseKillTimer,
+    settings,
   } = baseTimer
 
   // Stopwatch-specific state
@@ -200,6 +200,7 @@ export const useStopwatch = (): UseStopwatchReturn => {
     laps,
     progress,
     strokeDashoffset,
+    settings,
     // Expose for persistence
     timerStartTime,
     pausedElapsed,

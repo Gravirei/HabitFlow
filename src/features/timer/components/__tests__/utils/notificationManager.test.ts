@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
 
 // Type declarations for test environment
@@ -185,7 +184,7 @@ describe('NotificationManager', () => {
 
       expect(notification).toBeTruthy()
       expect(notification?.title).toBe('Test Title')
-      expect(notification?.options.body).toBe('Test message')
+      expect((notification as unknown as MockNotification)?.options.body).toBe('Test message')
     })
 
     it('should use default title if not provided', async () => {
@@ -203,8 +202,8 @@ describe('NotificationManager', () => {
         badge: '/custom-badge.png',
       })
 
-      expect(notification?.options.icon).toBe('/custom-icon.png')
-      expect(notification?.options.badge).toBe('/custom-badge.png')
+      expect((notification as unknown as MockNotification)?.options.icon).toBe('/custom-icon.png')
+      expect((notification as unknown as MockNotification)?.options.badge).toBe('/custom-badge.png')
     })
 
     it('should use default icon if not provided', async () => {
@@ -212,8 +211,8 @@ describe('NotificationManager', () => {
         message: 'Test',
       })
 
-      expect(notification?.options.icon).toBe('/vite.svg')
-      expect(notification?.options.badge).toBe('/vite.svg')
+      expect((notification as unknown as MockNotification)?.options.icon).toBe('/vite.svg')
+      expect((notification as unknown as MockNotification)?.options.badge).toBe('/vite.svg')
     })
 
     it('should auto-close notification after duration', async () => {
@@ -314,7 +313,7 @@ describe('NotificationManager', () => {
 
       expect(notification?.title).toContain('⏱️')
       expect(notification?.title).toContain('Stopwatch')
-      expect(notification?.options.body).toContain('Great job!')
+      expect((notification as unknown as MockNotification)?.options.body).toContain('Great job!')
     })
 
     it('should show Countdown completion notification', async () => {
@@ -326,7 +325,7 @@ describe('NotificationManager', () => {
 
       expect(notification?.title).toContain('⏲️')
       expect(notification?.title).toContain('Countdown')
-      expect(notification?.options.body).toContain('Time is up!')
+      expect((notification as unknown as MockNotification)?.options.body).toContain('Time is up!')
     })
 
     it('should show Intervals completion notification', async () => {
@@ -338,7 +337,7 @@ describe('NotificationManager', () => {
 
       expect(notification?.title).toContain('🔄')
       expect(notification?.title).toContain('Intervals')
-      expect(notification?.options.body).toContain('Session complete!')
+      expect((notification as unknown as MockNotification)?.options.body).toContain('Session complete!')
     })
 
     it('should include duration in message when provided', async () => {
@@ -348,21 +347,21 @@ describe('NotificationManager', () => {
         125 // 2m 5s
       )
 
-      expect(notification?.options.body).toContain('2m 5s')
+      expect((notification as unknown as MockNotification)?.options.body).toContain('2m 5s')
     })
 
     it('should format duration correctly for seconds only', async () => {
       const notification = await notificationManager.showTimerComplete('Done!', 'Countdown', 45)
 
-      expect(notification?.options.body).toContain('45s')
-      expect(notification?.options.body).not.toContain('0m')
+      expect((notification as unknown as MockNotification)?.options.body).toContain('45s')
+      expect((notification as unknown as MockNotification)?.options.body).not.toContain('0m')
     })
 
     it('should work without duration', async () => {
       const notification = await notificationManager.showTimerComplete('Done!', 'Stopwatch')
 
       expect(notification).toBeTruthy()
-      expect(notification?.options.body).toBe('Done!')
+      expect((notification as unknown as MockNotification)?.options.body).toBe('Done!')
     })
   })
 
@@ -376,7 +375,7 @@ describe('NotificationManager', () => {
 
       expect(notification).toBeTruthy()
       expect(notification?.title).toContain('Test Notification')
-      expect(notification?.options.body).toContain('Notifications are working')
+      expect((notification as unknown as MockNotification)?.options.body).toContain('Notifications are working')
     })
   })
 

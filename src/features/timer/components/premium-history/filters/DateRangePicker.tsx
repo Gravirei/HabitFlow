@@ -1,10 +1,9 @@
-// @ts-nocheck
 /**
  * Date Range Picker Component
  * Button to select date range for filtering sessions
  */
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { DateRangePickerModal } from './DateRangePickerModal'
 
 interface DateRangePickerProps {

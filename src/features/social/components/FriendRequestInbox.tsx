@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * FriendRequestInbox — Collapsible section showing pending incoming friend requests.
  * Sits at the top of FriendsScreen.
@@ -7,7 +6,6 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useSocialStore } from '../store/socialStore'
-import { getLeagueTierColor } from '../constants'
 import toast from 'react-hot-toast'
 
 const toastStyle = {
@@ -88,8 +86,6 @@ export function FriendRequestInbox() {
           >
             <div className="space-y-2 px-3 pb-3">
               {requests.map((req) => {
-                const tierColor = getLeagueTierColor('bronze') // Default for incoming
-
                 return (
                   <motion.div
                     key={req.id}

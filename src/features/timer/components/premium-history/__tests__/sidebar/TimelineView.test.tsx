@@ -1,39 +1,13 @@
-// @ts-nocheck
 /**
  * Timeline View Feature Tests
  * Tests for day/week/month timeline visualization
  */
 
-import { describe, it, expect, vi } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { describe, it, expect } from 'vitest'
 
 // NOTE: These are specification tests - see IMPLEMENTATION_NOTE.md
 // Use SidebarIntegration.test.tsx for actual integration testing
 describe.skip('Timeline View Feature', () => {
-  const mockSessions = [
-    {
-      id: '1',
-      mode: 'Stopwatch' as const,
-      duration: 1500,
-      timestamp: Date.now(),
-      completed: true,
-    },
-    {
-      id: '2',
-      mode: 'Countdown' as const,
-      duration: 1800,
-      timestamp: Date.now() - 86400000,
-      completed: true,
-    },
-    {
-      id: '3',
-      mode: 'Intervals' as const,
-      duration: 2400,
-      timestamp: Date.now() - 172800000,
-      completed: false,
-    },
-  ]
-
   describe('Timeline Component', () => {
     it('renders timeline view', () => {
       // Timeline view should render

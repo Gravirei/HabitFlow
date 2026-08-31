@@ -1,10 +1,9 @@
-// @ts-nocheck
 /**
  * Premium History Error Boundary
  * Catches and handles errors in Premium History features gracefully
  */
 
-import React, { Component, ErrorInfo, ReactNode } from 'react'
+import { Component, ErrorInfo, ReactNode } from 'react'
 import { logError, ErrorCategory, ErrorSeverity } from '@/features/timer/utils/errorMessages'
 
 interface Props {
@@ -44,9 +43,7 @@ export class PremiumHistoryErrorBoundary extends Component<Props, State> {
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     // Log error with context
     const featureName = this.props.featureName || 'PremiumHistory'
-    logError(error, `${featureName}.ErrorBoundary`, ErrorSeverity.HIGH, ErrorCategory.RENDERING, {
-      errorInfo,
-    })
+    logError(error, `${featureName}.ErrorBoundary`, { errorInfo }, ErrorCategory.VALIDATION, ErrorSeverity.HIGH)
 
     console.error(`[${featureName}] Error caught by boundary:`, error, errorInfo)
 

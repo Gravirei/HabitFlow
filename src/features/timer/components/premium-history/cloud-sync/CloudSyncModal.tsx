@@ -1,11 +1,10 @@
-// @ts-nocheck
 /**
  * Cloud Sync Modal
  * Backup and restore timer data to cloud
  * Integrated with tieredStorage for real Supabase sync
  */
 
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useSyncStore } from '@/features/timer/store/syncStore'
 import { tieredStorage } from '@/lib/storage'

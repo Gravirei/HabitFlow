@@ -1,6 +1,5 @@
-// @ts-nocheck
 import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, type Variants } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { usePremiumStore } from '@/store/usePremiumStore'
@@ -9,7 +8,7 @@ export function PremiumFeatures() {
   const navigate = useNavigate()
   const { tier } = usePremiumStore()
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -20,7 +19,7 @@ export function PremiumFeatures() {
     },
   }
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: 10 },
     visible: {
       opacity: 1,
@@ -171,7 +170,7 @@ export function PremiumFeatures() {
               Choose your plan
             </h2>
             <div className="grid grid-cols-1 gap-6 overflow-x-auto pb-4 md:grid-cols-3 lg:gap-8">
-              {tiers.map((tierData, idx) => (
+              {tiers.map((tierData) => (
                 <motion.div
                   key={tierData.id}
                   variants={itemVariants}

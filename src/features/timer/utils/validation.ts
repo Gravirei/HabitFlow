@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Timer History Validation Utilities
  * Centralized validation and migration logic for timer history records
@@ -31,8 +30,10 @@ export const validateSessionName = (name: string | undefined): string | undefine
   if (trimmed.length > MAX_SESSION_NAME_LENGTH) {
     logger.warn('Session name exceeds max length', {
       context: 'validateSessionName',
-      length: trimmed.length,
-      max: MAX_SESSION_NAME_LENGTH,
+      data: {
+        length: trimmed.length,
+        max: MAX_SESSION_NAME_LENGTH,
+      },
     })
     return trimmed.substring(0, MAX_SESSION_NAME_LENGTH)
   }

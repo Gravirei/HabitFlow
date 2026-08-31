@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { describe, it, expect } from 'vitest'
 import { generateUUID } from '@/features/timer/utils/uuid'
 
@@ -51,16 +50,14 @@ describe('uuid utilities', () => {
     })
 
     it('should use crypto.randomUUID if available', () => {
-      // Check if native crypto.randomUUID is available
-      if (typeof crypto !== 'undefined' && crypto.randomUUID) {
-        const uuid = generateUUID()
+      // In modern environments, crypto.randomUUID is always available
+      const uuid = generateUUID()
 
-        // Native crypto.randomUUID returns standard UUID format
-        // Format: xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx
-        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+      // Native crypto.randomUUID returns standard UUID format
+      // Format: xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 
-        expect(uuid).toMatch(uuidRegex)
-      }
+      expect(uuid).toMatch(uuidRegex)
     })
 
     it('should fallback gracefully if crypto.randomUUID is not available', () => {
@@ -237,7 +234,7 @@ describe('uuid utilities', () => {
         const uuid = generateUUID()
 
         // Should be URL-safe
-        const urlUnsafeChars = /[<>{}|\\^`\[\]\s]/
+        const urlUnsafeChars = /[<>{}|\\^`[\]\s]/
         expect(uuid).not.toMatch(urlUnsafeChars)
       })
 

@@ -1,10 +1,9 @@
-// @ts-nocheck
 /**
  * Achievement Definitions
  * All available achievements in the system
  */
 
-import type { AchievementDefinition, UserStats } from './types'
+import type { AchievementDefinition } from './types'
 
 export const ACHIEVEMENT_DEFINITIONS: AchievementDefinition[] = [
   // ============================================================================
@@ -264,7 +263,7 @@ export const ACHIEVEMENT_DEFINITIONS: AchievementDefinition[] = [
     rarity: 'rare',
     category: 'special',
     requirement: 1,
-    checkProgress: (stats) => 0, // Special check needed
+    checkProgress: (_stats) => 0, // Special check needed
   },
   {
     id: 'special_night_owl',
@@ -274,7 +273,7 @@ export const ACHIEVEMENT_DEFINITIONS: AchievementDefinition[] = [
     rarity: 'rare',
     category: 'special',
     requirement: 1,
-    checkProgress: (stats) => 0, // Special check needed
+    checkProgress: (_stats) => 0, // Special check needed
   },
   {
     id: 'special_marathon',
@@ -284,7 +283,7 @@ export const ACHIEVEMENT_DEFINITIONS: AchievementDefinition[] = [
     rarity: 'epic',
     category: 'special',
     requirement: 1,
-    checkProgress: (stats) => 0, // Special check needed
+    checkProgress: (_stats) => 0, // Special check needed
   },
   {
     id: 'special_consistency',
@@ -323,7 +322,7 @@ export const ACHIEVEMENT_DEFINITIONS: AchievementDefinition[] = [
     rarity: 'rare',
     category: 'special',
     requirement: 1,
-    checkProgress: (stats) => 0, // Special check needed
+    checkProgress: (_stats) => 0, // Special check needed
   },
   {
     id: 'special_sunrise_session',
@@ -333,7 +332,7 @@ export const ACHIEVEMENT_DEFINITIONS: AchievementDefinition[] = [
     rarity: 'rare',
     category: 'special',
     requirement: 1,
-    checkProgress: (stats) => 0, // Special check needed
+    checkProgress: (_stats) => 0, // Special check needed
   },
   {
     id: 'special_golden_hour',
@@ -343,7 +342,7 @@ export const ACHIEVEMENT_DEFINITIONS: AchievementDefinition[] = [
     rarity: 'rare',
     category: 'special',
     requirement: 1,
-    checkProgress: (stats) => 0, // Special check needed
+    checkProgress: (_stats) => 0, // Special check needed
   },
   {
     id: 'special_lunch_break',
@@ -353,7 +352,7 @@ export const ACHIEVEMENT_DEFINITIONS: AchievementDefinition[] = [
     rarity: 'common',
     category: 'special',
     requirement: 1,
-    checkProgress: (stats) => 0, // Special check needed
+    checkProgress: (_stats) => 0, // Special check needed
   },
   {
     id: 'special_speed_demon',
@@ -363,7 +362,7 @@ export const ACHIEVEMENT_DEFINITIONS: AchievementDefinition[] = [
     rarity: 'rare',
     category: 'special',
     requirement: 1,
-    checkProgress: (stats) => 0, // Special check needed
+    checkProgress: (_stats) => 0, // Special check needed
   },
   {
     id: 'special_power_hour',
@@ -373,7 +372,7 @@ export const ACHIEVEMENT_DEFINITIONS: AchievementDefinition[] = [
     rarity: 'rare',
     category: 'special',
     requirement: 1,
-    checkProgress: (stats) => 0, // Special check needed
+    checkProgress: (_stats) => 0, // Special check needed
   },
   {
     id: 'special_double_century',
@@ -383,7 +382,7 @@ export const ACHIEVEMENT_DEFINITIONS: AchievementDefinition[] = [
     rarity: 'epic',
     category: 'special',
     requirement: 1,
-    checkProgress: (stats) => 0, // Special check needed
+    checkProgress: (_stats) => 0, // Special check needed
   },
   {
     id: 'special_minimalist',
@@ -393,7 +392,7 @@ export const ACHIEVEMENT_DEFINITIONS: AchievementDefinition[] = [
     rarity: 'rare',
     category: 'special',
     requirement: 1,
-    checkProgress: (stats) => 0, // Special check needed
+    checkProgress: (_stats) => 0, // Special check needed
   },
   {
     id: 'special_perfectionist',
@@ -403,7 +402,7 @@ export const ACHIEVEMENT_DEFINITIONS: AchievementDefinition[] = [
     rarity: 'epic',
     category: 'special',
     requirement: 1,
-    checkProgress: (stats) => 0, // Special check needed
+    checkProgress: (_stats) => 0, // Special check needed
   },
   {
     id: 'special_multitasker',
@@ -413,7 +412,7 @@ export const ACHIEVEMENT_DEFINITIONS: AchievementDefinition[] = [
     rarity: 'rare',
     category: 'special',
     requirement: 1,
-    checkProgress: (stats) => 0, // Special check needed
+    checkProgress: (_stats) => 0, // Special check needed
   },
   {
     id: 'special_century_day',
@@ -423,7 +422,7 @@ export const ACHIEVEMENT_DEFINITIONS: AchievementDefinition[] = [
     rarity: 'epic',
     category: 'special',
     requirement: 1,
-    checkProgress: (stats) => 0, // Special check needed
+    checkProgress: (_stats) => 0, // Special check needed
   },
   {
     id: 'special_first_week',
@@ -433,7 +432,7 @@ export const ACHIEVEMENT_DEFINITIONS: AchievementDefinition[] = [
     rarity: 'rare',
     category: 'special',
     requirement: 1,
-    checkProgress: (stats) => 0, // Special check needed
+    checkProgress: (_stats) => 0, // Special check needed
   },
   {
     id: 'special_comeback_kid',
@@ -443,7 +442,7 @@ export const ACHIEVEMENT_DEFINITIONS: AchievementDefinition[] = [
     rarity: 'rare',
     category: 'special',
     requirement: 1,
-    checkProgress: (stats) => 0, // Special check needed
+    checkProgress: (_stats) => 0, // Special check needed
   },
   {
     id: 'special_pomodoro_master',
@@ -453,7 +452,7 @@ export const ACHIEVEMENT_DEFINITIONS: AchievementDefinition[] = [
     rarity: 'epic',
     category: 'special',
     requirement: 1,
-    checkProgress: (stats) => 0, // Special check needed
+    checkProgress: (_stats) => 0, // Special check needed
   },
 ]
 

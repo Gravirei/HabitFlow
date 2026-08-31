@@ -1,10 +1,8 @@
-// @ts-nocheck
 /**
  * Goal Card Component
  * Displays individual goal with progress
  */
 
-import React from 'react'
 import { motion } from 'framer-motion'
 import { format } from 'date-fns'
 import type { Goal } from './types'
@@ -17,9 +15,8 @@ interface GoalCardProps {
   onResume?: () => void
 }
 
-export function GoalCard({ goal, onEdit, onDelete, onPause, onResume }: GoalCardProps) {
+export function GoalCard({ goal, onDelete, onPause, onResume }: GoalCardProps) {
   const progress = Math.min((goal.current / goal.target) * 100, 100)
-  const remaining = Math.max(goal.target - goal.current, 0)
 
   const getGoalTypeIcon = () => {
     switch (goal.type) {

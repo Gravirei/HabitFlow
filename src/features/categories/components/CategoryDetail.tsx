@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useMemo, useState, useEffect, useRef, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -15,7 +14,6 @@ import { CreateNewHabit } from '@/features/categories/components/CreateNewHabit'
 import { EditHabit } from '@/features/categories/components/EditHabit'
 import { ArchivedHabitsModal } from '@/features/categories/components/ArchivedHabitsModal'
 import { HabitNotesModal } from '@/features/categories/components/HabitNotesModal'
-import { ToggleSwitch } from '@/shared/ui/ToggleSwitch'
 import { ConfirmDialog } from '@/shared/ui/ConfirmDialog'
 
 // Predefined icon colors with gradients (matching CreateNewHabit)
@@ -42,8 +40,6 @@ const fallbackGradientByColor: Record<string, string> = {
   sky: 'from-sky-400 to-blue-600',
   slate: 'from-slate-600 to-slate-800',
 }
-
-const clampPercent = (value: number) => Math.max(0, Math.min(100, value))
 
 export function CategoryDetail() {
   const navigate = useNavigate()
@@ -654,7 +650,6 @@ function HabitCard({
   const menuRef = useRef<HTMLDivElement>(null)
   const weeklyBadgeRef = useRef<HTMLButtonElement>(null)
   const monthlyBadgeRef = useRef<HTMLButtonElement>(null)
-  const navigate = useNavigate()
 
   const openWeeklySchedule = useCallback(() => {
     if (weeklyBadgeRef.current) {

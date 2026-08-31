@@ -1,11 +1,10 @@
-// @ts-nocheck
 /**
  * Achievements Store Tests
  * Comprehensive tests for the achievements Zustand store
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { renderHook, act } from '@testing-library/react'
+import { act } from '@testing-library/react'
 import type { UserStats } from '../types'
 
 // Import store and definitions dynamically
@@ -146,7 +145,7 @@ describe('useAchievementsStore', () => {
     })
 
     it('should unlock a specific achievement by ID', () => {
-      const { unlockAchievement, getAchievementById } = useAchievementsStore.getState()
+      const { unlockAchievement } = useAchievementsStore.getState()
       const achievementId = useAchievementsStore.getState().achievements[0]?.id
 
       if (!achievementId) throw new Error('No achievement found')
@@ -161,7 +160,7 @@ describe('useAchievementsStore', () => {
     })
 
     it('should set progress to requirement when unlocking', () => {
-      const { unlockAchievement, getAchievementById } = useAchievementsStore.getState()
+      const { unlockAchievement } = useAchievementsStore.getState()
       const achievement = useAchievementsStore.getState().achievements[0]
 
       if (!achievement) throw new Error('No achievement found')
@@ -175,7 +174,7 @@ describe('useAchievementsStore', () => {
     })
 
     it('should not re-unlock already unlocked achievement', () => {
-      const { unlockAchievement, getAchievementById } = useAchievementsStore.getState()
+      const { unlockAchievement } = useAchievementsStore.getState()
       const achievementId = useAchievementsStore.getState().achievements[0]?.id
 
       if (!achievementId) throw new Error('No achievement found')
@@ -250,7 +249,7 @@ describe('useAchievementsStore', () => {
     })
 
     it('should not modify already unlocked achievements', () => {
-      const { updateAchievements, unlockAchievement, getAchievementById } =
+      const { updateAchievements, unlockAchievement } =
         useAchievementsStore.getState()
       const achievementId = 'time_10h'
 
@@ -309,7 +308,7 @@ describe('useAchievementsStore', () => {
     })
 
     it('should return only unlocked achievements', () => {
-      const { unlockAchievement, getUnlockedAchievements, achievements } =
+      const { unlockAchievement, achievements } =
         useAchievementsStore.getState()
 
       act(() => {

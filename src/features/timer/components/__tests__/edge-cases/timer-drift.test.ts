@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Timer Drift Edge Case Tests
  *
@@ -109,8 +108,8 @@ describe('Timer Drift Edge Cases', () => {
         vi.advanceTimersByTime(1000)
       })
 
-      expect(result.current.timeElapsed).toBeGreaterThan(900)
-      expect(result.current.timeElapsed).toBeLessThan(1100)
+      expect(result.current.timeLeft).toBeGreaterThan(900)
+      expect(result.current.timeLeft).toBeLessThan(1100)
 
       // Simulate large time jump (e.g., NTP correction)
       const currentTime = Date.now()
@@ -122,7 +121,7 @@ describe('Timer Drift Edge Cases', () => {
 
       // Stopwatch should continue from real elapsed time
       // Note: Large jumps might show unusual elapsed time
-      expect(result.current.timeElapsed).toBeGreaterThan(1000)
+      expect(result.current.timeLeft).toBeGreaterThan(1000)
     })
 
     it.skip('should not go negative on backward time jump', () => {
@@ -136,8 +135,6 @@ describe('Timer Drift Edge Cases', () => {
         vi.advanceTimersByTime(5000)
       })
 
-      const elapsed = result.current.timeElapsed
-
       // Simulate backward time jump (clock adjusted back)
       const currentTime = Date.now()
       vi.setSystemTime(currentTime - 10 * 1000)
@@ -148,7 +145,7 @@ describe('Timer Drift Edge Cases', () => {
 
       // Elapsed should not go negative or wildly incorrect
       // Implementation should handle this gracefully
-      expect(result.current.timeElapsed).toBeGreaterThanOrEqual(0)
+      expect(result.current.timeLeft).toBeGreaterThanOrEqual(0)
     })
   })
 

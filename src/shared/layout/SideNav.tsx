@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -24,20 +23,29 @@ export function SideNav({ isOpen, onClose }: SideNavProps) {
     if (isOpen) loadImages()
   }, [isOpen]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const menuItems = [
+  interface MenuItem {
+    icon: string
+    label: string
+    path?: string
+    action?: string
+    active?: boolean
+    comingSoon?: boolean
+  }
+
+  const menuItems: MenuItem[] = [
     { icon: 'dashboard', label: 'Dashboard', path: '/today', active: true },
     { icon: 'checklist', label: 'All Habits', path: '/habits' },
     { icon: 'group', label: 'Social', path: '/social' },
     { icon: 'bar_chart', label: 'Statistics', path: '/progress' },
   ]
 
-  const premiumItems = [
+  const premiumItems: MenuItem[] = [
     { icon: 'workspace_premium', label: 'Premium Features', path: '/premium' },
     { icon: 'integration_instructions', label: 'Integrations', path: '/integrations' },
     { icon: 'settings', label: 'Settings', path: '/settings' },
   ]
 
-  const supportItems = [
+  const supportItems: MenuItem[] = [
     { icon: 'feedback', label: 'Feedback', path: '/feedback' },
     { icon: 'share', label: 'Share App', path: '/share' },
     { icon: 'star', label: 'Rate this App', action: 'rate' },

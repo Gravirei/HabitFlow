@@ -1,10 +1,9 @@
-// @ts-nocheck
 /**
  * Notification Settings Modal
  * Redesigned to match Custom Tags modal theme
  */
 
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useNotificationStore } from '@/features/timer/store/notificationStore'
 import {
@@ -20,8 +19,7 @@ interface NotificationSettingsModalProps {
 }
 
 export function NotificationSettingsModal({ isOpen, onClose }: NotificationSettingsModalProps) {
-  const { settings, updateSettings, permissionGranted, setPermissionGranted } =
-    useNotificationStore()
+  const { settings, updateSettings } = useNotificationStore()
   const [localSettings, setLocalSettings] = useState(settings)
   const [permissionStatus, setPermissionStatus] = useState(getNotificationPermissionStatus())
 

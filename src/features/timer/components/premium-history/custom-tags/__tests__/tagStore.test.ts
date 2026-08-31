@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Tag Store Tests
  * Comprehensive tests for custom tags Zustand store
@@ -33,7 +32,6 @@ describe('useTagStore', () => {
     useTagStore = module.useTagStore
 
     // Reset store to initial state
-    const state = useTagStore.getState()
     useTagStore.setState({
       tags: [],
       sessionTags: [],
@@ -424,7 +422,7 @@ describe('useTagStore', () => {
 
   describe('getSessionTags', () => {
     it('should return tag ids for a session', () => {
-      const { addTag, addTagToSession, getSessionTags } = useTagStore.getState()
+      const { addTag, addTagToSession } = useTagStore.getState()
 
       act(() => {
         addTag({ name: 'Work', color: 'bg-blue-500' })

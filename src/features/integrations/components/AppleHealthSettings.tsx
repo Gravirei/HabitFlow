@@ -1,7 +1,5 @@
-// @ts-nocheck
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import toast from 'react-hot-toast'
 import { useIntegrationStore } from '../store/integrationStore'
 import { appleHealthService } from './appleHealth'
 
@@ -13,7 +11,7 @@ interface HealthMetrics {
 
 export function AppleHealthSettings() {
   const connection = useIntegrationStore((s) => s.connections['apple-health'])
-  const { updateSettings, disconnect: disconnectStore, setStatus } = useIntegrationStore()
+  const { updateSettings, disconnect: disconnectStore } = useIntegrationStore()
 
   const [isLoading, setIsLoading] = useState(false)
   const [metrics, setMetrics] = useState<HealthMetrics>({
@@ -329,10 +327,10 @@ export function AppleHealthSettings() {
         </div>
 
         {/* Last Synced */}
-        {connection?.lastSynced && (
+        {connection?.lastSyncedAt && (
           <div className="mb-4 text-xs text-gray-600 dark:text-gray-400">
             Last synced:{' '}
-            {new Date(connection.lastSynced).toLocaleTimeString([], {
+            {new Date(connection.lastSyncedAt).toLocaleTimeString([], {
               hour: '2-digit',
               minute: '2-digit',
             })}

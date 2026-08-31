@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Sidebar Integration Tests
  * Tests that verify sidebar features work together correctly
@@ -68,7 +67,7 @@ describe('Sidebar Integration Tests', () => {
     })
 
     it('supports PDF export', () => {
-      expect(global.jsPDF).toBeDefined()
+      expect((global as any).jsPDF).toBeDefined()
     })
   })
 

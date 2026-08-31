@@ -1,9 +1,7 @@
-// @ts-nocheck
 /**
  * Productivity Score Card - Main score display with breakdown
  */
 
-import React from 'react'
 import { ProductivityScore } from './types'
 
 interface ProductivityScoreCardProps {

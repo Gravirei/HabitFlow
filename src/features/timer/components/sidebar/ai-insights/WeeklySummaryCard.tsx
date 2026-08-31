@@ -1,9 +1,7 @@
-// @ts-nocheck
 /**
  * Weekly Summary Card
  */
 
-import React from 'react'
 import { WeeklySummary } from './types'
 
 interface WeeklySummaryCardProps {

@@ -1,10 +1,8 @@
-// @ts-nocheck
 /**
  * Clear History Confirmation Modal
  * Warns user before clearing all history data
  */
 
-import React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 interface ClearHistoryModalProps {

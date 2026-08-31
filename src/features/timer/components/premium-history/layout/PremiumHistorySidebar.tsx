@@ -1,18 +1,15 @@
-// @ts-nocheck
 /**
  * Premium History Sidebar Component
  * Desktop sidebar navigation (future feature)
  * Currently not used in mobile-first design
  */
 
-import React from 'react'
-
 interface PremiumHistorySidebarProps {
   activeTab?: string
   onTabChange?: (tab: string) => void
 }
 
-export function PremiumHistorySidebar({ activeTab, onTabChange }: PremiumHistorySidebarProps) {
+export function PremiumHistorySidebar(_props: PremiumHistorySidebarProps) {
   // Placeholder for future desktop sidebar with navigation tabs
   // Will include: Dashboard, Analytics, Insights, Export, etc.
 

@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * ProfilePreviewModal — Full social profile preview for any user.
  * Used in Leaderboard, League, and Friends screens.
@@ -58,8 +57,8 @@ const DUMMY_HABITS: { name: string; icon: string }[] = [
 const DUMMY_BADGES: { name: string; icon: string; rarity: BadgeRarity }[] = [
   { name: '7-Day Streak', icon: '🔥', rarity: 'common' },
   { name: 'Early Bird', icon: '🐦', rarity: 'common' },
-  { name: 'Social Butterfly', icon: '🦋', rarity: 'uncommon' },
-  { name: '30-Day Warrior', icon: '⚔️', rarity: 'uncommon' },
+  { name: 'Social Butterfly', icon: '🦋', rarity: 'rare' },
+  { name: '30-Day Warrior', icon: '⚔️', rarity: 'rare' },
   { name: 'Habit Master', icon: '🏆', rarity: 'rare' },
   { name: 'XP Machine', icon: '⚡', rarity: 'rare' },
   { name: 'Century Club', icon: '💯', rarity: 'epic' },
@@ -70,8 +69,7 @@ const DUMMY_BADGES: { name: string; icon: string; rarity: BadgeRarity }[] = [
 
 const RARITY_COLORS: Record<BadgeRarity, string> = {
   common: '#94a3b8',
-  uncommon: '#22c55e',
-  rare: '#3b82f6',
+  rare: '#3b82f6', // legacy 'uncommon' merged into 'rare' (was '#22c55e')
   epic: '#a855f7',
   legendary: '#f59e0b',
 }
@@ -137,7 +135,7 @@ export function generateProfilePreview(
     seenB.add(i)
     uniqueBadgeIndices.push(i)
   }
-  const rarityOrder: BadgeRarity[] = ['legendary', 'epic', 'rare', 'uncommon', 'common']
+  const rarityOrder: BadgeRarity[] = ['legendary', 'epic', 'rare', 'common']
   const badges: ProfilePreviewBadge[] = uniqueBadgeIndices
     .map((i) => DUMMY_BADGES[i])
     .sort((a, b) => rarityOrder.indexOf(a.rarity) - rarityOrder.indexOf(b.rarity))
@@ -168,7 +166,7 @@ export function generateProfilePreview(
     level: opts.level ?? Math.floor(hash / 5) + 1,
     xp: opts.xp ?? (hash * 47) % 10000,
     weeklyXP: opts.weeklyXP ?? (hash * 23) % 2000,
-    leagueTier: opts.leagueTier ?? 'bronze',
+    leagueTier: opts.leagueTier ?? 'reis',
     joinedAt: opts.friendSince ?? joinDate.toISOString(),
     topHabits,
     badges,
