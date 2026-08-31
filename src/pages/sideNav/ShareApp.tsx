@@ -16,7 +16,7 @@ export function ShareApp() {
       setCopied(true)
       toast.success('Link copied! 📋')
       setTimeout(() => setCopied(false), 2000)
-    } catch (err) {
+    } catch {
       toast.error('Failed to copy link')
     }
   }
@@ -34,7 +34,7 @@ export function ShareApp() {
         await navigator.clipboard.writeText(appUrl)
         toast.success('Link copied to clipboard!')
       }
-    } catch (err) {
+    } catch {
       // User cancelled or error occurred
     }
   }

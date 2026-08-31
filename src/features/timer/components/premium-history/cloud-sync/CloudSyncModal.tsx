@@ -85,7 +85,7 @@ export function CloudSyncModal({ isOpen, onClose, sessions }: CloudSyncModalProp
       URL.revokeObjectURL(url)
 
       toast.success('Data exported successfully!')
-    } catch (error) {
+    } catch {
       toast.error('Failed to export data')
     } finally {
       setIsDownloading(false)
@@ -105,7 +105,7 @@ export function CloudSyncModal({ isOpen, onClose, sessions }: CloudSyncModalProp
       const deviceName = `${navigator.platform || 'Device'} - ${new Date().toLocaleDateString()}`
       createBackup(deviceName, sessions)
       toast.success('Backup created successfully!')
-    } catch (error) {
+    } catch {
       toast.error('Failed to create backup')
     } finally {
       setIsCreatingBackup(false)
