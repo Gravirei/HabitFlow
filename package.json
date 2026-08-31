@@ -86,7 +86,7 @@
     "globals": "^17.11.0",
     "husky": "^9.1.7",
     "jest-axe": "^11.0.0",
-    "jsdom": "^27.3.0",
+    "jsdom": "^30.0.1",
     "postcss": "^8.4.32",
     "prettier": "^3.9.6",
     "prettier-plugin-tailwindcss": "^0.8.1",
