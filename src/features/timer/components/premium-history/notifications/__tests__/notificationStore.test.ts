@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Notification Store Tests
  * Comprehensive tests for notification settings Zustand store
@@ -21,7 +20,7 @@ describe('useNotificationStore', () => {
     },
     goalProgress: {
       enabled: false,
-      frequency: 'daily',
+      frequency: 'daily' as const,
       time: '20:00',
     },
     streakReminder: {
@@ -358,7 +357,7 @@ describe('useNotificationStore', () => {
 
   describe('getSettings', () => {
     it('should return current settings', () => {
-      const { updateSettings, getSettings } = useNotificationStore.getState()
+      const { updateSettings } = useNotificationStore.getState()
 
       act(() => {
         updateSettings({ enabled: true })

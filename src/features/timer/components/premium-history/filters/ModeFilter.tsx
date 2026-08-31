@@ -1,10 +1,8 @@
-// @ts-nocheck
 /**
  * Mode Filter Component
  * Horizontal scrollable filter tabs for timer modes
  */
 
-import React from 'react'
 import { motion } from 'framer-motion'
 
 export type FilterMode = 'All' | 'Stopwatch' | 'Countdown' | 'Intervals'

@@ -1,17 +1,15 @@
-// @ts-nocheck
 /**
  * Export Modal Component
  * Redesigned to match Custom Tags modal theme
  */
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 interface ExportModalProps {
   isOpen: boolean
   onClose: () => void
   onExport: (format: ExportFormat, options: ExportOptions) => void
-  currentView?: 'sessions' | 'analytics'
 }
 
 export type ExportFormat = 'csv' | 'json' | 'pdf'
@@ -29,7 +27,6 @@ export function ExportModal({
   isOpen,
   onClose,
   onExport,
-  currentView = 'sessions',
 }: ExportModalProps) {
   const [selectedFormat, setSelectedFormat] = useState<ExportFormat>('csv')
   const [includeStats, setIncludeStats] = useState(true)

@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * useTimerHistory Hook
  * Shared hook for managing timer history across all timer modes
@@ -127,8 +126,10 @@ export const useTimerHistory = ({
           if (record.duration > 86400) {
             logger.info('Migrating old history record from milliseconds to seconds', {
               context: 'useTimerHistory.migration',
-              oldDuration: record.duration,
-              newDuration: Math.floor(record.duration / 1000),
+              data: {
+                oldDuration: record.duration,
+                newDuration: Math.floor(record.duration / 1000),
+              },
             })
             return {
               ...record,
@@ -229,8 +230,9 @@ export const useTimerHistory = ({
             logError(
               error,
               'useTimerHistory.saveToHistory',
-              ErrorSeverity.MEDIUM,
-              ErrorCategory.STORAGE
+              undefined,
+              ErrorCategory.STORAGE,
+              ErrorSeverity.MEDIUM
             )
           })
 
@@ -240,8 +242,9 @@ export const useTimerHistory = ({
         logError(
           error,
           'useTimerHistory.saveToHistory',
-          ErrorSeverity.MEDIUM,
-          ErrorCategory.STORAGE
+          undefined,
+          ErrorCategory.STORAGE,
+          ErrorSeverity.MEDIUM
         )
         console.error('[Timer] Failed to save history:', error)
       }

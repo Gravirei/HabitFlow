@@ -65,7 +65,6 @@ interface GroupedSessions {
 function PremiumHistoryContent() {
   const navigate = useNavigate()
   const { message: liveMessage, announce } = useLiveRegion()
-  const [viewMode] = useState<'sessions'>('sessions')
   const [filterMode, setFilterMode] = useState<FilterMode>('All')
   const [selectedSession, setSelectedSession] = useState<any | null>(null)
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false)
@@ -552,7 +551,6 @@ function PremiumHistoryContent() {
           isOpen={isExportModalOpen}
           onClose={() => setIsExportModalOpen(false)}
           onExport={handleExport}
-          currentView={viewMode}
         />
 
         {/* Archive Modal */}

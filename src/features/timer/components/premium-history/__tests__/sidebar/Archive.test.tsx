@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Archive Feature Tests
  * Tests for archiving and managing old sessions
@@ -31,7 +30,7 @@ describe.skip('Archive Feature', () => {
     })
   })
 
-  const mockSessions = [
+  const mockSessions = ([
     {
       id: '1',
       mode: 'Stopwatch' as const,
@@ -46,7 +45,20 @@ describe.skip('Archive Feature', () => {
       timestamp: Date.now() - 180 * 86400000, // 180 days ago
       completed: true,
     },
-  ]
+  ] as unknown) as Array<{
+    id: string
+    mode: 'Stopwatch' | 'Countdown' | 'Intervals'
+    sessionName?: string
+    timestamp: number
+    duration: number
+    archivedAt: number
+    originalStorage: 'stopwatch' | 'countdown' | 'intervals'
+    targetTime?: number
+    lapCount?: number
+    workTime?: number
+    breakTime?: number
+    cycles?: number
+  }>
 
   describe('ArchiveModal Component', () => {
     it('renders archive modal when open', () => {
@@ -117,21 +129,27 @@ describe.skip('Archive Feature', () => {
     })
 
     it('archives sessions by date range', () => {
-      const { archiveByDateRange } = useArchiveStore.getState()
+      const state = useArchiveStore.getState() as unknown as {
+        archiveByDateRange?: (sessions: unknown[], start: Date, end: Date) => void
+      }
+      const { archiveByDateRange } = state
 
       const startDate = new Date(Date.now() - 365 * 86400000)
       const endDate = new Date(Date.now() - 90 * 86400000)
 
-      archiveByDateRange(mockSessions, startDate, endDate)
+      archiveByDateRange?.(mockSessions, startDate, endDate)
 
       // Sessions in range should be archived
       expect(true).toBe(true)
     })
 
     it('archives sessions older than X days', () => {
-      const { archiveOlderThan } = useArchiveStore.getState()
+      const state = useArchiveStore.getState() as unknown as {
+        archiveOlderThan?: (sessions: unknown[], days: number) => void
+      }
+      const { archiveOlderThan } = state
 
-      archiveOlderThan(mockSessions, 60) // Older than 60 days
+      archiveOlderThan?.(mockSessions, 60) // Older than 60 days
 
       const { archivedSessions } = useArchiveStore.getState()
       expect(archivedSessions.length).toBeGreaterThan(0)
