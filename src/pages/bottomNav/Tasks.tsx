@@ -875,8 +875,6 @@ export function Tasks() {
               <TrelloKanban
                 tasks={filteredTasks}
                 onTaskClick={setEditingTask}
-                onTaskStatusChange={handleTaskStatusChange}
-                onDeleteTask={deleteTask}
               />
             )}
             {kanbanStyle === 'minimal' && (

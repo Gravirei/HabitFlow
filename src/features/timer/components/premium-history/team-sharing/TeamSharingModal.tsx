@@ -1,10 +1,9 @@
-// @ts-nocheck
 /**
  * Team Sharing Modal
  * Collaborate and share timer sessions with team members
  */
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useShareStore } from '@/features/timer/store/shareStore'
 import type { TimerSession } from '../types/session.types'

@@ -1,11 +1,9 @@
-// @ts-nocheck
 /**
  * Achievements Panel Component
  * Main panel displaying achievements with filtering
  */
 
-import React, { useState } from 'react'
-import { motion } from 'framer-motion'
+import { useState } from 'react'
 import { AchievementCard } from './AchievementCard'
 import type { Achievement } from './types'
 import { getAchievementStats } from './achievementTracking'

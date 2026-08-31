@@ -1,10 +1,8 @@
-// @ts-nocheck
 /**
  * Upgrade Modal Component
  * Prompts free users to upgrade to premium (placeholder for future)
  */
 
-import React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 interface UpgradeModalProps {

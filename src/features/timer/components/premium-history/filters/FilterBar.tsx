@@ -1,10 +1,8 @@
-// @ts-nocheck
 /**
  * Filter Bar Component
  * Sticky filter section with date range, duration filter, settings, and mode tabs
  */
 
-import React from 'react'
 import { DateRangePicker } from './DateRangePicker'
 import { AdvancedFilters } from './AdvancedFilters'
 import { ModeFilter, FilterMode } from './ModeFilter'

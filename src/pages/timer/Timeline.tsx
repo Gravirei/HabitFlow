@@ -1,10 +1,9 @@
-// @ts-nocheck
 /**
  * Timeline Page
  * Visual timeline view of all timer sessions
  */
 
-import React, { useMemo } from 'react'
+import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useLocalStorage } from '@/hooks/useLocalStorage'

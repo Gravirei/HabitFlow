@@ -1,10 +1,9 @@
-// @ts-nocheck
 /**
  * Calendar View Modal
  * Monthly calendar overview of timer sessions
  */
 
-import React, { useState, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { generateCalendarMonth, formatMonthYear, getDayAbbreviation } from './calendarUtils'
 import type { CalendarDay } from './types'

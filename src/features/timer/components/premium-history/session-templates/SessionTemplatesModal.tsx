@@ -1,10 +1,9 @@
-// @ts-nocheck
 /**
  * Session Templates Modal
  * Browse, create, and manage session templates
  */
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTemplateStore } from '@/features/timer/store/templateStore'
 import { CreateTemplateModal } from './CreateTemplateModal'

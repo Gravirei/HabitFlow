@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * useBaseTimer Hook
  * Shared timer logic and state management for all timer modes
@@ -7,7 +6,7 @@
 
 import { useState, useCallback } from 'react'
 import { useTimerSettings } from './useTimerSettings'
-import { logError, ErrorCategory, ErrorSeverity } from '../utils/errorMessages'
+import { logError } from '../utils/errorMessages'
 import { logger } from '@/lib/logger'
 
 /**
